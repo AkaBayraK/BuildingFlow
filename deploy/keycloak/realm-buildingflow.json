@@ -1,0 +1,62 @@
+{
+  "realm": "buildingflow",
+  "enabled": true,
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "SUPER_ADMIN"
+      },
+      {
+        "name": "SITE_ADMIN"
+      },
+      {
+        "name": "MANAGER"
+      },
+      {
+        "name": "ACCOUNTANT"
+      },
+      {
+        "name": "RESIDENT"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "buildingflow-web",
+      "name": "BuildingFlow Web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3003/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3003"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "buildingflow-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "buildingflow-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "buildingflow-api",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false
+    }
+  ]
+}

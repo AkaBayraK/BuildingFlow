@@ -1,0 +1,153 @@
+name: buildingflow
+services:
+  buildingflow-web:
+    build:
+      context: ..
+      dockerfile: frontend/buildingflow-web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-5005}
+        NEXT_PUBLIC_OIDC_AUTHORITY: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
+        NEXT_PUBLIC_OIDC_CLIENT_ID: buildingflow-web
+    environment:
+      API_INTERNAL_URL: http://buildingflow-api:8080
+    ports: ["127.0.0.1:${WEB_PORT:-3003}:3000"]
+    depends_on:
+      buildingflow-api: {condition: service_started}
+  buildingflow-api:
+    image: buildingflow-api:local
+    build:
+      context: ..
+      dockerfile: backend/src/BuildingFlow.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+      Authentication__Authority: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
+      Authentication__Audience: buildingflow-api
+      Authentication__MetadataAddress: http://keycloak:8080/realms/buildingflow/.well-known/openid-configuration
+      Redis__ConnectionString: redis:6379
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
+      MinIO__Endpoint: minio:9000
+      MinIO__AccessKey: ${MINIO_ROOT_USER:-buildingflow}
+      MinIO__SecretKey: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
+    ports: ["127.0.0.1:${API_PORT:-5005}:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      buildingflow-migrations: {condition: service_completed_successfully}
+      keycloak: {condition: service_started}
+  buildingflow-migrations:
+    image: buildingflow-api:local
+    build:
+      context: ..
+      dockerfile: backend/src/BuildingFlow.Api/Dockerfile
+    command: ["--migrate"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+      Authentication__Authority: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
+      Authentication__Audience: buildingflow-api
+    depends_on:
+      postgres: {condition: service_healthy}
+  buildingflow-worker:
+    build:
+      context: ..
+      dockerfile: backend/src/BuildingFlow.Worker/Dockerfile
+    environment:
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
+    depends_on:
+      rabbitmq: {condition: service_healthy}
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-buildingflow}
+      POSTGRES_DB: ${POSTGRES_DB:-buildingflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  keycloak-db:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_DB: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Run scripts/init-local.sh}
+    volumes: ["keycloak-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-buildingflow-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Run scripts/init-local.sh}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Run scripts/init-local.sh}
+      KC_HOSTNAME: http://localhost:${KEYCLOAK_PORT:-8080}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KC_METRICS_ENABLED: 'true'
+    ports: ["127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"]
+    volumes: ["./keycloak/realm-buildingflow.json:/opt/keycloak/data/import/realm-buildingflow.json:ro"]
+    depends_on:
+      keycloak-db: {condition: service_healthy}
+  redis:
+    image: redis:8.2.1-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["127.0.0.1:${REDIS_PORT:-6389}:6379"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  rabbitmq:
+    image: rabbitmq:4.1.4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-buildingflow}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
+    ports: ["127.0.0.1:${RABBITMQ_PORT:-5672}:5672", "127.0.0.1:${RABBITMQ_UI_PORT:-15672}:15672"]
+    volumes: ["rabbitmq-data:/var/lib/rabbitmq"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-buildingflow}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
+    ports: ["127.0.0.1:${MINIO_PORT:-9000}:9000", "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"]
+    volumes: ["minio-data:/data"]
+  grafana:
+    image: grafana/grafana:12.4.11
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-buildingflow-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Run scripts/init-local.sh}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3002}:3000"]
+    volumes: ["grafana-data:/var/lib/grafana"]
+networks:
+  default:
+    name: buildingflow-network
+volumes:
+  postgres-data:
+  keycloak-data:
+  redis-data:
+  rabbitmq-data:
+  minio-data:
+  grafana-data:
