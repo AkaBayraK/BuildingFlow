@@ -1,0 +1,8 @@
+BuildingFlow login theme
+The login/template.ftl file is adapted from Keycloak 26.7.0 base theme:
+https://github.com/keycloak/keycloak/tree/26.7.0/themes/src/main/resources/theme/base/login
+Keycloak is licensed under Apache License 2.0; see LICENSE.txt.
+Modifications: BuildingFlow illustration panel, logo, wrapper and footer.
+The original authentication form templates and security scripts are inherited from Keycloak.
+The buildings.svg drawing and custom CSS were written for BuildingFlow.
+The BuildingFlow logo was supplied by the project owner; it is not a third-party stock asset.

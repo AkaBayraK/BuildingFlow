@@ -23,8 +23,10 @@ code="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' -H 'Authorization:
 [ "$code" = 401 ] || { echo "FAIL invalid JWT: HTTP $code" >&2; exit 1; }
 echo 'PASS invalid JWT rejected: HTTP 401'
 check 'Keycloak realm discovery' "http://localhost:${KEYCLOAK_PORT}/realms/buildingflow/.well-known/openid-configuration" 200
+check 'Local reset-email inbox' "http://localhost:${MAILPIT_PORT:-8025}/api/v1/info" 200
 check 'RabbitMQ management' "http://localhost:${RABBITMQ_UI_PORT}/" 200
-check 'MinIO liveness' "http://localhost:${MINIO_PORT}/minio/health/live" 200
+# Docker publishes MinIO on IPv4 loopback; localhost may select an unrelated IPv6 listener.
+check 'MinIO liveness' "http://127.0.0.1:${MINIO_PORT}/minio/health/live" 200
 check 'Grafana health' "http://localhost:${GRAFANA_PORT}/api/health" 200
 docker compose --env-file .env -f deploy/docker-compose.yml exec -T redis redis-cli ping | grep -qx PONG
 echo 'PASS Redis: PONG'

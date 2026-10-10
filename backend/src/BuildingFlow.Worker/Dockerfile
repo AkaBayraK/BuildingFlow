@@ -5,5 +5,7 @@ RUN dotnet publish backend/src/BuildingFlow.Worker/BuildingFlow.Worker.csproj -c
 FROM mcr.microsoft.com/dotnet/runtime:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
+COPY docs/licenses/minio-dotnet-7.0.0-LICENSE.txt ./LICENSES/Minio-LICENSE.txt
+COPY docs/licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt ./LICENSES/RabbitMQ.Client-LICENSE-APACHE2.txt
 USER $APP_UID
 ENTRYPOINT ["dotnet", "BuildingFlow.Worker.dll"]

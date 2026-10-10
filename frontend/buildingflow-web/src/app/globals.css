@@ -1,3 +1,7 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
 * {
   box-sizing: border-box;
 }
@@ -239,3 +243,110 @@ footer {
     display: none;
   }
 }
+
+.roadmap { margin-top: 40px; }
+.roadmap-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.roadmap-heading h2 { margin: 12px 0; font-size: 25px; }
+.roadmap-heading p, .roadmap-note { color: #6e7f95; font-size: 13px; line-height: 1.7; }
+.roadmap-heading .badge { white-space: nowrap; }
+.roadmap-note { margin: 8px 0 24px; }
+.milestones { display: grid; gap: 14px; }
+.milestone { background: white; border: 1px solid #dfe7f1; border-radius: 16px; overflow: hidden; }
+.milestone summary { display: flex; align-items: center; gap: 20px; padding: 24px; cursor: pointer; list-style: none; }
+.milestone summary::-webkit-details-marker { display: none; }
+.milestone summary:focus-visible { outline: 3px solid #0866e8; outline-offset: -3px; }
+.milestone-number { font-size: 29px; font-weight: 700; color: #7c9fcf; min-width: 44px; }
+.milestone-title { font-size: 17px; font-weight: 600; flex: 1; line-height: 1.5; }
+.milestone-description { display: block; font-size: 12px; font-weight: 400; color: #718299; margin-top: 5px; }
+.milestone-state { font-size: 11px; color: #6e7f95; white-space: nowrap; text-align: right; }
+.milestone-state span { display: block; margin-top: 6px; }
+.milestone-done { border-color: #cce6df; }
+.milestone-done .milestone-number, .milestone-state.done { color: #008575; }
+.milestone-chevron { color: #708198; transition: transform .15s; }
+.milestone[open] .milestone-chevron { transform: rotate(180deg); }
+.roadmap-tasks { list-style: none; padding: 0 24px 12px; margin: 0; }
+.roadmap-tasks li { display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-top: 1px solid #eef2f7; }
+.task-marker { flex: 0 0 24px; height: 24px; border-radius: 50%; background: #f0f4fa; color: #7e8ea4; text-align: center; line-height: 24px; font-size: 15px; }
+.task-done .task-marker { background: #e7f6f0; color: #008575; }
+.roadmap-tasks li > div { flex: 1; }
+.roadmap-tasks h3 { margin: 2px 0 6px; font-size: 13px; line-height: 1.5; font-weight: 600; }
+.roadmap-tasks p { margin: 0; font-size: 12px; line-height: 1.8; color: #718299; }
+.task-state { font-size: 10px; color: #8796aa; padding-top: 6px; white-space: nowrap; }
+.task-done .task-state { color: #008575; }
+@media (max-width: 650px) {
+  .roadmap-heading { flex-direction: column; gap: 8px; }
+  .milestone summary { gap: 12px; padding: 18px 14px; flex-wrap: wrap; }
+  .milestone-number { font-size: 24px; min-width: 32px; }
+  .milestone-title { font-size: 15px; min-width: 150px; }
+  .milestone-state { text-align: left; }
+  .roadmap-tasks { padding: 0 14px 8px; }
+  .task-state { display: none; }
+}
+.auth-wait,.signed-out{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}.auth-wait h1,.signed-out h1{font-size:28px}.signed-out p{color:#708198}.login-button,.auth-wait button{padding:14px 32px;background:#0866e8;color:#fff;border:0;border-radius:8px;font-size:15px}.session-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px}.session-controls button{padding:8px 10px;border:1px solid #dce5ef;border-radius:8px;background:#fff;color:#0866e8;cursor:pointer}.session-controls span[role=status]{max-width:180px}.task-done h3,.task-done .task-state,.milestone-done .milestone-state{font-weight:700}
+
+.task-verification{color:#145b42!important;font-size:12px!important;line-height:1.65!important}.task-verification strong{font-weight:700}
+
+/* Workspace shell; site controls use shadcn/ui utilities. */
+header { gap: 16px; min-height: 86px; height: auto; padding: 16px 0; }
+.session-controls { justify-content: flex-end; max-width: 65%; }
+.session-controls span[role=status] { flex-basis: 100%; text-align: right; }
+main { min-width: 0; }
+*, ::before, ::after { border-color: var(--border); }
+@media (max-width: 650px) {
+  header { flex-wrap: wrap; }
+  .session-controls { max-width: 100%; justify-content: flex-start; }
+  .session-controls span[role=status] { text-align: left; }
+  .shell aside nav { display: flex; flex-wrap: wrap; font-size: 12px; }
+  .shell aside nav a { padding: 10px; gap: 6px; }
+}
+
+}
+
+:root {
+  --background: #f5f7fb; --foreground: #102342; --card: #ffffff; --card-foreground: #102342;
+  --popover: #ffffff; --popover-foreground: #102342; --primary: #0866e8; --primary-foreground: #ffffff;
+  --secondary: #edf4ff; --secondary-foreground: #385374; --muted: #f4f6f9; --muted-foreground: #6e7f95;
+  --accent: #edf4ff; --accent-foreground: #0866e8; --destructive: #b4233d;
+  --border: #e2e8f0; --input: #dce4ee; --ring: #0866e8; --radius: 0.75rem;
+}
+@theme inline {
+  --color-background: var(--background); --color-foreground: var(--foreground);
+  --color-card: var(--card); --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover); --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive); --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+ --message-success-bg:#ecfdf5; --message-success-border:#a7f3d0; --message-success-text:#065f46;
+ --message-error-bg:#fef2f2; --message-error-border:#fecaca; --message-error-text:#991b1b;
+ --message-warning-bg:#fffbeb; --message-warning-border:#fde68a; --message-warning-text:#92400e;
+ --message-info-bg:#eff6ff; --message-info-border:#bfdbfe; --message-info-text:#1e40af;
+}
+.message-banner{display:flex;align-items:flex-start;gap:12px;border:1px solid;border-radius:12px;padding:16px;text-align:start;}
+.message-banner[data-message-kind="success"]{background:var(--message-success-bg);border-color:var(--message-success-border);color:var(--message-success-text);}
+.message-banner[data-message-kind="error"]{background:var(--message-error-bg);border-color:var(--message-error-border);color:var(--message-error-text);}
+.message-banner[data-message-kind="warning"]{background:var(--message-warning-bg);border-color:var(--message-warning-border);color:var(--message-warning-text);}
+.message-banner[data-message-kind="info"]{background:var(--message-info-bg);border-color:var(--message-info-border);color:var(--message-info-text);}
+.message-icon{margin-top:2px;}
+.notification-stack{position:fixed;top:96px;right:24px;z-index:80;display:grid;gap:12px;width:min(400px,calc(100vw - 32px));pointer-events:none;}
+.notification-stack>*{pointer-events:auto;box-shadow:0 10px 28px #10234218;}
+.language-switcher{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #dce5ef;border-radius:8px;background:white;color:#102342;font-size:12px;}
+.language-switcher select{background:transparent;max-width:96px;outline-offset:4px;}
+@media(max-width:650px){.notification-stack{top:16px;bottom:auto;right:16px;}.session-controls{flex-wrap:wrap;}header{height:auto;min-height:86px;gap:12px;padding:12px 0;}}
+@layer base {
+ .property-menu-title{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--primary)}
+ .shell main{min-width:0;width:100%}
+ .shell aside{flex-shrink:0}
+ .shell nav a{align-items:center}
+ .shell nav svg{flex-shrink:0}
+ .workspace-breadcrumb{min-width:0;line-height:1.7}
+ .shell header{gap:12px;min-height:86px;height:auto;padding:12px 0}
+ @media(max-width:900px){.shell{flex-direction:column}.shell aside{width:100%;padding:12px 20px;border-right:0;border-bottom:1px solid var(--border)}.shell .brand{height:56px;justify-content:flex-start}.shell .brand img{width:90px;height:56px}.shell aside .label{margin:10px 0}.shell nav{display:flex;flex-wrap:wrap;gap:4px}.shell nav a{padding:10px;font-size:12px;gap:8px}.shell .sidebar-note,.shell .sidebar-footer{display:none}.shell main{padding:0 20px}.shell header{flex-wrap:wrap}.session-controls{flex-wrap:wrap}.workspace-breadcrumb{width:100%}.property-menu-title{max-width:100%}}
+}
+
+.notification-stack .message-banner { white-space: pre-line; }

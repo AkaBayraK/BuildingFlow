@@ -22,45 +22,69 @@ internal static class BaseEntityConfiguration
     }
 }
 
-internal sealed class SiteConfiguration : IEntityTypeConfiguration<Site>
+internal sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
 {
-    public void Configure(EntityTypeBuilder<Site> builder)
+    public void Configure(EntityTypeBuilder<Property> builder)
     {
-        BaseEntityConfiguration.Configure(builder, "sites");
+        BaseEntityConfiguration.Configure(builder, "properties");
         builder.Property(entity => entity.Name).HasColumnName("name").HasMaxLength(200);
+        builder.Property(entity => entity.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(20);
+        builder.Property(entity => entity.FloorCount).HasColumnName("floor_count");
+        builder.ToTable(table => { table.HasCheckConstraint("ck_properties_type", "type IN ('APARTMENT','SITE','RESIDENCE','MIXED')"); table.HasCheckConstraint("ck_properties_floor_count", "floor_count IS NULL OR (type = 'APARTMENT' AND floor_count > 0)"); });
+        builder.HasMany(entity => entity.Units).WithOne().HasForeignKey(entity => entity.PropertyId).OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(entity => entity.Units).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Property(entity => entity.City).HasColumnName("city").HasMaxLength(100);
         builder.Property(entity => entity.District).HasColumnName("district").HasMaxLength(100);
         builder.Property(entity => entity.Address).HasColumnName("address").HasMaxLength(500);
-        builder.HasMany(entity => entity.Blocks).WithOne().HasForeignKey(entity => entity.SiteId)
+        builder.HasMany(entity => entity.Buildings).WithOne().HasForeignKey(entity => entity.PropertyId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.Navigation(entity => entity.Blocks).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(entity => entity.Buildings).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 
-internal sealed class BlockConfiguration : IEntityTypeConfiguration<Block>
+internal sealed class BuildingConfiguration : IEntityTypeConfiguration<Building>
 {
-    public void Configure(EntityTypeBuilder<Block> builder)
+    public void Configure(EntityTypeBuilder<Building> builder)
     {
-        BaseEntityConfiguration.Configure(builder, "blocks");
-        builder.Property(entity => entity.SiteId).HasColumnName("site_id");
+        BaseEntityConfiguration.Configure(builder, "buildings");
+        builder.Property(entity => entity.PropertyId).HasColumnName("property_id");
+        builder.Property(entity => entity.FloorCount).HasColumnName("floor_count");
+        builder.HasAlternateKey(entity => new { entity.PropertyId, entity.Id });
+        builder.ToTable(table => table.HasCheckConstraint("ck_buildings_floor_count", "floor_count IS NULL OR floor_count > 0"));
         builder.Property(entity => entity.Name).HasColumnName("name").HasMaxLength(100).HasColumnType("citext");
-        builder.HasIndex(entity => new { entity.SiteId, entity.Name }).IsUnique().HasFilter("is_deleted = false");
-        builder.HasMany(entity => entity.Apartments).WithOne().HasForeignKey(entity => entity.BlockId)
-            .OnDelete(DeleteBehavior.Restrict);
-        builder.Navigation(entity => entity.Apartments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(entity => new { entity.PropertyId, entity.Name }).IsUnique().HasFilter("is_deleted = false");
+        builder.HasMany(entity => entity.Units).WithOne().HasForeignKey(entity => new { entity.PropertyId, entity.BuildingId })
+            .HasPrincipalKey(entity => new { entity.PropertyId, entity.Id }).OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(entity => entity.Units).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 
-internal sealed class ApartmentConfiguration : IEntityTypeConfiguration<Apartment>
+internal sealed class UnitConfiguration : IEntityTypeConfiguration<Unit>
 {
-    public void Configure(EntityTypeBuilder<Apartment> builder)
+    public void Configure(EntityTypeBuilder<Unit> builder)
     {
-        BaseEntityConfiguration.Configure(builder, "apartments");
-        builder.Property(entity => entity.BlockId).HasColumnName("block_id");
+        BaseEntityConfiguration.Configure(builder, "units");
+        builder.Property(entity => entity.BuildingId).HasColumnName("building_id");
+        builder.Property(entity => entity.PropertyId).HasColumnName("property_id");
+        builder.Property(entity => entity.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(20);
         builder.Property(entity => entity.Number).HasColumnName("number").HasMaxLength(30).HasColumnType("citext");
         builder.Property(entity => entity.Floor).HasColumnName("floor");
         builder.Property(entity => entity.GrossSquareMeters).HasColumnName("gross_square_meters").HasPrecision(10, 2);
-        builder.HasIndex(entity => new { entity.BlockId, entity.Number }).IsUnique().HasFilter("is_deleted = false");
-        builder.ToTable(table => table.HasCheckConstraint("ck_apartments_positive_area", "gross_square_meters > 0"));
+        builder.HasIndex(entity => new { entity.BuildingId, entity.Number }).IsUnique().HasFilter("is_deleted = false AND building_id IS NOT NULL");
+        builder.HasIndex(entity => new { entity.PropertyId, entity.Number }).IsUnique().HasFilter("is_deleted = false AND building_id IS NULL");
+        builder.ToTable(table => { table.HasCheckConstraint("ck_units_positive_area", "gross_square_meters > 0"); table.HasCheckConstraint("ck_units_type", "type IN ('APARTMENT','OFFICE','SHOP','VILLA','WAREHOUSE','WORKSHOP')"); });
+    }
+}
+
+internal sealed class PropertyMembershipConfiguration : IEntityTypeConfiguration<PropertyMembership>
+{
+    public void Configure(EntityTypeBuilder<PropertyMembership> builder)
+    {
+        BaseEntityConfiguration.Configure(builder, "property_memberships");
+        builder.Property(member => member.PropertyId).HasColumnName("property_id");
+        builder.Property(member => member.UserId).HasColumnName("user_id").HasMaxLength(200);
+        builder.HasOne<Property>().WithMany().HasForeignKey(member => member.PropertyId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(member => new { member.PropertyId, member.UserId }).IsUnique().HasFilter("is_deleted = false");
+        builder.HasIndex(member => member.UserId);
     }
 }

@@ -30,13 +30,15 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "redirectUris": [
-        "http://localhost:3003/*"
+        "http://localhost:3003/",
+        "http://localhost:3003/login"
       ],
       "webOrigins": [
         "http://localhost:3003"
       ],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3003/login"
       },
       "protocolMappers": [
         {
@@ -58,5 +60,24 @@
       "bearerOnly": true,
       "publicClient": false
     }
-  ]
+  ],
+  "loginTheme": "buildingflow",
+  "resetPasswordAllowed": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "tr",
+    "en"
+  ],
+  "defaultLocale": "tr",
+  "actionTokenGeneratedByUserLifespan": 600,
+  "passwordPolicy": "length(12) and digits(1) and upperCase(1) and lowerCase(1)",
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@buildingflow.local",
+    "fromDisplayName": "BuildingFlow",
+    "auth": "false",
+    "ssl": "false",
+    "starttls": "false"
+  }
 }

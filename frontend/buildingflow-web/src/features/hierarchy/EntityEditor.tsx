@@ -1,0 +1,72 @@
+"use client";
+import {ManagementPanel} from "@/components/management/ManagementPanel";
+import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
+import {useNotification} from "@/components/feedback/Notifications";
+import {useLocale,useTranslations} from "next-intl";
+import { useRef, useState } from "react";
+import { Building2, Blocks, DoorOpen, Users, LoaderCircle, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ApiError, errorMessage, useAuthorizedApi, unitTypeNames, propertyTypeNames, type Property, type Building, type Unit, type UnitType, type PropertyType } from "@/services/api";
+import {personName,type Person} from "@/features/people/types";
+import {IdentityMark} from "@/components/management/WorkspacePresentation";
+export type Entity=Property|Building|Unit|Person;
+export type EntityKind="property"|"building"|"unit"|"person";
+const names={property:"property",building:"buildingBlock",unit:"unit",person:"person"};
+type Field={key:string;label:string;max?:number;type?:string;optional?:boolean;placeholder?:string};
+const fields:Record<EntityKind,Field[]>={
+  property:[{key:"name",label:"propertyName",max:200},{key:"city",label:"city",max:100},{key:"district",label:"district",max:100},{key:"address",label:"address",max:500},{key:"floorCount",label:"numberOfFloors",type:"number",optional:true}],
+  building:[{key:"name",label:"buildingBlockName",max:100,placeholder:"eGBlockA"},{key:"floorCount",label:"numberOfFloors",type:"number",optional:true}],
+  unit:[{key:"number",label:"unitNumber",max:30,placeholder:"eG12OrA12"},{key:"floor",label:"floor",type:"number",placeholder:"use1ForTheBasement"},{key:"grossSquareMeters",label:"grossAreaM",type:"number",placeholder:"eG12050"}],
+  person:[{key:"firstName",label:"firstName",max:100},{key:"lastName",label:"lastName",max:100},{key:"phoneNumber",label:"phone",max:30,type:"tel",optional:true},{key:"email",label:"email",max:254,type:"email",optional:true}]
+};
+function initialValues(kind:EntityKind,target:Entity|null){const values:Record<string,string>={};const source=target as unknown as Record<string,unknown>|null;for(const field of fields[kind])values[field.key]=source?.[field.key]==null?"":String(source[field.key]);return values;}
+export function EntityEditor({kind,url,target,apartmentOnly=false,focusReturnTarget,onClose,onSaved}:{kind:EntityKind;url:string;target:Entity|null;apartmentOnly?:boolean;focusReturnTarget?:HTMLElement|null;onClose:()=>void;onSaved:()=>void}) {
+  const t=useTranslations("ui"); const locale=useLocale();const notification=useNotification();
+
+  const api=useAuthorizedApi();const [record,setRecord]=useState(target);const [values,setValues]=useState(()=>initialValues(kind,target));
+  const [enabled,setEnabled]=useState(target?.isEnabled ?? true);const [unitType,setUnitType]=useState<UnitType>(target && "number" in target?target.type:"APARTMENT");
+  const [propertyType,setPropertyType]=useState<PropertyType>(target && "city" in target?target.type:"APARTMENT");
+  const [errors,setErrors]=useState<Record<string,string[]>>({});const [error,setError]=useState("");const [conflict,setConflict]=useState(false);const [busy,setBusy]=useState(false);const lock=useRef(false);
+  const formFields=fields[kind].map(field=>({...field,label:apartmentOnly && field.key==="number"?t("apartmentNumber"):t(field.label),placeholder:field.placeholder?t(field.placeholder):undefined})).filter(field=>field.key!=="floorCount" || kind!=="property" || propertyType==="APARTMENT");
+  const label=kind==="unit" && apartmentOnly?t("apartment"):t(names[kind]);
+  async function reload(){if(lock.current || !target)return;lock.current=true;setBusy(true);try{const latest=await api<Entity>(url+"/"+target.id);setRecord(latest);setValues(initialValues(kind,latest));setEnabled(latest.isEnabled);if("number" in latest)setUnitType(latest.type);if("city" in latest)setPropertyType(latest.type);setErrors({});setError("");setConflict(false);}catch(error){setError(errorMessage(error,locale));setConflict(error instanceof ApiError && error.status===409);}finally{lock.current=false;setBusy(false);}}
+  async function save(event:React.FormEvent){
+    event.preventDefault();if(lock.current)return;const validation:Record<string,string[]>={};const body:Record<string,unknown>={};
+    for(const field of formFields){const value=values[field.key].trim();
+      if(!value && !field.optional)validation[field.key]=[t("requiredField",{field:field.label})];else if(field.max && value.length>field.max)validation[field.key]=[t("maxCharacters",{max:field.max})];
+      if(field.type==="email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))validation[field.key]=[t("enterAValidEmailAddress")];
+      if(field.type==="number"){
+        if(!value && field.optional){body[field.key]=null;continue;}const number=Number(value);body[field.key]=number;
+        if(value && (!Number.isFinite(number) || ((field.key==="floor" || field.key==="floorCount") && (!Number.isInteger(number) || number < -2147483648 || number > 2147483647))))validation[field.key]=[t("enterAValidInteger")];
+        if(value && field.key==="floorCount" && number<=0)validation[field.key]=[t("theNumberOfFloorsMustBePositive")];
+        if(value && field.key==="grossSquareMeters" && (!Number.isFinite(number) || number<=0 || number>99999999.99 || Math.abs(Math.round(number*100)-number*100)>0.000001))validation[field.key]=[t("areaMustBePositiveWithAtMostTwoDecimal")];
+      }else body[field.key]=field.optional && !value?null:value;
+    }
+    if(kind==="unit")body.type=apartmentOnly?"APARTMENT":unitType;
+    if(kind==="property"){body.type=propertyType;if(propertyType!=="APARTMENT")body.floorCount=null;}
+    setErrors(validation);setError("");setConflict(false);if(Object.keys(validation).length){document.getElementById(`entity-${Object.keys(validation)[0]}`)?.focus();return;}
+    if(record){body.version=record.version;body.isEnabled=enabled;}lock.current=true;setBusy(true);
+    try{await api<Entity>(url+(record?"/"+record.id:""),{method:record?"PUT":"POST",body:JSON.stringify(body)});notification.success(t("entitySaved",{entity:label}));onSaved();onClose();}
+    catch(error){setError(errorMessage(error,locale));if(error instanceof ApiError){setErrors(error.errors);setConflict(error.status===409);}}finally{lock.current=false;setBusy(false);}
+  }
+  return <Dialog open onOpenChange={open=>{if(!open && !busy)onClose();}}><ManagementPanel focusReturnTarget={focusReturnTarget} showCloseButton={!busy}><DialogHeader className="border-b pb-5 pr-6 text-left"><IdentityMark icon={kind==="property"?Building2:kind==="building"?Blocks:kind==="unit"?DoorOpen:Users} className="mb-2 size-12"/><DialogTitle className="text-2xl font-bold">{target?t("editEntity",{entity:label}):t("newEntity",{entity:label})}</DialogTitle><DialogDescription>{kind==="person"?t("thisPersonBelongsToThisPropertyNoSignIn"):kind==="unit"?t("theNumberMustBeUniqueWithinThisScopeUse"):kind==="building"?t("theBuildingBlockNameMustBeUniqueWithinThis"):t("updateTheNameLocationAndActiveStatusTheProperty")}</DialogDescription></DialogHeader>
+    {error && <MessageBanner className="my-4 text-left" kind={conflict?"warning":"error"}>{error}{conflict && record && <Button size="sm" variant="outline" className="mt-3 bg-card" disabled={busy} onClick={()=>void reload()}><RefreshCw className="size-3"/>{t("loadCurrentRecord")}</Button>}</MessageBanner>}
+    <form noValidate onSubmit={save}><fieldset disabled={busy} className="space-y-5 border-0 p-0">
+    {kind==="property" && record && "city" in record && <div className="space-y-2"><Label htmlFor="entity-type">{t("propertyType")}</Label><select id="entity-type" className="h-11 w-full rounded-md border bg-card px-3 text-sm disabled:bg-muted disabled:text-muted-foreground" value={propertyType} disabled={!record.canChangeType} aria-describedby="entity-type-help" aria-invalid={!!errors.type?.length} onChange={event=>{setPropertyType(event.target.value as PropertyType);setErrors(previous=>({...previous,type:[],floorCount:[]}));}}>{(Object.keys(propertyTypeNames) as PropertyType[]).map(type=><option key={type} value={type}>{t(propertyTypeNames[type])}</option>)}</select><MessageBanner id="entity-type-help" kind={record.canChangeType?"info":"warning"}>{record.canChangeType?t("noBuildingsOrUnitsHaveBeenRecordedTheType"):t("buildingsUnitsOrTheirHistoryExistTheTypeCannot")}</MessageBanner>{errors.type?.length?<FieldError>{errors.type.join(" ")}</FieldError>:null}</div>}
+    {kind==="unit" && !apartmentOnly && <div className="space-y-2"><Label htmlFor="unit-type">{t("unitType")}</Label><select id="unit-type" className="h-11 w-full rounded-md border bg-card px-3 text-sm" value={unitType} onChange={event=>setUnitType(event.target.value as UnitType)}>{(Object.keys(unitTypeNames) as UnitType[]).map(type=><option key={type} value={type}>{t(unitTypeNames[type])}</option>)}</select></div>}
+    {formFields.map(field=><div key={field.key} className="space-y-2"><Label htmlFor={`entity-${field.key}`}>{field.label}{field.optional?t("optional"):" *"}</Label>{field.key==="address"?<Textarea id={`entity-${field.key}`} required maxLength={field.max} value={values[field.key]} aria-invalid={!!errors[field.key]?.length} aria-describedby={errors[field.key]?.length?`entity-error-${field.key}`:undefined} onChange={event=>{setValues(previous=>({...previous,[field.key]:event.target.value}));setErrors(previous=>({...previous,[field.key]:[]}));}}/>:<Input id={`entity-${field.key}`} type={field.type ?? "text"} step={field.key==="grossSquareMeters"?"0.01":"1"} required={!field.optional} maxLength={field.max} value={values[field.key]} placeholder={field.placeholder} aria-invalid={!!errors[field.key]?.length} aria-describedby={errors[field.key]?.length?`entity-error-${field.key}`:undefined} onChange={event=>{setValues(previous=>({...previous,[field.key]:event.target.value}));setErrors(previous=>({...previous,[field.key]:[]}));}} className="h-11 bg-card"/>}{errors[field.key]?.length?<FieldError id={`entity-error-${field.key}`}>{errors[field.key].join(" ")}</FieldError>:null}</div>)}
+    {record && <label className="flex cursor-pointer items-center gap-3 rounded-xl border bg-muted p-4 text-sm"><input type="checkbox" checked={enabled} onChange={event=>setEnabled(event.target.checked)} className="size-4 accent-primary"/><span><strong>{t("activeRecord")}</strong><span className="mt-1 block text-xs text-muted-foreground">{kind==="unit"?t("inactiveRecordsRemainVisibleInTheList"):t("childRecordsCannotChangeUnderAnInactiveParent")}</span></span></label>}
+    <DialogFooter className="border-t pt-5"><Button type="button" variant="outline" onClick={onClose} disabled={busy}>{t("cancel")}</Button><Button type="submit" disabled={busy}>{busy?<LoaderCircle className="size-4 animate-spin"/>:<Save className="size-4"/>}{busy?t("saving"):t("save")}</Button></DialogFooter></fieldset></form>
+  </ManagementPanel></Dialog>;
+}
+export function DeleteEntity({kind,url,target,onClose,onDeleted}:{kind:EntityKind;url:string;target:Entity;onClose:()=>void;onDeleted:()=>void}) {
+  const t=useTranslations("ui"); const locale=useLocale();const notification=useNotification();
+
+  const [conflict,setConflict]=useState(false);const api=useAuthorizedApi();const [error,setError]=useState("");const [busy,setBusy]=useState(false);const lock=useRef(false);const label="firstName" in target?personName(target):"name" in target?target.name:target.number;
+  async function remove(){if(lock.current)return;lock.current=true;setBusy(true);setError("");try{await api<void>(`${url}/${target.id}?version=${target.version}`,{method:"DELETE"});notification.success(t("entityDeleted",{entity:t(names[kind])}));onDeleted();onClose();}catch(error){setError(errorMessage(error,locale));setConflict(error instanceof ApiError && error.status===409);}finally{lock.current=false;setBusy(false);}}
+  return <Dialog open onOpenChange={open=>{if(!open && !busy)onClose();}}><DialogContent showCloseButton={!busy} className="rounded-2xl bg-card"><DialogHeader><DialogTitle>{t("deleteEntity",{entity:t(names[kind])})}</DialogTitle><DialogDescription>{t("deleteDescription",{name:label})} {kind==="person"?t("ongoingOrPlannedUnitRelationshipsMustEndFirst"):kind!=="unit"?t("deleteTheChildRecordsFirst"):t("ongoingOrPlannedPersonRelationshipsMustEndFirst")}</DialogDescription></DialogHeader>{error && <MessageBanner className="my-4 text-left" kind={conflict?"warning":"error"}>{error} {t("closeThisDialogAndRefreshTheList")}</MessageBanner>}<DialogFooter><Button variant="outline" disabled={busy} onClick={onClose}>{t("cancel")}</Button><Button variant="destructive" disabled={busy} onClick={()=>void remove()}>{busy?<LoaderCircle className="size-4 animate-spin"/>:<Trash2 className="size-4"/>}{t("delete")}</Button></DialogFooter></DialogContent></Dialog>;
+}

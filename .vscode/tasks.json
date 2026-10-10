@@ -1,0 +1,219 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "BuildingFlow: Prepare local development",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "prepare"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "BuildingFlow: Infrastructure only",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "infrastructure"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "BuildingFlow: BE",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "api"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "buildingflow-dev"
+      }
+    },
+    {
+      "label": "BuildingFlow: Stop BE",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "api-stop"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "BuildingFlow: FE",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "web"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "buildingflow-dev"
+      }
+    },
+    {
+      "label": "BuildingFlow: FE + BE",
+      "dependsOn": [
+        "BuildingFlow: BE",
+        "BuildingFlow: FE"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Worker",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/dev.sh",
+        "worker"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "BuildingFlow: Tests (.NET + PostgreSQL)",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/test.sh"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "BuildingFlow: Auth smoke",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/test-auth.sh"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: License check",
+      "type": "process",
+      "command": "python3",
+      "args": [
+        "scripts/check-licenses.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Migration list",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/db.sh",
+        "list"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Migration check",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/db.sh",
+        "check"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Migration SQL export",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/db.sh",
+        "sql"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Local DB update",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/db.sh",
+        "update"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BuildingFlow: Local migration status",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "scripts/db.sh",
+        "status"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

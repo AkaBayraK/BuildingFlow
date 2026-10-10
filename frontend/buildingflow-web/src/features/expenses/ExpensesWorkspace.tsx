@@ -1,0 +1,73 @@
+"use client";
+import {useCallback,useEffect,useMemo,useState} from "react";
+import {useLocale,useTranslations} from "next-intl";
+import type {ColumnDef} from "@tanstack/react-table";
+import {WalletCards,Plus,ReceiptText,ArrowDownLeft,ArrowUpRight,ChartNoAxesCombined,Pencil,Eye} from "lucide-react";
+import {useIdentity} from "@/auth/AuthGate";
+import {usePropertyScope} from "@/features/navigation/PropertyScope";
+import {useSearch} from "@/features/people/useRows";
+import {useAuthorizedApi,errorMessage} from "@/services/api";
+import {businessToday,formatDecimalCurrency,formatDateOnly} from "@/lib/format";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Badge} from "@/components/ui/badge";
+import {RecordList} from "@/components/management/RecordList";
+import {WorkspaceHeading,SummaryCard,ListToolbar,toolbarSelectClass} from "@/components/management/WorkspacePresentation";
+import {MessageBanner} from "@/components/feedback/MessageBanner";
+import {FinanceEditor,ExpenseDetail} from "./FinanceDialogs";
+import {expenseCategories,readExpensePage,readFinanceSummary,financeCents,type ExpensePage,type ExpenseRecord,type FinanceSummary,type CategoryFinance} from "./model";
+
+type BudgetRow=CategoryFinance&{id:string};
+export function ExpensesWorkspace({propertyId}:{propertyId:string}){
+ const t=useTranslations("expenses");const ui=useTranslations("ui");const locale=useLocale();const api=useAuthorizedApi();const identity=useIdentity();const scope=usePropertyScope();
+ const allowed=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"].some(role=>identity.hasRealmRole(role));
+ const [data,setData]=useState<ExpensePage|null>(null);const [summary,setSummary]=useState<FinanceSummary|null>(null);const [loading,setLoading]=useState(true);const [summaryLoading,setSummaryLoading]=useState(true);const [error,setError]=useState("");const [summaryError,setSummaryError]=useState("");const [revision,setRevision]=useState(0);
+ const [tab,setTab]=useState<"expenses"|"budget">("expenses");const [month,setMonth]=useState(()=>businessToday().slice(0,7));const [term,setTerm]=useState("");const search=useSearch(term);const [page,setPage]=useState(1);const [pageSize,setPageSize]=useState(10);const [status,setStatus]=useState("");const [category,setCategory]=useState("");const [sort,setSort]=useState("occurredDate:desc");
+ const [creating,setCreating]=useState(false);const [budget,setBudget]=useState<CategoryFinance|null>(null);const [detail,setDetail]=useState<ExpenseRecord|null>(null);
+ const root=`/api/v1/properties/${encodeURIComponent(propertyId)}`;const validMonth=/^[2-9][0-9]{3}-(?:0[1-9]|1[0-2])$/.test(month)&&month<"9999-01";
+ const [sortBy,sortDirection]=sort.split(":");const query=new URLSearchParams({page:String(page),pageSize:String(pageSize),search,sortBy,sortDirection,period:month});if(status)query.set("status",status);if(category)query.set("category",category);const url=root+"/expenses?"+query;
+ useEffect(()=>setPage(1),[search,status,category,month,sort,pageSize]);
+ useEffect(()=>{const controller=new AbortController();setData(null);setError("");setLoading(allowed&&validMonth);if(allowed&&validMonth)void api<unknown>(url,{signal:controller.signal}).then(value=>{if(!controller.signal.aborted)setData(readExpensePage(value,propertyId));}).catch(err=>{if(!controller.signal.aborted)setError(errorMessage(err,locale));}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();},[api,url,propertyId,locale,allowed,validMonth,revision]);
+ useEffect(()=>{const controller=new AbortController();setSummary(null);setSummaryError("");setSummaryLoading(allowed&&validMonth);if(allowed&&validMonth)void api<unknown>(root+"/finance-summary?period="+month,{signal:controller.signal}).then(value=>{if(!controller.signal.aborted)setSummary(readFinanceSummary(value,propertyId,month));}).catch(err=>{if(!controller.signal.aborted)setSummaryError(errorMessage(err,locale));}).finally(()=>{if(!controller.signal.aborted)setSummaryLoading(false);});return()=>controller.abort();},[api,root,month,propertyId,locale,allowed,validMonth,revision]);
+ useEffect(()=>{if(data&&page>Math.max(1,Math.ceil(data.totalCount/pageSize)))setPage(Math.max(1,Math.ceil(data.totalCount/pageSize)));},[data,page,pageSize]);
+ const enabled=allowed&&scope.property?.id===propertyId&&scope.property.isEnabled&&!scope.error;
+ const changed=()=>{setPage(1);setRevision(n=>n+1);scope.refresh();};
+ const statusBadge=useCallback((record:ExpenseRecord)=><Badge variant="outline" className={record.status==="CANCELLED"?"border-destructive/30 text-destructive":"border-primary/30 text-primary"}>{t(record.status)}</Badge>,[t]);
+ const actions=useCallback((record:ExpenseRecord)=><Button variant="ghost" size="icon" aria-label={t("viewExpense")} onClick={()=>setDetail(record)}><Eye className="size-4"/></Button>,[t]);
+ const columns=useMemo<ColumnDef<ExpenseRecord>[]>(()=>[
+  {id:"date",header:t("date"),cell:({row})=>formatDateOnly(row.original.occurredDate,locale)},
+  {id:"category",header:t("category"),cell:({row})=><strong>{t(row.original.category)}</strong>},
+  {id:"description",header:t("description"),cell:({row})=><div className="max-w-72"><p className="line-clamp-2 break-words">{row.original.description}</p>{row.original.documentReference&&<p className="mt-1 truncate text-xs text-muted-foreground">{row.original.documentReference}</p>}</div>},
+  {id:"amount",header:t("amount"),cell:({row})=><strong className="tabular-nums">{formatDecimalCurrency(row.original.amount,locale)}</strong>},
+  {id:"status",header:ui("status"),cell:({row})=>statusBadge(row.original)},
+  {id:"actions",header:ui("actions"),cell:({row})=>actions(row.original)}
+ ],[t,ui,locale,actions,statusBadge]);
+ const budgetActions=useCallback((row:CategoryFinance)=><Button variant="outline" size="sm" disabled={!enabled} onClick={()=>setBudget(row)}><Pencil className="size-4"/>{t(row.hasBudget?"editPlan":"setPlan")}</Button>,[enabled,t]);
+ const budgetColumns=useMemo<ColumnDef<BudgetRow>[]>(()=>[
+  {id:"category",header:t("category"),cell:({row})=><strong>{t(row.original.category)}</strong>},
+  {id:"budget",header:t("budgetAmount"),cell:({row})=>row.original.hasBudget?formatDecimalCurrency(row.original.budgetAmount,locale):<span className="text-muted-foreground">{t("noBudget")}</span>},
+  {id:"actual",header:t("actualExpense"),cell:({row})=>formatDecimalCurrency(row.original.expenseAmount,locale)},
+  {id:"variance",header:t("variance"),cell:({row})=>row.original.hasBudget?<span className={financeCents(row.original.variance)<BigInt(0)?"font-semibold text-destructive":"font-semibold text-primary"}>{formatDecimalCurrency(row.original.variance,locale)}</span>:"—"},
+  {id:"actions",header:ui("actions"),cell:({row})=>budgetActions(row.original)}
+ ],[t,ui,locale,budgetActions]);
+ const budgetPage=summary?{items:summary.categories.map(row=>({...row,id:row.category})),page:1,pageSize:8,totalCount:8}:null;
+ function reset(){setTerm("");setStatus("");setCategory("");setSort("occurredDate:desc");setPage(1);}
+ const amount=(value:string|undefined)=>summaryLoading?"…":value?formatDecimalCurrency(value,locale):"—";
+ if(!allowed)return <div className="py-10"><h1>{t("title")}</h1><MessageBanner>{ui("financeRoleRequired")}</MessageBanner></div>;
+ return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("pageHelp")} scope={scope.property?.name??ui("loading")} icon={ChartNoAxesCombined} action={<Button variant="secondary" disabled={!enabled} onClick={()=>setCreating(true)}><Plus/>{t("newExpense")}</Button>}/>
+  {scope.error&&<MessageBanner action={<Button variant="outline" onClick={scope.refresh}>{ui("tryAgain")}</Button>}>{scope.error}</MessageBanner>}{scope.property&&!scope.property.isEnabled&&<MessageBanner kind="warning">{t("inactiveProperty")}</MessageBanner>}
+  <section className="mb-6 rounded-2xl border bg-card p-5 shadow-sm"><div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><h2 className="m-0 text-lg font-semibold">{t("monthlyOverview")}</h2><p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">{t("overviewHelp")}</p></div><div><Label htmlFor="finance-period">{t("period")}</Label><Input id="finance-period" type="month" min="2000-01" max="9998-12" className="w-44" value={month} onInput={event=>setMonth(event.currentTarget.value)}/></div></div>
+   {!validMonth&&<MessageBanner>{t("periodInvalid")}</MessageBanner>}{summaryError&&<MessageBanner action={<Button variant="outline" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{summaryError}</MessageBanner>}
+   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><SummaryCard compact title={t("income")} value={amount(summary?.incomeAmount)} note={t("incomeHelp")} icon={ArrowDownLeft}/><SummaryCard compact title={t("actualExpense")} value={amount(summary?.expenseAmount)} note={t("recordedExpenses")} icon={ArrowUpRight}/><SummaryCard compact title={t("budgetAmount")} value={amount(summary?.budgetAmount)} note={t("plannedTotal")} icon={WalletCards}/><SummaryCard compact title={t("net")} value={amount(summary?.netAmount)} note={t("netHelp")} icon={ChartNoAxesCombined}/><SummaryCard compact title={t("variance")} value={amount(summary?.budgetVariance)} note={t("varianceHelp")} icon={ReceiptText}/></div>
+  </section>
+  <div className="mb-4 flex flex-wrap gap-2" aria-label={t("views")}><Button variant={tab==="expenses"?"default":"outline"} aria-pressed={tab==="expenses"} onClick={()=>setTab("expenses")}><ReceiptText/>{t("list")}</Button><Button variant={tab==="budget"?"default":"outline"} aria-pressed={tab==="budget"} onClick={()=>setTab("budget")}><WalletCards/>{t("budgetAndActual")}</Button></div>
+  {tab==="expenses"?<section className="overflow-hidden rounded-2xl border bg-card shadow-sm" aria-label={t("list")}>
+   <ListToolbar term={term} onTerm={setTerm} searchLabel={t("search")} placeholder={t("search")} loading={loading} onRefresh={()=>setRevision(n=>n+1)} onReset={reset} resetEnabled={!!term||!!status||!!category||sort!=="occurredDate:desc"}/>
+   <div className="grid gap-3 border-b p-4 sm:grid-cols-3"><div><Label htmlFor="expense-category-filter">{t("category")}</Label><select id="expense-category-filter" className={toolbarSelectClass+" w-full"} value={category} onChange={event=>setCategory(event.target.value)}><option value="">{t("allCategories")}</option>{expenseCategories.map(value=><option key={value} value={value}>{t(value)}</option>)}</select></div><div><Label htmlFor="expense-status-filter">{ui("status")}</Label><select id="expense-status-filter" className={toolbarSelectClass+" w-full"} value={status} onChange={event=>setStatus(event.target.value)}><option value="">{t("allStatuses")}</option><option value="RECORDED">{t("RECORDED")}</option><option value="CANCELLED">{t("CANCELLED")}</option></select></div><div><Label htmlFor="expense-sort">{t("sorting")}</Label><select id="expense-sort" className={toolbarSelectClass+" w-full"} value={sort} onChange={event=>setSort(event.target.value)}><option value="occurredDate:desc">{t("latestDate")}</option><option value="occurredDate:asc">{t("earliestDate")}</option><option value="amount:desc">{t("largestAmount")}</option><option value="createdAt:desc">{ui("newestFirst")}</option></select></div></div>
+   <p className="border-b px-5 py-3 text-xs text-muted-foreground">{t("filteredSummary")}: <strong>{t("RECORDED")} {data?formatDecimalCurrency(data.summary.recordedAmount,locale):"—"} · {t("CANCELLED")} {data?formatDecimalCurrency(data.summary.cancelledAmount,locale):"—"}</strong></p>
+   <RecordList compact data={data} loading={loading} error={error} columns={columns} page={page} onPage={setPage} onRetry={()=>setRevision(n=>n+1)} footerControls={<select className={toolbarSelectClass} aria-label={ui("recordsPerPage")} value={pageSize} onChange={event=>setPageSize(Number(event.target.value))}>{[10,20,50].map(n=><option value={n} key={n}>{n}</option>)}</select>} empty={<><ReceiptText className="mx-auto mb-3 size-8"/><strong>{t("empty")}</strong><p className="mt-2">{t("emptyHelp")}</p></>} card={record=><><div className="mb-3 flex flex-wrap justify-between gap-2"><strong>{t(record.category)}</strong>{statusBadge(record)}</div><p className="text-sm">{formatDateOnly(record.occurredDate,locale)}</p><p className="my-2 line-clamp-3 break-words text-sm">{record.description}</p><div className="flex items-center justify-between gap-2"><strong>{formatDecimalCurrency(record.amount,locale)}</strong>{actions(record)}</div></>}/>
+  </section>:<section className="overflow-hidden rounded-2xl border bg-card shadow-sm" aria-label={t("budgetAndActual")}><div className="border-b p-5"><h2 className="m-0 text-lg font-semibold">{t("budgetAndActual")} · {month}</h2><p className="mt-2 text-sm text-muted-foreground">{t("budgetTableHelp")}</p></div><RecordList compact data={budgetPage} loading={summaryLoading} error={summaryError} columns={budgetColumns} page={1} onPage={()=>{}} onRetry={()=>setRevision(n=>n+1)} empty={<p>{t("summaryUnavailable")}</p>} card={row=><><strong>{t(row.category)}</strong><dl className="my-3 grid grid-cols-2 gap-2 text-sm"><dt>{t("budgetAmount")}</dt><dd>{row.hasBudget?formatDecimalCurrency(row.budgetAmount,locale):t("noBudget")}</dd><dt>{t("actualExpense")}</dt><dd>{formatDecimalCurrency(row.expenseAmount,locale)}</dd><dt>{t("variance")}</dt><dd className={financeCents(row.variance)<BigInt(0)?"text-destructive":"text-primary"}>{row.hasBudget?formatDecimalCurrency(row.variance,locale):"—"}</dd></dl>{budgetActions(row)}</>}/></section>}
+  {creating&&<FinanceEditor propertyId={propertyId} period={month} onClose={()=>setCreating(false)} onSaved={changed}/>} {budget&&<FinanceEditor propertyId={propertyId} period={month} budget={budget} onClose={()=>setBudget(null)} onSaved={changed}/>} {detail&&<ExpenseDetail propertyId={propertyId} target={detail} enabled={!!enabled} onClose={()=>setDetail(null)} onSaved={changed}/>}
+ </div>;
+}

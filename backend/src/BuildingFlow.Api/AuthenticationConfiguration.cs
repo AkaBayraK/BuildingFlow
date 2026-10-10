@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace BuildingFlow.Api;
 
@@ -21,6 +23,32 @@ internal static class AuthenticationConfiguration
             options.TokenValidationParameters.ValidateIssuer = true;
             options.TokenValidationParameters.ValidateAudience = true;
             options.TokenValidationParameters.ValidateLifetime = true;
+            options.TokenValidationParameters.RoleClaimType = "buildingflow_role";
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = context =>
+                {
+                    if (context.Principal?.Identity is ClaimsIdentity identity)
+                    {
+                        // Only signed realm_access roles count; client roles and arbitrary role claims do not.
+                        foreach (var existing in identity.FindAll("buildingflow_role").ToArray()) identity.RemoveClaim(existing);
+                        var raw = identity.FindFirst("realm_access")?.Value;
+                        if (raw is not null)
+                        {
+                            try
+                            {
+                                using var document = JsonDocument.Parse(raw);
+                                if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("roles", out var roles) && roles.ValueKind == JsonValueKind.Array)
+                                    foreach (var role in roles.EnumerateArray())
+                                        if (role.ValueKind == JsonValueKind.String && role.GetString() is { Length: > 0 } name)
+                                            identity.AddClaim(new Claim("buildingflow_role", name));
+                            }
+                            catch (JsonException) { context.Fail("Invalid realm role claim."); }
+                        }
+                    }
+                    return Task.CompletedTask;
+                }
+            };
 
             // Public issuer stays localhost; discovery and keys use the internal Docker network.
             if (configuration["Authentication:MetadataAddress"] is { Length: > 0 } metadata)

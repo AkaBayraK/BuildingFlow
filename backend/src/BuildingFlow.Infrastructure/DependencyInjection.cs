@@ -9,6 +9,16 @@ public static class DependencyInjection
     {
         services.AddSingleton(TimeProvider.System); services.AddScoped<AuditInterceptor>();
         services.AddDbContext<BuildingFlowDbContext>((provider, options) => options.UseNpgsql(configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("ConnectionStrings:Database is required.")).AddInterceptors(provider.GetRequiredService<AuditInterceptor>()));
+        services.AddScoped<BuildingFlow.Application.IPropertyStore, PropertyStore>();
+        services.AddScoped<BuildingFlow.Application.IHierarchyStore, HierarchyStore>();
+        services.AddScoped<BuildingFlow.Application.IPeopleStore, PeopleStore>();
+        services.AddScoped<BuildingFlow.Application.IDuesStore, DuesStore>();
+        services.AddScoped<BuildingFlow.Application.IPaymentStore, PaymentStore>();
+        services.AddScoped<BuildingFlow.Application.IExpenseStore, ExpenseStore>();
+        services.AddScoped<BuildingFlow.Application.ICommunicationStore, CommunicationStore>();
+        services.AddSingleton<BuildingFlow.Application.IFileStorage, MinioFileStorage>();
+        services.AddSingleton(_ => RabbitMessagingOptions.From(configuration));
+        services.AddSingleton<BuildingFlow.Application.IMessagePublisher, RabbitMessagePublisher>();
         return services;
     }
 }

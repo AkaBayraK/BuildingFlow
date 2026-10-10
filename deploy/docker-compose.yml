@@ -25,6 +25,7 @@ services:
       Authentication__Authority: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
       Authentication__Audience: buildingflow-api
       Authentication__MetadataAddress: http://keycloak:8080/realms/buildingflow/.well-known/openid-configuration
+      Cors__Origins__0: http://localhost:${WEB_PORT:-3003}
       Redis__ConnectionString: redis:6379
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
@@ -87,7 +88,7 @@ services:
       retries: 20
   keycloak:
     image: quay.io/keycloak/keycloak:26.7.0
-    command: ["start-dev", "--import-realm"]
+    command: ["start-dev", "--import-realm", "--spi-theme--static-max-age=-1", "--spi-theme--cache-themes=false", "--spi-theme--cache-templates=false"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-buildingflow-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Run scripts/init-local.sh}
@@ -100,7 +101,9 @@ services:
       KC_HEALTH_ENABLED: 'true'
       KC_METRICS_ENABLED: 'true'
     ports: ["127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"]
-    volumes: ["./keycloak/realm-buildingflow.json:/opt/keycloak/data/import/realm-buildingflow.json:ro"]
+    volumes:
+      - ./keycloak/realm-buildingflow.json:/opt/keycloak/data/import/realm-buildingflow.json:ro
+      - ./keycloak/themes/buildingflow:/opt/keycloak/themes/buildingflow:ro
     depends_on:
       keycloak-db: {condition: service_healthy}
   redis:
@@ -133,6 +136,9 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
     ports: ["127.0.0.1:${MINIO_PORT:-9000}:9000", "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"]
     volumes: ["minio-data:/data"]
+  mailpit:
+    image: axllent/mailpit:v1.27.10
+    ports: ["127.0.0.1:${MAILPIT_PORT:-8025}:8025"]
   grafana:
     image: grafana/grafana:12.4.11
     environment:

@@ -1,0 +1,9 @@
+{
+  "xunit.abstractions/2.0.3": {
+    "license": "Apache-2.0",
+    "source": "https://raw.githubusercontent.com/xunit/xunit/master/license.txt",
+    "evidence": "docs/licenses/xunit-abstractions-license.txt",
+    "reviewed": "2026-10-07",
+    "reason": "Eski NuGet paketi license expression yerine bu resm\u00ee licenseUrl de\u011ferini bildiriyor; i\u00e7erik Apache 2.0 olarak do\u011fruland\u0131."
+  }
+}
