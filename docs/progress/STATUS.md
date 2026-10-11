@@ -9,12 +9,12 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ11, kayıt14/14 |
-| Aktif adım | 03/04 Yedekleme ve geri dönüş |
+| Aktif adım | 04/04 Uçtan uca kabul ve yayın rehberi |
 | Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 2/4 |
-| Faz ilerlemesi | %50.00 |
+| Tamamlanan / toplam | 3/4 |
+| Faz ilerlemesi | %75.00 |
 | Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | Kendi fixture'ıyla yedek ve yeni izole hedefe restore provası |
+| Sonraki işlem | Kabul regresyonu, TR/EN/mobil/anonim SSR ve yayın preflight/runbook |
 
 ## İş yol haritası özeti
 
@@ -35,9 +35,9 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
 | 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 4/4 | TAMAMLANDI | %100.00 |
-| 11 | Yayın hazırlığı ve kalite | 2/4 | DEVAM EDIYOR | %50.00 |
+| 11 | Yayın hazırlığı ve kalite | 3/4 | DEVAM EDIYOR | %75.00 |
 
-**Adım bazlı genel iş ilerlemesi: 81 / 83 = %97.59.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 82 / 83 = %98.80.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -89,3 +89,7 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## İŞ11 adım02 kanıtı — 11.10.2026
 
 `bash scripts/ci.sh` çıkış 0: **426 .NET (88 unit + 338 integration), 85 FE**, typecheck/build, npm audit 0, NuGet audit temiz, 331 lisans, CI kapı negatifleri 6/6, EF model eşliği ve idempotent SQL'in geçici DB'ye iki kez uygulanması. Bozuk idempotent betik bulgusu migration dosyası değiştirilmeden düzeltildi. Workflow GitHub'da çalıştırılmadı. Detay [TESTING.md](../TESTING.md).
+
+## İŞ11 adım03 kanıtı — 11.10.2026
+
+`python3 scripts/test-backup-restore.py` **8/8, iki çalıştırma**: kendi fixture'ının (11 migration + satırlar, gerçek Keycloak realm/kullanıcı, 3 MinIO nesnesi) quiesced yedeği, bozuk/eksik/INCOMPLETE/desteklenmeyen yedek ve path-traversal reddi, yeni internal hedefe restore ile DB parmak izi, Keycloak girişi ve nesne SHA256 eşliği; kalıntı yok, BuildingFlow compose durumu değişmedi. Canlı veri yedeklenmedi/restore edilmedi. Detay [TESTING.md](../TESTING.md), [rehber](../BACKUP_RESTORE.md).

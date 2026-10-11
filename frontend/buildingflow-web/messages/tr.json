@@ -593,7 +593,8 @@
     "phase10Version": "v0.10 · Sayaçlar ve raporlar",
     "phase10LogsVerification": "397 .NET ve 82 frontend testi; 11 canlı altyapı kontrolü, API/worker Loki logları, trace kimliği ve hassas sorgu koruması geçti. TR/EN ve mobil ekranlar doğrulandı.",
     "phase11Step01Verification": "İŞ11 adım01: production HTTPS/issuer/CORS/AllowedHosts reddi, yalnız tanımlı proxy, HSTS/no-store, kullanıcı ve IP bazlı kodlu 429, sahte forwarded/imzasız JWT ret ve FE nonce CSP/güvenli cookie; 28 güvenlik testi, 425 .NET ve 85 FE. TESTING.md.",
-    "phase11Step02Verification": "İŞ11 adım02: yerel scripts/ci.sh — 426 .NET, 85 FE, typecheck/build, npm/NuGet audit, lisans, TRX kapısı ve idempotent migration SQL'inin geçici DB'ye iki kez uygulanması; bozuk betik düzeltildi. Workflow GitHub'da çalıştırılmadı. TESTING.md."
+    "phase11Step02Verification": "İŞ11 adım02: yerel scripts/ci.sh — 426 .NET, 85 FE, typecheck/build, npm/NuGet audit, lisans, TRX kapısı ve idempotent migration SQL'inin geçici DB'ye iki kez uygulanması; bozuk betik düzeltildi. Workflow GitHub'da çalıştırılmadı. TESTING.md.",
+    "phase11Step03Verification": "İŞ11 adım03: kendi fixture'ıyla quiesced PostgreSQL/Keycloak dump + MinIO snapshot, SHA256 manifest, bozuk/eksik yedek reddi ve yeni izole hedefe restore; DB parmak izi, Keycloak girişi ve dosya hash'i eşleşti (8/8, iki çalıştırma). Canlı veri yedeklenmedi. TESTING.md."
   },
   "feedback": {
     "success": "Başarılı",

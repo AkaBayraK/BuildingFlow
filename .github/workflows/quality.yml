@@ -29,4 +29,6 @@ jobs:
         run: bash scripts/init-local.sh
       - name: Test, build, migration, dependency and license gates
         run: bash scripts/ci.sh --install
+      - name: Backup and isolated restore rehearsal (fixture only)
+        run: python3 scripts/test-backup-restore.py artifacts/ci/migrations.sql
       # No secrets, DB dumps or personal-data artifacts are uploaded/cached.

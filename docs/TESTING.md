@@ -1,3 +1,16 @@
+## İŞ11 adım03 — Yedekleme ve geri dönüş: TAMAMLANDI — 11.10.2026
+
+**3/4 resmi görev = %75.00; genel iş 82/83 = %98.80.** Rehber [BACKUP_RESTORE.md](BACKUP_RESTORE.md).
+
+- [x] **Fixture provası:** `python3 scripts/test-backup-restore.py` **8/8, iki ardışık çalıştırma**. Tamamen kendi `buildingflow-test-backup-*` kaynakları: idempotent SQL ile 11 migration + 2 satırlı uygulama DB'si, gerçek Keycloak 26.7.0 ile realm + kullanıcı (ayrı PG), MinIO'da 3 nesne (1 B–70 KB).
+- [x] **Tutarlılık kapıları:** Keycloak/MinIO yazıcıları çalışırken yedek reddedildi ve klasör oluşmadı; durdurulunca yedek alındı (dump öncesi/sonrası DB parmak izi eşit). Klasör `0700`, dosyalar `0600`; SHA256 manifest + nesne bazında hash. Var olan yedek klasörünün üzerine yazılmaz.
+- [x] **Negatifler:** tek bit bozulmuş dump, `INCOMPLETE` işareti, desteklenmeyen imaj sürümü, eksik dump hem doğrulamada hem `restore-check`'te kaynak oluşturulmadan reddedildi; `../` içeren arşiv üyesi reddedildi.
+- [x] **Yeni izole hedefe restore:** internal ağda yeni PG + volume; iki DB parmak izi, satır/version/soft-delete ve migration geçmişi aynı; restore edilen Keycloak DB'siyle yeni Keycloak açıldı, fixture admin ile giriş ve realm kullanıcısı/e-postası doğrulandı; restore edilen MinIO'dan 3 nesnenin SHA256'sı birebir.
+- [x] **Temizlik ve canlı koruma:** fixture/restore konteyner, volume, ağ ve geçici dosya kalmadı. BuildingFlow compose konteynerlerinin ad/durum/başlama zamanı öncesi-sonrası aynı. Canlı stack'e karşı `backup` yazıcılar çalıştığı için hiçbir dump/klasör oluşturmadan reddetti (yalnız `docker compose ps`/`inspect`).
+- [x] **Bulgular ve düzeltmeler:** `wait_pg` PostgreSQL imajının init-zamanı (yalnız socket) sunucusunu hazır sayıp `createdb` yarışına düşüyordu → TCP `pg_isready -h 127.0.0.1`. Keycloak fixture'ı 8 GB Docker VM'de (diğer projelerin ~5.8 GB kullanımı) OOM ile öldü → `--memory 1g`, `-Xmx512m`. Restore ağı `--internal`, MinIO port yayınlamaz.
+
+**Sınırlar:** Canlı/yerel kullanıcı verisinin yedeği alınmadı ve hiçbir canlı hedefe restore yapılmadı (kullanıcı onayı ve bakım penceresi gerekir). Online/PITR yedek, şifreli uzak saklama ve retention hedef ortamda belirlenir. Workflow adımı GitHub'da çalıştırılmadı.
+
 ## İŞ11 adım02 — CI ve otomatik kontroller: TAMAMLANDI — 11.10.2026
 
 **2/4 resmi görev = %50.00; genel iş 81/83 = %97.59.**

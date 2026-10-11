@@ -593,7 +593,8 @@
     "phase10Version": "v0.10 · Meters and reports",
     "phase10LogsVerification": "397 .NET and 82 frontend tests; 11 live infrastructure checks, API/worker Loki logs, trace identity and sensitive query exclusion passed. TR/EN and mobile screens verified.",
     "phase11Step01Verification": "Phase 11 step 01: production HTTPS/issuer/CORS/AllowedHosts rejection, explicit proxies only, HSTS/no-store, per-user and per-IP coded 429, spoofed forwarded/unsigned JWT rejection and FE nonce CSP/secure cookie; 28 security tests, 425 .NET and 85 FE. TESTING.md.",
-    "phase11Step02Verification": "Phase 11 step 02: local scripts/ci.sh — 426 .NET, 85 FE, typecheck/build, npm/NuGet audit, licenses, TRX gate and idempotent migration SQL applied twice to a throwaway DB; broken script fixed. The workflow has not run on GitHub. TESTING.md."
+    "phase11Step02Verification": "Phase 11 step 02: local scripts/ci.sh — 426 .NET, 85 FE, typecheck/build, npm/NuGet audit, licenses, TRX gate and idempotent migration SQL applied twice to a throwaway DB; broken script fixed. The workflow has not run on GitHub. TESTING.md.",
+    "phase11Step03Verification": "Phase 11 step 03: own-fixture quiesced PostgreSQL/Keycloak dumps + MinIO snapshot, SHA256 manifest, rejection of corrupt/incomplete backups and restore to a new isolated target; DB fingerprints, Keycloak sign-in and file hashes matched (8/8, two runs). Live data was not backed up. TESTING.md."
   },
   "feedback": {
     "success": "Success",

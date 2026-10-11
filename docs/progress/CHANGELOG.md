@@ -1,3 +1,7 @@
+## 11.10.2026 — İŞ11 adım03: yedekleme ve geri dönüş
+
+`scripts/backup_restore.py` (quiesced PG/Keycloak dump + MinIO cold snapshot, SHA256 manifest, yalnız yeni internal hedefe `restore-check`; init-zamanı readiness yarışı düzeltildi) ve `scripts/test-backup-restore.py` fixture provası (gerçek Keycloak/MinIO, negatifler, temizlik ve canlı compose durumu kontrolü); workflow adımı, [BACKUP_RESTORE.md](../BACKUP_RESTORE.md), roadmap adım03. **Prova 8/8 iki kez geçti.** Canlı veri yedeklenmedi/restore edilmedi; .env/migration/manifest değişmedi.
+
 ## 11.10.2026 — İŞ11 adım02: CI ve otomatik kontroller
 
 `scripts/ci.sh` sonuç dizinini sıfırlar, CI kapı testlerini (`scripts/test_ci_gates.py`) ve idempotent SQL provasını (`scripts/check-idempotent-sql.sh`) çalıştırır; `check-test-results.py` TRX kapısı; `.github/workflows/quality.yml` SHA-sabit action'larla. Uygulanmış migration'daki sonlandırılmamış ham SQL nedeniyle bozuk idempotent betik `TerminatedSqlMigrationsSqlGenerator` ile düzeltildi + gerçek PG testi; MIGRATIONS/lisans kaydı. **426 .NET, 85 FE, build, audit, lisans geçti.** Eski migration/.env/manifest değişmedi.
