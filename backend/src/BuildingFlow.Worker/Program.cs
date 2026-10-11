@@ -1,10 +1,19 @@
+using BuildingFlow.Application;
+using BuildingFlow.Infrastructure;
+using BuildingFlow.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using BuildingFlow.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.ClearProviders();
-builder.Logging.AddJsonConsole();
-builder.Services.AddHostedService<FoundationWorker>();
+builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
+builder.Services.AddBuildingFlowTelemetry(builder.Logging,builder.Configuration,"buildingflow-worker");
+if (string.IsNullOrWhiteSpace(builder.Configuration["RabbitMQ:Host"])) throw new InvalidOperationException("RabbitMQ:Host is required.");
+builder.Services.AddSingleton<ICurrentUserService, SystemUser>();
+builder.Services.AddInfrastructure(builder.Configuration);
+var smtp = SmtpOptions.FromConfiguration(builder.Configuration);
+if (smtp.Enabled) builder.Services.AddSingleton<IMessageHandler>(new SmtpEmailHandler(smtp));
+builder.Services.AddHostedService<OutboxRelayWorker>();
+builder.Services.AddHostedService<MessageConsumerWorker>();
 await builder.Build().RunAsync();

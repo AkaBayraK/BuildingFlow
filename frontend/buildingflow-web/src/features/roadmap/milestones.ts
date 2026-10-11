@@ -139,28 +139,28 @@ export const milestones: Milestone[] = [
   {
     number: "09", title: "asynchronousEmailSMSAndNotifications", description: "reliableRabbitMQAndWorkerBackgroundProcessing",
     tasks: [
-      planned("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA"),
-      planned("consistentPublicationAndConsumers", "ensureDatabaseMessageConsistencyWithAJustifiedOutboxImplement"),
-      planned("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter"),
-      planned("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify"),
+      done("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA", "phase09Step01Verification"),
+      done("consistentPublicationAndConsumers", "ensureDatabaseMessageConsistencyWithAJustifiedOutboxImplement", "phase09Step02Verification"),
+      done("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter", "phase09Step03Verification"),
+      done("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify", "phase09Step04Verification"),
     ],
   },
   {
     number: "10", title: "reportsMetersAndObservability", description: "turnOperationsDataIntoReportsAndDiagnosticTools",
     tasks: [
-      planned("metersAndReadings", "meterModelDatedReadingsCorrectionsConsumptionAndHistoryScreens"),
-      planned("managementReports", "scopeOccupancyDebtReceiptsExpensesAndConsumptionReportsTo"),
-      planned("prometheusAndGrafana", "metricsExporterDataSourceAndRequestErrorWorkerDashboards"),
-      planned("lokiAndOpenTelemetry", "sendLogsToLokiWithCorrelationAndOptionalTraces"),
+      done("metersAndReadings", "meterModelDatedReadingsCorrectionsConsumptionAndHistoryScreens", "phase10MetersVerification"),
+      done("managementReports", "scopeOccupancyDebtReceiptsExpensesAndConsumptionReportsTo", "phase10ReportsVerification"),
+      done("prometheusAndGrafana", "metricsExporterDataSourceAndRequestErrorWorkerDashboards", "phase10MetricsVerification"),
+      done("lokiAndOpenTelemetry", "sendLogsToLokiWithCorrelationAndOptionalTraces", "phase10LogsVerification"),
     ],
   },
   {
     number: "11", title: "releaseReadinessAndQuality", description: "prepareCompletedWorkflowsForASecureMaintainableRelease",
     tasks: [
-      planned("securityAndAccessReview", "httpsSecureSessionsCookiesCORSNecessaryRateLimitsAnd"),
-      planned("ciAndAutomatedChecks", "buildUnitRelationalTestsDependencyChecksAndMigrationDeployment"),
-      planned("backupAndRestore", "planAndVerifyPostgreSQLKeycloakAndFileBackupsRestoration"),
-      planned("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs"),
+      done("securityAndAccessReview", "httpsSecureSessionsCookiesCORSNecessaryRateLimitsAnd", "phase11Step01Verification"),
+      done("ciAndAutomatedChecks", "buildUnitRelationalTestsDependencyChecksAndMigrationDeployment", "phase11Step02Verification"),
+      done("backupAndRestore", "planAndVerifyPostgreSQLKeycloakAndFileBackupsRestoration", "phase11Step03Verification"),
+      done("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs", "phase11Step04Verification"),
     ],
   },
 ];

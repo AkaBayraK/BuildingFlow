@@ -67,7 +67,7 @@ Uygulanmış migration dosyasını veya migration geçmişini değiştirmeyin; y
 
 - **Yerel Docker kurulumu:** `bash scripts/start.sh`. PostgreSQL hazır olduktan sonra migration servisi API imajını `--migrate` ile çalıştırır; başarıyla bitmeden API başlamaz. Normal API başlangıcı migration çalıştırmaz. Mevcut volume'lar korunur.
 - **Host geliştirme:** `bash scripts/dev.sh prepare` build/migration/npm kurulumunu birlikte hazırlar; yalnız DB güncellemesi için `scripts/db.sh update` yeterlidir.
-- **Üretim için seçenekler:** İncelenmiş idempotent SQL veya CI'da üretilen EF migration bundle ayrı dağıtım adımında çalıştırılabilir. Üretim pipeline/bundle bu turda kurulmadı. Üretim DB'sini altyapı sağlar; dağıtım kimliği DDL yetkisine, normal API kimliği gerekli veri erişim yetkisine sahip olur. Şifreler artifact'e/Git'e yazılmaz.
+- **Üretim için seçenekler:** İncelenmiş idempotent SQL veya CI'da üretilen EF migration bundle ayrı dağıtım adımında çalıştırılabilir. Üretim pipeline/bundle bu turda kurulmadı. İŞ11: `TerminatedSqlMigrationsSqlGenerator` (`UseBuildingFlowNpgsql`) ham `Sql()` ifadelerini `;` ile sonlandırır; aksi halde uygulanmış `20261007210343_UnifiedPropertyModel` idempotent betikte PostgreSQL sözdizimi hatası verir. `scripts/check-idempotent-sql.sh` betiği geçici izole veritabanına iki kez uygular ve siler. Üretim DB'sini altyapı sağlar; dağıtım kimliği DDL yetkisine, normal API kimliği gerekli veri erişim yetkisine sahip olur. Şifreler artifact'e/Git'e yazılmaz.
 
 Gerçek PostgreSQL kabul testleri: boş şemaya kurulum, ilk migration'daki kaydın yeni sürümde korunması, aynı sıranın tekrar çalıştırılması, son model/snapshot uyumu ve tüm tablo audit kolonları. Sonuçlar [TESTING.md](TESTING.md) içinde.
 
@@ -114,3 +114,7 @@ Down, üç tablodan herhangi birinde kayıt varsa **ilk drop öncesinde** redded
 Yeni son migration `20261010043250_AnnouncementsAndDocuments`: `announcements` ve `stored_documents`, sekiz ortak BaseEntity NOT NULL alanı, aynı Property duyuru/ek composite FK ve sorgu/istek tekilliği indexleri. Önceki migration'ları değiştirme. Snapshot/Designer birlikte kaydedildi; metadata DB'de, dosya içeriği özel MinIO'dadır. Down, soft-delete dahil herhangi bir duyuru/belge geçmişi varsa ilk drop öncesinde reddeder; nesne içeriğini geri alma işlemi değildir.
 
 Ayrı gerçek PostgreSQL kurulum/yükseltme/tekrar/boş Down/re-Up ve veri/audit/model eşliği testleri geçti. Yerel `bash scripts/db.sh update` uygulandı; tekrarında eksik migration yok ve15 eski tablo hash'i aynı. İlk canlı yükseltme öncesi hash alınamadı; ilk upgrade veri koruma kanıtı ayrı test DB'sindedir. SQL dağıtımı için mevcut idempotent script akışını kullanın. Ayrıntı [TESTING.md](TESTING.md), [API](api/communication.md).
+
+## İŞ10 sayaç geçmişi
+
+20261011064227_MetersAndReadings: meters/meter_readings/meter_reading_revisions, ortak audit/version, composite FK, precision12/3, tarih tekilliği, immutable SQL revizyon trigger'ı. Dolu sayaç/okuma tablolarında Down veri kaybını engeller. İlk kurulum/yükseltme/tekrar ve tablo sayısı modelden alınan NOT NULL şema taraması ayrı PostgreSQL'de test edilir; sabit sayı kabul kriteri değildir. Yerel11.10.2026 yükseltmesinde17 önceki tablo hash'i eşit; yeni messaging+meter tabloları eklendi.

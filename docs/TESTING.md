@@ -1,4 +1,139 @@
+## İŞ11 adım04 ve faz teslimi — Kabul ve yayın rehberi: TAMAMLANDI — 11.10.2026
+
+**TAMAMLANDI: 4/4 resmi görev = %100.00; genel iş 83/83 = %100.00.** Rehber [RELEASE.md](RELEASE.md), yedek [BACKUP_RESTORE.md](BACKUP_RESTORE.md). Bu oran yol haritası adımlarını sayar; üretime dağıtım yapıldığı anlamına gelmez.
+
+- [x] **Son regresyon:** `bash scripts/ci.sh` çıkış 0 — **426/426 .NET (88 unit + 338 integration), 85/85 FE, hata/atlama 0**; typecheck, production build, `npm audit` 0, NuGet audit temiz, **331 lisans**, CI kapısı 6/6, preflight testi, EF model eşliği, idempotent SQL'in geçici DB'ye iki kez uygulanması (11 migration). Yedek provası `test-backup-restore.py` 8/8 (adım03, kod değişmedi). Domain akışları ve negatif API vakaları (rol/üyelik/JWT/version/replay) bu integration suite'inde.
+- [x] **Yayın preflight:** `scripts/release-preflight.py` üretim env dosyasını 15 kurala göre doğrular, değer yazdırmaz. `scripts/test_release_preflight.py`: doldurulmuş `deploy/production.env.example` kabul, SMTP kapalı varyant kabul, **21 güvensiz varyant** (HTTP issuer/metadata/API, wildcard/path CORS, wildcard/localhost host, CIDR/0.0.0.0 proxy, otomatik forwarded, limit kapalı, HTTP web modu, issuer uyuşmazlığı, zayıf/boş sır, yerel/düz metin/güvensiz SMTP, `.local` gönderen, eksik SMTP parolası) reddedildi; çıktıda değer yok.
+- [x] **Bulgu ve düzeltme — HSTS:** web HSTS'i `next.config.ts` içinde build-zamanı `BUILDINGFLOW_PUBLIC_HTTPS` değerine bağlıydı ve web Dockerfile bu değeri build'e geçirmediği için imajda hiç açılmazdı. HSTS `proxy.ts`'e taşındı; çalışma zamanında okunur. HTTPS URL'leriyle build edilen production çıktısında `false` → HSTS/`upgrade-insecure-requests` yok, `true` → ikisi de var. Varsayılan (HTTP) build + `true` → `/login` 500, `/health` 200 (kapalı başarısızlık; preflight bu durumu yakalar).
+- [x] **Gerçek pipeline smoke (salt-okunur, yerel stack):** `scripts/smoke.sh` **15/15** (web/API/DB sağlık, OpenAPI, anonim ve bozuk JWT 401, Keycloak discovery, Mailpit, RabbitMQ, MinIO, Grafana, Redis, worker). `scripts/test-observability.py` **12/12**. Worker log kontrolü ilk çalıştırmada başarısız oldu: worker 48 dk önce başlamıştı, boşta yalnız açılışta log yazıyor ve test son 10 dk'ya bakıyordu. Loki'de son 60 dk'da worker kaydı bulunduğu doğrulandı; pencere 12 saate genişletildi, sonra geçti.
+- [x] **Anonim SSR:** oturumsuz 30 yönetim rotası (liste ve 3 gerçek Property altında 8 alt sayfa) FE3003'te 200 döndü. Ana DB'den salt-okunur `BEGIN READ ONLY` ile okunan 14 Property/Building/Person/Unit değerinin hiçbiri HTML'de yok. Çeviri kataloğundaki örnek metinlerle aynı olan 2 bina adı karşılaştırma dışında tutuldu; değerler yazdırılmadı, geçici dosya silindi.
+- [x] **TR/EN/mobil:** uygulama içi tarayıcıda `/login` EN'e geçti; yeniden yüklemede `lang=en` korundu, locale cookie JS'den okunamıyor (httpOnly). 375×812'de yatay taşma yok. Dil TR'ye, viewport masaüstüne geri alındı.
+
+**Sınırlar:** Dış domain/TLS, gerçek SMTP, CI sunucusu ve uzak yedek hedefi yok; workflow GitHub'da çalıştırılmadı. Girişli rol bazlı tarayıcı kabulü (form geri bildirimi, sağ panel) bu fazda tekrarlanmadı; önceki fazların kanıtları ve FE testleri geçerli. Kullanıcı verisinde mutation, canlı yedek veya restore yapılmadı. Çalışan yerel API (5005) ve worker süreçleri yeniden başlatılmadı; Faz11 kodu testlerde ve geçici production build'de doğrulandı. Production go-live kullanıcının hedef ortamıyla ayrıca yapılır.
+
+**Olay notu:** kayıt yazımı sırasında tırnaksız heredoc yüzünden `bash scripts/ci.sh` bir kez istem dışı çalıştı. Yalnız izole test kaynaklarını kullandı; süreç/kalıntı kalmadı, dosya değişmedi, korunan 26 dosya aynı. Yukarıdaki sonuçlar bu çalıştırmaya dayanmıyor.
+
+## İŞ11 adım03 — Yedekleme ve geri dönüş: TAMAMLANDI — 11.10.2026
+
+**3/4 resmi görev = %75.00; genel iş 82/83 = %98.80.** Rehber [BACKUP_RESTORE.md](BACKUP_RESTORE.md).
+
+- [x] **Fixture provası:** `python3 scripts/test-backup-restore.py` **8/8, iki ardışık çalıştırma**. Tamamen kendi `buildingflow-test-backup-*` kaynakları: idempotent SQL ile 11 migration + 2 satırlı uygulama DB'si, gerçek Keycloak 26.7.0 ile realm + kullanıcı (ayrı PG), MinIO'da 3 nesne (1 B–70 KB).
+- [x] **Tutarlılık kapıları:** Keycloak/MinIO yazıcıları çalışırken yedek reddedildi ve klasör oluşmadı; durdurulunca yedek alındı (dump öncesi/sonrası DB parmak izi eşit). Klasör `0700`, dosyalar `0600`; SHA256 manifest + nesne bazında hash. Var olan yedek klasörünün üzerine yazılmaz.
+- [x] **Negatifler:** tek bit bozulmuş dump, `INCOMPLETE` işareti, desteklenmeyen imaj sürümü, eksik dump hem doğrulamada hem `restore-check`'te kaynak oluşturulmadan reddedildi; `../` içeren arşiv üyesi reddedildi.
+- [x] **Yeni izole hedefe restore:** internal ağda yeni PG + volume; iki DB parmak izi, satır/version/soft-delete ve migration geçmişi aynı; restore edilen Keycloak DB'siyle yeni Keycloak açıldı, fixture admin ile giriş ve realm kullanıcısı/e-postası doğrulandı; restore edilen MinIO'dan 3 nesnenin SHA256'sı birebir.
+- [x] **Temizlik ve canlı koruma:** fixture/restore konteyner, volume, ağ ve geçici dosya kalmadı. BuildingFlow compose konteynerlerinin ad/durum/başlama zamanı öncesi-sonrası aynı. Canlı stack'e karşı `backup` yazıcılar çalıştığı için hiçbir dump/klasör oluşturmadan reddetti (yalnız `docker compose ps`/`inspect`).
+- [x] **Bulgular ve düzeltmeler:** `wait_pg` PostgreSQL imajının init-zamanı (yalnız socket) sunucusunu hazır sayıp `createdb` yarışına düşüyordu → TCP `pg_isready -h 127.0.0.1`. Keycloak fixture'ı 8 GB Docker VM'de (diğer projelerin ~5.8 GB kullanımı) OOM ile öldü → `--memory 1g`, `-Xmx512m`. Restore ağı `--internal`, MinIO port yayınlamaz.
+
+**Sınırlar:** Canlı/yerel kullanıcı verisinin yedeği alınmadı ve hiçbir canlı hedefe restore yapılmadı (kullanıcı onayı ve bakım penceresi gerekir). Online/PITR yedek, şifreli uzak saklama ve retention hedef ortamda belirlenir. Workflow adımı GitHub'da çalıştırılmadı.
+
+## İŞ11 adım02 — CI ve otomatik kontroller: TAMAMLANDI — 11.10.2026
+
+**2/4 resmi görev = %50.00; genel iş 81/83 = %97.59.**
+
+- [x] **Yerel CI eşdeğeri:** `bash scripts/ci.sh` (çıkış 0): lisans **331**, CI sonuç kapısı negatif testleri **6/6**, FE **85/85** + typecheck + production build + `npm audit --audit-level=high` **0 açık**, backend **426/426 = 88 unit + 338 integration, hata/atlama 0** (TRX kapısı), EF bekleyen model değişikliği yok, idempotent SQL üretimi ve geçici izole DB'ye **iki kez uygulama (11 migration)**, NuGet `--vulnerable --include-transitive` temiz, `git diff --check`. Önceki çalışmadan kalan sonuçlar kapıyı geçemez (`artifacts/ci` her çalıştırmada sıfırlanır; `artifacts/` Git dışı).
+- [x] **Bulgu ve düzeltme:** idempotent betik önceki fazlarda yalnız üretilmiş, hiç uygulanmamıştı. Gerçek PostgreSQL'de `20261007210343_UnifiedPropertyModel` içindeki `;` olmayan ham `Sql()` DO-blokta `42601 syntax error` verdi. Uygulanmış migration değiştirilmeden `TerminatedSqlMigrationsSqlGenerator` DI ve design-time context'e eklendi. Yeni integration testi: yamasız betik 42601, yamalı betik ayrı şemaya iki kez uygulanır, geçmiş = tüm migration'lar, bekleyen yok.
+- [x] **Kapı negatifleri:** `scripts/test_ci_gates.py` eksik/başarısız/atlanan/boş/karışık TRX'i reddeder, tamamen başarılıyı kabul eder.
+- [x] **İzolasyon ve sızıntı:** testler `buildingflow_tests`, `buildingflow-test-*` RabbitMQ/MinIO ve geçici Mailpit; SQL provası `buildingflow_ci_sql_<pid>` veritabanını oluşturup siler. Çalışma sonrası geçici DB/Mailpit/test kuyruğu kalmadı; CI logunda `.env` sır değerlerinden hiçbiri yok. Korunan 26 dosya hash'i aynı.
+- [x] **GitHub workflow:** `contents: read`, SHA ile sabitlenmiş resmi action'lar, Node 24/.NET 10, `init-local.sh` ile tek kullanımlık sırlar, cache yalnız npm lockfile; sır/dump/artifact yüklemesi yok, deploy/merge/push adımı yok.
+
+**Sınırlar:** Workflow GitHub üzerinde çalıştırılmadı (remote/CI hesabı yok); yerel eşdeğer çalıştı. `--install` (npm ci) çalışan FE3003 dev sürecini etkilememek için yerelde çalıştırılmadı. npm/NuGet audit ağ erişimine bağlıdır.
+
+## İŞ11 adım01 — Güvenlik ve erişim: TAMAMLANDI — 11.10.2026
+
+**1/4 resmi görev = %25.00; genel iş 80/83 = %96.39.** Dal `faz-10-11-release` (Faz10 commit'i 8ca000d ayrı). Push/merge yok.
+
+- [x] **Production yapılandırma reddi (15 vaka):** HTTP veya kullanıcı bilgili Authority, HTTP metadata, path/HTTP/`*` CORS origin, boş/`*` AllowedHosts, otomatik forwarded-header güveni; kapatılmış veya 1–10000 dışı rate-limit; `0.0.0.0`, CIDR veya hostname olarak verilen proxy açılışta `InvalidOperationException` verir. Geçerli HTTPS yapılandırması kabul edilir.
+- [x] **Forwarded header:** proxy tanımsızken `ForwardedHeaders.None`, boş KnownProxies/KnownIPNetworks. Doğrudan HTTP + sahte `X-Forwarded-Proto: https` ve listede olmayan eşten gelen başlık `400 BF_INVALID_REQUEST`. Yalnız tanımlı proxy (10.0.0.5) şemayı ve istemci IP'sini taşır; aynı IP üçüncü istekte 429, farklı IP ayrı bütçe. Sahte `X-Forwarded-For` anonim limiti aşamaz (401, 401, 429).
+- [x] **HTTPS başlıkları ve 429:** HSTS, `nosniff`, `DENY`, `no-referrer`, API `no-store`; anonim limit sonrası `429 BF_RATE_LIMITED` + `Retry-After`; `/health/live` limit dışında. Kimlikli okuma/yazma bütçesi `sub` bazında ayrı: alice 3. okumada 429, bob 200; yazma bütçesi okumadan bağımsız. Production'da OpenAPI 404.
+- [x] **Negatif JWT (production):** imzasız (`alg:none`), yabancı anahtar, HTTP issuer ve süresi dolmuş token 401. Geliştirme ortamındaki issuer/audience/expired/signature/malformed ve rol/üyelik negatifleri (sahte `ClaimTypes.Role`, client-role, üyelik dışı 403/404) mevcut integration suite'te bu tur yeniden çalıştı.
+- [x] **FE nonce CSP ve cookie:** `src/security/policy.ts` yalnız açık API/OIDC origin'lerini kabul eder, credential/query/`javascript:`/production HTTP ve nonce enjeksiyonunu reddeder; `unsafe-eval` yok. Locale cookie `httpOnly`, `SameSite=Lax`, production'da `Secure` (3 FE güvenlik testi).
+- [x] **Production build smoke (geçici 127.0.0.1:3013, sonra durduruldu):** tüm rotalar dinamik; `/login` yanıtında CSP + `private, no-store`, 24/24 script aynı istek nonce'unu taşır, her istekte yeni nonce; istemcinin gönderdiği `x-nonce`/CSP başlığı yok sayılır; `/health` CSP dışında. Tarayıcıda sayfa hydrate oldu, CSP ihlali konsolda yok.
+- [x] **Regresyon:** `bash scripts/test.sh` **425/425 = 88 unit + 337 integration, hata/atlama 0** (yeni 28 ReleaseSecurity vakası dahil; ayrı test DB, `buildingflow-test-*` kuyruk/bucket, geçici Mailpit). `npm test` **85/85**, typecheck ve `npm run build` başarılı. Korunan 26 dosya hash'i değişmedi.
+
+**Sınırlar:** Dış domain/TLS sertifikası yok; HTTPS davranışı test sunucusu ve yerel production build ile doğrulandı. `next.config.ts` HSTS başlığı build anındaki `BUILDINGFLOW_PUBLIC_HTTPS` değerini kullanır. Rate limiter süreç içi (tek API örneği) çalışır; çok örnekli dağıtımda proxy/gateway limiti gerekir.
+
+## İŞ11 geliştirme öncesi kabul planı — 11.10.2026
+
+[Analiz](analysis/PHASE_11_RELEASE_QUALITY.md). Production güvenlik/forwarded header/HTTPS/CORS/rate-limit ve negatifJWT; FE nonce CSP/cookie/TR-EN; izole gerçek altyapıyla backend regressyon; lokal CI eşdeğeri, npm/NuGet audit/lisans; yedek fixture tam geri dönüş/hatalı checksum/aktif writers ret/yalnız yeni target koruması; migration ve son kullanıcı rehberi. Henüz başarılı kabul sonucu değildir.
+
+## İŞ10 — adım04 ve nihai teslim — 11.10.2026
+
+**TAMAMLANDI: 4/4 resmi görev = %100.00; genel iş 79/83 = %95.18.** [Analiz](analysis/PHASE_10_REPORTS_METERS_OBSERVABILITY.md), [API](api/meters-reports.md), [gözlemlenebilirlik](OBSERVABILITY.md). Önceki Faz09 hızlı kontrol bu tur41/41; önceki tam374 kanıtı yeniden çalıştırılmış sayılmaz.
+
+- [x] **Son backend regresyonu: 397/397 =88 unit +309 integration, hata/atlama0.** Sayaç API/migration, report scope/finans/tüketim ve telemetri tests dahil. Gerçek ayrı PostgreSQL, rastgele buildingflow-test-* RabbitMQ/MinIO ve throwaway Mailpit; yeni migration ilk kurulum/yükseltme/tekrar/immutable revizyon/Down veri koruması ve bütün22 uygulama tablosunda sekiz NOT NULL ortak alan; model-snapshot eşliği geçti. `dotnet ef migrations script --idempotent --no-build` yeni sayaç migration'ını içeren SQL üretti; SQL artifact'i ayrıca ana DB'ye uygulanmadı.
+- [x] **Son FE regresyonu: 82/82; hata/atlama0**, typecheck ve production build başarılı. DTO/scope/decimal/gerçek takvim/TR-EN/OIDC rota ve menü, merkezi error registry eşliği; ortak RecordList/ManagementPanel. 409 düzeltme çatışması kaydetmeyi kilitler ve güncel okumayı yeniden yükler.
+- [x] **Canlı altyapı: 11/11.** API401 request counter, request histogram, worker outbox counter, PostgreSQL/Redis/RabbitMQ başarılı TCP probe, bounded/hassas veri içermeyen labels, Grafana iki datasource health ve8 panel, API/worker Loki logları, API trace_id ve hassas sorgu işaretinin dışlanması. `python3 scripts/test-observability.py` çalışan yerel servisleri salt-okunur kontrol eder; token/parola/log body yazdırmaz, finans mutation veya gerçek alıcıya mesaj göndermez. TCP testi kimlik bilgisiyle DB sorgusu değildir; diğer gerçek entegrasyonlar ayrı suite'tedir.
+- [x] **Tarayıcı:** girişli Chrome'da Sayaçlar ve Raporlar, TR/EN, boş sayaç listesi, gerçek bölüm seçenekleri, masaüstü sağ512px form,390×844 mobil tam genişlik/taşmasız panel ve rapor kabulü. Kayıt kaydedilmedi; dil/viewport geri yüklendi ve yalnız geçici test sekmesi kapatıldı. [Sayaç paneli kanıtı](screenshots/phase10-meter-panel-tr.png).
+- [x] **Koruma/lisans:**331 npm/NuGet sürümü PASS; resmi OpenTelemetry Apache-2.0 LICENSE/NOTICE ve Collector/Prometheus/blackbox Apache-2.0, Loki AGPL-3.0 dağıtım yükümlülükleri kaydedildi. .env,FE manifest/lock ve önceki migration/Designer kaynakları23 SHA256 aynı;149 yerel doküman bağlantısı,79/83 yol haritası sayacı ve git diff --check geçti. Son roadmap/TR-EN kanıt metninden sonra82 FE,typecheck/build tekrar başarılı. Ana DB Faz09+10 upgrade öncesi/sonrası17 eski tablo satır/audit hash eşit; yeni sayaç/rapor/finans iş kaydı oluşturulmadı.
+
+Komutlar: backend `dotnet test BuildingFlow.sln --no-restore --verbosity minimal -m:1 --disable-build-servers` (SDK /tmp/buildingflow-dotnet ve özel CLI_HOME/NUGET_PACKAGES); FE `npm test`, `npm run typecheck`, `npm run build`; kök `python3 scripts/check-licenses.py`, yeni telemetry compose servisleri ve `scripts/test-observability.py`; EF idempotent SQL. Gereken restore/VSTest/SWC/Docker ağ-soket izinleriyle çalıştı; engellenen ilk denemeler başarılı test sayılmadı. Yerel API5005/FE3003 ve SMTP kapalı test workerı; Grafana3002/Prometheus19090/Loki13100/OTLP14318. Diğer projenin3100 portu korunur. Tek agent; skill/alt agent yok.
+
+**Sınırlar:** İlk endeks tüketim bilinmez; sayaç sıfırlama/rollover, katsayı/tarife/otomatik borç yok. Doluluk ilişki kaydının ay sonu yorumudur; fiziksel boşluk kanıtı değildir. Tahakkuk bakiye ve bölüm etkinliği sorgu anına aittir; geçmiş bakiye snapshot yok. Tempo trace deposu/tam broker trace propagation yok; isteğe bağlı trace debug export altyapısı mevcut. API/Worker/Web Docker imajları bu tur derlenmedi; dış SMTP ve İŞ11 üretim hazırlığı yapılmadı. Yerel iş verisinde başarılı mutation kabulü yapıldı sayılmaz; iş akışları gerçek ayrı test ortamlarında doğrulandı.
+
+## İŞ10 adım03 kanıtı — 11.10.2026
+
+**397/397 .NET (88 unit+309 integration), hata/atlama0.** Gerçek yeni Collector0.162.0, Prometheus3.15.0, blackbox0.28.0, Loki3.7.8 ve mevcut Grafana12.4.11 başlatıldı. `scripts/test-observability.py`:API401 sayacı, süre histogramı, worker outbox ölçümü, TCP probe serileri, bounded/hassas veri içermeyen etiketler, Grafana iki datasource health ve8 panelli dashboard geçti. Restore/lisans331 başarılı; NuGet sandbox DNS nedeniyle yerel yetkili tekrar kullanıldı. TraceFlow3100 çakışması farklı varsayılan13100/19090/14318 ile çözüldü; .env değişmedi. Worker dev komutuna eksik DB bağlantısı eklendi. Yerel ana DB'ye Faz09+10 yeni migrations uygulandı; önce/sonra17 eski tablo hash'i eşit. FE3003 korunur, API5005 yeniden başlatıldı. Kullanıcı DB'sinde yeni sayaç/rapor/finans mutation yok.
+
+## İŞ10 adım02 kanıtı — 11.10.2026
+
+**8/8 rapor filtreli entegrasyon,82/82 FE; hata/atlama0.** Typecheck/build başarılı. Aynı PostgreSQL snapshot'ından alan/üyelik kontrollü rapor; ortak malik doluluk sayılmaz, kiracı+sakin aynı bölüm bir kez; pasifler doluluk dışında. Dönem tahakkuku/güncel bakiye ile farklı ay tahsilatı ayrılır; iptal gider hariç, önceki ay baseline tüketimde kullanılır. ACCOUNTANT yanıtında kişi adı/id yok; anonim/rol/üyelik/silinmiş alan ve geçersiz dönem reddedilir. Ham toplamlar doğrulanır.
+
+## İŞ10 adım01 kanıtı — 11.10.2026
+
+**36/36 PostgreSQL/persistence/migration (sayaç+ilgili migration filtresi),80/80 FE; hata/atlama0.** Typecheck ve Next.js production build geçti. Yeni migration20261011064227_MetersAndReadings; tüm uygulama tablolarının sekiz NOT NULL alanı, compositeFK, endeks iki komşu, baseline, düzeltme/replay/current tarihçe, rol/üyelik/JWT, immutable revizyon ve Down veri guard gerçek ayrı PostgreSQL'de kontrol edildi. Bir eski MessagingMigration testi son migration yerine korunan Faz09 sınırını bekleyecek şekilde düzeltildi; migration kaynakları değişmedi. Yerel ana DB henüz yükseltilmedi, tarayıcı kabulü teslim kontrolünde yapılacak.
+
+## İŞ10 planlı kabul — 11.10.2026
+
+Yetki/scope/anonim/malformed JWT; sayaç iki komşu/endeks/tarih/version/UUID tekrar ve düzeltme revizyonu; üç yeni BaseEntity tablosu ve gerçek PostgreSQL migration upgrade/tekrar/Down guard; rapor kapsamı/tarih/para/doluluk/tüketim ve ACCOUNTANT kişisel veri yasağı; FE DTO/TR-EN/menü/rota/panel; Prometheus/Grafana/Loki/OTLP gerçek pipeline + hassas telemetri yokluğu. [Kapsam](analysis/PHASE_10_REPORTS_METERS_OBSERVABILITY.md). Henüz başarılı test kanıtı değildir.
+
+## Faz09 bu tur hızlı tekrar kontrolü
+
+11.10.2026: `FullyQualifiedName~Messaging` filtresiyle **41/41 (20 unit +21 integration), hata/atlama0**. Ayrı PostgreSQL, yalnız buildingflow-test-* RabbitMQ ve geçici Mailpit; kullanıcı verisine mail/SMS gönderilmedi. Önceki374 tüm-suite kanıtı önceki turun sonucudur.
+
 # Test planı ve tamamlanma kaydı
+
+## 09 — Mesajlaşma: adım04 sonucu ve faz teslimi — 11.10.2026
+
+**İŞ 09 TAMAMLANDI: 4/4 resmi görev = %100.00; iş yol haritası 75/83 = %90.36.** SMS sağlayıcı kullanıcı kararıyla kapalıdır; tamamlanan görev SMTP e-posta kapsamıdır.
+
+- [x] **SMTP handler (System.Net.Mail, yeni paket yok):** UTF-8 düz metin, `Message-ID: <messageId@buildingflow>`, `X-BuildingFlow-Message-Id/Correlation-Id`, Content-Language. Geçici, ayrı Mailpit 1.27.10 (rastgele loopback port, yalnız `@example.test` kabul): Türkçe karakterli konu/gövde, alıcı/gönderen ve izleme başlıkları API'den doğrulandı. 5xx alıcı reddi `PermanentMessageFailureException` (Mailpit'te mesaj yok), erişilemeyen sunucu geçici hata; hata metni alıcı/iç ayrıntı taşımaz.
+- [x] **Dış sırlar ve güvenli yapılandırma:** `Smtp:*` yalnız ortam/secret'tan; şifresiz SMTP yalnız localhost/mailpit + açık `AllowInsecureLocal` ve kimlik bilgisi olmadan, aksi STARTTLS zorunlu. Eksik/yarım kimlik bilgisi, geçersiz/görünen adlı From, header injection'lı FromName, port/host hataları reddedilir; hata mesajı sır içermez. Compose worker yerelde Mailpit'e yönlendirildi; üretim değeri depoya yazılmadı.
+- [x] **Uçtan uca (PG + RabbitMQ + Mailpit):** outbox → relay → consumer → SMTP tek mesaj; tekrar yayında ikinci mail yok (Mailpit sayaçları: 2 kabul, 2 red), reddedilen alıcı 1 denemede `permanent-failure` nedeniyle DLQ'da, inbox kaydı yok.
+- [x] **Regresyon:** `dotnet test` **374/374 = 88 unit + 286 integration, 0 atlanan/başarısız**; FE **76/76**, typecheck; lisans 318 PASS; 21 korunan dosya aynı; `docker compose config` geçerli. Worker SMTP etkin + test prefix ile başlatıldı, email consumer'ı açıldı; smoke/test kuyrukları temizlendi, geçici Mailpit durduruldu, geliştirici Mailpit'ine dokunulmadı. `scripts/test.sh` aynı geçici Mailpit'i otomatik açıp kapatır.
+
+**Faz sınırları:** gerçek alıcıya veya dış sağlayıcıya mail/SMS gönderilmedi; üretim SMTP sağlayıcı/kimlik bilgisi ve SPF/DKIM/DMARC kullanıcıya bağlıdır. System.Net.Mail implicit TLS (465) desteklemez; 587 STARTTLS gerekir. SMS ve uygulama içi bildirim teslim kanalı yoktur (kuyrukları kalıcı, tüketicisiz). Henüz hiçbir iş/API akışı e-posta üretmez; hangi olayların (ör. duyuru yayını, borç hatırlatma) mail tetikleyeceği yeni kapsam kararıdır. DLQ yeniden oynatma aracı yok. Migration yerel ana DB'ye uygulanmadı; Docker imajları derlenmedi (compose ile yeniden derlemede migration servisi ana DB'ye uygular). Sonraki faz için kullanıcı onayı beklenir.
+
+## 09 — Mesajlaşma: adım03 sonucu — 11.10.2026
+
+**Adım03 TAMAMLANDI: 3/4 = %75.00; iş yol haritası 74/83 = %89.16.**
+
+- [x] **Gecikmeli retry ve limit (gerçek RabbitMQ + PG, yalnız `buildingflow-test-*`):** geçici handler hatasında mesaj gecikmeye özel TTL'li quorum retry kuyruğuna confirm ile kopyalanır, ardından kaynak ACK edilir; TTL sonunda orijinal routing key ile ana kuyruğa döner. Test: 2 hata → 300+600 ms sonra 3. denemede tek işlem/tek inbox, tüm kuyruklar boş. Deneme limiti (test 3, varsayılan 5; gecikmeler varsayılan 5s/30s/2dk/10dk) aşılınca `.failed` kuyruğuna `x-buildingflow-failure=retry-exhausted`, deneme sayısı, aynı MessageId/body/persistent ile gider; inbox kaydı oluşmaz.
+- [x] **Kalıcı hata ve idempotency:** aynı ID farklı içerik retry'a girmeden `rejected` nedeniyle DLQ'ya gider, handler tekrar çalışmaz; başarılı mesajın iki ek tekrar teslimi ACK edilir, handler 1 kez/inbox 1 satır. Sahte `-50` deneme başlığı retry süresini uzatamaz. Retry/DLQ yayını confirm alamazsa kaynak `requeue` ile geri bırakılır, ACK edilmez; ana kuyruklarda `x-delivery-limit=10` ve at-least-once dead-letter güvenlik ağıdır.
+- [x] **Politika birimleri (9):** başlık ayrıştırma (int/long/ASCII, negatif/bozuk → 0, üst sınır 100), artan gecikme/limit, güvensiz retry yapılandırmasının reddi.
+- [x] **Regresyon:** `dotnet test` **369/369 = 88 unit + 281 integration, 0 atlanan/başarısız**; mesajlaşma paketi ardışık 3 çalıştırmada 30/30; broker'da test kuyruğu/exchange kalmadı; lisans 318 PASS; 21 korunan dosya aynı.
+
+**Sınırlar:** SMTP gibi dış sağlayıcıda tam exactly-once yoktur: handler gönderip inbox commit'inden önce çökme/bağlantı kaybı olursa mesaj tekrar gönderilebilir; inbox yalnız commit edilmiş teslimleri tekilleştirir. DLQ mesajlarını yeniden oynatma aracı/ekranı yoktur. Kuyruk argümanları değiştiğinden önceden farklı argümanla oluşturulmuş üretim kuyruğu varsa yeniden bildirim PRECONDITION_FAILED verir; yerel broker'da üretim kuyruğu yoktu.
+
+## 09 — Mesajlaşma: adım02 sonucu — 11.10.2026
+
+**Adım02 TAMAMLANDI: 2/4 = %50.00; iş yol haritası 73/83 = %87.95.**
+
+- [x] **BaseEntity Outbox/Inbox + migration `20261011043002_MessagingOutboxAndInbox`:** `outbox_messages` (tekil message_id, tür allowlist/payload ≤64KiB/durum check, Property FK, bekleyen kısmi index) ve `processed_messages` (tekil consumer+message_id, SHA-256 parmak izi, PROCESSED/SKIPPED). Ayrı şemada AnnouncementsAndDocuments'tan yükseltme, eski satır JSON eşliği, tekrar uygulama, sekiz NOT NULL alan, check ihlalleri; mesaj geçmişi varken Down PostgresException ile reddedilir. Model sözleşme testleri yeni tabloları kapsar; `db.sh check` farksız, idempotent SQL üretildi.
+- [x] **Atomik enqueue + relay (gerçek PG + RabbitMQ, yalnız `buildingflow-test-*`):** iş kaydıyla aynı transaction rollback'inde ne Property ne outbox kalır; commit'te ikisi birlikte. Geçersiz komut eklenmez. Relay yayınlar/PUBLISHED işaretler, ikinci tur 0; 3 eşzamanlı relay `FOR UPDATE SKIP LOCKED` ile 45 mesajı tam bir kez yayınlar. Broker yokken mesaj PENDING, `PUBLISH_FAILED`, artan backoff; ilk hatada batch durur, broker dönünce yayın.
+- [x] **Tüketici/inbox:** ilk teslim Processed, aynı içerik Duplicate (handler 1 kez), aynı ID farklı içerik/bozuk JSON/yanlış kuyruk/bilinmeyen Property Rejected; handler hatası inbox bırakmaz, tekrar başarılı; 5 eşzamanlı aynı teslimde handler 1 kez; SKIPPED kaydı. Gerçek consumer ack sonrası kuyruk boş, bozuk mesaj `.failed` dead-letter kuyruğuna gider.
+- [x] **Regresyon:** `dotnet test` **355/355 = 88 unit + 267 integration, 0 atlanan/başarısız**; lisans 318 PASS; 21 korunan dosya aynı. Worker test DB'sine karşı 10 sn başlatıldı: relay döngüsü çalıştı, etkin kanal olmadığı için consumer başlatılmadı.
+
+**Bulgu ve düzeltmeler:** İki RabbitMQ test sınıfı paralel çalışınca yerel broker'da quorum Ra küme oluşturma zaman aşımı görüldü (6 başarısız deneme, başarılı sayılmadı); sınıflar paralel olmayan tek koleksiyona alındı, ardışık 3 çalıştırma 16/16. Başarısız fixture'ların kalan 5 test kuyruğu/4 exchange'i yalnız `buildingflow-test-*` adıyla silindi; temizlik artık yeni bağlantıyla yapılır. Communication migration testi, boş messaging tablolarının önce geri alındığı yeni sırayı kesin olarak doğrular. **Sınırlar:** henüz hiçbir iş/API akışı enqueue etmez; üretim worker'ında etkin kanal yok (e-posta adım04, SMS kapalı, uygulama içi bildirim deposu kapsam dışı). Teslim en-az-bir-kez; retry/DLQ politikası adım03. Migration yerel ana DB'ye uygulanmadı; Docker imajları derlenmedi.
+
+## 09 — Mesajlaşma: adım01 sonucu — 11.10.2026
+
+**Adım01 TAMAMLANDI: 1/4 = %25.00; iş yol haritası 72/83 = %86.75.** Adım02–04 bu kanıtla tiklenmez.
+
+- [x] **Sürümlü sözleşmeler (unit 20/20):** EmailRequested/SmsRequested/NotificationRequested roundtrip, sabit tür allowlist'i, schemaVersion1, aynı nesne retry'da aynı MessageId/byte. Boş UUID, UTC dışı/boş zaman, desteklenmeyen locale, uzunluk sınırları, e-posta header injection/display-name/boşluk, E.164 dışı SMS, zarf/payload kimlik uyuşmazlığı, bilinmeyen şema/tür, `$type`/fazla alan, 64KiB üstü, bozuk/null JSON reddedilir; hata mesajı alıcı/içerik taşımaz.
+- [x] **Gerçek RabbitMQ 4.1.4 (integration 6/6):** yalnız rastgele `buildingflow-test-<uuid>` exchange/kuyrukları; durable quorum kuyruk + persistent mesaj, türe göre yönlendirme, MessageId/CorrelationId/ContentType, publisher confirms, mandatory-unroutable `MessagePublicationException` ve ardından yeni kanalla toparlanma, 20 eşzamanlı yayında kayıp/karışma yok, geçersiz/iptal edilen çağrı yayın yapmaz, yeniden oluşturulan yayıncıda aynı kimlikli tekrar (tekilleştirme adım02/03 inbox'ındadır), erişilemeyen broker kimlik bilgisi sızdırmayan güvenli hata. Test sonrası `rabbitmqctl list_queues` boş; mevcut kuyruk silinmedi.
+- [x] **Regresyon:** `dotnet test backend/BuildingFlow.sln --no-build -m:1 --disable-build-servers` ayrı `buildingflow_tests` PostgreSQL ve test MinIO/RabbitMQ ile **345/345 = 88 unit + 257 integration, 0 atlanan/başarısız**. FE `npm test` **76/76**, `npm run typecheck` geçti. `python3 scripts/check-licenses.py` **318 paket** PASS (RabbitMQ.Client 7.2.1 Apache-2.0 seçimi, System.Threading.RateLimiting 8.0.0 MIT). 21 korunan dosya hash'i aynı.
+
+**Ortam notu:** Sandbox içinden ilk RabbitMQ denemesi AMQP el sıkışmasında zaman aşımına uğradı (6 başarısız); bu başarılı sayılmadı, aynı komut yetkili yerel çalıştırmada geçti. **Gerçek sınırlar:** iş/API akışına yayın bağlanmadı (Outbox adım02); tüketici, retry/DLQ ve SMTP henüz yok; gerçek alıcıya mesaj gönderilmedi. Docker imajları yeniden derlenmedi.
 
 ## 09 — Mesajlaşma: geliştirme öncesi kabul planı — 10.10.2026
 

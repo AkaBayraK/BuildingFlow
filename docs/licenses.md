@@ -74,3 +74,17 @@ Yeni paket, paket sürümü, ücretli ürün veya harici görsel/font eklenmedi.
 ## İŞ 08 — MinIO .NET SDK
 
 Minio NuGet **7.0.0** eklendi. SDK Apache-2.0: [sürüme ait resmî lisans](https://github.com/minio/minio-dotnet/blob/7.0.0/LICENSE); tam metin [minio-dotnet-7.0.0-LICENSE.txt](licenses/minio-dotnet-7.0.0-LICENSE.txt) içinde korunur. Bu, mevcut MinIO sunucusunun AGPLv3 lisansını değiştirmez; container dağıtım yükümlülükleri yukarıdaki sunucu kaydıyla birlikte değerlendirilir. Yeni transitif bağımlılıklar lisans envanterinde doğrulandı; FE paketleri değişmedi.
+
+## İŞ 09 — RabbitMQ .NET istemcisi
+
+RabbitMQ.Client NuGet **7.2.1** eklendi. Paket `Apache-2.0 OR MPL-2.0` çift lisanslıdır; bu proje **Apache-2.0** seçeneğini kullanır. Tam metin [rabbitmq-client-7.2.1-LICENSE-APACHE2.txt](licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt) içinde korunur. Transitif System.Threading.RateLimiting 8.0.0 MIT'tir. RabbitMQ 4.1.4 sunucusunun MPL-2.0 kaydı değişmez. 11.10.2026 restore sonrası metadata kontrolü **318 paket sürümü** için geçti; FE paketleri değişmedi.
+
+## İŞ10 — 11.10.2026
+
+OpenTelemetry.Extensions.Hosting ve Exporter.OpenTelemetryProtocol **1.18.0 Apache-2.0**; resmî NuGet repository commit9db92a4e978b4ae432183c790259be48a475578f ve paket LICENSE/THIRD-PARTY-NOTICES okundu, yerel kopyalar korundu. Restore sonrası check-licenses.py **331** npm/NuGet sürümü için geçti. FE manifest/lockfile değişmedi.
+
+Yeni sabit container sürümleri: [Collector contrib0.162.0 Apache-2.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/LICENSE), [Prometheus3.15.0 Apache-2.0](https://github.com/prometheus/prometheus/blob/v3.15.0/LICENSE), [Blackbox exporter0.28.0 Apache-2.0](https://github.com/prometheus/blackbox_exporter/blob/v0.28.0/LICENSE), [Loki3.7.8 AGPL-3.0](https://github.com/grafana/loki/blob/v3.7.8/LICENSE). Resmî sürüm lisansları docs/licenses/phase10-*-LICENSE.txt'te. Loki ayrı servis; AGPL source/dağıtım ve değişikliklerin ağ kullanımı yükümlülükleri korunur; ticari lisans alınmış gibi gösterilmez. Container içindeki üçüncü taraf bildirimleri kaldırılmaz. Önceki Grafana AGPL politikası korunur. Dashboard/config özgün repo kodudur; ücretli template veya yeni chart/font paketi yok.
+
+## İŞ11 CI yardımcıları
+
+Yeni npm/NuGet/container bağımlılığı yok. GitHub tarafından yayımlanan actions/checkout, actions/setup-node, actions/setup-dotnet MIT lisanslıdır; CI yetkisi contents:read, sır/dump cache veya artifact yüklemesi yok. Resmî lisanslar: https://github.com/actions/checkout/blob/main/LICENSE, https://github.com/actions/setup-node/blob/main/LICENSE, https://github.com/actions/setup-dotnet/blob/main/LICENSE. Action'lar commit SHA ile sabitlenir: checkout v4.4.0, setup-node v4.4.0, setup-dotnet v4.3.1 (etiketler `git ls-remote` ile doğrulandı). Workflow geliştirmesi yerel kalite akışıyla doğrulanır; GitHub üzerinde çalıştırılmış sayılmaz.

@@ -23,6 +23,51 @@ public sealed class MigrationTests
     [PostgresFact]
     public Task UpgradeFromInitialFoundationPreservesExistingData() => VerifyMigrationSequence(true);
 
+    [PostgresFact]
+    public async Task IdempotentScriptAppliesTwiceOnlyWithTerminatedRawSql()
+    {
+        var original = Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE")!;
+        var schema = "migration_script_" + Guid.NewGuid().ToString("N");
+        await using var admin = new NpgsqlConnection(original);
+        await admin.OpenAsync();
+        await using (var create = new NpgsqlCommand($"CREATE SCHEMA \"{schema}\"", admin))
+            await create.ExecuteNonQueryAsync();
+        try
+        {
+            var connection = new NpgsqlConnectionStringBuilder(original) { SearchPath = schema + ",public" }.ConnectionString;
+            string Script(bool terminated)
+            {
+                var options = new DbContextOptionsBuilder<BuildingFlowDbContext>();
+                if (terminated) options.UseBuildingFlowNpgsql(connection, o => o.MigrationsHistoryTable("__EFMigrationsHistory", schema));
+                else options.UseNpgsql(connection, o => o.MigrationsHistoryTable("__EFMigrationsHistory", schema));
+                using var context = new BuildingFlowDbContext(options.Options);
+                return context.GetService<IMigrator>().GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent);
+            }
+            await using var target = new NpgsqlConnection(connection);
+            await target.OpenAsync();
+            var unpatched = await Assert.ThrowsAsync<PostgresException>(async () => { await using var c = new NpgsqlCommand(Script(false), target); await c.ExecuteNonQueryAsync(); });
+            Assert.Equal(PostgresErrorCodes.SyntaxError, unpatched.SqlState);
+            await using (var rollback = new NpgsqlCommand("ROLLBACK", target))
+                await rollback.ExecuteNonQueryAsync();
+            var script = Script(true);
+            for (var pass = 0; pass < 2; pass++)
+            {
+                await using var apply = new NpgsqlCommand(script, target);
+                await apply.ExecuteNonQueryAsync();
+            }
+            await using var db = new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>()
+                .UseBuildingFlowNpgsql(connection, o => o.MigrationsHistoryTable("__EFMigrationsHistory", schema)).Options);
+            Assert.Equal(db.Database.GetMigrations(), await db.Database.GetAppliedMigrationsAsync());
+            Assert.Empty(await db.Database.GetPendingMigrationsAsync());
+            Assert.Equal(0, await db.Properties.CountAsync());
+        }
+        finally
+        {
+            await using var cleanup = new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE", admin);
+            await cleanup.ExecuteNonQueryAsync();
+        }
+    }
+
     private static async Task VerifyMigrationSequence(bool upgrade)
     {
         var original = Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE")!;

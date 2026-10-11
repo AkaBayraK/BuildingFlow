@@ -1,0 +1,9 @@
+apiVersion: 1
+providers:
+  - name: BuildingFlow
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false
+    allowUiUpdates: false
+    updateIntervalSeconds: 10

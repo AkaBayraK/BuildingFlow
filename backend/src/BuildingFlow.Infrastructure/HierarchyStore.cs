@@ -57,6 +57,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var site=await Properties(access).SingleOrDefaultAsync(value=>value.Id==siteId,token); if(site is null)return false;
         Expected(site,version);
         if(await db.Announcements.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token) || await db.StoredDocuments.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.ContentPropertyHistory.Create());
+        if(await db.Meters.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.MeterConflict.Create());
         if(await db.DuesAssessments.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Expenses.AnyAsync(value=>value.PropertyId==siteId,token) || await db.PropertyBudgets.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.DuesErrorPropertyHistory.Create());
         if(await db.Buildings.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Units.AnyAsync(value=>value.PropertyId==siteId,token) || await db.People.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.PropertyHasChildren.Create());
         db.Remove(site); await Save(token); return true;

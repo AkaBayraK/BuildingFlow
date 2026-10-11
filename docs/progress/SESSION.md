@@ -1,9 +1,11 @@
-# Güncel oturum — İŞ09
+# Güncel oturum — İŞ11 teslim edildi
 
-10.10.2026 kullanıcı Faz09 başlatmayı onayladı. Kayıt12/14, adım01 DEVAM EDIYOR;0/4=%0.00, iş71/83=%85.54. SMTP e-posta seçildi; SMS sağlayıcı sonra. Gerçek alıcıya mesaj gönderme. Tek agent; yeni skill/alt agent yok.
+11.10.2026: İŞ11 **4/4 = %100.00**; genel iş **83/83 = %100.00**. Plan [analysis/PHASE_11_RELEASE_QUALITY.md](../analysis/PHASE_11_RELEASE_QUALITY.md); kanıt [TESTING.md](../TESTING.md); rehber [RELEASE.md](../RELEASE.md), [BACKUP_RESTORE.md](../BACKUP_RESTORE.md).
 
-Kök/frontend mimari/progress okundu; MASTER_PROMPT/PHASES kökte yok, gerçek dosyalar frontend/buildingflow-ui-plan altında. docs/analysis/PHASE_09_MESSAGING.md ve TESTING ön planı hazır. RabbitMQ servisi mevcut, Worker yalnız FoundationWorker, IMessagePublisher henüz implementasyon yok. İlk iş sürümlü mesaj sözleşmeleri ve confirm+mandatory yayıncı; sonraki Outbox/consumer/retry/provider işleri bu ilk adımın tamamlanmasıyla tiklenmez.
+Dal `faz-10-11-release` (`faz-09-messaging`'den): Faz10 commit'i 8ca000d, ardından İŞ11 adım01–04 commit'leri. Main'e merge ve push yapılmadı, remote yok. Koruma hashleri /tmp/bf11-protected.json (26 dosya: .env, FE manifest/lock, bütün eski migrations + snapshot) her adımda eşleşti. Tek agent, yeni skill yok.
 
-Başlangıç kota Codex usage10.10.2026 16:06:11 Europe/Istanbul:300dk kullanılan%29/kalan%71, reset10.10.2026 16:35:15;10080dk kullanılan%98/kalan%2, reset15.10.2026 22:03:08. Giriş token: BİLGİ MEVCUT DEĞİL; çıkış token: BİLGİ MEVCUT DEĞİL; toplam token: BİLGİ MEVCUT DEĞİL; kalan context: BİLGİ MEVCUT DEĞİL; oturum tüketimi/limiti: BİLGİ MEVCUT DEĞİL. Kota bu sohbetin tüketimi değildir.
+Kullanıcı onayı bekleyenler: main'e merge/push; çalışan API5005/worker süreçlerinin Faz11 koduyla yeniden başlatılması; canlı yedek (bakım penceresi); hedef ortam (domain/TLS/SMTP/CI) ile go-live. Yeni faz uydurulmaz.
 
-Korunan21 dosya hash'i /tmp/bf09-protected.json: .env, FE manifest/lockfile ve tüm önceki migration kaynak/Designer. Ana DB/user kayıtları/parola korunur; sonraki DB işi yalnız ayrı PostgreSQL testleri/migration kanıtıyla. Önceki Faz08 test319.NET/76FE geçmiş kanıttır, bu tur henüz yeniden çalıştırılmadı. Yerel SDK/tmp/buildingflow-dotnet, DOTNET_ROOT/CLI_HOME/NUGET_PACKAGES ve -m:1 --disable-build-servers gerekir. Sırları output/log/Git'e yazma.
+Yerel API5005/FE3003/OTLP14318/Prometheus19090/Loki13100/Grafana3002 çalışıyor. Başka projeye ait `akabayrak-keycloak` konteyneri yeniden başlatma döngüsünde (4219, exit 1); dokunulmadı.
+
+Kullanım: Claude Code oturumu; giriş/çıkış/toplam token, kalan context, hesap/oturum limiti ve sıfırlanma: BİLGİ MEVCUT DEĞİL.

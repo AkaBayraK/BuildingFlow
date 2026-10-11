@@ -1,3 +1,41 @@
+## 11.10.2026 — İŞ11 adım04 ve faz teslimi: kabul ve yayın rehberi
+
+`docs/RELEASE.md` (preflight, HTTPS/proxy, kurulum/migration, geri dönüş, yedek, SMTP, smoke/kabul), `deploy/production.env.example`, `scripts/release-preflight.py` + 21 negatif varyantlı testi (CI'da). HSTS build-zamanından `proxy.ts` çalışma zamanına taşındı. `test-observability.py` boşta worker log penceresi genişletildi. Sürüm etiketi v0.11, roadmap 4/4, AGENTS/README bağlantıları. **ci.sh: 426 .NET, 85 FE, build, audit, 331 lisans; smoke 15/15, gözlemlenebilirlik 12/12, anonim SSR 30 rota sızıntı 0.** **İŞ11 4/4 = %100.00; genel 83/83 = %100.00.** Push/merge yok.
+
+## 11.10.2026 — İŞ11 adım03: yedekleme ve geri dönüş
+
+`scripts/backup_restore.py` (quiesced PG/Keycloak dump + MinIO cold snapshot, SHA256 manifest, yalnız yeni internal hedefe `restore-check`; init-zamanı readiness yarışı düzeltildi) ve `scripts/test-backup-restore.py` fixture provası (gerçek Keycloak/MinIO, negatifler, temizlik ve canlı compose durumu kontrolü); workflow adımı, [BACKUP_RESTORE.md](../BACKUP_RESTORE.md), roadmap adım03. **Prova 8/8 iki kez geçti.** Canlı veri yedeklenmedi/restore edilmedi; .env/migration/manifest değişmedi.
+
+## 11.10.2026 — İŞ11 adım02: CI ve otomatik kontroller
+
+`scripts/ci.sh` sonuç dizinini sıfırlar, CI kapı testlerini (`scripts/test_ci_gates.py`) ve idempotent SQL provasını (`scripts/check-idempotent-sql.sh`) çalıştırır; `check-test-results.py` TRX kapısı; `.github/workflows/quality.yml` SHA-sabit action'larla. Uygulanmış migration'daki sonlandırılmamış ham SQL nedeniyle bozuk idempotent betik `TerminatedSqlMigrationsSqlGenerator` ile düzeltildi + gerçek PG testi; MIGRATIONS/lisans kaydı. **426 .NET, 85 FE, build, audit, lisans geçti.** Eski migration/.env/manifest değişmedi.
+
+## 11.10.2026 — İŞ11 adım01: güvenlik ve erişim
+
+`faz-10-11-release` dalı açıldı; Faz10 ayrı commit. API `ReleaseSecurity` (production HTTPS/CORS/AllowedHosts doğrulaması, yalnız tanımlı proxy, HSTS/güvenli başlıklar/no-store, anonim/kimlikli okuma/yazma kodlu 429), 28 güvenlik testi; FE `proxy.ts` nonce CSP, `security/policy.ts`, güvenli başlıklar ve test edilebilir locale cookie seçenekleri; roadmap adım01 tiki ve TR/EN metin. **425 .NET, 85 FE, typecheck/build geçti.** DB/migration/.env/manifest değişmedi.
+
+## 11.10.2026 — İŞ11 başladı
+
+Kullanıcı onayı; güvenlik/CI/yedek-restore/yayın kabul kapsamı ve test planı hazırlandı. Faz10 değişiklikleri korunur; yeni göreve henüz tik yok.
+
+## 11.10.2026 — İŞ10 adım04 ve faz teslimi
+
+API/worker güvenli OTLP logları, Loki trace kimliği, Prometheus metrik/TCP health, Grafana iki datasource/8 panel ve `scripts/test-observability.py` canlı kontrolü tamamlandı. Sayaç tarih alanı gerçek takvimle doğrulandı; stale409 sonrası güncel okuma yükleme eklendi. TR/EN ve512px/390px sağ panel tarayıcı kabulü, ekran kanıtı, API/OBSERVABILITY/migration/lisans/AGENTS/README/skill-agent/progress belgeleri ve son roadmap4/4 güncellendi.
+
+**397 .NET,82 FE,typecheck/build,11 canlı smoke,331 lisans,23 korunan dosya ve17 eski DB tablo hash eşliği başarılı.** Yeni idempotent SQL üretildi; uygulama Docker imajları derlenmedi, kullanıcı iş verisine mutation yok. İŞ10 **4/4=%100.00**, genel **79/83=%95.18**. Yeni İŞ11 başlatılmadı; dal faz-09-messaging, commit/merge/push yapılmadı.
+
+## 11.10.2026 İŞ10 adım03
+
+OpenTelemetry1.18 SDK; düşük cardinality request/histogram ve worker/retry/DLQ ölçümleri; Collector/Prometheus/blackbox/Loki compose, Grafana datasource/dashboard, license+NOTICE, dev workerDB düzeltmesi. Gerçek pipeline smoke,397.NET ve331 lisans; yerel upgrade17 eski tablo hash korundu.
+
+## 11.10.2026 İŞ10 adım02
+
+Rapor Application/Store/API, scope/RepeatableRead/SQL LAG, doluluk sayımı ve finans tarih kuralları; ReportsWorkspace ayrı menü, TR/EN/DTO ve testler. Kanıt8 entegrasyon+82FE,typecheck/build.
+
+## 11.10.2026 İŞ10 adım01
+
+Sayaç/okuma/revizyon BaseEntity modeli, EF migration + SQL immutable/Down guard, API UUID/version/scope ve ortak sağ panel/TanStack/TR-EN ekranları. TESTING.md:36 PostgreSQL ve80 FE; typecheck/build. Faz09 hızlı tekrar41/41. Paket değişmedi.
+
 # BuildingFlow çalışma değişiklik geçmişi
 
 Bu dosya yalnız yeni çalışma turlarında gerçekten yapılan değişiklikleri ekleyerek kaydeder. Önceki iş fazlarının ayrıntılı değişiklik/test kanıtı [TESTING.md](../TESTING.md) ve ilgili teslim raporlarında korunur; buraya yeniden kopyalanmaz. Güncel durum [STATUS.md](STATUS.md), devam bağlamı [SESSION.md](SESSION.md).
@@ -81,3 +119,19 @@ Etkilenen dosyalar: backend Announcement/StoredDocument, Application Communicati
 ## 10.10.2026 — İŞ09 başladı
 
 Kullanıcı fazı başlatmayı onayladı; SMTP seçildi, SMS sağlayıcı ertelendi. Kök kurallar/progress/mimari/RabbitMQ/Worker ve ayrı UI planı incelendi; PHASE_09_MESSAGING analizi, TESTING ön planı, STATUS/SESSION güncellendi. Uygulama görevi henüz tiklenmedi.
+
+## 2026-10-11 — İŞ 09 adım01: mesaj sözleşmeleri ve RabbitMQ yayıncı
+
+Dal `faz-09-messaging`. Application `Messaging.cs` (3 sürümlü sözleşme, zarf, doğrulama, bounded JSON), Infrastructure `RabbitMessaging.cs` (durable quorum topoloji, confirm+mandatory yayıncı), 20 unit + 6 RabbitMQ integration testi; RabbitMQ.Client 7.2.1 lisans metni/envanter, roadmap adım01 tiki ve TR/EN doğrulama metni, analiz/TESTING/STATUS/SESSION güncellendi. **345 .NET, 76 FE, typecheck, 318 lisans geçti.** DB/migration/.env değişmedi.
+
+## 2026-10-11 — İŞ 09 adım02: Outbox ve tüketiciler
+
+BaseEntity `outbox_messages`/`processed_messages` + migration/snapshot, EfMessageOutbox, OutboxRelay, MessageProcessor, RabbitMessageConsumer, Worker relay/consumer host'ları (FoundationWorker kaldırıldı), compose worker DB bağlantısı, 10 yeni PG+RabbitMQ testi; RabbitMQ test koleksiyonu ve sağlam temizlik; communication migration testi yeni geri alma sırasına uyarlandı. **355 .NET, 318 lisans geçti.** Yerel ana DB/.env değişmedi.
+
+## 2026-10-11 — İŞ 09 adım03: Retry, dead-letter ve idempotency
+
+Gecikmeli TTL retry kuyrukları, deneme limiti, `x-buildingflow-attempt/failure` başlıkları, confirm'li retry/DLQ yayınından sonra ACK, ana kuyruk delivery-limit/at-least-once DLX; 5 RabbitMQ + 9 politika testi, test temizliği retry kaynaklarını kapsar. **369 .NET, 318 lisans geçti.** DB/migration/.env değişmedi.
+
+## 2026-10-11 — İŞ 09 adım04: SMTP e-posta ve faz teslimi
+
+`SmtpOptions`/`SmtpEmailHandler`, kalıcı teslim hatası için doğrudan DLQ, Worker SMTP kaydı, compose worker Mailpit ayarları, `scripts/test.sh` geçici Mailpit; 5 SMTP/uçtan uca test; analiz yapılandırma bölümü, roadmap 4/4. **374 .NET, 76 FE, typecheck, 318 lisans geçti.** Yeni paket, DB değişikliği veya .env değişikliği yok. **İŞ09 4/4 = %100.00.**

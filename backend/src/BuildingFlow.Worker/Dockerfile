@@ -7,5 +7,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 COPY docs/licenses/minio-dotnet-7.0.0-LICENSE.txt ./LICENSES/Minio-LICENSE.txt
 COPY docs/licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt ./LICENSES/RabbitMQ.Client-LICENSE-APACHE2.txt
+COPY docs/licenses/opentelemetry-1.18.0-LICENSE.txt ./LICENSES/OpenTelemetry-LICENSE.txt
+COPY docs/licenses/opentelemetry-1.18.0-NOTICES.txt ./LICENSES/OpenTelemetry-NOTICES.txt
 USER $APP_UID
 ENTRYPOINT ["dotnet", "BuildingFlow.Worker.dll"]
