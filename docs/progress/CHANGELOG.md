@@ -1,3 +1,7 @@
+## 11.10.2026 — İŞ11 adım04 ve faz teslimi: kabul ve yayın rehberi
+
+`docs/RELEASE.md` (preflight, HTTPS/proxy, kurulum/migration, geri dönüş, yedek, SMTP, smoke/kabul), `deploy/production.env.example`, `scripts/release-preflight.py` + 21 negatif varyantlı testi (CI'da). HSTS build-zamanından `proxy.ts` çalışma zamanına taşındı. `test-observability.py` boşta worker log penceresi genişletildi. Sürüm etiketi v0.11, roadmap 4/4, AGENTS/README bağlantıları. **ci.sh: 426 .NET, 85 FE, build, audit, 331 lisans; smoke 15/15, gözlemlenebilirlik 12/12, anonim SSR 30 rota sızıntı 0.** **İŞ11 4/4 = %100.00; genel 83/83 = %100.00.** Push/merge yok.
+
 ## 11.10.2026 — İŞ11 adım03: yedekleme ve geri dönüş
 
 `scripts/backup_restore.py` (quiesced PG/Keycloak dump + MinIO cold snapshot, SHA256 manifest, yalnız yeni internal hedefe `restore-check`; init-zamanı readiness yarışı düzeltildi) ve `scripts/test-backup-restore.py` fixture provası (gerçek Keycloak/MinIO, negatifler, temizlik ve canlı compose durumu kontrolü); workflow adımı, [BACKUP_RESTORE.md](../BACKUP_RESTORE.md), roadmap adım03. **Prova 8/8 iki kez geçti.** Canlı veri yedeklenmedi/restore edilmedi; .env/migration/manifest değişmedi.

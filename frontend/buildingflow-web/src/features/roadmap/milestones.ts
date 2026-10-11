@@ -160,7 +160,7 @@ export const milestones: Milestone[] = [
       done("securityAndAccessReview", "httpsSecureSessionsCookiesCORSNecessaryRateLimitsAnd", "phase11Step01Verification"),
       done("ciAndAutomatedChecks", "buildUnitRelationalTestsDependencyChecksAndMigrationDeployment", "phase11Step02Verification"),
       done("backupAndRestore", "planAndVerifyPostgreSQLKeycloakAndFileBackupsRestoration", "phase11Step03Verification"),
-      planned("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs"),
+      done("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs", "phase11Step04Verification"),
     ],
   },
 ];

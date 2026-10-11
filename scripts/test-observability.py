@@ -39,8 +39,8 @@ dashboard=get(grafana+'/api/dashboards/uid/buildingflow-operations',headers)['da
 print('[TEST] Provisioned operations dashboard (8 panels) — PASS',flush=True)
 def logs(service):return get(loki+'/loki/api/v1/query_range?'+urllib.parse.urlencode({'query':'{service_name="'+service+'"}','start':str(start),'end':str(time.time_ns()),'limit':'500'}))['data']['result']
 wait(lambda: bool(logs('buildingflow-api')),'API structured logs reach Loki')
-# Worker startup may precede the API requests; widen only the local time range.
-start-=600*1000000000
+# An idle worker logs only at startup, which may be hours before this smoke; widen only the local time range.
+start-=12*3600*1000000000
 wait(lambda: bool(logs('buildingflow-worker')),'Worker structured logs reach Loki')
 rows=logs('buildingflow-api');text=json.dumps(rows);assert marker not in text;assert 'trace_id' in text or 'TraceId' in text
 print('[TEST] Loki trace correlation and sensitive query exclusion — PASS',flush=True)

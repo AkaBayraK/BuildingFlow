@@ -9,16 +9,16 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ11, kayıt14/14 |
-| Aktif adım | 04/04 Uçtan uca kabul ve yayın rehberi |
-| Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 3/4 |
-| Faz ilerlemesi | %75.00 |
+| Aktif adım | Yok — İŞ11 teslim edildi |
+| Durum | TAMAMLANDI |
+| Tamamlanan / toplam | 4/4 |
+| Faz ilerlemesi | %100.00 |
 | Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | Kabul regresyonu, TR/EN/mobil/anonim SSR ve yayın preflight/runbook |
+| Sonraki işlem | Kullanıcı kararı: main'e merge/push, hedef ortamda go-live; yeni faz uydurulmaz |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. İŞ10 tamamlandı; İŞ11 11.10.2026 onaylandı ve devam ediyor.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. İŞ10 ve İŞ11 tamamlandı; yeni faz için kullanıcı onayı beklenir.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -35,9 +35,9 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
 | 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 4/4 | TAMAMLANDI | %100.00 |
-| 11 | Yayın hazırlığı ve kalite | 3/4 | DEVAM EDIYOR | %75.00 |
+| 11 | Yayın hazırlığı ve kalite | 4/4 | TAMAMLANDI | %100.00 |
 
-**Adım bazlı genel iş ilerlemesi: 82 / 83 = %98.80.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 83 / 83 = %100.00.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -49,7 +49,7 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 
 - Faz 06.1 eski borçlara bilinmeyen kişi geçmişi üretmez. Katalog CRUD, 500'ün üzerindeki toplu onay ve canlı kullanıcı verisinde başarılı finans mutation'ı teslimin kabul kapsamı değildir; ayrı PostgreSQL testleri ile salt-okunur tarayıcı kabulü ayrıdır.
 - FE sekme tekrar kullanımı Chrome/Safari native adapter testleriyle doğrulandı; canlı macOS Automation izni/GUI kabulü yapılmış sayılmaz.
-- Online ödeme/gerçek banka transferi, üretim SMTP/HTTPS, Tempo/tam broker trace propagation, yedekleme/CI ve gelecekteki iş fazları planlıdır. Ayrıntılı kapsam/sınırlar TESTING ve API belgelerinden okunur.
+- Online ödeme/gerçek banka transferi, Tempo/tam broker trace propagation ve gelecekteki iş fazları planlıdır. Üretim SMTP/HTTPS, CI ve yedekleme için araçlar ve rehber hazır; hedef ortamda go-live yapılmadı. Ayrıntılı kapsam/sınırlar TESTING ve API belgelerinden okunur.
 - 07.1 yalnız mesaj sözleşmesi ve sunum altyapısıdır; domain/DB/migration, kimlik politikası ve finans hesaplama kuralları değişmez.
 
 ## İŞ 07 teslim kanıtı
@@ -93,3 +93,7 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## İŞ11 adım03 kanıtı — 11.10.2026
 
 `python3 scripts/test-backup-restore.py` **8/8, iki çalıştırma**: kendi fixture'ının (11 migration + satırlar, gerçek Keycloak realm/kullanıcı, 3 MinIO nesnesi) quiesced yedeği, bozuk/eksik/INCOMPLETE/desteklenmeyen yedek ve path-traversal reddi, yeni internal hedefe restore ile DB parmak izi, Keycloak girişi ve nesne SHA256 eşliği; kalıntı yok, BuildingFlow compose durumu değişmedi. Canlı veri yedeklenmedi/restore edilmedi. Detay [TESTING.md](../TESTING.md), [rehber](../BACKUP_RESTORE.md).
+
+## İŞ11 teslim kanıtı — 11.10.2026
+
+**4/4 resmi görev = %100.00; genel iş 83/83 = %100.00.** Son `bash scripts/ci.sh` çıkış 0: **426 .NET (88 unit + 338 integration), 85 FE, hata/atlama 0**, typecheck/build, npm audit 0, NuGet audit temiz, 331 lisans, idempotent SQL provası, preflight testi (21 güvensiz varyant reddi). Yedek provası 8/8; smoke 15/15; gözlemlenebilirlik 12/12; anonim SSR 30 rota sızıntı 0; TR/EN ve 375 px mobil. Bulunan ve düzeltilen sorunlar: bozuk idempotent betik, PostgreSQL readiness yarışı, Docker imajında açılmayan HSTS, kırılgan worker log penceresi. Dal `faz-10-11-release` (Faz10 + 4 adım commit'i); main'e merge/push yok. Dış TLS/SMTP/CI ile go-live yapılmadı. Ayrıntı [TESTING.md](../TESTING.md), [RELEASE.md](../RELEASE.md).

@@ -297,3 +297,5 @@ Menüler `http://localhost:3003/announcements` ve `http://localhost:3003/documen
 `/meters` ve `/reports` menülerinden alan seçilir. Sayaç okuması ilk endeks, sonraki tüketim farkı ve gerekçeli düzeltme geçmişini tutar; otomatik borç üretmez. Raporlar dönem borcu, güncel bakiye, tahsilat/gider tarihleri ve ilişki bazlı doluluğu ayırır. [API ve kurallar](docs/api/meters-reports.md).
 
 Grafana http://localhost:3002/d/buildingflow-operations; Prometheus19090, Loki13100, OTLP14318. [Çalıştırma ve doğrulama](docs/OBSERVABILITY.md). Yeni schema için `bash scripts/db.sh update`; eski migration dosyalarını değiştirmeyin. Bu teslimde yerel Faz09+10 migrations uygulanmıştır.
+
+Yayın adayı (İŞ11): kalite kapısı `bash scripts/ci.sh`, üretim yapılandırma kontrolü `python3 scripts/release-preflight.py <env>`, yedek/geri dönüş provası `python3 scripts/test-backup-restore.py`. Rehberler: [RELEASE.md](docs/RELEASE.md), [BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md).

@@ -13,6 +13,7 @@ if [ "${1:-}" = --install ]; then
 fi
 python3 scripts/check-licenses.py
 python3 scripts/test_ci_gates.py
+python3 scripts/test_release_preflight.py
 (cd frontend/buildingflow-web && npm test && npm run typecheck && npm run build && npm audit --audit-level=high)
 # This runner prepares separate PG schemas and fixture-only MinIO/RabbitMQ/Mailpit.
 bash scripts/test.sh --no-restore --logger trx --results-directory "$(pwd)/artifacts/ci/test-results"
