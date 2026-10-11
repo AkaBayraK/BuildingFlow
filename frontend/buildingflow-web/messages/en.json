@@ -591,7 +591,8 @@
     "phase10ReportsVerification": "8 report integration +82 FE; authorization/membership/occupancy/finance dates/baselines/no personal details; typecheck/build.",
     "phase10MetricsVerification": "397 .NET tests; real OTLP/Prometheus API401+histogram+worker metrics; Grafana datasource and8-panel smoke passed.",
     "phase10Version": "v0.10 · Meters and reports",
-    "phase10LogsVerification": "397 .NET and 82 frontend tests; 11 live infrastructure checks, API/worker Loki logs, trace identity and sensitive query exclusion passed. TR/EN and mobile screens verified."
+    "phase10LogsVerification": "397 .NET and 82 frontend tests; 11 live infrastructure checks, API/worker Loki logs, trace identity and sensitive query exclusion passed. TR/EN and mobile screens verified.",
+    "phase11Step01Verification": "Phase 11 step 01: production HTTPS/issuer/CORS/AllowedHosts rejection, explicit proxies only, HSTS/no-store, per-user and per-IP coded 429, spoofed forwarded/unsigned JWT rejection and FE nonce CSP/secure cookie; 28 security tests, 425 .NET and 85 FE. TESTING.md."
   },
   "feedback": {
     "success": "Success",

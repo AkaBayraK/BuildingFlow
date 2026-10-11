@@ -9,16 +9,16 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ11, kayıt14/14 |
-| Aktif adım | 01/04 Güvenlik ve erişim |
+| Aktif adım | 02/04 CI ve otomatik kontroller |
 | Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 0/4 |
-| Faz ilerlemesi | %0.00 |
+| Tamamlanan / toplam | 1/4 |
+| Faz ilerlemesi | %25.00 |
 | Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | Negatif güvenlik ve frontend testleri |
+| Sonraki işlem | `scripts/ci.sh` yerel çalıştırma ve kalite kapıları |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. Kullanıcının onayladığı İŞ10 tamamlandı; İŞ11 için yeni onay beklenir.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. İŞ10 tamamlandı; İŞ11 11.10.2026 onaylandı ve devam ediyor.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -35,9 +35,9 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
 | 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 4/4 | TAMAMLANDI | %100.00 |
-| 11 | Yayın hazırlığı ve kalite | 0/4 | DEVAM EDIYOR | %0.00 |
+| 11 | Yayın hazırlığı ve kalite | 1/4 | DEVAM EDIYOR | %25.00 |
 
-**Adım bazlı genel iş ilerlemesi: 79 / 83 = %95.18.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 80 / 83 = %96.39.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -81,3 +81,7 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## İŞ10 teslim kanıtı — 11.10.2026
 
 **4/4 resmi görev = %100.00; genel iş 79/83 = %95.18.** Faz09 hızlı tekrar **41/41**; bu tur son regresyon **397 .NET (88 unit +309 integration), 82 FE, hata/atlama 0**, typecheck/build ve **11 canlı gözlemlenebilirlik kontrolü** geçti. Sayaç/okuma/gerekçeli revizyon ve alan/dönem raporları, TR/EN ortak sağ panel ve 390 px mobil kabulü; üç yeni BaseEntity tablo, gerçek ayrı PostgreSQL kurulum/yükseltme/tekrar/Down ve idempotent SQL doğrulaması. **331 lisans**, **23 korunan dosya**, ana DB yükseltmesinde **17 eski tablonun satır hash eşliği**. Yerel API5005/FE3003; SMTP kapalı test workerı ve OTLP14318/Prometheus19090/Loki13100/Grafana3002 çalışıyor. Kullanıcı iş verisinde mutation yok; Docker uygulama imajları derlenmedi. Ayrıntı [TESTING.md](../TESTING.md), [API](../api/meters-reports.md), [gözlemlenebilirlik](../OBSERVABILITY.md). Sayaçtan otomatik borç, endeks sıfırlama/tarife, geçmiş bakiye snapshot ve Tempo deposu yok. İŞ11 başlatılmadı.
+
+## İŞ11 adım01 kanıtı — 11.10.2026
+
+**425 .NET (88 unit + 337 integration), 85 FE; hata/atlama 0.** Production yapılandırma reddi, yalnız tanımlı proxy, sahte forwarded header, HTTP/HTTPS, kimlikli/anonim kodlu 429, imzasız/yabancı JWT; FE nonce CSP production build smoke'u (24/24 nonce'lu script, CSP ihlali yok) ve güvenli locale cookie. Dal `faz-10-11-release`; Faz10 ayrı commit 8ca000d. Push/merge yok. Detay [TESTING.md](../TESTING.md).

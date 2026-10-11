@@ -1,3 +1,17 @@
+## İŞ11 adım01 — Güvenlik ve erişim: TAMAMLANDI — 11.10.2026
+
+**1/4 resmi görev = %25.00; genel iş 80/83 = %96.39.** Dal `faz-10-11-release` (Faz10 commit'i 8ca000d ayrı). Push/merge yok.
+
+- [x] **Production yapılandırma reddi (15 vaka):** HTTP veya kullanıcı bilgili Authority, HTTP metadata, path/HTTP/`*` CORS origin, boş/`*` AllowedHosts, otomatik forwarded-header güveni; kapatılmış veya 1–10000 dışı rate-limit; `0.0.0.0`, CIDR veya hostname olarak verilen proxy açılışta `InvalidOperationException` verir. Geçerli HTTPS yapılandırması kabul edilir.
+- [x] **Forwarded header:** proxy tanımsızken `ForwardedHeaders.None`, boş KnownProxies/KnownIPNetworks. Doğrudan HTTP + sahte `X-Forwarded-Proto: https` ve listede olmayan eşten gelen başlık `400 BF_INVALID_REQUEST`. Yalnız tanımlı proxy (10.0.0.5) şemayı ve istemci IP'sini taşır; aynı IP üçüncü istekte 429, farklı IP ayrı bütçe. Sahte `X-Forwarded-For` anonim limiti aşamaz (401, 401, 429).
+- [x] **HTTPS başlıkları ve 429:** HSTS, `nosniff`, `DENY`, `no-referrer`, API `no-store`; anonim limit sonrası `429 BF_RATE_LIMITED` + `Retry-After`; `/health/live` limit dışında. Kimlikli okuma/yazma bütçesi `sub` bazında ayrı: alice 3. okumada 429, bob 200; yazma bütçesi okumadan bağımsız. Production'da OpenAPI 404.
+- [x] **Negatif JWT (production):** imzasız (`alg:none`), yabancı anahtar, HTTP issuer ve süresi dolmuş token 401. Geliştirme ortamındaki issuer/audience/expired/signature/malformed ve rol/üyelik negatifleri (sahte `ClaimTypes.Role`, client-role, üyelik dışı 403/404) mevcut integration suite'te bu tur yeniden çalıştı.
+- [x] **FE nonce CSP ve cookie:** `src/security/policy.ts` yalnız açık API/OIDC origin'lerini kabul eder, credential/query/`javascript:`/production HTTP ve nonce enjeksiyonunu reddeder; `unsafe-eval` yok. Locale cookie `httpOnly`, `SameSite=Lax`, production'da `Secure` (3 FE güvenlik testi).
+- [x] **Production build smoke (geçici 127.0.0.1:3013, sonra durduruldu):** tüm rotalar dinamik; `/login` yanıtında CSP + `private, no-store`, 24/24 script aynı istek nonce'unu taşır, her istekte yeni nonce; istemcinin gönderdiği `x-nonce`/CSP başlığı yok sayılır; `/health` CSP dışında. Tarayıcıda sayfa hydrate oldu, CSP ihlali konsolda yok.
+- [x] **Regresyon:** `bash scripts/test.sh` **425/425 = 88 unit + 337 integration, hata/atlama 0** (yeni 28 ReleaseSecurity vakası dahil; ayrı test DB, `buildingflow-test-*` kuyruk/bucket, geçici Mailpit). `npm test` **85/85**, typecheck ve `npm run build` başarılı. Korunan 26 dosya hash'i değişmedi.
+
+**Sınırlar:** Dış domain/TLS sertifikası yok; HTTPS davranışı test sunucusu ve yerel production build ile doğrulandı. `next.config.ts` HSTS başlığı build anındaki `BUILDINGFLOW_PUBLIC_HTTPS` değerini kullanır. Rate limiter süreç içi (tek API örneği) çalışır; çok örnekli dağıtımda proxy/gateway limiti gerekir.
+
 ## İŞ11 geliştirme öncesi kabul planı — 11.10.2026
 
 [Analiz](analysis/PHASE_11_RELEASE_QUALITY.md). Production güvenlik/forwarded header/HTTPS/CORS/rate-limit ve negatifJWT; FE nonce CSP/cookie/TR-EN; izole gerçek altyapıyla backend regressyon; lokal CI eşdeğeri, npm/NuGet audit/lisans; yedek fixture tam geri dönüş/hatalı checksum/aktif writers ret/yalnız yeni target koruması; migration ve son kullanıcı rehberi. Henüz başarılı kabul sonucu değildir.

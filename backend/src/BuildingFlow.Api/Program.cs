@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
 builder.Services.AddBuildingFlowTelemetry(builder.Logging,builder.Configuration,"buildingflow-api");
+builder.Services.AddReleaseSecurity(builder.Configuration, builder.Environment);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -46,6 +47,7 @@ if (args.Contains("--migrate", StringComparer.Ordinal))
     return;
 }
 
+app.UseReleaseSecurity();
 app.UseBuildingFlowRequestTelemetry();
 app.UseExceptionHandler();
 app.UseCors();
@@ -58,6 +60,7 @@ app.UseStatusCodePages(async statusContext =>
     await ApiProblems.Write(context, problem, context.RequestAborted);
 });
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 

@@ -1,3 +1,7 @@
+## 11.10.2026 — İŞ11 adım01: güvenlik ve erişim
+
+`faz-10-11-release` dalı açıldı; Faz10 ayrı commit. API `ReleaseSecurity` (production HTTPS/CORS/AllowedHosts doğrulaması, yalnız tanımlı proxy, HSTS/güvenli başlıklar/no-store, anonim/kimlikli okuma/yazma kodlu 429), 28 güvenlik testi; FE `proxy.ts` nonce CSP, `security/policy.ts`, güvenli başlıklar ve test edilebilir locale cookie seçenekleri; roadmap adım01 tiki ve TR/EN metin. **425 .NET, 85 FE, typecheck/build geçti.** DB/migration/.env/manifest değişmedi.
+
 ## 11.10.2026 — İŞ11 başladı
 
 Kullanıcı onayı; güvenlik/CI/yedek-restore/yayın kabul kapsamı ve test planı hazırlandı. Faz10 değişiklikleri korunur; yeni göreve henüz tik yok.

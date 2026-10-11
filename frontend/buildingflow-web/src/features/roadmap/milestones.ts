@@ -157,7 +157,7 @@ export const milestones: Milestone[] = [
   {
     number: "11", title: "releaseReadinessAndQuality", description: "prepareCompletedWorkflowsForASecureMaintainableRelease",
     tasks: [
-      planned("securityAndAccessReview", "httpsSecureSessionsCookiesCORSNecessaryRateLimitsAnd"),
+      done("securityAndAccessReview", "httpsSecureSessionsCookiesCORSNecessaryRateLimitsAnd", "phase11Step01Verification"),
       planned("ciAndAutomatedChecks", "buildUnitRelationalTestsDependencyChecksAndMigrationDeployment"),
       planned("backupAndRestore", "planAndVerifyPostgreSQLKeycloakAndFileBackupsRestoration"),
       planned("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs"),

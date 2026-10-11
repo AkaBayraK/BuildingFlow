@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
-import createNextIntlPlugin from "next-intl/plugin";
-const config: NextConfig = { output: "standalone" };
+import type {NextConfig} from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
+const config:NextConfig={output:'standalone',poweredByHeader:false,turbopack:{root:process.cwd()},async headers(){return [{source:'/(.*)',headers:[{key:'X-Content-Type-Options',value:'nosniff'},{key:'X-Frame-Options',value:'DENY'},{key:'Referrer-Policy',value:'no-referrer'},{key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'},...(process.env.BUILDINGFLOW_PUBLIC_HTTPS==='true'?[{key:'Strict-Transport-Security',value:'max-age=15552000'}]:[])]}];}};
 export default createNextIntlPlugin()(config);
