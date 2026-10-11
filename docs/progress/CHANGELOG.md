@@ -1,6 +1,10 @@
+## 11.10.2026 — main birleştirme ve yerel servis güncellemesi
+
+`faz-10-11-release` → `main` (`--no-ff`, push yok). main'de ci.sh 426 .NET / 85 FE geçti. Ana DB'de bekleyen migration yoktu, DB'ye yazılmadı. Worker yeni kodla yeniden başlatıldı; API kullanıcı tarafından yeniden başlatılmıştı. Smoke 15/15, gözlemlenebilirlik 11/11. Gözlemlenebilirlik sayısı 12/12 → 11/11 düzeltildi.
+
 ## 11.10.2026 — İŞ11 adım04 ve faz teslimi: kabul ve yayın rehberi
 
-`docs/RELEASE.md` (preflight, HTTPS/proxy, kurulum/migration, geri dönüş, yedek, SMTP, smoke/kabul), `deploy/production.env.example`, `scripts/release-preflight.py` + 21 negatif varyantlı testi (CI'da). HSTS build-zamanından `proxy.ts` çalışma zamanına taşındı. `test-observability.py` boşta worker log penceresi genişletildi. Sürüm etiketi v0.11, roadmap 4/4, AGENTS/README bağlantıları. **ci.sh: 426 .NET, 85 FE, build, audit, 331 lisans; smoke 15/15, gözlemlenebilirlik 12/12, anonim SSR 30 rota sızıntı 0.** **İŞ11 4/4 = %100.00; genel 83/83 = %100.00.** Push/merge yok.
+`docs/RELEASE.md` (preflight, HTTPS/proxy, kurulum/migration, geri dönüş, yedek, SMTP, smoke/kabul), `deploy/production.env.example`, `scripts/release-preflight.py` + 21 negatif varyantlı testi (CI'da). HSTS build-zamanından `proxy.ts` çalışma zamanına taşındı. `test-observability.py` boşta worker log penceresi genişletildi. Sürüm etiketi v0.11, roadmap 4/4, AGENTS/README bağlantıları. **ci.sh: 426 .NET, 85 FE, build, audit, 331 lisans; smoke 15/15, gözlemlenebilirlik 11/11, anonim SSR 30 rota sızıntı 0.** **İŞ11 4/4 = %100.00; genel 83/83 = %100.00.** Push/merge yok.
 
 ## 11.10.2026 — İŞ11 adım03: yedekleme ve geri dönüş
 

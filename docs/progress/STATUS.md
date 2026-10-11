@@ -14,7 +14,7 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Tamamlanan / toplam | 4/4 |
 | Faz ilerlemesi | %100.00 |
 | Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | Kullanıcı kararı: main'e merge/push, hedef ortamda go-live; yeni faz uydurulmaz |
+| Sonraki işlem | main'e birleştirildi (push yok, remote yok); hedef ortamda go-live kullanıcı kararı; yeni faz uydurulmaz |
 
 ## İş yol haritası özeti
 
@@ -96,4 +96,8 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 
 ## İŞ11 teslim kanıtı — 11.10.2026
 
-**4/4 resmi görev = %100.00; genel iş 83/83 = %100.00.** Son `bash scripts/ci.sh` çıkış 0: **426 .NET (88 unit + 338 integration), 85 FE, hata/atlama 0**, typecheck/build, npm audit 0, NuGet audit temiz, 331 lisans, idempotent SQL provası, preflight testi (21 güvensiz varyant reddi). Yedek provası 8/8; smoke 15/15; gözlemlenebilirlik 12/12; anonim SSR 30 rota sızıntı 0; TR/EN ve 375 px mobil. Bulunan ve düzeltilen sorunlar: bozuk idempotent betik, PostgreSQL readiness yarışı, Docker imajında açılmayan HSTS, kırılgan worker log penceresi. Dal `faz-10-11-release` (Faz10 + 4 adım commit'i); main'e merge/push yok. Dış TLS/SMTP/CI ile go-live yapılmadı. Ayrıntı [TESTING.md](../TESTING.md), [RELEASE.md](../RELEASE.md).
+**4/4 resmi görev = %100.00; genel iş 83/83 = %100.00.** Son `bash scripts/ci.sh` çıkış 0: **426 .NET (88 unit + 338 integration), 85 FE, hata/atlama 0**, typecheck/build, npm audit 0, NuGet audit temiz, 331 lisans, idempotent SQL provası, preflight testi (21 güvensiz varyant reddi). Yedek provası 8/8; smoke 15/15; gözlemlenebilirlik 11/11; anonim SSR 30 rota sızıntı 0; TR/EN ve 375 px mobil. Bulunan ve düzeltilen sorunlar: bozuk idempotent betik, PostgreSQL readiness yarışı, Docker imajında açılmayan HSTS, kırılgan worker log penceresi. Dal `faz-10-11-release` (Faz10 + 4 adım commit'i); main'e merge/push yok. Dış TLS/SMTP/CI ile go-live yapılmadı. Ayrıntı [TESTING.md](../TESTING.md), [RELEASE.md](../RELEASE.md).
+
+## main birleştirme — 11.10.2026
+
+`faz-10-11-release` main'e birleştirildi; main'de ci.sh **426 .NET / 85 FE** geçti. Ana DB'de 11 migration'ın tamamı zaten uygulanmıştı; DB'ye yazılmadı. API ve worker yeni kodla çalışıyor; smoke 15/15, gözlemlenebilirlik 11/11. Push yapılmadı. Detay [TESTING.md](../TESTING.md).
