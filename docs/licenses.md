@@ -88,3 +88,7 @@ Yeni sabit container sürümleri: [Collector contrib0.162.0 Apache-2.0](https://
 ## İŞ11 CI yardımcıları
 
 Yeni npm/NuGet/container bağımlılığı yok. GitHub tarafından yayımlanan actions/checkout, actions/setup-node, actions/setup-dotnet MIT lisanslıdır; CI yetkisi contents:read, sır/dump cache veya artifact yüklemesi yok. Resmî lisanslar: https://github.com/actions/checkout/blob/main/LICENSE, https://github.com/actions/setup-node/blob/main/LICENSE, https://github.com/actions/setup-dotnet/blob/main/LICENSE. Action'lar commit SHA ile sabitlenir: checkout v4.4.0, setup-node v4.4.0, setup-dotnet v4.3.1 (etiketler `git ls-remote` ile doğrulandı). Workflow geliştirmesi yerel kalite akışıyla doğrulanır; GitHub üzerinde çalıştırılmış sayılmaz.
+
+Önceki İŞ11 incelemesinde resmî kaynaklardan alınan telif/lisans metinleri korunur: [checkout](licenses/phase11-checkout-LICENSE.txt), [setup-node](licenses/phase11-setup-node-LICENSE.txt), [setup-dotnet](licenses/phase11-setup-dotnet-LICENSE.txt). 11.10.2026 apartman/daire FE eşliği yeni paket, font, ikon veya dış görsel eklemedi; envanter **331** sürüm. Ekran kanıtları yerel uygulama görüntüleridir.
+
+11.10.2026 Daire/kişi bağlantıları ve tablet bakımında yeni paket/asset/font eklenmedi. Mevcut shadcn/ui + TanStack/Next.js/Lucide kullanıldı; npm/NuGet metadata kontrolü331 geçti, manifest/lock aynı. Ekran kanıtları yerel uygulama kabul görüntüleridir.

@@ -68,7 +68,7 @@ export const milestones: Milestone[] = [
       done("createAndManageBuildingsBlocks", "nameAndOptionalFloorCountListSearchSortEdit", "hierarchyapitestsCRUDThreeWriterRolesScopeDuplicatesAndPagination"),
       done("manageApartmentsAndUnits", "directApartmentsOrBuildingScopedApartmentOfficeShopVilla", "realPostgreSQLSixUnitTypesDirectCRUDUniqueComposite"),
       done("versionStatusAndHistoryPreservingDeletion", "staleVersionsReturn409WithReloadNonemptyParentsCannot", "apiDuplicateParentRacesAndRollbackTwoBrowserSessions"),
-      done("uiRegressionAndDeliveryDocuments", "propertiesMenuFourTypesTypeSpecificDetailsAndShared", "146NETTests21Unit125IntegrationNoneFailed"),
+      done("uiRegressionAndDeliveryDocuments", "propertyUnitDetailsFrontendDelivery", "propertyDetailsFrontendVerification"),
     ],
   },
   {
@@ -76,7 +76,7 @@ export const milestones: Milestone[] = [
     tasks: [
       done("personModelAndRecordFlows", "propertyScopedNamesAndOptionalContactCRUDSearchSort", "peopleapitestsManagementCRUDTrustedAuditVersionAndScopeBrowser"),
       done("unitoccupancyRelationships", "realUnitOwnerTenantResidentLinksInclusiveDatesSame", "7NewDomainAnd18RealPostgreSQLAPICases"),
-      done("moveInAndHistoryScreens", "linkPersonToUnitRecordEndOnceAndView", "browser0107OctoberResidentEndedOwnerOngoing390px"),
+      done("moveInAndHistoryScreens", "unitPeopleNavigationDetail", "unitPeopleNavigationVerification"),
       done("privacyMigrationAndRegression", "managementRolesAndActiveMembershipProtectPersonalDataOngoing", "171NETTests28Unit143IntegrationNoneFailed"),
     ],
   },

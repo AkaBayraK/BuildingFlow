@@ -16,6 +16,9 @@ public sealed record OccupancyResponse(Guid Id, Guid PropertyId, Guid PersonId, 
     string PersonName, string UnitNumber, string? BuildingName, string Type, DateOnly StartDate, DateOnly? EndDate,
     bool IsPrimaryContact, string Status, long Version, TenantDebtResult? TenantDebtResult = null);
 public sealed record UnitChoice(Guid Id, Guid? BuildingId, string Number, string? BuildingName, bool IsEnabled);
+public sealed record UnitPersonLink(Guid PersonId, string PersonName);
+public sealed record UnitCurrentParties(Guid UnitId, Guid? BuildingId, IReadOnlyList<UnitPersonLink> Owners, IReadOnlyList<UnitPersonLink> Tenants);
+public sealed record UnitCurrentPartiesResponse(Guid PropertyId, DateOnly AsOfDate, IReadOnlyList<UnitCurrentParties> Items);
 public interface IPeopleStore
 {
     Task<PagedRows<PersonResponse>?> ListAsync(Guid property, PeopleQuery query, AccessScope access, CancellationToken token);
@@ -24,6 +27,7 @@ public interface IPeopleStore
     Task<PersonResponse?> UpdateAsync(Guid property, Guid person, UpdatePersonRequest request, AccessScope access, CancellationToken token);
     Task<bool> DeleteAsync(Guid property, Guid person, long version, AccessScope access, CancellationToken token);
     Task<PagedRows<UnitChoice>?> UnitChoicesAsync(Guid property, PeopleQuery query, AccessScope access, CancellationToken token);
+    Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, AccessScope access, CancellationToken token);
     Task<PagedRows<OccupancyResponse>?> OccupanciesAsync(Guid property, Guid? person, Guid? unit, PeopleQuery query, AccessScope access, CancellationToken token);
     Task<OccupancyResponse?> GetOccupancyAsync(Guid property, Guid occupancy, AccessScope access, CancellationToken token);
     Task<OccupancyResponse?> CreateOccupancyAsync(Guid property, CreateOccupancyRequest request, AccessScope access, CancellationToken token);
@@ -79,6 +83,13 @@ public sealed class PeopleService(IPeopleStore store, ICurrentUserService user)
     { var access = Access(); Version(version); return store.DeleteAsync(property, person, version, access, token); }
     public Task<PagedRows<UnitChoice>?> UnitChoicesAsync(Guid property, PeopleQuery query, CancellationToken token)
     { var access = Access(); Query(query); return store.UnitChoicesAsync(property, query, access, token); }
+    public Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, CancellationToken token)
+    {
+        var access = Access();
+        if (unitIds.Count is < 1 or > 100 || unitIds.Any(id => id == Guid.Empty) || unitIds.Distinct().Count() != unitIds.Count)
+            throw new RequestValidationException(new() { ["unitId"] = [ErrorCatalog.InvalidRequest.Create()] });
+        return store.CurrentUnitPartiesAsync(property, unitIds, access, token);
+    }
     public Task<PagedRows<OccupancyResponse>?> OccupanciesAsync(Guid property, Guid? person, Guid? unit, PeopleQuery query, CancellationToken token)
     { var access = Access(); Query(query); return store.OccupanciesAsync(property, person, unit, query, access, token); }
     public Task<OccupancyResponse?> GetOccupancyAsync(Guid property, Guid occupancy, CancellationToken token) => store.GetOccupancyAsync(property, occupancy, Access(), token);

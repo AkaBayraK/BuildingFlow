@@ -4,21 +4,21 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 
 ## Aktif tur
 
-**Onaylı kapsam İŞ11 — Yayın hazırlığı ve kalite;11.10.2026 kullanıcı onayı.** [Analiz](../analysis/PHASE_11_RELEASE_QUALITY.md). Yerel yayın adayı ve araçlar; hedef üretim ortamına dağıtım yok.
+**BAKIM: Daire/kişi bağlantıları ve iPad Air 11.** Kullanıcı 11.10.2026 aktif Kiracı/Malik kolonları ve iki yönlü bağlantı ile tablet önizlemesini istedi. Önceki detay kolonları korunur; yeni ürün fazı yok.
 
 | Alan | Durum |
 | --- | --- |
-| Akış / faz | İŞ11, kayıt14/14 |
-| Aktif adım | Yok — İŞ11 teslim edildi |
+| Akış | BAKIM, ilişkili İŞ04 (kayıt 05/14) |
+| Aktif adım | 03/03 Test, tablet kabulü ve teslim (bitti) |
 | Durum | TAMAMLANDI |
-| Tamamlanan / toplam | 4/4 |
-| Faz ilerlemesi | %100.00 |
-| Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | main'e birleştirildi (push yok, remote yok); hedef ortamda go-live kullanıcı kararı; yeni faz uydurulmaz |
+| Bu tur tamamlanan / toplam | 3/3 |
+| Bu tur ilerleme | %100.00 |
+| Engel | Yok |
+| Sonraki işlem | Yeni kapsam için kullanıcı onayı; iPad önizleme açık |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. İŞ10 ve İŞ11 tamamlandı; yeni faz için kullanıcı onayı beklenir.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ11: 4/4 = %100.00**; önceki teslimler korunur. İŞ10 ve İŞ11 tamamlandı; yeni faz için kullanıcı onayı beklenir.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 
 **319 .NET (68 unit +251 integration), 76 FE; hata/atlama0.** Gerçek ayrı PostgreSQL/özel geçici MinIO, migration/model/Down/tekrar/idempotent SQL; TR/EN sağ512px ve390px mobil panel kabulü, son typecheck/build,316 lisans ve19 korunan dosya kontrolü geçti. İki yeni BaseEntity tablosu ve Minio7.0.0 SDK; Duyurular/Belgeler menüleri yerel FE3003'te, API5005 Healthy. Yerel tekrar migration öncesi/sonrası15 eski tablo hash'i aynı; ilk canlı upgrade öncesi hash kanıtı alınamadı, ayrı PG yükseltme testi vardır. Kullanıcı DB'sinde başarılı duyuru/dosya mutation yapılmadı. Mail/SMS İŞ09, dosya taraması/retention ve finans eki gelecekteki kapsam; Docker imajı bu tur derlenmedi. Detay [TESTING.md](../TESTING.md), [API](../api/communication.md).
 
-Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk kullanılan %88 / kalan %12, reset 11.10.2026 14:28:33; 10080 dk kullanılan %14 / kalan %86, reset 18.10.2026 09:28:33. Giriş token: **BİLGİ MEVCUT DEĞİL**. Çıkış token: **BİLGİ MEVCUT DEĞİL**. Toplam token: **BİLGİ MEVCUT DEĞİL**. Kalan context: **BİLGİ MEVCUT DEĞİL**. Oturum tüketimi: **BİLGİ MEVCUT DEĞİL**. Hesap kotası sohbet tüketimi değildir.
+Son kullanım okuması: Codex usage, 11.10.2026 15:00:47 Europe/Istanbul; 300 dk kullanılan %91 / kalan %9, reset 11.10.2026 19:29:12; 10080 dk kullanılan %30 / kalan %70, reset 18.10.2026 09:28:33. Giriş token: **BİLGİ MEVCUT DEĞİL**. Çıkış token: **BİLGİ MEVCUT DEĞİL**. Toplam token: **BİLGİ MEVCUT DEĞİL**. Kalan context: **BİLGİ MEVCUT DEĞİL**. Oturum tüketimi: **BİLGİ MEVCUT DEĞİL**. Hesap kotası sohbet tüketimi değildir.
 
 ## İŞ 09 adım01 kanıtı — 11.10.2026
 
@@ -105,3 +105,11 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## BAKIM — otomatik migration — 11.10.2026
 
 Dal `feature/apartment-unit-details`: API açılışta bekleyen migration'ları advisory lock ile uygular (Development varsayılan açık); `db.sh sync` entity değişikliğinden eklemeli migration üretir. `ApartmentAndUnitDetails` ana DB'ye açılışta uygulandı (önce yedek alındı); elle eklenmiş iki kolon hizalandı. **451 .NET** geçti. Girişli ekran kabulü yapılmadı. Ayrıntı [TESTING.md](../TESTING.md), [MIGRATIONS.md](../MIGRATIONS.md).
+
+## BAKIM teslim — frontend detay kolonları — 11.10.2026
+
+**3/3 = %100.00.** Genel Bilgiler ve bina özellikleri, Daireler net alan/oda/kat konumu/ara kat/banyo/mutfak/balkon/ısıtma: form, detay, tablo ve mobil kartlarda; TR/EN ve nullable değer koruması. **91/91 FE**, typecheck/build, **331** lisans; girişli Chrome TR/EN, Sütunlar ve390×844 kabulü, **149/149** korunan dosya hash eşliği. Önceki451.NET bu tur tekrar çalıştırılmadı. Canlı kayıt mutation/commit/merge/push yok. İŞ03 mevcut doğrulama kaydı güncellendi, resmi83/83 değişmedi. Ayrıntı ve ekran kanıtı [TESTING.md](../TESTING.md).
+
+## BAKIM teslim — Daire/kişi bağlantıları ve tablet — 11.10.2026
+
+**3/3=%100.00; genel83/83 korunur.** Güncel Kiracı/Ev sahibi kolonları ve kişi bilgileri+ilişkiler; iki yönlü tam UUID filtreli gezinme. **464.NET (101unit+363integration),99FE, hata/atlama0**, typecheck/build,331 lisans,28/28 korunan dosya. Girişli TR/EN, tablet820×1180/1180×820,390px ve masaüstü1440; taşma0. Chrome iPad önizleme açık; gerçek Safari/iPadOS testi yok. API5005 Healthy/FE3003 çalışıyor, şema veya canlı iş kaydı mutation yok. Commit/merge/push yok. Ayrıntı [TESTING.md](../TESTING.md).

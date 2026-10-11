@@ -104,6 +104,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
     {
         if(!await Properties(access).AnyAsync(value=>value.Id==siteId,token) || (blockId is not null && !await Buildings(siteId,access).AnyAsync(value=>value.Id==blockId,token)))return null;
         var query=Units(siteId,blockId,access).AsNoTracking();
+        if(request.UnitId is { } unitId)query=query.Where(value=>value.Id==unitId);
         if(!string.IsNullOrWhiteSpace(request.Search)){var pattern=Pattern(request.Search);query=query.Where(value=>EF.Functions.ILike(value.Number,pattern,"\\"));}
         var count=await query.CountAsync(token);var desc=request.SortDirection=="desc";
         var ordered=request.SortBy switch {

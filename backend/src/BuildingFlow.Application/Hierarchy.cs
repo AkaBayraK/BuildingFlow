@@ -3,7 +3,7 @@ using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
 public sealed record AccessScope(string UserId, bool ReadAll, bool ReadFinancialParties = false);
-public sealed record HierarchyQuery(int Page = 1, int PageSize = 10, string? Search = null, string SortBy = "name", string SortDirection = "asc");
+public sealed record HierarchyQuery(int Page = 1, int PageSize = 10, string? Search = null, string SortBy = "name", string SortDirection = "asc", Guid? UnitId = null);
 public sealed record PagedRows<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);
 public sealed record CreateBuildingRequest(string? Name, int? FloorCount = null, int? ConstructionYear = null, string? HeatingType = null, bool? HasElevator = null, string? ParkingType = null)
 {
@@ -89,6 +89,7 @@ public sealed class HierarchyService(IHierarchyStore store, ICurrentUserService 
     {
         Dictionary<string, ApiErrorMessage[]> errors = [];
         if (query.Page is < 1 or > 1000000) errors["page"] = [ErrorCatalog.InvalidPage.Create()];
+        if (apartment && query.UnitId == Guid.Empty) errors["unitId"] = [ErrorCatalog.InvalidRequest.Create()];
         if (query.PageSize is < 1 or > 100) errors["pageSize"] = [ErrorCatalog.PageSizeBounds.Create()];
         if (query.Search?.Trim().Length > 200) errors["search"] = [ErrorCatalog.ErrorsSearchBounds.Create()];
         if (query.SortDirection is not ("asc" or "desc")) errors["sortDirection"] = [ErrorCatalog.InvalidSortDirection.Create()];

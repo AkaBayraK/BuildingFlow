@@ -3,7 +3,9 @@ import {ManagementPanel} from "@/components/management/ManagementPanel";
 import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
 import {useNotification} from "@/components/feedback/Notifications";
 import {useLocale,useTranslations} from "next-intl";
-import {useEffect,useRef,useState} from "react";
+import Link from "next/link";
+import {unitListHref} from "./unit-links";
+import {useCallback,useEffect,useRef,useState} from "react";
 import type {ColumnDef} from "@tanstack/react-table";
 import {Plus,X,DoorOpen,CalendarCheck,RefreshCw,LoaderCircle,Save} from "lucide-react";
 import {Button} from "@/components/ui/button";
@@ -16,7 +18,7 @@ import {ApiError,errorMessage,useAuthorizedApi} from "@/services/api";
 import {businessToday,formatDateOnly,formatCurrency} from "@/lib/format";
 import {occupancyTypeNames,occupancyStatusNames,personName,type Person,type Occupancy,type OccupancyType,type UnitChoice,type CreateOccupancyRequest} from "./types";
 import {readMoveOutPreview,readTenantDebtResult,moveOutApprovals,type MoveOutPreview} from "../dues/model";
-import {parseOccupancyPage} from "@/services/management-contracts";
+import {parsePerson,parseOccupancyPage} from "@/services/management-contracts";
 import {useRows,useSearch} from "./useRows";
 
 function unitLabel(unit:{buildingName:string|null;number:string}){return `${unit.buildingName?unit.buildingName+" · ":""}${unit.number}`;}
@@ -25,12 +27,14 @@ export function PersonOccupancies({propertyId,person,parentEnabled,revision,onCh
 
   const api=useAuthorizedApi();const root=`/api/v1/properties/${encodeURIComponent(propertyId)}`;
   const [current,setCurrent]=useState<Person|null>(null);const [personError,setPersonError]=useState("");const [page,setPage]=useState(1);const [creating,setCreating]=useState(false);const [ending,setEnding]=useState<Occupancy|null>(null);const [notice,setNotice]=useState("");
-  const rows=useRows<Occupancy>(`${root}/occupancies?personId=${encodeURIComponent(person.id)}&page=${page}&pageSize=10`,revision);
-  useEffect(()=>{const controller=new AbortController();setCurrent(null);setPersonError("");void api<Person>(`${root}/people/${encodeURIComponent(person.id)}`,{signal:controller.signal}).then(value=>{if(!controller.signal.aborted)setCurrent(value);}).catch(error=>{if(!controller.signal.aborted)setPersonError(errorMessage(error,locale));});return()=>controller.abort();},[api,root,person.id,revision]);
+  const decode=useCallback((value:unknown)=>parseOccupancyPage(value,propertyId,person.id),[propertyId,person.id]);
+  const rows=useRows<Occupancy>(`${root}/occupancies?personId=${encodeURIComponent(person.id)}&page=${page}&pageSize=10`,revision,true,decode);
+  const unitLink=(value:Occupancy)=><Link className="inline-flex min-h-11 items-center rounded-md font-semibold text-primary underline-offset-4 hover:underline wrap-anywhere" href={unitListHref(value)} aria-label={t("openUnitList",{unit:unitLabel({number:value.unitNumber,buildingName:value.buildingName})})}>{unitLabel({number:value.unitNumber,buildingName:value.buildingName})}</Link>;
+  useEffect(()=>{const controller=new AbortController();setCurrent(null);setPersonError("");void api<unknown>(`${root}/people/${encodeURIComponent(person.id)}`,{signal:controller.signal}).then(value=>parsePerson(value,propertyId,person.id)).then(value=>{if(!controller.signal.aborted)setCurrent(value);}).catch(error=>{if(!controller.signal.aborted)setPersonError(errorMessage(error,locale));});return()=>controller.abort();},[api,root,person.id,revision]);
   const enabled=parentEnabled && !!current?.isEnabled && !personError;
   const actions=(value:Occupancy)=>value.endDate===null?<Button size="sm" variant="outline" disabled={!parentEnabled} onClick={()=>setEnding(value)}><CalendarCheck className="size-4"/>{t("endRelationship")}</Button>:<span className="text-xs text-muted-foreground">{t("endDateRecorded")}</span>;
   const columns:ColumnDef<Occupancy>[]=[
-    {id:"unit",header:t("unit"),cell:({row})=><strong>{unitLabel({number:row.original.unitNumber,buildingName:row.original.buildingName})}</strong>},
+    {id:"unit",header:t("unit"),cell:({row})=>unitLink(row.original)},
     {id:"type",header:t("relationship"),cell:({row})=><><Badge variant="secondary">{t(occupancyTypeNames[row.original.type])}</Badge>{row.original.isPrimaryContact && <span className="mt-1 block text-xs text-muted-foreground">{t("primaryContact")}</span>}</>},
     {id:"dates",header:t("dateRange"),cell:({row})=><span className="text-xs">{formatDateOnly(row.original.startDate,locale)} — {row.original.endDate?formatDateOnly(row.original.endDate,locale):t("ongoing")}</span>},
     {id:"status",header:t("status"),cell:({row})=><Badge variant={row.original.status==="ACTIVE"?"default":"outline"}>{t(occupancyStatusNames[row.original.status])}</Badge>},
@@ -39,7 +43,7 @@ export function PersonOccupancies({propertyId,person,parentEnabled,revision,onCh
   return <section id="person-occupancies" aria-label={t("personSUnitRelationships")} className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm"><div className="flex flex-wrap items-center justify-between gap-4 border-b p-5"><div><span className="text-xs text-primary">{t("unitRELATIONSHIPSANDHISTORY")}</span><h2 className="mt-1 text-xl font-semibold wrap-anywhere">{current?personName(current):personName(person)}</h2></div><div className="flex gap-2"><Button disabled={!enabled} onClick={()=>setCreating(true)}><Plus className="size-4"/>{t("linkToUnit")}</Button><Button variant="outline" onClick={onClose}>{t("backToPeople")}</Button></div></div>
     <p className="border-b p-5 text-xs leading-6 text-muted-foreground">{t("ownerTenantAndResidentAreSeparateRelationshipsBothDate")}</p>
     {personError && <MessageBanner className="my-4 text-left">{personError}</MessageBanner>}{notice && <MessageBanner className="my-4 text-left" kind="success" announce={false}>{notice}</MessageBanner>}
-    <RecordList compact {...rows} columns={columns} page={page} onPage={setPage} onRetry={onChanged} empty={<><DoorOpen className="mx-auto mb-3 size-8"/><strong>{t("thisPersonHasNoUnitRelationshipsYet")}</strong><p className="mt-2">{t("useLinkToUnitToAddAnOwnerTenant")}</p></>} card={value=><><div className="mb-2 flex items-start justify-between gap-2"><strong>{unitLabel({number:value.unitNumber,buildingName:value.buildingName})}</strong><Badge variant="secondary">{t(occupancyTypeNames[value.type])}</Badge></div><p className="mb-2 text-xs text-muted-foreground">{formatDateOnly(value.startDate,locale)} — {value.endDate?formatDateOnly(value.endDate,locale):t("ongoing")}</p><p className="mb-3 text-xs text-muted-foreground">{t(occupancyStatusNames[value.status])}{value.isPrimaryContact?t("primaryContact2"):""}</p>{actions(value)}</>}/>
+    <RecordList compact {...rows} columns={columns} page={page} onPage={setPage} onRetry={onChanged} empty={<><DoorOpen className="mx-auto mb-3 size-8"/><strong>{t("thisPersonHasNoUnitRelationshipsYet")}</strong><p className="mt-2">{t("useLinkToUnitToAddAnOwnerTenant")}</p></>} card={value=><><div className="mb-2 flex items-start justify-between gap-2">{unitLink(value)}<Badge variant="secondary">{t(occupancyTypeNames[value.type])}</Badge></div><p className="mb-2 text-xs text-muted-foreground">{formatDateOnly(value.startDate,locale)} — {value.endDate?formatDateOnly(value.endDate,locale):t("ongoing")}</p><p className="mb-3 text-xs text-muted-foreground">{t(occupancyStatusNames[value.status])}{value.isPrimaryContact?t("primaryContact2"):""}</p>{actions(value)}</>}/>
     {creating && current && <OccupancyEditor root={root} person={current} onClose={()=>setCreating(false)} onSaved={()=>{setNotice(t("unitRelationshipSaved"));setPage(1);onChanged();}}/>}
     {ending && <EndOccupancy root={root} target={ending} onClose={()=>setEnding(null)} onSaved={()=>{setNotice(t("endDateRecordedRelationshipHistoryPreserved"));onChanged();}}/>}
   </section>;

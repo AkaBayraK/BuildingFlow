@@ -18,7 +18,7 @@ internal static class HierarchyEndpoints
         blocks.MapPut("/{blockId:guid}",async (Guid siteId,Guid blockId,UpdateBuildingRequest request,HierarchyService service,CancellationToken token)=>Found(await service.UpdateBuildingAsync(siteId,blockId,request,token))).RequireAuthorization("CanManageHierarchy");
         blocks.MapDelete("/{blockId:guid}",async (Guid siteId,Guid blockId,long version,HierarchyService service,CancellationToken token)=>Deleted(await service.DeleteBuildingAsync(siteId,blockId,version,token))).RequireAuthorization("CanManageHierarchy");
         var apartments=blocks.MapGroup("/{blockId:guid}/units");
-        apartments.MapGet("",async (Guid siteId,Guid blockId,HierarchyService service,CancellationToken token,int page=1,int pageSize=10,string? search=null,string sortBy="number",string sortDirection="asc")=>Found(await service.ListUnitsAsync(siteId,blockId,new(page,pageSize,search,sortBy,sortDirection),token)));
+        apartments.MapGet("",async (Guid siteId,Guid blockId,HierarchyService service,CancellationToken token,int page=1,int pageSize=10,string? search=null,string sortBy="number",string sortDirection="asc",Guid? unitId=null)=>Found(await service.ListUnitsAsync(siteId,blockId,new(page,pageSize,search,sortBy,sortDirection,unitId),token)));
         apartments.MapGet("/{apartmentId:guid}",async (Guid siteId,Guid blockId,Guid apartmentId,HierarchyService service,CancellationToken token)=>Found(await service.GetUnitAsync(siteId,blockId,apartmentId,token)));
         apartments.MapPost("",async (Guid siteId,Guid blockId,CreateUnitRequest request,HierarchyService service,CancellationToken token)=>{
             var result=await service.CreateUnitAsync(siteId,blockId,request,token);

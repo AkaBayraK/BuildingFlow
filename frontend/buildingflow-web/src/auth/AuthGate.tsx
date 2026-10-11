@@ -27,9 +27,10 @@ function identity() {
 const AuthContext = createContext<Keycloak | null>(null);
 const returnPathKey = "buildingflow-return-path";
 function rememberWorkspacePath() {
-  if (isWorkspaceReturnPath(window.location.pathname)) {
+  const path=window.location.pathname+window.location.search;
+  if (isWorkspaceReturnPath(path)) {
     // Store only a validated local route. Credentials and tokens remain in memory.
-    window.sessionStorage.setItem(returnPathKey, window.location.pathname);
+    window.sessionStorage.setItem(returnPathKey, path);
   }
 }
 export function useIdentity() {
@@ -62,7 +63,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       if (value) {
         const path = window.sessionStorage.getItem(returnPathKey);
         window.sessionStorage.removeItem(returnPathKey);
-        if (path && isWorkspaceReturnPath(path) && path !== window.location.pathname) router.replace(path);
+        if (path && isWorkspaceReturnPath(path) && path !== window.location.pathname+window.location.search) router.replace(path);
       }
     }).catch(() => { if (active) setFailed(true); });
     const interval = window.setInterval(() => { if (kc.authenticated) void renew(); }, 30000);

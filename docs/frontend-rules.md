@@ -218,3 +218,13 @@ Gider immutable; iptal gerekçeli/version, yeni kayıt UUID aynı içerik retry.
 ## İŞ08 dosya/duyuru ekranları
 
 Duyurular ve Belgeler bağımsız menü, ortak RecordList/TanStack ve sağ ManagementPanel kullanır. Düz metin duyuru React text olarak gösterilir; HTML işleme yok. Upload FormData ve download Blob ortak authorizedRequest üzerinden geçer; multipart Content-Type browser tarafından boundary ile belirlenir. Blob boyut/MIME/SHA256 doğrulanmadan download URL üretilmez; geçici URL iptal edilir. Dosya kabulü PDF/JPEG/PNG≤10MiB; backend aynı sınırı ve imzayı bağımsız doğrular. ApiError ham server/SDK exception mesajı göstermeden kodla TR/EN sağ üst ortak bildirimde sunulur. Duyuru eki görünürlüğü server’da üst kayıttan gelir; FE rolü veri yetkisi değildir.
+
+## Apartman/daire detay alanları — 11.10.2026
+
+`features/property-details/model.ts` mevcut backend enum ve nullable alanlarının ortak FE kayıt defteridir. Oluşturma, düzenleme, 409 yeniden yükleme, detay, tablo ve mobil kartlar aynı alan tanımını kullanır. `DetailInputs`/`DetailValues` mevcut Input/Label/FieldError/DetailField ve TR/EN sözlükleriyle çalışır. Boş seçim null'dır; false/0 kaybolmaz. Net alan ≤brüt alan, iki ondalık; yapım yılı Europe/Istanbul güncel yılına kadar, kat konumu floor ile uyumlu olmalıdır. Yıl binlik ayırıcı olmadan gösterilir. Apartman özellikleri yalnız APARTMENT Property veya Building üzerinde tutulur. Yeni Unit sütunlarında backend desteklemediği için sort açılmaz; TanStack columnVisibility Sütunlar menüsünden yönetilir. API DTO'ları `management-contracts` ile dış veri/ebeveyn kapsamı kontrolünden geçer. PUT mevcut opsiyonel alanları taşımalı; yalnız temel alanları göndermek detayları null'a çevirir. Test kanıtı [TESTING.md](TESTING.md), sözleşme [hierarchy.md](api/hierarchy.md).
+
+### Daire–kişi gezinme kalıbı (11.10.2026)
+
+`features/people/unit-links.ts` canonical doğrudan/binalı UUID filtreli hedef, strict query ve batch DTO doğrulamasını paylaşır. PersonPage/PersonOccupancies/RecordDetails kişi/bölüm kimliğini doğrular; ham kişi/telefon/e-posta query'ye yazılmaz. `useUnitPeople` yalnız yönetici rolünde, görünen daire sayfası için tek bounded batch; loading/error/ilişki-yok farklı, iptalde/eski sayfada sonuç yayınlanmaz. ACCOUNTANT için görünür kişi sütunu veya kişi API isteği açılmaz.
+
+`RecordList` varsayılan md davranışını korur; daireler `cardBreakpoint="xl"` kullanır: tablet/mobil kart, sm'den itibaren iki sütun (tek sonuç tam genişlik),1280px'den itibaren tablo. Kişi bağlantıları en az44px ve satır kırılmalı; yeni kişi alanları önce gösterilir. Yeni route/query OIDC whitelist + negatif testle birlikte gelir. Kanıt TESTING.md, gerçek iPad Safari kabulü Chrome ölçü önizlemesinden ayrıdır.

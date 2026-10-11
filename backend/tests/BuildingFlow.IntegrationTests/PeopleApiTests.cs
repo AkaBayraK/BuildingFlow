@@ -41,7 +41,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     [PostgresFact] public async Task AnonymousIsRejectedBeforePersonalDataAccess()
     {
         using var client = TestToken.Client(factory, null, ""); var root = Root(Guid.NewGuid());
-        foreach (var path in new[] { "/people", "/people/" + Guid.NewGuid(), "/occupancies", "/occupancies/" + Guid.NewGuid(), "/unit-choices" }) Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(root + path)).StatusCode);
+        foreach (var path in new[] { "/people", "/people/" + Guid.NewGuid(), "/occupancies", "/occupancies/" + Guid.NewGuid(), "/unit-choices", "/unit-parties?unitIds=" + Guid.NewGuid() }) Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(root + path)).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(root + "/people", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(root + "/occupancies", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PutAsJsonAsync(root + "/occupancies/" + Guid.NewGuid() + "/end", new { })).StatusCode);
@@ -50,7 +50,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     public async Task ReadOnlyAndForgedRolesCannotReadOrWritePersonalData(string role)
     {
         var x = await Seed(); using var client = TestToken.Client(factory, x.Actor, role); var root = Root(x.Property.Id);
-        foreach (var path in new[] { "/people", "/occupancies", "/unit-choices" }) Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(root + path)).StatusCode);
+        foreach (var path in new[] { "/people", "/occupancies", "/unit-choices", "/unit-parties?unitIds=" + Guid.NewGuid() }) Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(root + path)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(root + "/people", new CreatePersonRequest("A", "B"))).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(root + "/occupancies", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync(root + "/people/" + Guid.NewGuid() + "?version=1")).StatusCode);

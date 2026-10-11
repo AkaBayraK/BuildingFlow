@@ -1,3 +1,14 @@
+## 11.10.2026 — BAKIM: Genel Bilgiler / Daireler frontend detay alanları
+
+
+## 11.10.2026 — BAKIM: Daire/kişi bağlantıları ve tablet
+
+Güncel kiracı/malik bilgisi için yetki korumalı bounded batch People read (Application/Store/PeopleEndpoints); daire GET listelerinde tam UnitId filtresi (Hierarchy/Store/direkt+binalı endpoints). Yeni UnitPeople/unit-links, HierarchyRows kolon/kart bağlantıları; PersonPage iletişim özeti, PersonOccupancies ve RecordDetails bölüm bağlantıları; ManagementPage+unit route query, auth return-path/AuthGate, strict management DTO, RecordList tablet breakpoint ve TR/EN. İŞ04 mevcut görev kanıtı güncellendi; yeni faz/payda yok. PeopleApiTests negatifleri +13 UnitPeopleNavigation PG senaryosu +8 FE davranış testi. **464.NET/99FE**, typecheck/build,331 lisans,28/28 koruma; tablet/telefon/masaüstü kabulü ve3 screenshot. API yerelde yeniden açıldı, Chrome tablet önizlemesi açık. Şema/live business mutation/commit/merge/push yok. Belgeler: people/hierarchy/frontend-rules/FE AGENTS/licenses/TESTING/progress. Kanıt [TESTING.md](../TESTING.md).
+
+`features/property-details` ortak alan/seçenek/payload/doğrulama ve DetailInputs/DetailValues; EntityEditor, Property oluştur/detay, Building detay ve HierarchyRows/RecordDetails yeni nullable alanları okur/yazar/gösterir. RecordList TanStack columnVisibility; net alan/oda düzeni ve seçilebilir diğer özellikler, mobil kartlar, TR/EN, scope/DTO doğrulama. Altı yeni anlamlı test ve mevcut İŞ03 roadmap kanıtı; hierarchy/frontend-rules/AGENTS/lisans/ilerleme belgeleri ve dört ekran kanıtı.
+
+**91/91 FE, typecheck/build, 331 lisans, TR/EN ve 390 px tarayıcı kabulü geçti; 149 korunan dosya aynı. Bu tur3/3 = %100.00, genel83/83 değişmedi.** BE/DB/migration ve bağımlılık manifesti değiştirilmedi; önceki451 .NET bu tur yeniden koşulmadı. Canlı başarılı kayıt mutation'ı yok; commit/merge/push yok. İŞ11 incelemesinden resmî MIT action lisans metinleri korunup bağlandı. Ayrıntı [TESTING.md](../TESTING.md).
+
 ## 11.10.2026 — BAKIM: açılışta otomatik migration ve apartman/daire kolonları
 
 `DatabaseMigration` (advisory lock, entity-migration uyum kontrolü), API `Database:AutoMigrate`, `db.sh sync`, `dev.sh api` entegrasyonu, 6 yeni otomatik migration testi. `ApartmentAndUnitDetails` elle eklenmiş kolonlara karşı idempotent; 8 eski yükseltme testi `LegacySchema` ile düzeltildi. Ana DB yedeklendi ve migration API açılışında uygulandı. **451 .NET geçti.** Dal `feature/apartment-unit-details`; push/merge yok.
