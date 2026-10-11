@@ -20,15 +20,15 @@ public sealed class ExpenseMigrationTests
         try
         {
             var connection = new NpgsqlConnectionStringBuilder(original) { SearchPath = schema + ",public" };
-            await using var db = new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>().UseNpgsql(connection.ConnectionString, options => options.MigrationsHistoryTable("__EFMigrationsHistory", schema)).AddInterceptors(new AuditInterceptor(new Actor(), TimeProvider.System)).Options);
+            await using var db = new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>().BeforeApartmentDetails().UseNpgsql(connection.ConnectionString, options => options.MigrationsHistoryTable("__EFMigrationsHistory", schema)).AddInterceptors(new AuditInterceptor(new Actor(), TimeProvider.System)).Options);
             var previous = db.Database.GetMigrations().Single(value => value.EndsWith("_DuesPartyHistoryAndCancellationReasons", StringComparison.Ordinal));
             await db.GetService<IMigrator>().MigrateAsync(previous);
             var property = new Property("Historical property", "City", "District", "Address", PropertyType.APARTMENT); db.Add(property); await db.SaveChangesAsync();
             var id = property.Id;
-            var before = await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={id}").SingleAsync();
+            var before = await db.Database.SqlQuery<string>($"SELECT (to_jsonb(p) - ARRAY['neighborhood','construction_year','heating_type','has_elevator','parking_type'])::text AS \"Value\" FROM properties p WHERE id={id}").SingleAsync();
             var target = db.Database.GetMigrations().Single(value => value.EndsWith("_ExpensesAndBudgets", StringComparison.Ordinal));
             await db.GetService<IMigrator>().MigrateAsync(target); await db.GetService<IMigrator>().MigrateAsync(target);
-            var after = await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={id}").SingleAsync(); Assert.Equal(before, after);
+            var after = await db.Database.SqlQuery<string>($"SELECT (to_jsonb(p) - ARRAY['neighborhood','construction_year','heating_type','has_elevator','parking_type'])::text AS \"Value\" FROM properties p WHERE id={id}").SingleAsync(); Assert.Equal(before, after);
             // This historical test targets the phase 07 migration; latest-model parity is checked separately.
             await db.GetService<IMigrator>().MigrateAsync(previous); await db.GetService<IMigrator>().MigrateAsync(target);
             foreach (var table in new[] { "expenses", "property_budgets", "budget_revisions" }) {

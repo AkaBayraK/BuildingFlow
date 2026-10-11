@@ -1,5 +1,15 @@
 // Public code/parameter contract; translations live in messages/tr.json and en.json.
 export const errorCodes = {
+  "BF_CONSTRUCTION_YEAR_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_HEATING_TYPE_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_PARKING_TYPE_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_BUILDING_FEATURES_APARTMENT_ONLY": {"status": 400, "severity": "error", "parameters": []},
+  "BF_NET_AREA_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_ROOM_LAYOUT_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_FLOOR_POSITION_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_FLOOR_EXCEEDS_FLOOR_COUNT": {"status": 400, "severity": "error", "parameters": []},
+  "BF_BATHROOM_COUNT_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_KITCHEN_TYPE_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_METER_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_READING_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_METER_CONFLICT": {"status": 409, "severity": "warning", "parameters": []},

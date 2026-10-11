@@ -1,10 +1,16 @@
+using System.Text.Json.Serialization;
 using BuildingFlow.Domain;
 
 namespace BuildingFlow.Application;
 
-public sealed record CreatePropertyRequest(string? Name, string? City, string? District, string? Address, string? Type = null, int? FloorCount = null);
+public sealed record CreatePropertyRequest(string? Name, string? City, string? District, string? Address, string? Type = null, int? FloorCount = null,
+    string? Neighborhood = null, int? ConstructionYear = null, string? HeatingType = null, bool? HasElevator = null, string? ParkingType = null)
+{
+    [JsonIgnore] public BuildingFeatureInput Features => new(ConstructionYear, HeatingType, HasElevator, ParkingType);
+}
 public sealed record PropertyResponse(Guid Id, string Name, string City, string District, string Address,
-    long Version, DateTimeOffset CreatedAt, bool IsEnabled, string Type, int? FloorCount, int BuildingCount, int UnitCount, bool CanChangeType);
+    long Version, DateTimeOffset CreatedAt, bool IsEnabled, string Type, int? FloorCount, int BuildingCount, int UnitCount, bool CanChangeType,
+    string? Neighborhood = null, int? ConstructionYear = null, string? HeatingType = null, bool? HasElevator = null, string? ParkingType = null);
 public sealed record PropertyListQuery(int Page = 1, int PageSize = 12, string? Search = null, string SortBy = "name", string SortDirection = "asc");
 public sealed record PagedProperties(IReadOnlyList<PropertyResponse> Items, int Page, int PageSize, int TotalCount);
 public sealed class RequestValidationException(Dictionary<string, ApiErrorMessage[]> issues) : Exception(ErrorCatalog.ValidationFailed.Message)
@@ -26,7 +32,7 @@ public interface IPropertyService
     Task<PropertyResponse?> GetAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public sealed class PropertyService(IPropertyStore store, ICurrentUserService currentUser) : IPropertyService
+public sealed class PropertyService(IPropertyStore store, ICurrentUserService currentUser, TimeProvider? clock = null) : IPropertyService
 {
     private string UserId => currentUser.IsAuthenticated && !string.IsNullOrWhiteSpace(currentUser.UserId)
         ? currentUser.UserId : throw new UnauthorizedAccessException();
@@ -42,10 +48,15 @@ public sealed class PropertyService(IPropertyStore store, ICurrentUserService cu
         Validate(errors, "address", request.Address, "Adres", 500);
         if (!Enum.TryParse<PropertyType>(request.Type, out var type) || !Enum.IsDefined(type) || request.Type != type.ToString()) errors["type"] = [ErrorCatalog.ErrorsValidPropertyType.Create()];
         if (request.FloorCount is <= 0 || (type != PropertyType.APARTMENT && request.FloorCount is not null)) errors["floorCount"] = [ErrorCatalog.ErrorsApartmentPositiveFloors.Create()];
+        PropertyDetails.ValidateNeighborhood(errors, request.Neighborhood);
+        PropertyDetails.Validate(errors, request.Features, PropertyDetails.CurrentYear(clock ?? TimeProvider.System));
+        if (type != PropertyType.APARTMENT && !request.Features.IsEmpty) errors["buildingFeatures"] = [ErrorCatalog.BuildingFeaturesApartmentOnly.Create()];
         if (errors.Count > 0) throw new RequestValidationException(errors);
-        var site = new Property(request.Name!, request.City!, request.District!, request.Address!, type, request.FloorCount);
+        var site = new Property(request.Name!, request.City!, request.District!, request.Address!, type, request.FloorCount, request.Features.ToFeatures());
+        site.SetNeighborhood(request.Neighborhood);
         await store.SaveNewAsync(site, actor, cancellationToken);
-        return new(site.Id, site.Name, site.City, site.District, site.Address, site.Version, site.CreatedAt, site.IsEnabled, site.Type.ToString(), site.FloorCount, 0, 0, true);
+        return new(site.Id, site.Name, site.City, site.District, site.Address, site.Version, site.CreatedAt, site.IsEnabled, site.Type.ToString(), site.FloorCount, 0, 0, true,
+            site.Neighborhood, site.ConstructionYear, site.HeatingType?.ToString(), site.HasElevator, site.ParkingType?.ToString());
     }
 
     public Task<PagedProperties> ListAsync(PropertyListQuery query, CancellationToken cancellationToken)

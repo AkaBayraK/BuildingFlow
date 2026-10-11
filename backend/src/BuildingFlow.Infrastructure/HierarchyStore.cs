@@ -8,8 +8,10 @@ namespace BuildingFlow.Infrastructure;
 
 public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock = null) : IHierarchyStore
 {
-    private static readonly Expression<Func<Building,BuildingResponse>> BlockProjection = value => new(value.Id,value.PropertyId,value.Name,value.Version,value.CreatedAt,value.IsEnabled,value.Units.Count,value.FloorCount);
-    private static readonly Expression<Func<Unit,UnitResponse>> ApartmentProjection = value => new(value.Id,value.PropertyId,value.BuildingId,value.Number,value.Floor,value.GrossSquareMeters,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString());
+    private static readonly Expression<Func<Building,BuildingResponse>> BlockProjection = value => new(value.Id,value.PropertyId,value.Name,value.Version,value.CreatedAt,value.IsEnabled,value.Units.Count,value.FloorCount,
+        value.ConstructionYear,value.HeatingType.HasValue?value.HeatingType.Value.ToString():null,value.HasElevator,value.ParkingType.HasValue?value.ParkingType.Value.ToString():null);
+    private static readonly Expression<Func<Unit,UnitResponse>> ApartmentProjection = value => new(value.Id,value.PropertyId,value.BuildingId,value.Number,value.Floor,value.GrossSquareMeters,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString(),
+        value.NetSquareMeters,value.RoomLayout.HasValue?value.RoomLayout.Value.ToString():null,value.FloorPosition.HasValue?value.FloorPosition.Value.ToString():null,value.IsMezzanine,value.BathroomCount,value.KitchenType.HasValue?value.KitchenType.Value.ToString():null,value.HasBalcony,value.HeatingType.HasValue?value.HeatingType.Value.ToString():null);
     private IQueryable<Property> Properties(AccessScope access) => access.ReadAll ? db.Properties : db.Properties.Where(site => db.PropertyMemberships.Any(member => member.PropertyId==site.Id && member.UserId==access.UserId && member.IsEnabled));
     private IQueryable<Building> Buildings(Guid site, AccessScope access)
     { var parents=Properties(access); return db.Buildings.Where(block => block.PropertyId==site && parents.Any(parent=>parent.Id==site)); }
@@ -33,9 +35,12 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         catch(DbUpdateException error) when(error.InnerException is PostgresException {SqlState:PostgresErrorCodes.UniqueViolation,ConstraintName:"IX_units_building_id_number" or "IX_units_property_id_number"})
         { throw new HierarchyConflictException(ErrorCatalog.BuildingUnitNumberExists.Create()); }
     }
-    private static PropertyResponse SiteResult(Property value,bool canChangeType) => new(value.Id,value.Name,value.City,value.District,value.Address,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString(),value.FloorCount,value.Buildings.Count(item=>!item.IsDeleted),value.Units.Count(item=>!item.IsDeleted),canChangeType);
-    private static BuildingResponse BlockResult(Building value) => new(value.Id,value.PropertyId,value.Name,value.Version,value.CreatedAt,value.IsEnabled,value.Units.Count(item=>!item.IsDeleted),value.FloorCount);
-    private static UnitResponse ApartmentResult(Unit value) => new(value.Id,value.PropertyId,value.BuildingId,value.Number,value.Floor,value.GrossSquareMeters,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString());
+    private static PropertyResponse SiteResult(Property value,bool canChangeType) => new(value.Id,value.Name,value.City,value.District,value.Address,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString(),value.FloorCount,value.Buildings.Count(item=>!item.IsDeleted),value.Units.Count(item=>!item.IsDeleted),canChangeType,
+        value.Neighborhood,value.ConstructionYear,value.HeatingType?.ToString(),value.HasElevator,value.ParkingType?.ToString());
+    private static BuildingResponse BlockResult(Building value) => new(value.Id,value.PropertyId,value.Name,value.Version,value.CreatedAt,value.IsEnabled,value.Units.Count(item=>!item.IsDeleted),value.FloorCount,
+        value.ConstructionYear,value.HeatingType?.ToString(),value.HasElevator,value.ParkingType?.ToString());
+    private static UnitResponse ApartmentResult(Unit value) => new(value.Id,value.PropertyId,value.BuildingId,value.Number,value.Floor,value.GrossSquareMeters,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString(),
+        value.NetSquareMeters,value.RoomLayout?.ToString(),value.FloorPosition?.ToString(),value.IsMezzanine,value.BathroomCount,value.KitchenType?.ToString(),value.HasBalcony,value.HeatingType?.ToString());
     private static string Pattern(string text) => "%"+text.Trim().Replace("\\","\\\\").Replace("%","\\%").Replace("_","\\_")+"%";
     private Task<Property?> LoadSite(Guid id, AccessScope access, CancellationToken token) => Properties(access).Include(site=>site.Buildings).ThenInclude(block=>block.Units).Include(site=>site.Units).SingleOrDefaultAsync(site=>site.Id==id,token);
 
@@ -49,7 +54,8 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
             && !await db.Units.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token);
         if(type!=site.Type && !canChangeType)throw new HierarchyConflictException(ErrorCatalog.PropertyTypeLocked.Create());
         if(type!=PropertyType.APARTMENT && request.FloorCount is not null)throw new HierarchyConflictException(ErrorCatalog.BuildingFloorMetadata.Create());
-        site.UpdateDetails(request.Name!,request.City!,request.District!,request.Address!,request.IsEnabled!.Value,request.FloorCount,type);
+        if(type!=PropertyType.APARTMENT && !request.Features.IsEmpty)throw new RequestValidationException(new(){["buildingFeatures"]=[ErrorCatalog.BuildingFeaturesApartmentOnly.Create()]});
+        site.UpdateDetails(request.Name!,request.City!,request.District!,request.Address!,request.IsEnabled!.Value,request.FloorCount,type,request.Features.ToFeatures());site.SetNeighborhood(request.Neighborhood);
         Touch(site); await Save(token); return SiteResult(site,canChangeType);
     }
     public async Task<bool> DeletePropertyAsync(Guid siteId, long version, AccessScope access, CancellationToken token)
@@ -78,14 +84,14 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var site=await LoadSite(siteId,access,token); if(site is null)return null; Active(site);
         if(site.Type==PropertyType.APARTMENT)throw new HierarchyConflictException(ErrorCatalog.ApartmentNoBuilding.Create());
         if(site.Buildings.Any(value=>string.Equals(value.Name,request.Name!.Trim(),StringComparison.OrdinalIgnoreCase)))throw new HierarchyConflictException(ErrorCatalog.BuildingNameExists.Create());
-        var block=site.AddBuilding(request.Name!,request.FloorCount); db.Buildings.Add(block); Touch(site); await Save(token); return BlockResult(block);
+        var block=site.AddBuilding(request.Name!,request.FloorCount,request.Features.ToFeatures()); db.Buildings.Add(block); Touch(site); await Save(token); return BlockResult(block);
     }
     public async Task<BuildingResponse?> UpdateBuildingAsync(Guid siteId, Guid blockId, UpdateBuildingRequest request, AccessScope access, CancellationToken token)
     {
         var site=await LoadSite(siteId,access,token); var block=site?.Buildings.SingleOrDefault(value=>value.Id==blockId); if(block is null)return null;
         Active(site!); Expected(block,request.Version);
         if(site!.Buildings.Any(value=>value.Id!=blockId && string.Equals(value.Name,request.Name!.Trim(),StringComparison.OrdinalIgnoreCase)))throw new HierarchyConflictException(ErrorCatalog.BuildingNameExists.Create());
-        site.UpdateBuilding(blockId,request.Name!,request.IsEnabled!.Value,request.FloorCount); Touch(block); Touch(site); await Save(token); return BlockResult(block);
+        site.UpdateBuilding(blockId,request.Name!,request.IsEnabled!.Value,request.FloorCount,request.Features.ToFeatures()); Touch(block); Touch(site); await Save(token); return BlockResult(block);
     }
     public async Task<bool> DeleteBuildingAsync(Guid siteId, Guid blockId, long version, AccessScope access, CancellationToken token)
     {
@@ -121,7 +127,8 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var type=Enum.Parse<UnitType>(request.Type);UnitParent(site,block,blockId,type);
         var units=block is null?site.Units.Where(value=>value.BuildingId is null):block.Units;
         if(units.Any(value=>string.Equals(value.Number,request.Number!.Trim(),StringComparison.OrdinalIgnoreCase)))throw new HierarchyConflictException(ErrorCatalog.UnitNumberExists.Create());
-        var unit=block is null?site.AddUnit(request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,type):block.AddUnit(request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,type);
+        PropertyDetails.ValidateFloorWithinBuilding(request.Floor!.Value,block is null?site.FloorCount:block.FloorCount);var details=request.Features.ToFeatures();
+        var unit=block is null?site.AddUnit(request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,type,details):block.AddUnit(request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,type,details);
         db.Units.Add(unit);Touch(site);if(block is not null)Touch(block);await Save(token);return ApartmentResult(unit);
     }
     public async Task<UnitResponse?> UpdateUnitAsync(Guid siteId, Guid? blockId, Guid apartmentId, UpdateUnitRequest request, AccessScope access, CancellationToken token)
@@ -132,8 +139,9 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var today=BusinessDate.Today(clock ?? TimeProvider.System);
         if(request.IsEnabled==false && await db.UnitOccupancies.AnyAsync(value=>value.UnitId==unit.Id && (value.EndDate==null || value.EndDate>=today),token))throw new HierarchyConflictException(ErrorCatalog.UnitHasOccupancy.Create());
         if(units.Any(value=>value.Id!=apartmentId && string.Equals(value.Number,request.Number!.Trim(),StringComparison.OrdinalIgnoreCase)))throw new HierarchyConflictException(ErrorCatalog.UnitNumberExists.Create());
-        if(block is null)site.UpdateUnit(apartmentId,request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,request.IsEnabled!.Value,type);
-        else block.UpdateUnit(apartmentId,request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,request.IsEnabled!.Value,type);
+        PropertyDetails.ValidateFloorWithinBuilding(request.Floor!.Value,block is null?site.FloorCount:block.FloorCount);var details=request.Features.ToFeatures();
+        if(block is null)site.UpdateUnit(apartmentId,request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,request.IsEnabled!.Value,type,details);
+        else block.UpdateUnit(apartmentId,request.Number!,request.Floor!.Value,request.GrossSquareMeters!.Value,request.IsEnabled!.Value,type,details);
         Touch(unit);Touch(site);if(block is not null)Touch(block);await Save(token);return ApartmentResult(unit);
     }
     public async Task<bool> DeleteUnitAsync(Guid siteId, Guid? blockId, Guid apartmentId, long version, AccessScope access, CancellationToken token)

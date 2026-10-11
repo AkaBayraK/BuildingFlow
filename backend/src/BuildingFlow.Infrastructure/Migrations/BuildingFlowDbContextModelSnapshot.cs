@@ -202,6 +202,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int?>("ConstructionYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("construction_year");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -215,6 +219,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<int?>("FloorCount")
                         .HasColumnType("integer")
                         .HasColumnName("floor_count");
+
+                    b.Property<bool?>("HasElevator")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_elevator");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -240,6 +253,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("citext")
                         .HasColumnName("name");
 
+                    b.Property<string>("ParkingType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("parking_type");
+
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid")
                         .HasColumnName("property_id");
@@ -257,7 +275,13 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("buildings", null, t =>
                         {
+                            t.HasCheckConstraint("ck_buildings_construction_year", "construction_year IS NULL OR construction_year BETWEEN 1800 AND 9999");
+
                             t.HasCheckConstraint("ck_buildings_floor_count", "floor_count IS NULL OR floor_count > 0");
+
+                            t.HasCheckConstraint("ck_buildings_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_buildings_parking_type", "parking_type IS NULL OR parking_type IN ('OPEN','CLOSED','OPEN_AND_CLOSED','NONE')");
                         });
                 });
 
@@ -1595,6 +1619,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("city");
 
+                    b.Property<int?>("ConstructionYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("construction_year");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -1614,6 +1642,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<int?>("FloorCount")
                         .HasColumnType("integer")
                         .HasColumnName("floor_count");
+
+                    b.Property<bool?>("HasElevator")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_elevator");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1639,6 +1676,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Neighborhood")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("ParkingType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("parking_type");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1654,7 +1701,15 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("properties", null, t =>
                         {
+                            t.HasCheckConstraint("ck_properties_building_features", "type = 'APARTMENT' OR (construction_year IS NULL AND heating_type IS NULL AND has_elevator IS NULL AND parking_type IS NULL)");
+
+                            t.HasCheckConstraint("ck_properties_construction_year", "construction_year IS NULL OR construction_year BETWEEN 1800 AND 9999");
+
                             t.HasCheckConstraint("ck_properties_floor_count", "floor_count IS NULL OR (type = 'APARTMENT' AND floor_count > 0)");
+
+                            t.HasCheckConstraint("ck_properties_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_properties_parking_type", "parking_type IS NULL OR parking_type IN ('OPEN','CLOSED','OPEN_AND_CLOSED','NONE')");
 
                             t.HasCheckConstraint("ck_properties_type", "type IN ('APARTMENT','SITE','RESIDENCE','MIXED')");
                         });
@@ -1914,6 +1969,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int?>("BathroomCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("bathroom_count");
+
                     b.Property<Guid?>("BuildingId")
                         .HasColumnType("uuid")
                         .HasColumnName("building_id");
@@ -1932,10 +1991,24 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("floor");
 
+                    b.Property<string>("FloorPosition")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("floor_position");
+
                     b.Property<decimal>("GrossSquareMeters")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("gross_square_meters");
+
+                    b.Property<bool?>("HasBalcony")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_balcony");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1944,6 +2017,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<bool?>("IsMezzanine")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_mezzanine");
+
+                    b.Property<string>("KitchenType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kitchen_type");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1955,6 +2037,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("modified_by");
 
+                    b.Property<decimal?>("NetSquareMeters")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("net_square_meters");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -1964,6 +2051,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid")
                         .HasColumnName("property_id");
+
+                    b.Property<string>("RoomLayout")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("room_layout");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -1990,7 +2082,19 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("units", null, t =>
                         {
+                            t.HasCheckConstraint("ck_units_bathroom_count", "bathroom_count IS NULL OR bathroom_count BETWEEN 0 AND 6");
+
+                            t.HasCheckConstraint("ck_units_floor_position", "floor_position IS NULL OR (floor_position IN ('BELOW_ENTRANCE','BASEMENT') AND floor < 0) OR (floor_position IN ('GROUND','GARDEN','ENTRANCE','HIGH_ENTRANCE') AND floor = 0) OR (floor_position IN ('REGULAR','ROOF') AND floor >= 1)");
+
+                            t.HasCheckConstraint("ck_units_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_units_kitchen_type", "kitchen_type IS NULL OR kitchen_type IN ('OPEN','CLOSED')");
+
+                            t.HasCheckConstraint("ck_units_net_area", "net_square_meters IS NULL OR (net_square_meters > 0 AND net_square_meters <= gross_square_meters)");
+
                             t.HasCheckConstraint("ck_units_positive_area", "gross_square_meters > 0");
+
+                            t.HasCheckConstraint("ck_units_room_layout", "room_layout IS NULL OR room_layout IN ('STUDIO','R1_1','R1_5_1','R2_0','R2_1','R2_5_1','R3_1','R3_5_1','R4_1','R4_5_1','R5_1','R5_2','R6_PLUS')");
 
                             t.HasCheckConstraint("ck_units_type", "type IN ('APARTMENT','OFFICE','SHOP','VILLA','WAREHOUSE','WORKSHOP')");
                         });

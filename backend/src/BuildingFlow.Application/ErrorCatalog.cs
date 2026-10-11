@@ -31,6 +31,17 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition MeterInactive = new("BF_METER_INACTIVE", "Pasif sayaca yeni okuma veya düzeltme eklenemez.", "warning");
     public static readonly ErrorDefinition ReadingOrder = new("BF_READING_ORDER", "Endeks önceki okumadan küçük veya sonraki okumadan büyük olamaz.", "warning");
 
+    public static readonly ErrorDefinition ConstructionYearInvalid = new("BF_CONSTRUCTION_YEAR_INVALID", "Yapım yılı 1800 ile içinde bulunulan yıl arasında olmalı.", "error");
+    public static readonly ErrorDefinition HeatingTypeInvalid = new("BF_HEATING_TYPE_INVALID", "Geçerli bir ısıtma tipi seçin.", "error");
+    public static readonly ErrorDefinition ParkingTypeInvalid = new("BF_PARKING_TYPE_INVALID", "Geçerli bir otopark seçeneği seçin.", "error");
+    public static readonly ErrorDefinition BuildingFeaturesApartmentOnly = new("BF_BUILDING_FEATURES_APARTMENT_ONLY", "Yapım yılı, ısıtma, asansör ve otopark bu türde bina/blok üzerinde tutulur.", "error");
+    public static readonly ErrorDefinition NetAreaInvalid = new("BF_NET_AREA_INVALID", "Net alan 0'dan büyük, brüt alandan büyük olmayan ve en fazla iki ondalık basamaklı olmalı.", "error");
+    public static readonly ErrorDefinition RoomLayoutInvalid = new("BF_ROOM_LAYOUT_INVALID", "Geçerli bir oda sayısı seçin.", "error");
+    public static readonly ErrorDefinition FloorPositionInvalid = new("BF_FLOOR_POSITION_INVALID", "Bulunduğu kat seçimi kat numarasıyla uyumlu olmalı.", "error");
+    public static readonly ErrorDefinition FloorExceedsFloorCount = new("BF_FLOOR_EXCEEDS_FLOOR_COUNT", "Bulunduğu kat binanın kat sayısını aşamaz.", "error");
+    public static readonly ErrorDefinition BathroomCountInvalid = new("BF_BATHROOM_COUNT_INVALID", "Banyo sayısı 0 ile 6 (6 ve üzeri) arasında olmalı.", "error");
+    public static readonly ErrorDefinition KitchenTypeInvalid = new("BF_KITCHEN_TYPE_INVALID", "Açık (Amerikan) veya kapalı mutfak seçin.", "error");
+
     public static readonly ErrorDefinition ContentInvalid = new("BF_CONTENT_INVALID", "Başlık 1–200, içerik 1–10000 karakter olmalı; geçerli hedef seçin.", "error");
     public static readonly ErrorDefinition ContentState = new("BF_CONTENT_STATE", "Bu işlem duyurunun mevcut yayın durumunda yapılamaz.", "warning");
     public static readonly ErrorDefinition DocumentInvalid = new("BF_DOCUMENT_INVALID", "Geçerli dosya adı, PDF/JPEG/PNG uzantısı ve dosya imzası gerekli.", "error");
@@ -153,6 +164,7 @@ public static class ErrorCatalog
         ["city"] = "Şehir",
         ["district"] = "İlçe",
         ["address"] = "Adres",
+        ["neighborhood"] = "Mahalle/semt",
         ["buildingName"] = "Bina/blok adı",
         ["unitNumber"] = "Daire numarası",
         ["firstName"] = "Ad",
@@ -162,6 +174,16 @@ public static class ErrorCatalog
     public static string FieldKey(string label) => label == "Blok adı" ? "buildingName" : FieldLabels.First(value => value.Value == label).Key;
     public static IReadOnlyList<ErrorDefinition> All { get; } = Array.AsReadOnly(new[]
     {
+        ConstructionYearInvalid,
+        HeatingTypeInvalid,
+        ParkingTypeInvalid,
+        BuildingFeaturesApartmentOnly,
+        NetAreaInvalid,
+        RoomLayoutInvalid,
+        FloorPositionInvalid,
+        FloorExceedsFloorCount,
+        BathroomCountInvalid,
+        KitchenTypeInvalid,
         ContentInvalid,
         ContentState,
         DocumentInvalid,

@@ -8,7 +8,9 @@ namespace BuildingFlow.Infrastructure;
 public sealed class PropertyStore(BuildingFlowDbContext db) : IPropertyStore
 {
     private static readonly Expression<Func<Property, PropertyResponse>> Projection = site => new PropertyResponse(
-        site.Id, site.Name, site.City, site.District, site.Address, site.Version, site.CreatedAt, site.IsEnabled, site.Type.ToString(), site.FloorCount, site.Buildings.Count, site.Units.Count, false);
+        site.Id, site.Name, site.City, site.District, site.Address, site.Version, site.CreatedAt, site.IsEnabled, site.Type.ToString(), site.FloorCount, site.Buildings.Count, site.Units.Count, false,
+        site.Neighborhood, site.ConstructionYear, site.HeatingType.HasValue ? site.HeatingType.Value.ToString() : null, site.HasElevator,
+        site.ParkingType.HasValue ? site.ParkingType.Value.ToString() : null);
 
     private Task<List<Guid>> RelatedIds(Guid[] ids,CancellationToken token) => db.Buildings.IgnoreQueryFilters()
         .Where(value=>ids.Contains(value.PropertyId)).Select(value=>value.PropertyId)
