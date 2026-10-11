@@ -142,7 +142,7 @@ export const milestones: Milestone[] = [
       done("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA", "phase09Step01Verification"),
       done("consistentPublicationAndConsumers", "ensureDatabaseMessageConsistencyWithAJustifiedOutboxImplement", "phase09Step02Verification"),
       done("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter", "phase09Step03Verification"),
-      planned("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify"),
+      done("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify", "phase09Step04Verification"),
     ],
   },
   {

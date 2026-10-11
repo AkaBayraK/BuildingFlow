@@ -60,8 +60,16 @@ services:
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
+      # Local delivery is captured by Mailpit; production SMTP host/credentials come from external secrets.
+      Smtp__Enabled: "true"
+      Smtp__Host: mailpit
+      Smtp__Port: "1025"
+      Smtp__UseStartTls: "false"
+      Smtp__AllowInsecureLocal: "true"
+      Smtp__From: no-reply@buildingflow.local
     depends_on:
       rabbitmq: {condition: service_healthy}
+      mailpit: {condition: service_started}
       postgres: {condition: service_healthy}
       buildingflow-migrations: {condition: service_completed_successfully}
   postgres:

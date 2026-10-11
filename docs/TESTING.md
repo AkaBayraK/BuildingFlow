@@ -1,5 +1,16 @@
 # Test planı ve tamamlanma kaydı
 
+## 09 — Mesajlaşma: adım04 sonucu ve faz teslimi — 11.10.2026
+
+**İŞ 09 TAMAMLANDI: 4/4 resmi görev = %100.00; iş yol haritası 75/83 = %90.36.** SMS sağlayıcı kullanıcı kararıyla kapalıdır; tamamlanan görev SMTP e-posta kapsamıdır.
+
+- [x] **SMTP handler (System.Net.Mail, yeni paket yok):** UTF-8 düz metin, `Message-ID: <messageId@buildingflow>`, `X-BuildingFlow-Message-Id/Correlation-Id`, Content-Language. Geçici, ayrı Mailpit 1.27.10 (rastgele loopback port, yalnız `@example.test` kabul): Türkçe karakterli konu/gövde, alıcı/gönderen ve izleme başlıkları API'den doğrulandı. 5xx alıcı reddi `PermanentMessageFailureException` (Mailpit'te mesaj yok), erişilemeyen sunucu geçici hata; hata metni alıcı/iç ayrıntı taşımaz.
+- [x] **Dış sırlar ve güvenli yapılandırma:** `Smtp:*` yalnız ortam/secret'tan; şifresiz SMTP yalnız localhost/mailpit + açık `AllowInsecureLocal` ve kimlik bilgisi olmadan, aksi STARTTLS zorunlu. Eksik/yarım kimlik bilgisi, geçersiz/görünen adlı From, header injection'lı FromName, port/host hataları reddedilir; hata mesajı sır içermez. Compose worker yerelde Mailpit'e yönlendirildi; üretim değeri depoya yazılmadı.
+- [x] **Uçtan uca (PG + RabbitMQ + Mailpit):** outbox → relay → consumer → SMTP tek mesaj; tekrar yayında ikinci mail yok (Mailpit sayaçları: 2 kabul, 2 red), reddedilen alıcı 1 denemede `permanent-failure` nedeniyle DLQ'da, inbox kaydı yok.
+- [x] **Regresyon:** `dotnet test` **374/374 = 88 unit + 286 integration, 0 atlanan/başarısız**; FE **76/76**, typecheck; lisans 318 PASS; 21 korunan dosya aynı; `docker compose config` geçerli. Worker SMTP etkin + test prefix ile başlatıldı, email consumer'ı açıldı; smoke/test kuyrukları temizlendi, geçici Mailpit durduruldu, geliştirici Mailpit'ine dokunulmadı. `scripts/test.sh` aynı geçici Mailpit'i otomatik açıp kapatır.
+
+**Faz sınırları:** gerçek alıcıya veya dış sağlayıcıya mail/SMS gönderilmedi; üretim SMTP sağlayıcı/kimlik bilgisi ve SPF/DKIM/DMARC kullanıcıya bağlıdır. System.Net.Mail implicit TLS (465) desteklemez; 587 STARTTLS gerekir. SMS ve uygulama içi bildirim teslim kanalı yoktur (kuyrukları kalıcı, tüketicisiz). Henüz hiçbir iş/API akışı e-posta üretmez; hangi olayların (ör. duyuru yayını, borç hatırlatma) mail tetikleyeceği yeni kapsam kararıdır. DLQ yeniden oynatma aracı yok. Migration yerel ana DB'ye uygulanmadı; Docker imajları derlenmedi (compose ile yeniden derlemede migration servisi ana DB'ye uygular). Sonraki faz için kullanıcı onayı beklenir.
+
 ## 09 — Mesajlaşma: adım03 sonucu — 11.10.2026
 
 **Adım03 TAMAMLANDI: 3/4 = %75.00; iş yol haritası 74/83 = %89.16.**

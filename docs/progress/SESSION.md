@@ -1,6 +1,6 @@
 # Güncel oturum — İŞ09
 
-10.10.2026 kullanıcı Faz09 başlatmayı onayladı; dört adımın sırayla yürütülmesi aynı onayın kapsamıdır. Kayıt12/14. **11.10.2026 adım01–03 TAMAMLANDI; adım04 DEVAM EDIYOR; faz 3/4=%75.00, iş 74/83=%89.16.** SMTP e-posta seçildi; SMS sağlayıcı sonra (kapalı kalır). Gerçek alıcıya mesaj gönderme. Tek agent; yeni skill/alt agent yok.
+10.10.2026 kullanıcı Faz09 başlatmayı onayladı; dört adımın sırayla yürütülmesi aynı onayın kapsamıdır. Kayıt12/14. **11.10.2026 İŞ09 4/4 TAMAMLANDI; faz %100.00, iş 75/83=%90.36. Sonraki faz/kapsam için kullanıcı onayı beklenir.** SMTP e-posta seçildi; SMS sağlayıcı sonra (kapalı kalır). Gerçek alıcıya mesaj gönderme. Tek agent; yeni skill/alt agent yok.
 
 Dal: `faz-09-messaging` (main'den), adım adım commit; main'e merge ve push yok, remote tanımlı değil. `frontend/buildingflow-web/next-env.d.ts` farkı `next dev`in otomatik ürettiği `.next/dev/types` yoludur; commitlenmez, kaynak değişikliği değildir.
 
@@ -10,7 +10,9 @@ Adım02 tamam: Domain `OutboxMessage`/`ProcessedMessage`, migration 202610110430
 
 Adım03 tamam: `RabbitMessagingOptions.RetryDelays/MaxAttempts`, gecikme başına `{prefix}.retry.{ms}` fanout exchange + TTL quorum kuyruğu, ana kuyrukta x-delivery-limit=10/at-least-once DLX, `RabbitRetryPolicy` başlıkları, consumer'da confirm'li retry/DLQ yayını sonrası ACK.
 
-Adım04 planı: `SmtpEmailHandler` (System.Net.Mail veya lisansı uygun istemci; yeni paket gerekirse lisans kaydı), Smtp ayarları dışarıdan (.env/compose; sır yazılmaz), Mailpit (127.0.0.1:1025 compose'da yayınlı değilse yalnız test için erişim incelenir) ile başarılı/hatalı teslim testleri; yalnız example.test alıcıları. SMS kapalı kalır.
+Adım04 tamam: `SmtpOptions`/`SmtpEmailHandler` (System.Net.Mail, STARTTLS zorunlu, yerel Mailpit istisnası), `PermanentMessageFailureException` → doğrudan DLQ, Worker `Smtp:Enabled` ile email consumer'ı açar; compose worker yerel Mailpit'e yönlendirildi; `scripts/test.sh` geçici `buildingflow-test-mailpit-*` konteyneri açar/kapatır (testler BUILDINGFLOW_TEST_SMTP_PORT/MAILPIT_URL ister).
+
+Açık kararlar (kullanıcı): yerel ana DB'ye migration (`bash scripts/db.sh update`) ve worker/API imajlarının yeniden derlenmesi; hangi iş olaylarının e-posta üreteceği; uygulama içi bildirim deposu; üretim SMTP sağlayıcısı; main'e merge.
 
 Korunan21 dosya hash'i /tmp/bf09-protected.json: .env, FE manifest/lockfile ve tüm önceki migration kaynak/Designer. Ana DB/user kayıtları/parola korunur; DB işi yalnız ayrı buildingflow_tests PostgreSQL ile. Yerel SDK /tmp/buildingflow-dotnet (10.0.401), DOTNET_ROOT/DOTNET_CLI_HOME=/tmp/buildingflow-dotnet-home/NUGET_PACKAGES=/tmp/buildingflow-nuget ve -m:1 --disable-build-servers gerekir. Sırları output/log/Git'e yazma.
 

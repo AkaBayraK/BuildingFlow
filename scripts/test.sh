@@ -22,5 +22,13 @@ export BUILDINGFLOW_TEST_RABBITMQ_HOST="127.0.0.1"
 export BUILDINGFLOW_TEST_RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
 export BUILDINGFLOW_TEST_RABBITMQ_USERNAME="${RABBITMQ_USER}"
 export BUILDINGFLOW_TEST_RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD}"
+# Throwaway Mailpit on random loopback ports; the developer Mailpit and its messages are left untouched.
+mailpit="buildingflow-test-mailpit-$$"
+docker run -d --rm --name "$mailpit" -p 127.0.0.1::1025 -p 127.0.0.1::8025 axllent/mailpit:v1.27.10 \
+  --smtp-allowed-recipients '@example\.test$' >/dev/null
+trap 'docker stop "$mailpit" >/dev/null 2>&1 || true' EXIT
+sleep 2
+export BUILDINGFLOW_TEST_SMTP_PORT="$(docker port "$mailpit" 1025 | head -1 | cut -d: -f2)"
+export BUILDINGFLOW_TEST_MAILPIT_URL="http://$(docker port "$mailpit" 8025 | head -1)"
 cd backend
 dotnet test BuildingFlow.sln -m:1

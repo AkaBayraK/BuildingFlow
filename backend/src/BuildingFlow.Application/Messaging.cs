@@ -36,6 +36,9 @@ public interface IMessageHandler
     Task<MessageHandlingOutcome> HandleAsync(IMessageCommand command, CancellationToken cancellationToken);
 }
 
+// Thrown by a handler when retrying cannot succeed (for example a rejected recipient); the message is dead-lettered at once.
+public sealed class PermanentMessageFailureException() : Exception("Message delivery failed permanently.");
+
 public sealed class InvalidMessageException() : Exception("Messaging contract is invalid.");
 public sealed class MessagePublicationException() : Exception("Message publication was not confirmed.");
 

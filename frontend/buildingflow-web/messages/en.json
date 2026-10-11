@@ -583,6 +583,7 @@
     "phase09Step01Verification": "Phase 09 step 01: 3 versioned contracts, confirm+mandatory RabbitMQ publisher; 20 unit + 6 real RabbitMQ tests (buildingflow-test-* only), full regression 345 .NET. TESTING.md.",
     "phase09Step02Verification": "Phase 09 step 02: BaseEntity outbox/inbox + migration, SKIP LOCKED relay, deduplicated processing and worker consumer; 10 real PG+RabbitMQ tests, full regression 355 .NET. TESTING.md.",
     "phase09Step03Verification": "Phase 09 step 03: TTL retry queues, attempt limit, confirmed DLQ with reason, inbox redelivery protection; 14 new tests, full regression 369 .NET. TESTING.md.",
+    "phase09Step04Verification": "Phase 09 step 04: SMTP email (STARTTLS, external secrets), Mailpit-verified delivered/rejected/unreachable and end-to-end single send; SMS disabled. Full regression 374 .NET. TESTING.md.",
     "phase08Version": "v0.8 · Announcements and documents"
   },
   "feedback": {

@@ -9,23 +9,23 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ09, kayıt12/14 |
-| Aktif adım | 04/04 — SMTP sağlayıcı entegrasyonu (Mailpit) |
-| Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 3/4 |
-| Faz ilerlemesi | %75.00 |
+| Aktif adım | Yok — İŞ09 4/4 teslim edildi |
+| Durum | TAMAMLANDI |
+| Tamamlanan / toplam | 4/4 |
+| Faz ilerlemesi | %100.00 |
 | Engel | Yok; gerçek SMTP gönderimi için sağlayıcı ayarları gelecekte gerekecek |
-| Sonraki işlem | SMTP e-posta handler, Mailpit kabulü, dış sır yapılandırması |
+| Sonraki işlem | Kullanıcı onayı: İŞ10 veya iş akışı e-posta tetikleyicileri; isteğe bağlı yerel migration |
 
 | Adım | İş | Durum |
 | --- | --- | --- |
 | 01/04 | Mesaj sözleşmeleri ve yayıncı | TAMAMLANDI |
 | 02/04 | Outbox ve tüketiciler | TAMAMLANDI |
 | 03/04 | Retry, dead-letter ve idempotency | TAMAMLANDI |
-| 04/04 | SMTP sağlayıcı entegrasyonu ve testler; SMS ertelendi | DEVAM EDIYOR |
+| 04/04 | SMTP sağlayıcı entegrasyonu ve testler; SMS ertelendi | TAMAMLANDI |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ 08: 4/4 = %100.00**; önceki teslimler korunur. İŞ09 kullanıcı tarafından onaylandı; adım01–03 11.10.2026 tamamlandı, adım04 devam ediyor.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ 09: 4/4 = %100.00**; önceki teslimler korunur. İŞ09 kullanıcı tarafından onaylandı; 11.10.2026 **4/4 tamamlandı**; sonraki faz kullanıcı onayı bekler.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -40,11 +40,11 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 07 | Gider ve bütçe takibi | 4/4 | TAMAMLANDI | %100.00 |
 | 07.1 | Merkezi API hata/uyarı ve TR/EN bildirim | 5/5 | TAMAMLANDI | %100 |
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
-| 09 | Asenkron mail, SMS ve bildirim | 3/4 | DEVAM EDIYOR | %75.00 |
+| 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 0/4 | BEKLIYOR | %0 |
 | 11 | Yayın hazırlığı ve kalite | 0/4 | BEKLIYOR | %0 |
 
-**Adım bazlı genel iş ilerlemesi: 74 / 83 = %89.16.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 75 / 83 = %90.36.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -80,3 +80,7 @@ Son kullanım okuması: Codex usage, 10.10.2026 11:41:45 Europe/Istanbul; 300dk 
 ## İŞ 09 adım03 kanıtı — 11.10.2026
 
 **369 .NET (88 unit + 281 integration); hata/atlama 0.** TTL retry kuyrukları, deneme limiti, nedenli confirm'li DLQ ve inbox tekrar teslim koruması gerçek `buildingflow-test-*` RabbitMQ + ayrı PG'de doğrulandı. Detay [TESTING.md](../TESTING.md).
+
+## İŞ 09 teslim kanıtı — 11.10.2026
+
+**374 .NET (88 unit + 286 integration), 76 FE; hata/atlama 0.** Sürümlü sözleşmeler, confirm/mandatory yayıncı, BaseEntity outbox/inbox + migration, SKIP LOCKED relay, retry/DLQ ve SMTP e-posta; gerçek ayrı PG, `buildingflow-test-*` RabbitMQ ve geçici Mailpit ile doğrulandı. SMS kapalı, uygulama içi bildirim kanalı yok, iş akışı tetikleyicisi yok; migration yerel ana DB'ye uygulanmadı, Docker imajı derlenmedi. Dal `faz-09-messaging` (5 commit), main'e merge/push yok. Detay [TESTING.md](../TESTING.md), [analiz](../analysis/PHASE_09_MESSAGING.md).

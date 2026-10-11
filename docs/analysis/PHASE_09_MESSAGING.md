@@ -13,3 +13,11 @@ Adım03: kontrollü transient retry/backoff, failed queue, ACK ancak iş etkisi/
 Adım04: yerel Mailpit ile SMTP kabulü ve dış sırlarla SMTP yapılandırması; gerçek kullanıcıya mesaj göndermek kabul testine dahil değildir. SMS sağlayıcı seçilmediğinden kapalı kalır. API/rol/üye ve mevcut kullanıcı verisi korunur. Yeni SDK RabbitMQ.Client7.2.1 çift lisansından Apache2 seçilir; LICENSE/NOTICE ve envanter korunur.
 
 Geliştirme öncesi testler: üç sözleşme roundtrip/type/scope/ID/locale/date/length, yanlış JSON/schema/type/oversize ve alıcı validasyonu; gerçek ayrı test namespace RabbitMQ routing/persistence/confirmation/mandatory-unroutable/concurrency/cancellation. Yeni kuyruk/exchange'ler yalnız buildingflow-test-* namespace altında oluşturulur/temizlenir; mevcut kuyruklar silinmez. Adım01 kabulü sonraki görevlerin tamamlandığı anlamına gelmez.
+
+## Uygulanan yapı ve yapılandırma — 11.10.2026
+
+- Akış: iş kodu `IMessageOutbox.Enqueue` ile aynı DbContext/transaction'a `outbox_messages` satırı ekler → Worker `OutboxRelayWorker` 2 sn'de bir `FOR UPDATE SKIP LOCKED` ile en fazla 20 mesajı confirm/mandatory yayınlar → `MessageConsumerWorker` yalnız etkin kanal türlerini tüketir → `MessageProcessor` `processed_messages` ile tekilleştirip handler'ı çağırır.
+- RabbitMQ: `{prefix}.commands` (direct), `{prefix}.{type}` quorum (delivery-limit 10, at-least-once DLX), `{prefix}.{type}.failed`, `{prefix}.retry.{ms}` TTL kuyrukları. Başlıklar `x-buildingflow-attempt`, `x-buildingflow-failure` (`rejected`, `retry-exhausted`, `permanent-failure`). Varsayılan prefix `buildingflow.messaging.v1`, gecikmeler 5s/30s/2dk/10dk, en çok 5 deneme.
+- SMTP ortam değişkenleri: `Smtp__Enabled`, `Smtp__Host`, `Smtp__Port` (587), `Smtp__Username`, `Smtp__Password`, `Smtp__UseStartTls` (true), `Smtp__AllowInsecureLocal` (yalnız localhost/mailpit), `Smtp__From`, `Smtp__FromName`, `Smtp__TimeoutSeconds`. Değerler secret/ortamdan verilir; depoya yazılmaz.
+- Teslim garantisi en-az-bir-kezdir; SMTP gönderimi ile inbox commit'i arasında çökme çift mail üretebilir. DLQ mesajları elle incelenir; yeniden oynatma aracı yoktur.
+

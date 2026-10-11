@@ -93,3 +93,7 @@ BaseEntity `outbox_messages`/`processed_messages` + migration/snapshot, EfMessag
 ## 2026-10-11 — İŞ 09 adım03: Retry, dead-letter ve idempotency
 
 Gecikmeli TTL retry kuyrukları, deneme limiti, `x-buildingflow-attempt/failure` başlıkları, confirm'li retry/DLQ yayınından sonra ACK, ana kuyruk delivery-limit/at-least-once DLX; 5 RabbitMQ + 9 politika testi, test temizliği retry kaynaklarını kapsar. **369 .NET, 318 lisans geçti.** DB/migration/.env değişmedi.
+
+## 2026-10-11 — İŞ 09 adım04: SMTP e-posta ve faz teslimi
+
+`SmtpOptions`/`SmtpEmailHandler`, kalıcı teslim hatası için doğrudan DLQ, Worker SMTP kaydı, compose worker Mailpit ayarları, `scripts/test.sh` geçici Mailpit; 5 SMTP/uçtan uca test; analiz yapılandırma bölümü, roadmap 4/4. **374 .NET, 76 FE, typecheck, 318 lisans geçti.** Yeni paket, DB değişikliği veya .env değişikliği yok. **İŞ09 4/4 = %100.00.**

@@ -92,6 +92,7 @@ public static class RabbitRetryPolicy
     public const string FailureHeader = "x-buildingflow-failure";
     public const string Rejected = "rejected";
     public const string Exhausted = "retry-exhausted";
+    public const string Permanent = "permanent-failure";
 
     public static int Attempts(IDictionary<string, object?>? headers)
     {
@@ -198,6 +199,8 @@ public sealed class RabbitMessageConsumer(RabbitMessagingOptions options, IServi
                 return;
             }
             failure = RabbitRetryPolicy.Rejected;
+        } catch (PermanentMessageFailureException) {
+            failure = RabbitRetryPolicy.Permanent;
         } catch (OperationCanceledException) when (delivery.CancellationToken.IsCancellationRequested) {
             await active.BasicNackAsync(delivery.DeliveryTag, multiple: false, requeue: true);
             return;
