@@ -470,6 +470,13 @@
   },
   {
     "ecosystem": "NuGet",
+    "name": "RabbitMQ.Client",
+    "version": "7.2.1",
+    "license": "Apache-2.0 OR MPL-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
     "name": "System.CodeDom",
     "version": "6.0.0",
     "license": "MIT",
@@ -542,6 +549,13 @@
     "ecosystem": "NuGet",
     "name": "System.Reactive",
     "version": "6.0.1",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "System.Threading.RateLimiting",
+    "version": "8.0.0",
     "license": "MIT",
     "source": "package .nuspec"
   },

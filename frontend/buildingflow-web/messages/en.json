@@ -580,6 +580,7 @@
     "navAnnouncements": "Announcements",
     "navDocuments": "Documents",
     "phase08Verification": "Phase 08 complete: 319 .NET and 76 frontend tests; real PostgreSQL/private MinIO, TR/EN mobile and side panel verified. Typecheck/build passed. TESTING.md.",
+    "phase09Step01Verification": "Phase 09 step 01: 3 versioned contracts, confirm+mandatory RabbitMQ publisher; 20 unit + 6 real RabbitMQ tests (buildingflow-test-* only), full regression 345 .NET. TESTING.md.",
     "phase08Version": "v0.8 · Announcements and documents"
   },
   "feedback": {

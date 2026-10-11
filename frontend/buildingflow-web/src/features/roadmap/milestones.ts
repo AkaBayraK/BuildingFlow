@@ -139,7 +139,7 @@ export const milestones: Milestone[] = [
   {
     number: "09", title: "asynchronousEmailSMSAndNotifications", description: "reliableRabbitMQAndWorkerBackgroundProcessing",
     tasks: [
-      planned("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA"),
+      done("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA", "phase09Step01Verification"),
       planned("consistentPublicationAndConsumers", "ensureDatabaseMessageConsistencyWithAJustifiedOutboxImplement"),
       planned("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter"),
       planned("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify"),

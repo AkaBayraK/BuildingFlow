@@ -81,3 +81,7 @@ Etkilenen dosyalar: backend Announcement/StoredDocument, Application Communicati
 ## 10.10.2026 — İŞ09 başladı
 
 Kullanıcı fazı başlatmayı onayladı; SMTP seçildi, SMS sağlayıcı ertelendi. Kök kurallar/progress/mimari/RabbitMQ/Worker ve ayrı UI planı incelendi; PHASE_09_MESSAGING analizi, TESTING ön planı, STATUS/SESSION güncellendi. Uygulama görevi henüz tiklenmedi.
+
+## 2026-10-11 — İŞ 09 adım01: mesaj sözleşmeleri ve RabbitMQ yayıncı
+
+Dal `faz-09-messaging`. Application `Messaging.cs` (3 sürümlü sözleşme, zarf, doğrulama, bounded JSON), Infrastructure `RabbitMessaging.cs` (durable quorum topoloji, confirm+mandatory yayıncı), 20 unit + 6 RabbitMQ integration testi; RabbitMQ.Client 7.2.1 lisans metni/envanter, roadmap adım01 tiki ve TR/EN doğrulama metni, analiz/TESTING/STATUS/SESSION güncellendi. **345 .NET, 76 FE, typecheck, 318 lisans geçti.** DB/migration/.env değişmedi.

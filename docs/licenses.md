@@ -74,3 +74,7 @@ Yeni paket, paket sürümü, ücretli ürün veya harici görsel/font eklenmedi.
 ## İŞ 08 — MinIO .NET SDK
 
 Minio NuGet **7.0.0** eklendi. SDK Apache-2.0: [sürüme ait resmî lisans](https://github.com/minio/minio-dotnet/blob/7.0.0/LICENSE); tam metin [minio-dotnet-7.0.0-LICENSE.txt](licenses/minio-dotnet-7.0.0-LICENSE.txt) içinde korunur. Bu, mevcut MinIO sunucusunun AGPLv3 lisansını değiştirmez; container dağıtım yükümlülükleri yukarıdaki sunucu kaydıyla birlikte değerlendirilir. Yeni transitif bağımlılıklar lisans envanterinde doğrulandı; FE paketleri değişmedi.
+
+## İŞ 09 — RabbitMQ .NET istemcisi
+
+RabbitMQ.Client NuGet **7.2.1** eklendi. Paket `Apache-2.0 OR MPL-2.0` çift lisanslıdır; bu proje **Apache-2.0** seçeneğini kullanır. Tam metin [rabbitmq-client-7.2.1-LICENSE-APACHE2.txt](licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt) içinde korunur. Transitif System.Threading.RateLimiting 8.0.0 MIT'tir. RabbitMQ 4.1.4 sunucusunun MPL-2.0 kaydı değişmez. 11.10.2026 restore sonrası metadata kontrolü **318 paket sürümü** için geçti; FE paketleri değişmedi.

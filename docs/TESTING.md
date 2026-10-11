@@ -1,5 +1,15 @@
 # Test planı ve tamamlanma kaydı
 
+## 09 — Mesajlaşma: adım01 sonucu — 11.10.2026
+
+**Adım01 TAMAMLANDI: 1/4 = %25.00; iş yol haritası 72/83 = %86.75.** Adım02–04 bu kanıtla tiklenmez.
+
+- [x] **Sürümlü sözleşmeler (unit 20/20):** EmailRequested/SmsRequested/NotificationRequested roundtrip, sabit tür allowlist'i, schemaVersion1, aynı nesne retry'da aynı MessageId/byte. Boş UUID, UTC dışı/boş zaman, desteklenmeyen locale, uzunluk sınırları, e-posta header injection/display-name/boşluk, E.164 dışı SMS, zarf/payload kimlik uyuşmazlığı, bilinmeyen şema/tür, `$type`/fazla alan, 64KiB üstü, bozuk/null JSON reddedilir; hata mesajı alıcı/içerik taşımaz.
+- [x] **Gerçek RabbitMQ 4.1.4 (integration 6/6):** yalnız rastgele `buildingflow-test-<uuid>` exchange/kuyrukları; durable quorum kuyruk + persistent mesaj, türe göre yönlendirme, MessageId/CorrelationId/ContentType, publisher confirms, mandatory-unroutable `MessagePublicationException` ve ardından yeni kanalla toparlanma, 20 eşzamanlı yayında kayıp/karışma yok, geçersiz/iptal edilen çağrı yayın yapmaz, yeniden oluşturulan yayıncıda aynı kimlikli tekrar (tekilleştirme adım02/03 inbox'ındadır), erişilemeyen broker kimlik bilgisi sızdırmayan güvenli hata. Test sonrası `rabbitmqctl list_queues` boş; mevcut kuyruk silinmedi.
+- [x] **Regresyon:** `dotnet test backend/BuildingFlow.sln --no-build -m:1 --disable-build-servers` ayrı `buildingflow_tests` PostgreSQL ve test MinIO/RabbitMQ ile **345/345 = 88 unit + 257 integration, 0 atlanan/başarısız**. FE `npm test` **76/76**, `npm run typecheck` geçti. `python3 scripts/check-licenses.py` **318 paket** PASS (RabbitMQ.Client 7.2.1 Apache-2.0 seçimi, System.Threading.RateLimiting 8.0.0 MIT). 21 korunan dosya hash'i aynı.
+
+**Ortam notu:** Sandbox içinden ilk RabbitMQ denemesi AMQP el sıkışmasında zaman aşımına uğradı (6 başarısız); bu başarılı sayılmadı, aynı komut yetkili yerel çalıştırmada geçti. **Gerçek sınırlar:** iş/API akışına yayın bağlanmadı (Outbox adım02); tüketici, retry/DLQ ve SMTP henüz yok; gerçek alıcıya mesaj gönderilmedi. Docker imajları yeniden derlenmedi.
+
 ## 09 — Mesajlaşma: geliştirme öncesi kabul planı — 10.10.2026
 
 Kullanıcı fazı başlatmayı onayladı; SMTP e-posta, SMS daha sonra. Dört resmi görev ve sınırlar [analizde](analysis/PHASE_09_MESSAGING.md). Henüz test sonucu değildir.

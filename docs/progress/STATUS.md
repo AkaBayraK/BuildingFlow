@@ -1,6 +1,6 @@
 # BuildingFlow güncel çalışma durumu
 
-Güncelleme: 2026-10-10 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının tarihli özetidir; görevlerin ve test kanıtlarının ikinci kaynağı değildir. Çalışma kuralı: [AGENTS.md](../../AGENTS.md).
+Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının tarihli özetidir; görevlerin ve test kanıtlarının ikinci kaynağı değildir. Çalışma kuralı: [AGENTS.md](../../AGENTS.md).
 
 ## Aktif tur
 
@@ -9,23 +9,23 @@ Güncelleme: 2026-10-10 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ09, kayıt12/14 |
-| Aktif adım | 01/04 — Mesaj sözleşmeleri ve yayıncı |
+| Aktif adım | 02/04 — Outbox ve tüketiciler |
 | Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 0/4 |
-| Faz ilerlemesi | %0.00 |
+| Tamamlanan / toplam | 1/4 |
+| Faz ilerlemesi | %25.00 |
 | Engel | Yok; gerçek SMTP gönderimi için sağlayıcı ayarları gelecekte gerekecek |
-| Sonraki işlem | Sürümlü sözleşme ve RabbitMQ yayıncı testleri |
+| Sonraki işlem | BaseEntity Outbox/Inbox, migration ve worker tüketicisi |
 
 | Adım | İş | Durum |
 | --- | --- | --- |
-| 01/04 | Mesaj sözleşmeleri ve yayıncı | DEVAM EDIYOR |
-| 02/04 | Outbox ve tüketiciler | BEKLIYOR |
+| 01/04 | Mesaj sözleşmeleri ve yayıncı | TAMAMLANDI |
+| 02/04 | Outbox ve tüketiciler | DEVAM EDIYOR |
 | 03/04 | Retry, dead-letter ve idempotency | BEKLIYOR |
 | 04/04 | SMTP sağlayıcı entegrasyonu ve testler; SMS ertelendi | BEKLIYOR |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ 08: 4/4 = %100.00**; önceki teslimler korunur. İŞ09 kullanıcı tarafından onaylandı; adım01 başladı.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ 08: 4/4 = %100.00**; önceki teslimler korunur. İŞ09 kullanıcı tarafından onaylandı; adım01 11.10.2026 tamamlandı, adım02 devam ediyor.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -40,11 +40,11 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 07 | Gider ve bütçe takibi | 4/4 | TAMAMLANDI | %100.00 |
 | 07.1 | Merkezi API hata/uyarı ve TR/EN bildirim | 5/5 | TAMAMLANDI | %100 |
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
-| 09 | Asenkron mail, SMS ve bildirim | 0/4 | DEVAM EDIYOR | %0.00 |
+| 09 | Asenkron mail, SMS ve bildirim | 1/4 | DEVAM EDIYOR | %25.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 0/4 | BEKLIYOR | %0 |
 | 11 | Yayın hazırlığı ve kalite | 0/4 | BEKLIYOR | %0 |
 
-**Adım bazlı genel iş ilerlemesi: 71 / 83 = %85.54.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 72 / 83 = %86.75.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -68,3 +68,7 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 **319 .NET (68 unit +251 integration), 76 FE; hata/atlama0.** Gerçek ayrı PostgreSQL/özel geçici MinIO, migration/model/Down/tekrar/idempotent SQL; TR/EN sağ512px ve390px mobil panel kabulü, son typecheck/build,316 lisans ve19 korunan dosya kontrolü geçti. İki yeni BaseEntity tablosu ve Minio7.0.0 SDK; Duyurular/Belgeler menüleri yerel FE3003'te, API5005 Healthy. Yerel tekrar migration öncesi/sonrası15 eski tablo hash'i aynı; ilk canlı upgrade öncesi hash kanıtı alınamadı, ayrı PG yükseltme testi vardır. Kullanıcı DB'sinde başarılı duyuru/dosya mutation yapılmadı. Mail/SMS İŞ09, dosya taraması/retention ve finans eki gelecekteki kapsam; Docker imajı bu tur derlenmedi. Detay [TESTING.md](../TESTING.md), [API](../api/communication.md).
 
 Son kullanım okuması: Codex usage, 10.10.2026 11:41:45 Europe/Istanbul; 300dk kullanılan%19/kalan%81, reset10.10.2026 16:35:15; 10080dk kullanılan%97/kalan%3, reset15.10.2026 22:03:08. Giriş/çıkış/toplam token, kalan context ve oturum tüketimi: **BİLGİ MEVCUT DEĞİL**. Hesap kotası sohbet tüketimi değildir.
+
+## İŞ 09 adım01 kanıtı — 11.10.2026
+
+**345 .NET (88 unit + 257 integration), 76 FE; hata/atlama 0.** 20 sözleşme unit + 6 gerçek RabbitMQ testi yalnız `buildingflow-test-*` namespace'inde; confirm/mandatory/persistent/eşzamanlılık doğrulandı, test kuyruğu kalmadı. Typecheck, 318 lisans ve 21 korunan dosya kontrolü geçti. Çalışma `faz-09-messaging` dalında; main'e merge/push yok. Detay [TESTING.md](../TESTING.md).
