@@ -592,7 +592,8 @@
     "phase10MetricsVerification": "397 .NET testi; gerçek OTLP/Prometheus API401+histogram+worker ölçümü; Grafana datasource ve8 panel smoke geçti.",
     "phase10Version": "v0.10 · Sayaçlar ve raporlar",
     "phase10LogsVerification": "397 .NET ve 82 frontend testi; 11 canlı altyapı kontrolü, API/worker Loki logları, trace kimliği ve hassas sorgu koruması geçti. TR/EN ve mobil ekranlar doğrulandı.",
-    "phase11Step01Verification": "İŞ11 adım01: production HTTPS/issuer/CORS/AllowedHosts reddi, yalnız tanımlı proxy, HSTS/no-store, kullanıcı ve IP bazlı kodlu 429, sahte forwarded/imzasız JWT ret ve FE nonce CSP/güvenli cookie; 28 güvenlik testi, 425 .NET ve 85 FE. TESTING.md."
+    "phase11Step01Verification": "İŞ11 adım01: production HTTPS/issuer/CORS/AllowedHosts reddi, yalnız tanımlı proxy, HSTS/no-store, kullanıcı ve IP bazlı kodlu 429, sahte forwarded/imzasız JWT ret ve FE nonce CSP/güvenli cookie; 28 güvenlik testi, 425 .NET ve 85 FE. TESTING.md.",
+    "phase11Step02Verification": "İŞ11 adım02: yerel scripts/ci.sh — 426 .NET, 85 FE, typecheck/build, npm/NuGet audit, lisans, TRX kapısı ve idempotent migration SQL'inin geçici DB'ye iki kez uygulanması; bozuk betik düzeltildi. Workflow GitHub'da çalıştırılmadı. TESTING.md."
   },
   "feedback": {
     "success": "Başarılı",

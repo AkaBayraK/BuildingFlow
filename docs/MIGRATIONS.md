@@ -67,7 +67,7 @@ Uygulanmış migration dosyasını veya migration geçmişini değiştirmeyin; y
 
 - **Yerel Docker kurulumu:** `bash scripts/start.sh`. PostgreSQL hazır olduktan sonra migration servisi API imajını `--migrate` ile çalıştırır; başarıyla bitmeden API başlamaz. Normal API başlangıcı migration çalıştırmaz. Mevcut volume'lar korunur.
 - **Host geliştirme:** `bash scripts/dev.sh prepare` build/migration/npm kurulumunu birlikte hazırlar; yalnız DB güncellemesi için `scripts/db.sh update` yeterlidir.
-- **Üretim için seçenekler:** İncelenmiş idempotent SQL veya CI'da üretilen EF migration bundle ayrı dağıtım adımında çalıştırılabilir. Üretim pipeline/bundle bu turda kurulmadı. Üretim DB'sini altyapı sağlar; dağıtım kimliği DDL yetkisine, normal API kimliği gerekli veri erişim yetkisine sahip olur. Şifreler artifact'e/Git'e yazılmaz.
+- **Üretim için seçenekler:** İncelenmiş idempotent SQL veya CI'da üretilen EF migration bundle ayrı dağıtım adımında çalıştırılabilir. Üretim pipeline/bundle bu turda kurulmadı. İŞ11: `TerminatedSqlMigrationsSqlGenerator` (`UseBuildingFlowNpgsql`) ham `Sql()` ifadelerini `;` ile sonlandırır; aksi halde uygulanmış `20261007210343_UnifiedPropertyModel` idempotent betikte PostgreSQL sözdizimi hatası verir. `scripts/check-idempotent-sql.sh` betiği geçici izole veritabanına iki kez uygular ve siler. Üretim DB'sini altyapı sağlar; dağıtım kimliği DDL yetkisine, normal API kimliği gerekli veri erişim yetkisine sahip olur. Şifreler artifact'e/Git'e yazılmaz.
 
 Gerçek PostgreSQL kabul testleri: boş şemaya kurulum, ilk migration'daki kaydın yeni sürümde korunması, aynı sıranın tekrar çalıştırılması, son model/snapshot uyumu ve tüm tablo audit kolonları. Sonuçlar [TESTING.md](TESTING.md) içinde.
 

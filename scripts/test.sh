@@ -31,4 +31,4 @@ sleep 2
 export BUILDINGFLOW_TEST_SMTP_PORT="$(docker port "$mailpit" 1025 | head -1 | cut -d: -f2)"
 export BUILDINGFLOW_TEST_MAILPIT_URL="http://$(docker port "$mailpit" 8025 | head -1)"
 cd backend
-dotnet test BuildingFlow.sln -m:1
+dotnet test BuildingFlow.sln -m:1 --disable-build-servers "$@"

@@ -1,3 +1,15 @@
+## İŞ11 adım02 — CI ve otomatik kontroller: TAMAMLANDI — 11.10.2026
+
+**2/4 resmi görev = %50.00; genel iş 81/83 = %97.59.**
+
+- [x] **Yerel CI eşdeğeri:** `bash scripts/ci.sh` (çıkış 0): lisans **331**, CI sonuç kapısı negatif testleri **6/6**, FE **85/85** + typecheck + production build + `npm audit --audit-level=high` **0 açık**, backend **426/426 = 88 unit + 338 integration, hata/atlama 0** (TRX kapısı), EF bekleyen model değişikliği yok, idempotent SQL üretimi ve geçici izole DB'ye **iki kez uygulama (11 migration)**, NuGet `--vulnerable --include-transitive` temiz, `git diff --check`. Önceki çalışmadan kalan sonuçlar kapıyı geçemez (`artifacts/ci` her çalıştırmada sıfırlanır; `artifacts/` Git dışı).
+- [x] **Bulgu ve düzeltme:** idempotent betik önceki fazlarda yalnız üretilmiş, hiç uygulanmamıştı. Gerçek PostgreSQL'de `20261007210343_UnifiedPropertyModel` içindeki `;` olmayan ham `Sql()` DO-blokta `42601 syntax error` verdi. Uygulanmış migration değiştirilmeden `TerminatedSqlMigrationsSqlGenerator` DI ve design-time context'e eklendi. Yeni integration testi: yamasız betik 42601, yamalı betik ayrı şemaya iki kez uygulanır, geçmiş = tüm migration'lar, bekleyen yok.
+- [x] **Kapı negatifleri:** `scripts/test_ci_gates.py` eksik/başarısız/atlanan/boş/karışık TRX'i reddeder, tamamen başarılıyı kabul eder.
+- [x] **İzolasyon ve sızıntı:** testler `buildingflow_tests`, `buildingflow-test-*` RabbitMQ/MinIO ve geçici Mailpit; SQL provası `buildingflow_ci_sql_<pid>` veritabanını oluşturup siler. Çalışma sonrası geçici DB/Mailpit/test kuyruğu kalmadı; CI logunda `.env` sır değerlerinden hiçbiri yok. Korunan 26 dosya hash'i aynı.
+- [x] **GitHub workflow:** `contents: read`, SHA ile sabitlenmiş resmi action'lar, Node 24/.NET 10, `init-local.sh` ile tek kullanımlık sırlar, cache yalnız npm lockfile; sır/dump/artifact yüklemesi yok, deploy/merge/push adımı yok.
+
+**Sınırlar:** Workflow GitHub üzerinde çalıştırılmadı (remote/CI hesabı yok); yerel eşdeğer çalıştı. `--install` (npm ci) çalışan FE3003 dev sürecini etkilememek için yerelde çalıştırılmadı. npm/NuGet audit ağ erişimine bağlıdır.
+
 ## İŞ11 adım01 — Güvenlik ve erişim: TAMAMLANDI — 11.10.2026
 
 **1/4 resmi görev = %25.00; genel iş 80/83 = %96.39.** Dal `faz-10-11-release` (Faz10 commit'i 8ca000d ayrı). Push/merge yok.

@@ -1,3 +1,7 @@
+## 11.10.2026 — İŞ11 adım02: CI ve otomatik kontroller
+
+`scripts/ci.sh` sonuç dizinini sıfırlar, CI kapı testlerini (`scripts/test_ci_gates.py`) ve idempotent SQL provasını (`scripts/check-idempotent-sql.sh`) çalıştırır; `check-test-results.py` TRX kapısı; `.github/workflows/quality.yml` SHA-sabit action'larla. Uygulanmış migration'daki sonlandırılmamış ham SQL nedeniyle bozuk idempotent betik `TerminatedSqlMigrationsSqlGenerator` ile düzeltildi + gerçek PG testi; MIGRATIONS/lisans kaydı. **426 .NET, 85 FE, build, audit, lisans geçti.** Eski migration/.env/manifest değişmedi.
+
 ## 11.10.2026 — İŞ11 adım01: güvenlik ve erişim
 
 `faz-10-11-release` dalı açıldı; Faz10 ayrı commit. API `ReleaseSecurity` (production HTTPS/CORS/AllowedHosts doğrulaması, yalnız tanımlı proxy, HSTS/güvenli başlıklar/no-store, anonim/kimlikli okuma/yazma kodlu 429), 28 güvenlik testi; FE `proxy.ts` nonce CSP, `security/policy.ts`, güvenli başlıklar ve test edilebilir locale cookie seçenekleri; roadmap adım01 tiki ve TR/EN metin. **425 .NET, 85 FE, typecheck/build geçti.** DB/migration/.env/manifest değişmedi.

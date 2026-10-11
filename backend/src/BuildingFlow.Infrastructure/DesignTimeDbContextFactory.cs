@@ -11,6 +11,6 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Bui
         var connection = Environment.GetEnvironmentVariable("ConnectionStrings__Database")
             ?? "Host=localhost;Database=buildingflow";
         return new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>()
-            .UseNpgsql(connection).Options);
+            .UseBuildingFlowNpgsql(connection).Options);
     }
 }

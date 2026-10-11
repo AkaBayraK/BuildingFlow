@@ -9,12 +9,12 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 | Alan | Durum |
 | --- | --- |
 | Akış / faz | İŞ11, kayıt14/14 |
-| Aktif adım | 02/04 CI ve otomatik kontroller |
+| Aktif adım | 03/04 Yedekleme ve geri dönüş |
 | Durum | DEVAM EDIYOR |
-| Tamamlanan / toplam | 1/4 |
-| Faz ilerlemesi | %25.00 |
+| Tamamlanan / toplam | 2/4 |
+| Faz ilerlemesi | %50.00 |
 | Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
-| Sonraki işlem | `scripts/ci.sh` yerel çalıştırma ve kalite kapıları |
+| Sonraki işlem | Kendi fixture'ıyla yedek ve yeni izole hedefe restore provası |
 
 ## İş yol haritası özeti
 
@@ -35,9 +35,9 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
 | 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
 | 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 4/4 | TAMAMLANDI | %100.00 |
-| 11 | Yayın hazırlığı ve kalite | 1/4 | DEVAM EDIYOR | %25.00 |
+| 11 | Yayın hazırlığı ve kalite | 2/4 | DEVAM EDIYOR | %50.00 |
 
-**Adım bazlı genel iş ilerlemesi: 80 / 83 = %96.39.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 81 / 83 = %97.59.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -85,3 +85,7 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## İŞ11 adım01 kanıtı — 11.10.2026
 
 **425 .NET (88 unit + 337 integration), 85 FE; hata/atlama 0.** Production yapılandırma reddi, yalnız tanımlı proxy, sahte forwarded header, HTTP/HTTPS, kimlikli/anonim kodlu 429, imzasız/yabancı JWT; FE nonce CSP production build smoke'u (24/24 nonce'lu script, CSP ihlali yok) ve güvenli locale cookie. Dal `faz-10-11-release`; Faz10 ayrı commit 8ca000d. Push/merge yok. Detay [TESTING.md](../TESTING.md).
+
+## İŞ11 adım02 kanıtı — 11.10.2026
+
+`bash scripts/ci.sh` çıkış 0: **426 .NET (88 unit + 338 integration), 85 FE**, typecheck/build, npm audit 0, NuGet audit temiz, 331 lisans, CI kapı negatifleri 6/6, EF model eşliği ve idempotent SQL'in geçici DB'ye iki kez uygulanması. Bozuk idempotent betik bulgusu migration dosyası değiştirilmeden düzeltildi. Workflow GitHub'da çalıştırılmadı. Detay [TESTING.md](../TESTING.md).
