@@ -26,6 +26,10 @@ public static class RabbitTestTopology
             await channel.QueueDeleteAsync(RabbitMessageTopology.Queue(options.Prefix, type), false, false);
             await channel.QueueDeleteAsync(RabbitMessageTopology.DeadQueue(options.Prefix, type), false, false);
         }
+        foreach (var delay in options.RetryDelays.Distinct()) {
+            await channel.QueueDeleteAsync(RabbitMessageTopology.Retry(options.Prefix, delay), false, false);
+            await channel.ExchangeDeleteAsync(RabbitMessageTopology.Retry(options.Prefix, delay));
+        }
         await channel.ExchangeDeleteAsync(RabbitMessageTopology.Exchange(options.Prefix));
         await channel.ExchangeDeleteAsync(RabbitMessageTopology.DeadExchange(options.Prefix));
     }
@@ -61,7 +65,7 @@ public sealed class MessagingPublisherTests(MessagingPublisherTests.BrokerFixtur
         await fixture.Publisher!.PublishAsync(Email(),default);await Get(MessageContracts.Email);
         var prefix=fixture.Options!.Prefix;await fixture.Channel!.QueueUnbindAsync(RabbitMessageTopology.Queue(prefix,MessageContracts.Email),RabbitMessageTopology.Exchange(prefix),MessageContracts.Email);
         try{await Assert.ThrowsAsync<MessagePublicationException>(()=>fixture.Publisher.PublishAsync(Email(),default));}
-        finally{await RabbitMessageTopology.Declare(fixture.Channel,prefix,default);}
+        finally{await RabbitMessageTopology.Declare(fixture.Channel,fixture.Options,default);}
         // A new confirmed channel reconnects after failure.
         await fixture.Publisher.PublishAsync(Email(),default);await Get(MessageContracts.Email);
     }
@@ -97,9 +101,9 @@ public sealed class MessagingPublisherTests(MessagingPublisherTests.BrokerFixtur
         {
             var host=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_HOST");if(string.IsNullOrWhiteSpace(host))return;
             Options=new(){Host=host,Port=int.TryParse(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_PORT"),out var port)?port:5672,
-                Username=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_USERNAME")??"",Password=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_PASSWORD")??"",Prefix="buildingflow-test-"+Guid.NewGuid().ToString("N")};
+                Username=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_USERNAME")??"",Password=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_PASSWORD")??"",Prefix="buildingflow-test-"+Guid.NewGuid().ToString("N"),RetryDelays=[TimeSpan.FromSeconds(1)]};
             Connection=await Options.Factory().CreateConnectionAsync();Channel=await Connection.CreateChannelAsync();
-            await RabbitMessageTopology.Declare(Channel,Options.Prefix,default);Publisher=new(Options);
+            await RabbitMessageTopology.Declare(Channel,Options,default);Publisher=new(Options);
         }
         public async Task DisposeAsync()
         {

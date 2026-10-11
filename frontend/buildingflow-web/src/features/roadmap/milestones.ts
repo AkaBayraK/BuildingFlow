@@ -141,7 +141,7 @@ export const milestones: Milestone[] = [
     tasks: [
       done("messageContractsAndPublisher", "defineEmailRequestedSmsRequestedNotificationRequestedWithCorrelationIDsAndA", "phase09Step01Verification"),
       done("consistentPublicationAndConsumers", "ensureDatabaseMessageConsistencyWithAJustifiedOutboxImplement", "phase09Step02Verification"),
-      planned("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter"),
+      done("retryDeadLetterAndIdempotency", "retryTransientFailuresRouteFailedMessagesToDeadLetter", "phase09Step03Verification"),
       planned("providerIntegrationAndTests", "integrateSelectedEmailSMSProvidersWithExternalSecretsVerify"),
     ],
   },

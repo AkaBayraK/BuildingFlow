@@ -274,10 +274,11 @@ public sealed class MessagingOutboxTests(MessagingOutboxTests.Fixture fixture) :
                 Host = host, Port = int.TryParse(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_PORT"), out var port) ? port : 5672,
                 Username = Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_USERNAME") ?? "",
                 Password = Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_PASSWORD") ?? "",
-                Prefix = "buildingflow-test-" + Guid.NewGuid().ToString("N")
+                Prefix = "buildingflow-test-" + Guid.NewGuid().ToString("N"),
+                RetryDelays = [TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(600)], MaxAttempts = 3
             };
             Connection = await Options.Factory().CreateConnectionAsync(); Channel = await Connection.CreateChannelAsync();
-            await RabbitMessageTopology.Declare(Channel, Options.Prefix, default); Publisher = new(Options);
+            await RabbitMessageTopology.Declare(Channel, Options, default); Publisher = new(Options);
         }
 
         public async Task DisposeAsync()

@@ -1,5 +1,16 @@
 # Test planı ve tamamlanma kaydı
 
+## 09 — Mesajlaşma: adım03 sonucu — 11.10.2026
+
+**Adım03 TAMAMLANDI: 3/4 = %75.00; iş yol haritası 74/83 = %89.16.**
+
+- [x] **Gecikmeli retry ve limit (gerçek RabbitMQ + PG, yalnız `buildingflow-test-*`):** geçici handler hatasında mesaj gecikmeye özel TTL'li quorum retry kuyruğuna confirm ile kopyalanır, ardından kaynak ACK edilir; TTL sonunda orijinal routing key ile ana kuyruğa döner. Test: 2 hata → 300+600 ms sonra 3. denemede tek işlem/tek inbox, tüm kuyruklar boş. Deneme limiti (test 3, varsayılan 5; gecikmeler varsayılan 5s/30s/2dk/10dk) aşılınca `.failed` kuyruğuna `x-buildingflow-failure=retry-exhausted`, deneme sayısı, aynı MessageId/body/persistent ile gider; inbox kaydı oluşmaz.
+- [x] **Kalıcı hata ve idempotency:** aynı ID farklı içerik retry'a girmeden `rejected` nedeniyle DLQ'ya gider, handler tekrar çalışmaz; başarılı mesajın iki ek tekrar teslimi ACK edilir, handler 1 kez/inbox 1 satır. Sahte `-50` deneme başlığı retry süresini uzatamaz. Retry/DLQ yayını confirm alamazsa kaynak `requeue` ile geri bırakılır, ACK edilmez; ana kuyruklarda `x-delivery-limit=10` ve at-least-once dead-letter güvenlik ağıdır.
+- [x] **Politika birimleri (9):** başlık ayrıştırma (int/long/ASCII, negatif/bozuk → 0, üst sınır 100), artan gecikme/limit, güvensiz retry yapılandırmasının reddi.
+- [x] **Regresyon:** `dotnet test` **369/369 = 88 unit + 281 integration, 0 atlanan/başarısız**; mesajlaşma paketi ardışık 3 çalıştırmada 30/30; broker'da test kuyruğu/exchange kalmadı; lisans 318 PASS; 21 korunan dosya aynı.
+
+**Sınırlar:** SMTP gibi dış sağlayıcıda tam exactly-once yoktur: handler gönderip inbox commit'inden önce çökme/bağlantı kaybı olursa mesaj tekrar gönderilebilir; inbox yalnız commit edilmiş teslimleri tekilleştirir. DLQ mesajlarını yeniden oynatma aracı/ekranı yoktur. Kuyruk argümanları değiştiğinden önceden farklı argümanla oluşturulmuş üretim kuyruğu varsa yeniden bildirim PRECONDITION_FAILED verir; yerel broker'da üretim kuyruğu yoktu.
+
 ## 09 — Mesajlaşma: adım02 sonucu — 11.10.2026
 
 **Adım02 TAMAMLANDI: 2/4 = %50.00; iş yol haritası 73/83 = %87.95.**
