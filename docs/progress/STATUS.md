@@ -4,28 +4,21 @@ Güncelleme: 2026-10-11 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının
 
 ## Aktif tur
 
-**Onaylı kapsam: İŞ 09 — Asenkron mail, SMS ve bildirim; kullanıcı 10.10.2026 başlatmayı onayladı.** Sağlayıcı kararı: SMTP e-posta, SMS sağlayıcısı daha sonra. Önceki İŞ08 teslimi korunur. [Analiz](../analysis/PHASE_09_MESSAGING.md).
+**Onaylı kapsam İŞ11 — Yayın hazırlığı ve kalite;11.10.2026 kullanıcı onayı.** [Analiz](../analysis/PHASE_11_RELEASE_QUALITY.md). Yerel yayın adayı ve araçlar; hedef üretim ortamına dağıtım yok.
 
 | Alan | Durum |
 | --- | --- |
-| Akış / faz | İŞ09, kayıt12/14 |
-| Aktif adım | Yok — İŞ09 4/4 teslim edildi |
-| Durum | TAMAMLANDI |
-| Tamamlanan / toplam | 4/4 |
-| Faz ilerlemesi | %100.00 |
-| Engel | Yok; gerçek SMTP gönderimi için sağlayıcı ayarları gelecekte gerekecek |
-| Sonraki işlem | Kullanıcı onayı: İŞ10 veya iş akışı e-posta tetikleyicileri; isteğe bağlı yerel migration |
-
-| Adım | İş | Durum |
-| --- | --- | --- |
-| 01/04 | Mesaj sözleşmeleri ve yayıncı | TAMAMLANDI |
-| 02/04 | Outbox ve tüketiciler | TAMAMLANDI |
-| 03/04 | Retry, dead-letter ve idempotency | TAMAMLANDI |
-| 04/04 | SMTP sağlayıcı entegrasyonu ve testler; SMS ertelendi | TAMAMLANDI |
+| Akış / faz | İŞ11, kayıt14/14 |
+| Aktif adım | 01/04 Güvenlik ve erişim |
+| Durum | DEVAM EDIYOR |
+| Tamamlanan / toplam | 0/4 |
+| Faz ilerlemesi | %0.00 |
+| Engel | Geliştirmede yok; gerçek go-live için dış domain/TLS/SMTP gerekir |
+| Sonraki işlem | Negatif güvenlik ve frontend testleri |
 
 ## İş yol haritası özeti
 
-Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ 09: 4/4 = %100.00**; önceki teslimler korunur. İŞ09 kullanıcı tarafından onaylandı; 11.10.2026 **4/4 tamamlandı**; sonraki faz kullanıcı onayı bekler.
+Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/milestones.ts); kabul kanıtı [TESTING.md](../TESTING.md). **14 faz kaydı:** 00–11 ve onaylı ek 06.1 / 07.1. Kimlik 06.1 listedeki 8. kayıttır; faz kimliği sıra sayısı değildir. Son tamamlanan **İŞ10: 4/4 = %100.00**; önceki teslimler korunur. Kullanıcının onayladığı İŞ10 tamamlandı; İŞ11 için yeni onay beklenir.
 
 | Faz | Başlık | Adımlar | Durum | İlerleme |
 | --- | --- | --- | --- | --- |
@@ -41,10 +34,10 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 | 07.1 | Merkezi API hata/uyarı ve TR/EN bildirim | 5/5 | TAMAMLANDI | %100 |
 | 08 | Duyurular ve dosya yönetimi | 4/4 | TAMAMLANDI | %100.00 |
 | 09 | Asenkron mail, SMS ve bildirim | 4/4 | TAMAMLANDI | %100.00 |
-| 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 0/4 | BEKLIYOR | %0 |
-| 11 | Yayın hazırlığı ve kalite | 0/4 | BEKLIYOR | %0 |
+| 10 | Raporlar, sayaçlar ve gözlemlenebilirlik | 4/4 | TAMAMLANDI | %100.00 |
+| 11 | Yayın hazırlığı ve kalite | 0/4 | DEVAM EDIYOR | %0.00 |
 
-**Adım bazlı genel iş ilerlemesi: 75 / 83 = %90.36.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
+**Adım bazlı genel iş ilerlemesi: 79 / 83 = %95.18.** Bu oran mevcut yol haritasının tamamlanan adımlarını sayar; fazların ortalaması veya üretime hazırlık ölçüsü değildir. UI ve protokol adımları bu paydaya eklenmedi. Kaynakta görev sayısı değişince özet ve oran aynı turda yeniden hesaplanır; geçmiş teslim kanıtları korunur.
 
 ## Ayrı planlar ve belge konumları
 
@@ -56,7 +49,7 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 
 - Faz 06.1 eski borçlara bilinmeyen kişi geçmişi üretmez. Katalog CRUD, 500'ün üzerindeki toplu onay ve canlı kullanıcı verisinde başarılı finans mutation'ı teslimin kabul kapsamı değildir; ayrı PostgreSQL testleri ile salt-okunur tarayıcı kabulü ayrıdır.
 - FE sekme tekrar kullanımı Chrome/Safari native adapter testleriyle doğrulandı; canlı macOS Automation izni/GUI kabulü yapılmış sayılmaz.
-- Online ödeme/gerçek banka transferi, üretim SMTP/HTTPS, tam gözlemlenebilirlik, yedekleme/CI ve gelecekteki iş fazları planlıdır. Ayrıntılı kapsam/sınırlar TESTING ve API belgelerinden okunur.
+- Online ödeme/gerçek banka transferi, üretim SMTP/HTTPS, Tempo/tam broker trace propagation, yedekleme/CI ve gelecekteki iş fazları planlıdır. Ayrıntılı kapsam/sınırlar TESTING ve API belgelerinden okunur.
 - 07.1 yalnız mesaj sözleşmesi ve sunum altyapısıdır; domain/DB/migration, kimlik politikası ve finans hesaplama kuralları değişmez.
 
 ## İŞ 07 teslim kanıtı
@@ -67,7 +60,7 @@ Kaynak: [milestones.ts](../../frontend/buildingflow-web/src/features/roadmap/mil
 
 **319 .NET (68 unit +251 integration), 76 FE; hata/atlama0.** Gerçek ayrı PostgreSQL/özel geçici MinIO, migration/model/Down/tekrar/idempotent SQL; TR/EN sağ512px ve390px mobil panel kabulü, son typecheck/build,316 lisans ve19 korunan dosya kontrolü geçti. İki yeni BaseEntity tablosu ve Minio7.0.0 SDK; Duyurular/Belgeler menüleri yerel FE3003'te, API5005 Healthy. Yerel tekrar migration öncesi/sonrası15 eski tablo hash'i aynı; ilk canlı upgrade öncesi hash kanıtı alınamadı, ayrı PG yükseltme testi vardır. Kullanıcı DB'sinde başarılı duyuru/dosya mutation yapılmadı. Mail/SMS İŞ09, dosya taraması/retention ve finans eki gelecekteki kapsam; Docker imajı bu tur derlenmedi. Detay [TESTING.md](../TESTING.md), [API](../api/communication.md).
 
-Son kullanım okuması: Codex usage, 10.10.2026 11:41:45 Europe/Istanbul; 300dk kullanılan%19/kalan%81, reset10.10.2026 16:35:15; 10080dk kullanılan%97/kalan%3, reset15.10.2026 22:03:08. Giriş/çıkış/toplam token, kalan context ve oturum tüketimi: **BİLGİ MEVCUT DEĞİL**. Hesap kotası sohbet tüketimi değildir.
+Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk kullanılan %88 / kalan %12, reset 11.10.2026 14:28:33; 10080 dk kullanılan %14 / kalan %86, reset 18.10.2026 09:28:33. Giriş token: **BİLGİ MEVCUT DEĞİL**. Çıkış token: **BİLGİ MEVCUT DEĞİL**. Toplam token: **BİLGİ MEVCUT DEĞİL**. Kalan context: **BİLGİ MEVCUT DEĞİL**. Oturum tüketimi: **BİLGİ MEVCUT DEĞİL**. Hesap kotası sohbet tüketimi değildir.
 
 ## İŞ 09 adım01 kanıtı — 11.10.2026
 
@@ -84,3 +77,7 @@ Son kullanım okuması: Codex usage, 10.10.2026 11:41:45 Europe/Istanbul; 300dk 
 ## İŞ 09 teslim kanıtı — 11.10.2026
 
 **374 .NET (88 unit + 286 integration), 76 FE; hata/atlama 0.** Sürümlü sözleşmeler, confirm/mandatory yayıncı, BaseEntity outbox/inbox + migration, SKIP LOCKED relay, retry/DLQ ve SMTP e-posta; gerçek ayrı PG, `buildingflow-test-*` RabbitMQ ve geçici Mailpit ile doğrulandı. SMS kapalı, uygulama içi bildirim kanalı yok, iş akışı tetikleyicisi yok; migration yerel ana DB'ye uygulanmadı, Docker imajı derlenmedi. Dal `faz-09-messaging` (5 commit), main'e merge/push yok. Detay [TESTING.md](../TESTING.md), [analiz](../analysis/PHASE_09_MESSAGING.md).
+
+## İŞ10 teslim kanıtı — 11.10.2026
+
+**4/4 resmi görev = %100.00; genel iş 79/83 = %95.18.** Faz09 hızlı tekrar **41/41**; bu tur son regresyon **397 .NET (88 unit +309 integration), 82 FE, hata/atlama 0**, typecheck/build ve **11 canlı gözlemlenebilirlik kontrolü** geçti. Sayaç/okuma/gerekçeli revizyon ve alan/dönem raporları, TR/EN ortak sağ panel ve 390 px mobil kabulü; üç yeni BaseEntity tablo, gerçek ayrı PostgreSQL kurulum/yükseltme/tekrar/Down ve idempotent SQL doğrulaması. **331 lisans**, **23 korunan dosya**, ana DB yükseltmesinde **17 eski tablonun satır hash eşliği**. Yerel API5005/FE3003; SMTP kapalı test workerı ve OTLP14318/Prometheus19090/Loki13100/Grafana3002 çalışıyor. Kullanıcı iş verisinde mutation yok; Docker uygulama imajları derlenmedi. Ayrıntı [TESTING.md](../TESTING.md), [API](../api/meters-reports.md), [gözlemlenebilirlik](../OBSERVABILITY.md). Sayaçtan otomatik borç, endeks sıfırlama/tarife, geçmiş bakiye snapshot ve Tempo deposu yok. İŞ11 başlatılmadı.

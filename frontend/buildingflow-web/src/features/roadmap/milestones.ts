@@ -148,10 +148,10 @@ export const milestones: Milestone[] = [
   {
     number: "10", title: "reportsMetersAndObservability", description: "turnOperationsDataIntoReportsAndDiagnosticTools",
     tasks: [
-      planned("metersAndReadings", "meterModelDatedReadingsCorrectionsConsumptionAndHistoryScreens"),
-      planned("managementReports", "scopeOccupancyDebtReceiptsExpensesAndConsumptionReportsTo"),
-      planned("prometheusAndGrafana", "metricsExporterDataSourceAndRequestErrorWorkerDashboards"),
-      planned("lokiAndOpenTelemetry", "sendLogsToLokiWithCorrelationAndOptionalTraces"),
+      done("metersAndReadings", "meterModelDatedReadingsCorrectionsConsumptionAndHistoryScreens", "phase10MetersVerification"),
+      done("managementReports", "scopeOccupancyDebtReceiptsExpensesAndConsumptionReportsTo", "phase10ReportsVerification"),
+      done("prometheusAndGrafana", "metricsExporterDataSourceAndRequestErrorWorkerDashboards", "phase10MetricsVerification"),
+      done("lokiAndOpenTelemetry", "sendLogsToLokiWithCorrelationAndOptionalTraces", "phase10LogsVerification"),
     ],
   },
   {

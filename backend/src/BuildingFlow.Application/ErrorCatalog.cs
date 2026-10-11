@@ -24,6 +24,13 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition MeterInvalid = new("BF_METER_INVALID", "Geçerli sayaç adı, türü ve istek kimliği gerekli.", "error");
+    public static readonly ErrorDefinition ReadingInvalid = new("BF_READING_INVALID", "2000 veya sonrası, gelecekte olmayan sabit tarih; sıfır veya pozitif en fazla üç ondalıklı endeks, gerekçe ve geçerli sürüm gerekli.", "error");
+    public static readonly ErrorDefinition MeterConflict = new("BF_METER_CONFLICT", "Sayaç adı, okuma tarihi veya istek kimliği çakışıyor. Güncel listeyi kontrol edin.", "warning");
+    public static readonly ErrorDefinition MeterInvalidUnit = new("BF_METER_INVALID_UNIT", "Aynı yönetim alanındaki aktif bağımsız bölümü seçin.", "warning");
+    public static readonly ErrorDefinition MeterInactive = new("BF_METER_INACTIVE", "Pasif sayaca yeni okuma veya düzeltme eklenemez.", "warning");
+    public static readonly ErrorDefinition ReadingOrder = new("BF_READING_ORDER", "Endeks önceki okumadan küçük veya sonraki okumadan büyük olamaz.", "warning");
+
     public static readonly ErrorDefinition ContentInvalid = new("BF_CONTENT_INVALID", "Başlık 1–200, içerik 1–10000 karakter olmalı; geçerli hedef seçin.", "error");
     public static readonly ErrorDefinition ContentState = new("BF_CONTENT_STATE", "Bu işlem duyurunun mevcut yayın durumunda yapılamaz.", "warning");
     public static readonly ErrorDefinition DocumentInvalid = new("BF_DOCUMENT_INVALID", "Geçerli dosya adı, PDF/JPEG/PNG uzantısı ve dosya imzası gerekli.", "error");

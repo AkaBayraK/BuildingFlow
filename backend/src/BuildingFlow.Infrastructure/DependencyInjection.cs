@@ -14,6 +14,8 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IPeopleStore, PeopleStore>();
         services.AddScoped<BuildingFlow.Application.IDuesStore, DuesStore>();
         services.AddScoped<BuildingFlow.Application.IPaymentStore, PaymentStore>();
+        services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
+        services.AddScoped<BuildingFlow.Application.IMeterStore, MeterStore>();
         services.AddScoped<BuildingFlow.Application.IExpenseStore, ExpenseStore>();
         services.AddScoped<BuildingFlow.Application.ICommunicationStore, CommunicationStore>();
         services.AddSingleton<BuildingFlow.Application.IFileStorage, MinioFileStorage>();

@@ -1,3 +1,25 @@
+## 11.10.2026 — İŞ11 başladı
+
+Kullanıcı onayı; güvenlik/CI/yedek-restore/yayın kabul kapsamı ve test planı hazırlandı. Faz10 değişiklikleri korunur; yeni göreve henüz tik yok.
+
+## 11.10.2026 — İŞ10 adım04 ve faz teslimi
+
+API/worker güvenli OTLP logları, Loki trace kimliği, Prometheus metrik/TCP health, Grafana iki datasource/8 panel ve `scripts/test-observability.py` canlı kontrolü tamamlandı. Sayaç tarih alanı gerçek takvimle doğrulandı; stale409 sonrası güncel okuma yükleme eklendi. TR/EN ve512px/390px sağ panel tarayıcı kabulü, ekran kanıtı, API/OBSERVABILITY/migration/lisans/AGENTS/README/skill-agent/progress belgeleri ve son roadmap4/4 güncellendi.
+
+**397 .NET,82 FE,typecheck/build,11 canlı smoke,331 lisans,23 korunan dosya ve17 eski DB tablo hash eşliği başarılı.** Yeni idempotent SQL üretildi; uygulama Docker imajları derlenmedi, kullanıcı iş verisine mutation yok. İŞ10 **4/4=%100.00**, genel **79/83=%95.18**. Yeni İŞ11 başlatılmadı; dal faz-09-messaging, commit/merge/push yapılmadı.
+
+## 11.10.2026 İŞ10 adım03
+
+OpenTelemetry1.18 SDK; düşük cardinality request/histogram ve worker/retry/DLQ ölçümleri; Collector/Prometheus/blackbox/Loki compose, Grafana datasource/dashboard, license+NOTICE, dev workerDB düzeltmesi. Gerçek pipeline smoke,397.NET ve331 lisans; yerel upgrade17 eski tablo hash korundu.
+
+## 11.10.2026 İŞ10 adım02
+
+Rapor Application/Store/API, scope/RepeatableRead/SQL LAG, doluluk sayımı ve finans tarih kuralları; ReportsWorkspace ayrı menü, TR/EN/DTO ve testler. Kanıt8 entegrasyon+82FE,typecheck/build.
+
+## 11.10.2026 İŞ10 adım01
+
+Sayaç/okuma/revizyon BaseEntity modeli, EF migration + SQL immutable/Down guard, API UUID/version/scope ve ortak sağ panel/TanStack/TR-EN ekranları. TESTING.md:36 PostgreSQL ve80 FE; typecheck/build. Faz09 hızlı tekrar41/41. Paket değişmedi.
+
 # BuildingFlow çalışma değişiklik geçmişi
 
 Bu dosya yalnız yeni çalışma turlarında gerçekten yapılan değişiklikleri ekleyerek kaydeder. Önceki iş fazlarının ayrıntılı değişiklik/test kanıtı [TESTING.md](../TESTING.md) ve ilgili teslim raporlarında korunur; buraya yeniden kopyalanmaz. Güncel durum [STATUS.md](STATUS.md), devam bağlamı [SESSION.md](SESSION.md).

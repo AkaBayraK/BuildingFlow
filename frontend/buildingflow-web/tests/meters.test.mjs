@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normalizedIndex,formatIndex,readMeter,readReading,readPage} from '../src/features/meters/model.ts';
+import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';import {managementSection} from '../src/features/navigation/routes.ts';
+const p='9b962f3e-8812-459f-a42f-45ec6e3c6eba',id='24d39d57-021b-4705-87d3-98a091c95f23';
+const m={id,propertyId:p,unitId:null,name:'Water',kind:'WATER',measurementUnit:'m³',isEnabled:true,version:1,replayed:false};
+const r={id,propertyId:p,meterId:id,readingDate:'2026-10-01',value:'100.123',consumption:null,version:1,revisions:[{id,value:'100.123',sequence:1,reason:'Baseline',createdAt:'2026-10-01T00:00:00Z'}],replayed:false};
+test('indexes preserve three decimals including comma and zero',()=>{assert.equal(normalizedIndex('000.1'),'0.100');assert.equal(normalizedIndex('999999999,999'),'999999999.999');for(const s of ['-1','1.0001','1e2','1,234,567','1000000000'])assert.equal(normalizedIndex(s),null);assert.equal(formatIndex('100.123','tr'),'100,123');});
+test('meter and reading DTO reject wrong scope, kind and inconsistent history',()=>{assert.deepEqual(readMeter(m,p),m);assert.deepEqual(readReading(r,p,id),r);for(const v of [{...m,propertyId:id},{...m,kind:'UNKNOWN'},{...m,measurementUnit:'kWh'},{...m,version:0}])assert.throws(()=>readMeter(v,p));for(const v of [{...r,meterId:p},{...r,readingDate:'2026-02-30'},{...r,consumption:'-1.000'},{...r,revisions:[]},{...r,value:'100.124'}])assert.throws(()=>readReading(v,p,id));});
+test('meter pages reject duplicate IDs and invalid pagination',()=>{const page={items:[m],page:1,pageSize:10,totalCount:1};assert.deepEqual(readPage(page,v=>readMeter(v,p)),page);assert.throws(()=>readPage({...page,items:[m,m],totalCount:2},v=>readMeter(v,p)));});
+test('meter and report menus preserve OIDC local return allowlist',()=>{for(const s of ['meters','reports']){assert.ok(isWorkspaceReturnPath('/'+s));assert.ok(isWorkspaceReturnPath('/properties/'+p+'/'+s));assert.equal(managementSection('/properties/'+p+'/'+s,p),s);assert.equal(isWorkspaceReturnPath('/'+s+'?token=secret'),false);}});

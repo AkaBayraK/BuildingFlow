@@ -1068,3 +1068,9 @@ Onaylı uygulama Announcement + StoredDocument ve IFileStorage'ın Minio7.0.0 sa
 DRAFT→PUBLISHED→ARCHIVED; düz metin içerik, taslak başına en çok10 ek ve yayın geçmişi korunur. Belgeler PDF/JPEG/PNG imza+MIME+uzantı kontrolü,10MiB; özel bucket/sunucu UUID anahtarı, metadata DB'de. API kimlik bilgisi/nesne anahtarı/public URL döndürmez; JWT kontrollü attachment/no-store/nosniff indirme ve SHA256/boyut doğrulaması. UUID/fingerprint replay, parent kilidi/version ve composite Property FK korunur. MinIO ile DB dağıtık transaction değildir; belirsiz commit nesnesini otomatik silme. Soft-delete metadata geçmişini ve özel nesneyi korur; retention/orphan temizliği ayrı bakım kapsamıdır.
 
 Kalıcı Duyurular/Belgeler menüleri, TR/EN, ortak sağ panel ve shadcn/TanStack liste/mobil düzen kullanılır. [API](api/communication.md), [analiz](analysis/PHASE_08_ANNOUNCEMENTS_DOCUMENTS.md), [test kanıtı](TESTING.md). Mail/SMS İŞ09'dur; finans eki, virüs taraması ve üretim dosya saklama operasyonları tamamlanmış sayılmaz.
+
+## Onaylı İŞ10 uygulama eki — 11.10.2026
+
+İlk teknik planın8 fazı değişmez; ayrı iş yol haritası İŞ10(kayıt13/14) kullanıcı tarafından onaylandı. Ortak Property→opsiyonel Unit Meter; MeterReading→immutable MeterReadingRevision, sekiz BaseEntity alanı ve migration20261011064227_MetersAndReadings. Sayaç/tarih/endeks ve rapor anlamı [API sözleşmesinde](api/meters-reports.md); otomatik sayaç tahakkuku yok. Raporlar kişi verisi içermeyen alan/üyelik kontrollü özetlerdir.
+
+Minimum telemetry şimdi çalışır: API+worker OpenTelemetry →Collector →Prometheus/Loki →Grafana; request/histogram/error/worker ve bağımlılık erişimi dashboard'u. [İşletme/yerel run](OBSERVABILITY.md). Grafana log deposu değildir. Trace deposu/Tempo ve broker traceparent propagation bu teslimin dışındadır. Lisanslar [licenses.md](licenses.md), kanıtlar [TESTING.md](TESTING.md).

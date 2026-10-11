@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
-builder.Logging.AddJsonConsole();
+builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
+builder.Services.AddBuildingFlowTelemetry(builder.Logging,builder.Configuration,"buildingflow-api");
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -28,6 +29,8 @@ builder.Services.AddScoped<PeopleService>();
 builder.Services.AddScoped<DuesService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ExpenseService>();
+builder.Services.AddScoped<MeterService>();
+builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<CommunicationService>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
@@ -43,6 +46,7 @@ if (args.Contains("--migrate", StringComparer.Ordinal))
     return;
 }
 
+app.UseBuildingFlowRequestTelemetry();
 app.UseExceptionHandler();
 app.UseCors();
 app.UseStatusCodePages(async statusContext =>
@@ -75,6 +79,8 @@ app.MapPeopleEndpoints();
 app.MapDuesEndpoints();
 app.MapPaymentEndpoints();
 app.MapExpenseEndpoints();
+app.MapMeterEndpoints();
+app.MapReportEndpoints();
 app.MapCommunicationEndpoints();
 app.Run();
 

@@ -30,6 +30,8 @@ services:
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
+      Telemetry__Enabled: "true"
+      Telemetry__Endpoint: http://otel-collector:4318
       MinIO__Endpoint: minio:9000
       MinIO__AccessKey: ${MINIO_ROOT_USER:-buildingflow}
       MinIO__SecretKey: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
@@ -61,6 +63,8 @@ services:
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
       # Local delivery is captured by Mailpit; production SMTP host/credentials come from external secrets.
+      Telemetry__Enabled: "true"
+      Telemetry__Endpoint: http://otel-collector:4318
       Smtp__Enabled: "true"
       Smtp__Host: mailpit
       Smtp__Port: "1025"
@@ -157,7 +161,38 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Run scripts/init-local.sh}
       GF_USERS_ALLOW_SIGN_UP: 'false'
     ports: ["127.0.0.1:${GRAFANA_PORT:-3002}:3000"]
-    volumes: ["grafana-data:/var/lib/grafana"]
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.162.0
+    command: ["--config=/etc/otelcol/config.yml"]
+    ports: ["127.0.0.1:${OTLP_PORT:-14318}:4318"]
+    volumes: ["./observability/collector.yml:/etc/otelcol/config.yml:ro"]
+    depends_on:
+      loki: {condition: service_started}
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=7d"]
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-19090}:9090"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      otel-collector: {condition: service_started}
+      blackbox: {condition: service_started}
+  blackbox:
+    image: prom/blackbox-exporter:v0.28.0
+    command: ["--config.file=/etc/blackbox.yml"]
+    volumes: ["./observability/blackbox.yml:/etc/blackbox.yml:ro"]
+  loki:
+    image: grafana/loki:3.7.8
+    command: ["-config.file=/etc/loki/config.yml"]
+    ports: ["127.0.0.1:${LOKI_PORT:-13100}:3100"]
+    volumes:
+      - ./observability/loki.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
 networks:
   default:
     name: buildingflow-network
@@ -168,3 +203,5 @@ volumes:
   rabbitmq-data:
   minio-data:
   grafana-data:
+  prometheus-data:
+  loki-data:

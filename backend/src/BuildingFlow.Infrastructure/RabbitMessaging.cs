@@ -189,12 +189,14 @@ public sealed class RabbitMessageConsumer(RabbitMessagingOptions options, IServi
 
     private async Task Handle(string type, BasicDeliverEventArgs delivery)
     {
+        using var activity = BuildingFlowTelemetry.Activities.StartActivity("message.consume");
         var active = channel!;
         string? failure = null;
         try {
             await using var scope = scopes.CreateAsyncScope();
             var result = await scope.ServiceProvider.GetRequiredService<MessageProcessor>().ProcessAsync(type, delivery.Body, delivery.CancellationToken);
             if (result != MessageProcessingResult.Rejected) {
+                BuildingFlowTelemetry.Deliveries.Add(1,new KeyValuePair<string,object?>("outcome",result==MessageProcessingResult.Duplicate?"duplicate":"processed"));
                 await active.BasicAckAsync(delivery.DeliveryTag, multiple: false);
                 return;
             }
@@ -207,6 +209,7 @@ public sealed class RabbitMessageConsumer(RabbitMessagingOptions options, IServi
         } catch (Exception) {
             failure = null;
         }
+        BuildingFlowTelemetry.WorkerFailures.Add(1,new KeyValuePair<string,object?>("operation","delivery"));
         var attempts = RabbitRetryPolicy.Attempts(delivery.BasicProperties.Headers) + 1;
         var delay = failure is null ? RabbitRetryPolicy.NextDelay(attempts, options) : null;
         try {
@@ -216,6 +219,7 @@ public sealed class RabbitMessageConsumer(RabbitMessagingOptions options, IServi
             await active.BasicNackAsync(delivery.DeliveryTag, multiple: false, requeue: true);
             return;
         }
+        BuildingFlowTelemetry.Deliveries.Add(1,new KeyValuePair<string,object?>("outcome",delay is null?"dead_letter":"retry"));
         await active.BasicAckAsync(delivery.DeliveryTag, multiple: false);
     }
 

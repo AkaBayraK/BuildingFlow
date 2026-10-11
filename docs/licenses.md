@@ -78,3 +78,9 @@ Minio NuGet **7.0.0** eklendi. SDK Apache-2.0: [sürüme ait resmî lisans](http
 ## İŞ 09 — RabbitMQ .NET istemcisi
 
 RabbitMQ.Client NuGet **7.2.1** eklendi. Paket `Apache-2.0 OR MPL-2.0` çift lisanslıdır; bu proje **Apache-2.0** seçeneğini kullanır. Tam metin [rabbitmq-client-7.2.1-LICENSE-APACHE2.txt](licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt) içinde korunur. Transitif System.Threading.RateLimiting 8.0.0 MIT'tir. RabbitMQ 4.1.4 sunucusunun MPL-2.0 kaydı değişmez. 11.10.2026 restore sonrası metadata kontrolü **318 paket sürümü** için geçti; FE paketleri değişmedi.
+
+## İŞ10 — 11.10.2026
+
+OpenTelemetry.Extensions.Hosting ve Exporter.OpenTelemetryProtocol **1.18.0 Apache-2.0**; resmî NuGet repository commit9db92a4e978b4ae432183c790259be48a475578f ve paket LICENSE/THIRD-PARTY-NOTICES okundu, yerel kopyalar korundu. Restore sonrası check-licenses.py **331** npm/NuGet sürümü için geçti. FE manifest/lockfile değişmedi.
+
+Yeni sabit container sürümleri: [Collector contrib0.162.0 Apache-2.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/LICENSE), [Prometheus3.15.0 Apache-2.0](https://github.com/prometheus/prometheus/blob/v3.15.0/LICENSE), [Blackbox exporter0.28.0 Apache-2.0](https://github.com/prometheus/blackbox_exporter/blob/v0.28.0/LICENSE), [Loki3.7.8 AGPL-3.0](https://github.com/grafana/loki/blob/v3.7.8/LICENSE). Resmî sürüm lisansları docs/licenses/phase10-*-LICENSE.txt'te. Loki ayrı servis; AGPL source/dağıtım ve değişikliklerin ağ kullanımı yükümlülükleri korunur; ticari lisans alınmış gibi gösterilmez. Container içindeki üçüncü taraf bildirimleri kaldırılmaz. Önceki Grafana AGPL politikası korunur. Dashboard/config özgün repo kodudur; ücretli template veya yeni chart/font paketi yok.

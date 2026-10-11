@@ -1,3 +1,41 @@
+## İŞ11 geliştirme öncesi kabul planı — 11.10.2026
+
+[Analiz](analysis/PHASE_11_RELEASE_QUALITY.md). Production güvenlik/forwarded header/HTTPS/CORS/rate-limit ve negatifJWT; FE nonce CSP/cookie/TR-EN; izole gerçek altyapıyla backend regressyon; lokal CI eşdeğeri, npm/NuGet audit/lisans; yedek fixture tam geri dönüş/hatalı checksum/aktif writers ret/yalnız yeni target koruması; migration ve son kullanıcı rehberi. Henüz başarılı kabul sonucu değildir.
+
+## İŞ10 — adım04 ve nihai teslim — 11.10.2026
+
+**TAMAMLANDI: 4/4 resmi görev = %100.00; genel iş 79/83 = %95.18.** [Analiz](analysis/PHASE_10_REPORTS_METERS_OBSERVABILITY.md), [API](api/meters-reports.md), [gözlemlenebilirlik](OBSERVABILITY.md). Önceki Faz09 hızlı kontrol bu tur41/41; önceki tam374 kanıtı yeniden çalıştırılmış sayılmaz.
+
+- [x] **Son backend regresyonu: 397/397 =88 unit +309 integration, hata/atlama0.** Sayaç API/migration, report scope/finans/tüketim ve telemetri tests dahil. Gerçek ayrı PostgreSQL, rastgele buildingflow-test-* RabbitMQ/MinIO ve throwaway Mailpit; yeni migration ilk kurulum/yükseltme/tekrar/immutable revizyon/Down veri koruması ve bütün22 uygulama tablosunda sekiz NOT NULL ortak alan; model-snapshot eşliği geçti. `dotnet ef migrations script --idempotent --no-build` yeni sayaç migration'ını içeren SQL üretti; SQL artifact'i ayrıca ana DB'ye uygulanmadı.
+- [x] **Son FE regresyonu: 82/82; hata/atlama0**, typecheck ve production build başarılı. DTO/scope/decimal/gerçek takvim/TR-EN/OIDC rota ve menü, merkezi error registry eşliği; ortak RecordList/ManagementPanel. 409 düzeltme çatışması kaydetmeyi kilitler ve güncel okumayı yeniden yükler.
+- [x] **Canlı altyapı: 11/11.** API401 request counter, request histogram, worker outbox counter, PostgreSQL/Redis/RabbitMQ başarılı TCP probe, bounded/hassas veri içermeyen labels, Grafana iki datasource health ve8 panel, API/worker Loki logları, API trace_id ve hassas sorgu işaretinin dışlanması. `python3 scripts/test-observability.py` çalışan yerel servisleri salt-okunur kontrol eder; token/parola/log body yazdırmaz, finans mutation veya gerçek alıcıya mesaj göndermez. TCP testi kimlik bilgisiyle DB sorgusu değildir; diğer gerçek entegrasyonlar ayrı suite'tedir.
+- [x] **Tarayıcı:** girişli Chrome'da Sayaçlar ve Raporlar, TR/EN, boş sayaç listesi, gerçek bölüm seçenekleri, masaüstü sağ512px form,390×844 mobil tam genişlik/taşmasız panel ve rapor kabulü. Kayıt kaydedilmedi; dil/viewport geri yüklendi ve yalnız geçici test sekmesi kapatıldı. [Sayaç paneli kanıtı](screenshots/phase10-meter-panel-tr.png).
+- [x] **Koruma/lisans:**331 npm/NuGet sürümü PASS; resmi OpenTelemetry Apache-2.0 LICENSE/NOTICE ve Collector/Prometheus/blackbox Apache-2.0, Loki AGPL-3.0 dağıtım yükümlülükleri kaydedildi. .env,FE manifest/lock ve önceki migration/Designer kaynakları23 SHA256 aynı;149 yerel doküman bağlantısı,79/83 yol haritası sayacı ve git diff --check geçti. Son roadmap/TR-EN kanıt metninden sonra82 FE,typecheck/build tekrar başarılı. Ana DB Faz09+10 upgrade öncesi/sonrası17 eski tablo satır/audit hash eşit; yeni sayaç/rapor/finans iş kaydı oluşturulmadı.
+
+Komutlar: backend `dotnet test BuildingFlow.sln --no-restore --verbosity minimal -m:1 --disable-build-servers` (SDK /tmp/buildingflow-dotnet ve özel CLI_HOME/NUGET_PACKAGES); FE `npm test`, `npm run typecheck`, `npm run build`; kök `python3 scripts/check-licenses.py`, yeni telemetry compose servisleri ve `scripts/test-observability.py`; EF idempotent SQL. Gereken restore/VSTest/SWC/Docker ağ-soket izinleriyle çalıştı; engellenen ilk denemeler başarılı test sayılmadı. Yerel API5005/FE3003 ve SMTP kapalı test workerı; Grafana3002/Prometheus19090/Loki13100/OTLP14318. Diğer projenin3100 portu korunur. Tek agent; skill/alt agent yok.
+
+**Sınırlar:** İlk endeks tüketim bilinmez; sayaç sıfırlama/rollover, katsayı/tarife/otomatik borç yok. Doluluk ilişki kaydının ay sonu yorumudur; fiziksel boşluk kanıtı değildir. Tahakkuk bakiye ve bölüm etkinliği sorgu anına aittir; geçmiş bakiye snapshot yok. Tempo trace deposu/tam broker trace propagation yok; isteğe bağlı trace debug export altyapısı mevcut. API/Worker/Web Docker imajları bu tur derlenmedi; dış SMTP ve İŞ11 üretim hazırlığı yapılmadı. Yerel iş verisinde başarılı mutation kabulü yapıldı sayılmaz; iş akışları gerçek ayrı test ortamlarında doğrulandı.
+
+## İŞ10 adım03 kanıtı — 11.10.2026
+
+**397/397 .NET (88 unit+309 integration), hata/atlama0.** Gerçek yeni Collector0.162.0, Prometheus3.15.0, blackbox0.28.0, Loki3.7.8 ve mevcut Grafana12.4.11 başlatıldı. `scripts/test-observability.py`:API401 sayacı, süre histogramı, worker outbox ölçümü, TCP probe serileri, bounded/hassas veri içermeyen etiketler, Grafana iki datasource health ve8 panelli dashboard geçti. Restore/lisans331 başarılı; NuGet sandbox DNS nedeniyle yerel yetkili tekrar kullanıldı. TraceFlow3100 çakışması farklı varsayılan13100/19090/14318 ile çözüldü; .env değişmedi. Worker dev komutuna eksik DB bağlantısı eklendi. Yerel ana DB'ye Faz09+10 yeni migrations uygulandı; önce/sonra17 eski tablo hash'i eşit. FE3003 korunur, API5005 yeniden başlatıldı. Kullanıcı DB'sinde yeni sayaç/rapor/finans mutation yok.
+
+## İŞ10 adım02 kanıtı — 11.10.2026
+
+**8/8 rapor filtreli entegrasyon,82/82 FE; hata/atlama0.** Typecheck/build başarılı. Aynı PostgreSQL snapshot'ından alan/üyelik kontrollü rapor; ortak malik doluluk sayılmaz, kiracı+sakin aynı bölüm bir kez; pasifler doluluk dışında. Dönem tahakkuku/güncel bakiye ile farklı ay tahsilatı ayrılır; iptal gider hariç, önceki ay baseline tüketimde kullanılır. ACCOUNTANT yanıtında kişi adı/id yok; anonim/rol/üyelik/silinmiş alan ve geçersiz dönem reddedilir. Ham toplamlar doğrulanır.
+
+## İŞ10 adım01 kanıtı — 11.10.2026
+
+**36/36 PostgreSQL/persistence/migration (sayaç+ilgili migration filtresi),80/80 FE; hata/atlama0.** Typecheck ve Next.js production build geçti. Yeni migration20261011064227_MetersAndReadings; tüm uygulama tablolarının sekiz NOT NULL alanı, compositeFK, endeks iki komşu, baseline, düzeltme/replay/current tarihçe, rol/üyelik/JWT, immutable revizyon ve Down veri guard gerçek ayrı PostgreSQL'de kontrol edildi. Bir eski MessagingMigration testi son migration yerine korunan Faz09 sınırını bekleyecek şekilde düzeltildi; migration kaynakları değişmedi. Yerel ana DB henüz yükseltilmedi, tarayıcı kabulü teslim kontrolünde yapılacak.
+
+## İŞ10 planlı kabul — 11.10.2026
+
+Yetki/scope/anonim/malformed JWT; sayaç iki komşu/endeks/tarih/version/UUID tekrar ve düzeltme revizyonu; üç yeni BaseEntity tablosu ve gerçek PostgreSQL migration upgrade/tekrar/Down guard; rapor kapsamı/tarih/para/doluluk/tüketim ve ACCOUNTANT kişisel veri yasağı; FE DTO/TR-EN/menü/rota/panel; Prometheus/Grafana/Loki/OTLP gerçek pipeline + hassas telemetri yokluğu. [Kapsam](analysis/PHASE_10_REPORTS_METERS_OBSERVABILITY.md). Henüz başarılı test kanıtı değildir.
+
+## Faz09 bu tur hızlı tekrar kontrolü
+
+11.10.2026: `FullyQualifiedName~Messaging` filtresiyle **41/41 (20 unit +21 integration), hata/atlama0**. Ayrı PostgreSQL, yalnız buildingflow-test-* RabbitMQ ve geçici Mailpit; kullanıcı verisine mail/SMS gönderilmedi. Önceki374 tüm-suite kanıtı önceki turun sonucudur.
+
 # Test planı ve tamamlanma kaydı
 
 ## 09 — Mesajlaşma: adım04 sonucu ve faz teslimi — 11.10.2026

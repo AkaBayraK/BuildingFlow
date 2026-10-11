@@ -1,5 +1,12 @@
 // Public code/parameter contract; translations live in messages/tr.json and en.json.
 export const errorCodes = {
+  "BF_METER_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_READING_INVALID": {"status": 400, "severity": "error", "parameters": []},
+  "BF_METER_CONFLICT": {"status": 409, "severity": "warning", "parameters": []},
+  "BF_METER_INVALID_UNIT": {"status": 409, "severity": "warning", "parameters": []},
+  "BF_METER_INACTIVE": {"status": 409, "severity": "warning", "parameters": []},
+  "BF_READING_ORDER": {"status": 409, "severity": "warning", "parameters": []},
+
   "BF_CONTENT_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_CONTENT_STATE": {"status": 409, "severity": "warning", "parameters": []},
   "BF_DOCUMENT_INVALID": {"status": 400, "severity": "error", "parameters": []},

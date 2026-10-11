@@ -7,7 +7,8 @@ using Microsoft.Extensions.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.ClearProviders();
-builder.Logging.AddJsonConsole();
+builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
+builder.Services.AddBuildingFlowTelemetry(builder.Logging,builder.Configuration,"buildingflow-worker");
 if (string.IsNullOrWhiteSpace(builder.Configuration["RabbitMQ:Host"])) throw new InvalidOperationException("RabbitMQ:Host is required.");
 builder.Services.AddSingleton<ICurrentUserService, SystemUser>();
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -327,7 +327,7 @@ public sealed class MessagingMigrationTests
             await Assert.ThrowsAsync<PostgresException>(() => db.Database.ExecuteSqlInterpolatedAsync($"UPDATE outbox_messages SET type={"clr.Type"} WHERE message_id={email.MessageId}"));
             await Assert.ThrowsAsync<PostgresException>(() => db.Database.ExecuteSqlInterpolatedAsync($"UPDATE outbox_messages SET status={"PUBLISHED"} WHERE message_id={email.MessageId}"));
             await Assert.ThrowsAsync<PostgresException>(() => migrator.MigrateAsync(previous));
-            Assert.Equal(db.Database.GetMigrations(), await db.Database.GetAppliedMigrationsAsync());
+            Assert.Equal(db.Database.GetMigrations().Where(v => string.CompareOrdinal(v, "20261011043002_MessagingOutboxAndInbox") <= 0), await db.Database.GetAppliedMigrationsAsync());
         } finally {
             await using var cleanup = new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE", admin); await cleanup.ExecuteNonQueryAsync();
         }

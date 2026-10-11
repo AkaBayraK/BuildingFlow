@@ -156,6 +156,13 @@
   {
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Configuration",
+    "version": "10.0.0",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Configuration",
     "version": "10.0.12",
     "license": "MIT",
     "source": "package .nuspec"
@@ -170,6 +177,13 @@
   {
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Configuration.Binder",
+    "version": "10.0.0",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Configuration.Binder",
     "version": "10.0.12",
     "license": "MIT",
     "source": "package .nuspec"
@@ -178,6 +192,13 @@
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Configuration.CommandLine",
     "version": "10.0.12",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Configuration.EnvironmentVariables",
+    "version": "10.0.0",
     "license": "MIT",
     "source": "package .nuspec"
   },
@@ -240,7 +261,21 @@
   {
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Diagnostics.Abstractions",
+    "version": "10.0.0",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Diagnostics.Abstractions",
     "version": "10.0.12",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.FileProviders.Abstractions",
+    "version": "10.0.0",
     "license": "MIT",
     "source": "package .nuspec"
   },
@@ -275,6 +310,13 @@
   {
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Hosting.Abstractions",
+    "version": "10.0.0",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Hosting.Abstractions",
     "version": "10.0.12",
     "license": "MIT",
     "source": "package .nuspec"
@@ -290,6 +332,13 @@
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Logging.Abstractions",
     "version": "10.0.12",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Logging.Configuration",
+    "version": "10.0.0",
     "license": "MIT",
     "source": "package .nuspec"
   },
@@ -332,6 +381,13 @@
     "ecosystem": "NuGet",
     "name": "Microsoft.Extensions.Options",
     "version": "10.0.12",
+    "license": "MIT",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "Microsoft.Extensions.Options.ConfigurationExtensions",
+    "version": "10.0.0",
     "license": "MIT",
     "source": "package .nuspec"
   },
@@ -466,6 +522,41 @@
     "name": "Npgsql.EntityFrameworkCore.PostgreSQL",
     "version": "10.0.3",
     "license": "PostgreSQL",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "OpenTelemetry",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "OpenTelemetry.Api",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "OpenTelemetry.Api.ProviderBuilderExtensions",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "OpenTelemetry.Exporter.OpenTelemetryProtocol",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "OpenTelemetry.Extensions.Hosting",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
     "source": "package .nuspec"
   },
   {

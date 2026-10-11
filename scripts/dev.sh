@@ -24,6 +24,8 @@ backend_env() {
   export MinIO__UseSSL=false
   export ASPNETCORE_ENVIRONMENT=Development
   export ASPNETCORE_URLS="http://localhost:${API_PORT}"
+  export Telemetry__Enabled="${BUILDINGFLOW_TELEMETRY_ENABLED:-true}"
+  export Telemetry__Endpoint="http://localhost:${OTLP_PORT:-14318}"
   unset Authentication__MetadataAddress
 }
 api_listeners() {
@@ -79,7 +81,7 @@ case "$mode" in
     require docker
     bash scripts/init-local.sh
     docker compose --env-file .env -f deploy/docker-compose.yml stop buildingflow-web buildingflow-api
-    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait postgres keycloak redis rabbitmq minio grafana mailpit
+    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait postgres keycloak redis rabbitmq minio grafana mailpit otel-collector prometheus loki blackbox
     bash scripts/configure-identity.sh
     ;;
   prepare)
@@ -122,7 +124,9 @@ case "$mode" in
   worker)
     require dotnet
     load_env
+    backend_env
     export RabbitMQ__Host=localhost
+    export RabbitMQ__Port="${RABBITMQ_PORT:-5672}"
     export RabbitMQ__Username="$RABBITMQ_USER"
     export RabbitMQ__Password="$RABBITMQ_PASSWORD"
     cd backend
