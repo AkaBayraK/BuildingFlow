@@ -1,3 +1,7 @@
+## 11.10.2026 — BAKIM: açılışta otomatik migration ve apartman/daire kolonları
+
+`DatabaseMigration` (advisory lock, entity-migration uyum kontrolü), API `Database:AutoMigrate`, `db.sh sync`, `dev.sh api` entegrasyonu, 6 yeni otomatik migration testi. `ApartmentAndUnitDetails` elle eklenmiş kolonlara karşı idempotent; 8 eski yükseltme testi `LegacySchema` ile düzeltildi. Ana DB yedeklendi ve migration API açılışında uygulandı. **451 .NET geçti.** Dal `feature/apartment-unit-details`; push/merge yok.
+
 ## 11.10.2026 — main birleştirme ve yerel servis güncellemesi
 
 `faz-10-11-release` → `main` (`--no-ff`, push yok). main'de ci.sh 426 .NET / 85 FE geçti. Ana DB'de bekleyen migration yoktu, DB'ye yazılmadı. Worker yeni kodla yeniden başlatıldı; API kullanıcı tarafından yeniden başlatılmıştı. Smoke 15/15, gözlemlenebilirlik 11/11. Gözlemlenebilirlik sayısı 12/12 → 11/11 düzeltildi.

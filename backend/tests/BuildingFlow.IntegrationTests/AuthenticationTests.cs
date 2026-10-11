@@ -81,7 +81,8 @@ public sealed class AuthenticationTests : IClassFixture<AuthenticationTests.ApiF
                 ["Authentication:Audience"] = "buildingflow-api",
                 ["Authentication:MetadataAddress"] = "",
                 ["ConnectionStrings:Database"] = "Host=localhost;Database=unused_auth_tests",
-                ["Cors:Origins:0"] = "http://localhost:3003"
+                ["Cors:Origins:0"] = "http://localhost:3003",
+                ["Database:AutoMigrate"] = "false"
             }));
             return base.CreateHost(builder);
         }

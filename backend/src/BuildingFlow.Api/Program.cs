@@ -40,11 +40,21 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgres", tags: ["ready"]);
 
 var app = builder.Build();
-if (args.Contains("--migrate", StringComparer.Ordinal))
+var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
+if (migrateOnly || app.Configuration.GetValue("Database:AutoMigrate", app.Environment.IsDevelopment()))
 {
+    var migrationLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("BuildingFlow.Migrations");
     await using var scope = app.Services.CreateAsyncScope();
-    await scope.ServiceProvider.GetRequiredService<BuildingFlowDbContext>().Database.MigrateAsync();
-    return;
+    try
+    {
+        await DatabaseMigration.ApplyPendingAsync(scope.ServiceProvider.GetRequiredService<BuildingFlowDbContext>(), migrationLogger);
+    }
+    catch (Exception exception)
+    {
+        migrationLogger.LogCritical("BuildingFlow.Migrations: schema migration failed ({ExceptionType}); the API will not start", exception.GetType().Name);
+        throw;
+    }
+    if (migrateOnly) return;
 }
 
 app.UseReleaseSecurity();

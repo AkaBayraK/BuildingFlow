@@ -101,3 +101,7 @@ Son kullanım okuması: Codex usage, 11.10.2026 10:12:48 Europe/Istanbul; 300 dk
 ## main birleştirme — 11.10.2026
 
 `faz-10-11-release` main'e birleştirildi; main'de ci.sh **426 .NET / 85 FE** geçti. Ana DB'de 11 migration'ın tamamı zaten uygulanmıştı; DB'ye yazılmadı. API ve worker yeni kodla çalışıyor; smoke 15/15, gözlemlenebilirlik 11/11. Push yapılmadı. Detay [TESTING.md](../TESTING.md).
+
+## BAKIM — otomatik migration — 11.10.2026
+
+Dal `feature/apartment-unit-details`: API açılışta bekleyen migration'ları advisory lock ile uygular (Development varsayılan açık); `db.sh sync` entity değişikliğinden eklemeli migration üretir. `ApartmentAndUnitDetails` ana DB'ye açılışta uygulandı (önce yedek alındı); elle eklenmiş iki kolon hizalandı. **451 .NET** geçti. Girişli ekran kabulü yapılmadı. Ayrıntı [TESTING.md](../TESTING.md), [MIGRATIONS.md](../MIGRATIONS.md).

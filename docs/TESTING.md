@@ -1,3 +1,19 @@
+## BAKIM — Açılışta otomatik migration ve apartman/daire kolonları — 11.10.2026
+
+Kullanıcı talebi: entity'ye eklenen kolonlar tabloya gelmiyor, bir kolon elle eklenmiş; Liquibase benzeri, çalışınca kolonları oluşturan altyapı. Dal `feature/apartment-unit-details`; yeni ürün fazı değildir.
+
+- [x] **Hatanın nedeni (kanıt):** dalın yeni kodu `units.bathroom_count`, `properties.has_elevator` gibi 17 kolonu sorguluyor; `20261011082637_ApartmentAndUnitDetails` ana DB'ye hiç uygulanmamıştı. Salt-okunur sorgu `42703 column u.bathroom_count does not exist` verdi. Elle eklenmiş iki kolon bulundu: `properties.construction_year bigint` ve `properties.neighborhood varchar(200)`, ikisi de boş. Migration olduğu gibi uygulansaydı "column already exists" ile duracaktı.
+- [x] **Migration düzeltmesi (uygulanmamış yeni migration):** 17 `AddColumn` → `ADD COLUMN IF NOT EXISTS` + tip/NULL/varsayılan hizalama. Down veri koruması değişmedi. Eski migration'lara dokunulmadı.
+- [x] **Otomatik migrate:** `DatabaseMigration.ApplyPendingAsync` (PostgreSQL advisory lock, entity-migration uyumsuzluğunda açılmama, adlarıyla log); API `Database:AutoMigrate` (Development varsayılan açık) ve `--migrate` aynı yolu kullanır. `db.sh sync` + `dev.sh api` entegrasyonu. Rehber [MIGRATIONS.md](MIGRATIONS.md).
+- [x] **Yeni testler (her biri kendi geçici veritabanında):** boş DB'de açılışta tüm migration'lar; bekleyen migration açılışta uygulanır ve veri korunur; elle eklenmiş `bigint`/`varchar(200) NOT NULL DEFAULT` kolonlar `integer`/`varchar(100)` NULL'a hizalanır ve değer korunur; 150 karakterlik veri sığmayınca API açılmaz, kısmi şema kalmaz; ayar kapalıyken DB'ye dokunulmaz; advisory lock tutulurken ikinci migration bekler, kilit bırakılınca tamamlanır, tekrar çağrı boş döner.
+- [x] **Dal hataları:** yeni kolonlar yüzünden 8 eski yükseltme testi (`Dues/Expense/Communication/Messaging/Meter`) başarısızdı: eski şema noktasında güncel modelle kayıt ekliyorlardı. `LegacySchema.BeforeApartmentDetails()` o noktada yeni alanları yok sayıyor; satır karşılaştırması yeni boş kolonları dışlıyor; model-migration eşliği güncel context ile ayrıca doğrulanıyor.
+- [x] **`db.sh sync` provası (repo kopyasında):** `varchar(100)→50` değişikliği reddedildi, dosya üretilmedi, snapshot geri yüklendi; yeni alan için yalnız `AddColumn` içeren `AutoSchema_*` üretildi; ikinci çalıştırma "in sync". Temiz kopyada eksik restore hatası bulundu, `sync`'e restore eklendi.
+- [x] **Ana yerel DB:** önce `pg_dump` yedeği `~/buildingflow-backups/buildingflow-before-ApartmentAndUnitDetails-20261011-134542.dump` (dizin 700, dosya 600, 23 tablo verisi). API `dev.sh api` ile yeniden başlatıldı; log `applying 1 migration(s): 20261011082637_ApartmentAndUnitDetails` → `applied`. 17 kolon mevcut, elle eklenenler `integer` / `varchar(100)`, kayıt sayıları aynı (7 Property / 4 Building / 53 Unit), API log'unda Error/Critical yok, `/health` 200. Başka veri değiştirilmedi.
+- [x] **Frontend hata sözleşmesi:** dalın eklediği 10 yeni `BF_*` kodu frontend kayıt defterinde ve TR/EN çevirilerinde yoktu (`api-feedback` testi kırıktı); kodlar ve `neighborhood` alan etiketi eklendi.
+- [x] **Regresyon:** `bash scripts/ci.sh` çıkış 0 — **451/451 .NET (101 unit + 350 integration), 85/85 FE, hata/atlama 0**, typecheck/build, npm audit 0, NuGet audit temiz, idempotent SQL'in geçici DB'ye iki kez uygulanması (**12 migration**).
+
+**Sınırlar:** Girişli tarayıcı kabulü (apartman/daire liste, oluştur/düzenle) yapılmadı: geliştirme hesabının parolasını oturum kaydına taşımamak için giriş formu doldurulmadı. Ekranların kullandığı API yolları gerçek PostgreSQL entegrasyon testleriyle doğrulandı. Frontend kodu bu dalda değişmediği için FE3003 yeniden başlatılmadı. Push/merge yok.
+
 ## main birleştirme ve yerel servis güncellemesi — 11.10.2026
 
 Kullanıcı onayıyla `faz-10-11-release` dalı `main`'e `--no-ff` ile birleştirildi (çakışma yok; main bu dalın atasıydı). Push yapılmadı, remote tanımlı değil.

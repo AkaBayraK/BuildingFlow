@@ -267,6 +267,7 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
         {
             builder.ConfigureHostConfiguration(config=>config.AddInMemoryCollection(new Dictionary<string,string?> {
                 ["ConnectionStrings:Database"]=connection ?? "Host=localhost;Database=unused_sites_tests",
+                ["Database:AutoMigrate"]="false",
                 ["Authentication:Authority"]=Issuer,["Authentication:Audience"]="buildingflow-api",["Authentication:MetadataAddress"]="",
                 ["MinIO:Endpoint"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT"),
                 ["MinIO:AccessKey"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ACCESS_KEY"),

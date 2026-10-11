@@ -104,7 +104,8 @@ public sealed class ErrorContractTests(ErrorContractTests.ApiFactory factory) : 
                 ["Authentication:Authority"] = Issuer,
                 ["Authentication:Audience"] = "buildingflow-api",
                 ["Authentication:MetadataAddress"] = "",
-                ["ConnectionStrings:Database"] = "Host=localhost;Database=unused_error_contract_tests"
+                ["ConnectionStrings:Database"] = "Host=localhost;Database=unused_error_contract_tests",
+                ["Database:AutoMigrate"] = "false"
             }));
             return base.CreateHost(builder);
         }

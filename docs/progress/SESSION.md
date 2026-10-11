@@ -9,3 +9,7 @@ Ana DB'de bekleyen migration yok (11/11 uygulanmış). API5005 ve worker yeni ko
 Yerel API5005/FE3003/OTLP14318/Prometheus19090/Loki13100/Grafana3002 çalışıyor. Başka projeye ait `akabayrak-keycloak` konteyneri yeniden başlatma döngüsünde (4219, exit 1); dokunulmadı.
 
 Kullanım: Claude Code oturumu; giriş/çıkış/toplam token, kalan context, hesap/oturum limiti ve sıfırlanma: BİLGİ MEVCUT DEĞİL.
+
+## BAKIM — otomatik migration (11.10.2026)
+
+Aktif dal `feature/apartment-unit-details` (main 59808c7 üzerinde). API `artifacts/logs/api.log` ile arka planda `dev.sh api` olarak çalışıyor; worker `artifacts/logs/worker.log`. Yedek: `~/buildingflow-backups/buildingflow-before-ApartmentAndUnitDetails-20261011-134542.dump`. Bekleyen: girişli ekran kabulü (kullanıcı), dalın main'e alınması (onay).

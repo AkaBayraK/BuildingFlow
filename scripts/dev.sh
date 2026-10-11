@@ -104,6 +104,9 @@ case "$mode" in
     load_env
     check_api_port
     backend_env
+    # Entity changes become a migration first; the API applies pending migrations on startup (Database__AutoMigrate).
+    bash scripts/db.sh sync
+    export Database__AutoMigrate="${BUILDINGFLOW_AUTO_MIGRATE:-true}"
     cd backend
     exec dotnet run --project src/BuildingFlow.Api --no-launch-profile
     ;;
