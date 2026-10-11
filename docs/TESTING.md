@@ -1,5 +1,16 @@
 # Test planı ve tamamlanma kaydı
 
+## 09 — Mesajlaşma: adım02 sonucu — 11.10.2026
+
+**Adım02 TAMAMLANDI: 2/4 = %50.00; iş yol haritası 73/83 = %87.95.**
+
+- [x] **BaseEntity Outbox/Inbox + migration `20261011043002_MessagingOutboxAndInbox`:** `outbox_messages` (tekil message_id, tür allowlist/payload ≤64KiB/durum check, Property FK, bekleyen kısmi index) ve `processed_messages` (tekil consumer+message_id, SHA-256 parmak izi, PROCESSED/SKIPPED). Ayrı şemada AnnouncementsAndDocuments'tan yükseltme, eski satır JSON eşliği, tekrar uygulama, sekiz NOT NULL alan, check ihlalleri; mesaj geçmişi varken Down PostgresException ile reddedilir. Model sözleşme testleri yeni tabloları kapsar; `db.sh check` farksız, idempotent SQL üretildi.
+- [x] **Atomik enqueue + relay (gerçek PG + RabbitMQ, yalnız `buildingflow-test-*`):** iş kaydıyla aynı transaction rollback'inde ne Property ne outbox kalır; commit'te ikisi birlikte. Geçersiz komut eklenmez. Relay yayınlar/PUBLISHED işaretler, ikinci tur 0; 3 eşzamanlı relay `FOR UPDATE SKIP LOCKED` ile 45 mesajı tam bir kez yayınlar. Broker yokken mesaj PENDING, `PUBLISH_FAILED`, artan backoff; ilk hatada batch durur, broker dönünce yayın.
+- [x] **Tüketici/inbox:** ilk teslim Processed, aynı içerik Duplicate (handler 1 kez), aynı ID farklı içerik/bozuk JSON/yanlış kuyruk/bilinmeyen Property Rejected; handler hatası inbox bırakmaz, tekrar başarılı; 5 eşzamanlı aynı teslimde handler 1 kez; SKIPPED kaydı. Gerçek consumer ack sonrası kuyruk boş, bozuk mesaj `.failed` dead-letter kuyruğuna gider.
+- [x] **Regresyon:** `dotnet test` **355/355 = 88 unit + 267 integration, 0 atlanan/başarısız**; lisans 318 PASS; 21 korunan dosya aynı. Worker test DB'sine karşı 10 sn başlatıldı: relay döngüsü çalıştı, etkin kanal olmadığı için consumer başlatılmadı.
+
+**Bulgu ve düzeltmeler:** İki RabbitMQ test sınıfı paralel çalışınca yerel broker'da quorum Ra küme oluşturma zaman aşımı görüldü (6 başarısız deneme, başarılı sayılmadı); sınıflar paralel olmayan tek koleksiyona alındı, ardışık 3 çalıştırma 16/16. Başarısız fixture'ların kalan 5 test kuyruğu/4 exchange'i yalnız `buildingflow-test-*` adıyla silindi; temizlik artık yeni bağlantıyla yapılır. Communication migration testi, boş messaging tablolarının önce geri alındığı yeni sırayı kesin olarak doğrular. **Sınırlar:** henüz hiçbir iş/API akışı enqueue etmez; üretim worker'ında etkin kanal yok (e-posta adım04, SMS kapalı, uygulama içi bildirim deposu kapsam dışı). Teslim en-az-bir-kez; retry/DLQ politikası adım03. Migration yerel ana DB'ye uygulanmadı; Docker imajları derlenmedi.
+
 ## 09 — Mesajlaşma: adım01 sonucu — 11.10.2026
 
 **Adım01 TAMAMLANDI: 1/4 = %25.00; iş yol haritası 72/83 = %86.75.** Adım02–04 bu kanıtla tiklenmez.

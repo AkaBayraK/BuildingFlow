@@ -10,6 +10,28 @@ public sealed class RabbitFactAttribute : FactAttribute
     { if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_RABBITMQ_HOST"))) Skip="RabbitMQ test environment is required."; }
 }
 
+// Quorum queue creation is serialized across broker test classes; parallel Ra cluster formation timed out on the local broker.
+[CollectionDefinition(RabbitCollection.Name, DisableParallelization = true)]
+public sealed class RabbitCollection { public const string Name = "RabbitMQ"; }
+
+public static class RabbitTestTopology
+{
+    // Cleanup uses a fresh connection because a broker exception closes the fixture channel.
+    public static async Task DeleteAsync(RabbitMessagingOptions options)
+    {
+        Assert.StartsWith("buildingflow-test-", options.Prefix);
+        await using var connection = await options.Factory("buildingflow-test-cleanup").CreateConnectionAsync();
+        await using var channel = await connection.CreateChannelAsync();
+        foreach (var type in MessageContracts.Types) {
+            await channel.QueueDeleteAsync(RabbitMessageTopology.Queue(options.Prefix, type), false, false);
+            await channel.QueueDeleteAsync(RabbitMessageTopology.DeadQueue(options.Prefix, type), false, false);
+        }
+        await channel.ExchangeDeleteAsync(RabbitMessageTopology.Exchange(options.Prefix));
+        await channel.ExchangeDeleteAsync(RabbitMessageTopology.DeadExchange(options.Prefix));
+    }
+}
+
+[Collection(RabbitCollection.Name)]
 public sealed class MessagingPublisherTests(MessagingPublisherTests.BrokerFixture fixture) : IClassFixture<MessagingPublisherTests.BrokerFixture>
 {
     private static EmailRequested Email() => new(Guid.NewGuid(),Guid.NewGuid(),Guid.NewGuid(),DateTimeOffset.UtcNow,"tr","recipient@example.test","Test","Body");
@@ -82,9 +104,9 @@ public sealed class MessagingPublisherTests(MessagingPublisherTests.BrokerFixtur
         public async Task DisposeAsync()
         {
             if(Publisher is not null)await Publisher.DisposeAsync();
-            if(Channel is not null && Options is not null){Assert.StartsWith("buildingflow-test-",Options.Prefix);foreach(var type in MessageContracts.Types){await Channel.QueueDeleteAsync(RabbitMessageTopology.Queue(Options.Prefix,type),false,false);await Channel.QueueDeleteAsync(RabbitMessageTopology.DeadQueue(Options.Prefix,type),false,false);}
-                await Channel.ExchangeDeleteAsync(RabbitMessageTopology.Exchange(Options.Prefix));await Channel.ExchangeDeleteAsync(RabbitMessageTopology.DeadExchange(Options.Prefix));await Channel.DisposeAsync();}
-            if(Connection is not null)await Connection.DisposeAsync();
+            if(Channel is not null)try{await Channel.DisposeAsync();}catch(Exception){}
+            if(Connection is not null)try{await Connection.DisposeAsync();}catch(Exception){}
+            if(Options is not null)await RabbitTestTopology.DeleteAsync(Options);
         }
     }
 }

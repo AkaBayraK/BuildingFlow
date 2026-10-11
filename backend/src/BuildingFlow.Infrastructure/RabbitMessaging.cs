@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 using BuildingFlow.Application;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace BuildingFlow.Infrastructure;
 
@@ -21,7 +23,7 @@ public sealed class RabbitMessagingOptions
         Port = int.TryParse(config["RabbitMQ:Port"], out var port) ? port : 5672,
         UseTls = string.Equals(config["RabbitMQ:UseTls"], "true", StringComparison.OrdinalIgnoreCase)
     };
-    public ConnectionFactory Factory()
+    public ConnectionFactory Factory(string clientName = "buildingflow-publisher")
     {
         if (string.IsNullOrWhiteSpace(Host) || Port is < 1 or > 65535 || string.IsNullOrWhiteSpace(Username) ||
             string.IsNullOrEmpty(Password) || string.IsNullOrWhiteSpace(VirtualHost) || Prefix.Length > 100 ||
@@ -30,7 +32,7 @@ public sealed class RabbitMessagingOptions
         return new ConnectionFactory {
             HostName = Host, Port = Port, UserName = Username, Password = Password, VirtualHost = VirtualHost,
             AutomaticRecoveryEnabled = false, RequestedConnectionTimeout = TimeSpan.FromSeconds(10),
-            ContinuationTimeout = TimeSpan.FromSeconds(10), ClientProvidedName = "buildingflow-publisher",
+            ContinuationTimeout = TimeSpan.FromSeconds(10), ClientProvidedName = clientName,
             Ssl = new SslOption { Enabled = UseTls, ServerName = Host }
         };
     }
@@ -109,5 +111,49 @@ public sealed class RabbitMessagePublisher(RabbitMessagingOptions options) : IMe
         await gate.WaitAsync();
         try { if (disposed) return; disposed = true; await Reset(); }
         finally { gate.Release(); }
+    }
+}
+
+// Acknowledges only after the inbox row and handler effect are committed; rejected messages are dead-lettered.
+public sealed class RabbitMessageConsumer(RabbitMessagingOptions options, IServiceScopeFactory scopes) : IAsyncDisposable
+{
+    public const ushort Prefetch = 10;
+    private IConnection? connection;
+    private IChannel? channel;
+    public bool IsOpen => connection is { IsOpen: true } && channel is { IsOpen: true };
+
+    public async Task StartAsync(IReadOnlyCollection<string> types, CancellationToken cancellationToken)
+    {
+        if (types.Count == 0 || types.Any(type => !MessageContracts.Types.Contains(type))) throw new InvalidMessageException();
+        connection = await options.Factory("buildingflow-consumer").CreateConnectionAsync(cancellationToken);
+        channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        await RabbitMessageTopology.Declare(channel, options.Prefix, cancellationToken);
+        await channel.BasicQosAsync(0, Prefetch, false, cancellationToken);
+        foreach (var type in types) {
+            var consumer = new AsyncEventingBasicConsumer(channel);
+            consumer.ReceivedAsync += (_, delivery) => Handle(type, delivery);
+            await channel.BasicConsumeAsync(RabbitMessageTopology.Queue(options.Prefix, type), autoAck: false, consumer, cancellationToken);
+        }
+    }
+
+    private async Task Handle(string type, BasicDeliverEventArgs delivery)
+    {
+        var active = channel!;
+        MessageProcessingResult result;
+        try {
+            await using var scope = scopes.CreateAsyncScope();
+            result = await scope.ServiceProvider.GetRequiredService<MessageProcessor>().ProcessAsync(type, delivery.Body, delivery.CancellationToken);
+        } catch {
+            await active.BasicNackAsync(delivery.DeliveryTag, multiple: false, requeue: true);
+            return;
+        }
+        if (result == MessageProcessingResult.Rejected) await active.BasicNackAsync(delivery.DeliveryTag, multiple: false, requeue: false);
+        else await active.BasicAckAsync(delivery.DeliveryTag, multiple: false);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (channel is not null) { try { await channel.DisposeAsync(); } catch { } channel = null; }
+        if (connection is not null) { try { await connection.DisposeAsync(); } catch { } connection = null; }
     }
 }

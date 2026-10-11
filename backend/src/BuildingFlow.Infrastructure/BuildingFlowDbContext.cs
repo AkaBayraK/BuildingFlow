@@ -29,6 +29,8 @@ public sealed class BuildingFlowDbContext : DbContext
 
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<StoredDocument> StoredDocuments => Set<StoredDocument>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<ProcessedMessage> ProcessedMessages => Set<ProcessedMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

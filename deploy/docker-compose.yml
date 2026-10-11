@@ -56,11 +56,14 @@ services:
       context: ..
       dockerfile: backend/src/BuildingFlow.Worker/Dockerfile
     environment:
+      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
     depends_on:
       rabbitmq: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+      buildingflow-migrations: {condition: service_completed_successfully}
   postgres:
     image: postgres:17.6-alpine
     environment:

@@ -85,3 +85,7 @@ Kullanıcı fazı başlatmayı onayladı; SMTP seçildi, SMS sağlayıcı ertele
 ## 2026-10-11 — İŞ 09 adım01: mesaj sözleşmeleri ve RabbitMQ yayıncı
 
 Dal `faz-09-messaging`. Application `Messaging.cs` (3 sürümlü sözleşme, zarf, doğrulama, bounded JSON), Infrastructure `RabbitMessaging.cs` (durable quorum topoloji, confirm+mandatory yayıncı), 20 unit + 6 RabbitMQ integration testi; RabbitMQ.Client 7.2.1 lisans metni/envanter, roadmap adım01 tiki ve TR/EN doğrulama metni, analiz/TESTING/STATUS/SESSION güncellendi. **345 .NET, 76 FE, typecheck, 318 lisans geçti.** DB/migration/.env değişmedi.
+
+## 2026-10-11 — İŞ 09 adım02: Outbox ve tüketiciler
+
+BaseEntity `outbox_messages`/`processed_messages` + migration/snapshot, EfMessageOutbox, OutboxRelay, MessageProcessor, RabbitMessageConsumer, Worker relay/consumer host'ları (FoundationWorker kaldırıldı), compose worker DB bağlantısı, 10 yeni PG+RabbitMQ testi; RabbitMQ test koleksiyonu ve sağlam temizlik; communication migration testi yeni geri alma sırasına uyarlandı. **355 .NET, 318 lisans geçti.** Yerel ana DB/.env değişmedi.

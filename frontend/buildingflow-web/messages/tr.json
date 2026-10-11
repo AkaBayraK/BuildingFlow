@@ -581,6 +581,7 @@
     "navDocuments": "Belgeler",
     "phase08Verification": "İŞ 08 tamamlandı: 319 .NET ve 76 FE testi; gerçek PostgreSQL/özel MinIO, TR/EN mobil ve sağ panel doğrulandı. Typecheck/build geçti. TESTING.md.",
     "phase09Step01Verification": "İŞ 09 adım01: 3 sürümlü sözleşme, confirm+mandatory RabbitMQ yayıncı; 20 unit + 6 gerçek RabbitMQ testi (yalnız buildingflow-test-*), tam regresyon 345 .NET. TESTING.md.",
+    "phase09Step02Verification": "İŞ 09 adım02: BaseEntity outbox/inbox + migration, SKIP LOCKED relay, tekil işleme ve worker consumer; 10 gerçek PG+RabbitMQ testi, tam regresyon 355 .NET. TESTING.md.",
     "phase08Version": "v0.8 · Duyurular ve belgeler"
   },
   "feedback": {

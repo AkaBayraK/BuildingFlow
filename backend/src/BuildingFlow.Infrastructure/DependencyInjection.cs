@@ -19,6 +19,9 @@ public static class DependencyInjection
         services.AddSingleton<BuildingFlow.Application.IFileStorage, MinioFileStorage>();
         services.AddSingleton(_ => RabbitMessagingOptions.From(configuration));
         services.AddSingleton<BuildingFlow.Application.IMessagePublisher, RabbitMessagePublisher>();
+        services.AddScoped<BuildingFlow.Application.IMessageOutbox, EfMessageOutbox>();
+        services.AddScoped<OutboxRelay>();
+        services.AddScoped<MessageProcessor>();
         return services;
     }
 }

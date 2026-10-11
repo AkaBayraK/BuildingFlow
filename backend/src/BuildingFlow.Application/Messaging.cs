@@ -25,6 +25,17 @@ public sealed record NotificationRequested(Guid MessageId, Guid PropertyId, Guid
 public sealed record MessageEnvelope(int SchemaVersion, string Type, Guid MessageId, Guid PropertyId,
     Guid CorrelationId, DateTimeOffset OccurredAt, JsonElement Payload);
 
+// Enqueue only adds to the caller's unit of work; the caller's SaveChanges/transaction commits it with the business write.
+public interface IMessageOutbox { void Enqueue(IMessageCommand command); }
+
+public enum MessageHandlingOutcome { Delivered, Skipped }
+public interface IMessageHandler
+{
+    string Type { get; }
+    string Consumer { get; }
+    Task<MessageHandlingOutcome> HandleAsync(IMessageCommand command, CancellationToken cancellationToken);
+}
+
 public sealed class InvalidMessageException() : Exception("Messaging contract is invalid.");
 public sealed class MessagePublicationException() : Exception("Message publication was not confirmed.");
 
