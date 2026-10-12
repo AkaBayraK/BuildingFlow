@@ -46,11 +46,11 @@ public sealed class PropertyMigrationTests
                 """);
             var unified = migrations.Single(value=>value.EndsWith("_UnifiedPropertyModel",StringComparison.Ordinal));
             await Assert.ThrowsAsync<PostgresException>(()=>db.GetService<IMigrator>().MigrateAsync(unified));
-            Assert.Equal(person,(await db.People.AsNoTracking().SingleAsync()).Id);
-            Assert.Equal(occupancy,(await db.UnitOccupancies.AsNoTracking().SingleAsync()).Id);
             // Newer empty migrations can already have rolled back before the
             // older history guard refuses. Restore latest, then verify history.
             await db.Database.MigrateAsync();
+            Assert.Equal(person,(await db.People.AsNoTracking().SingleAsync()).Id);
+            Assert.Equal(occupancy,(await db.UnitOccupancies.AsNoTracking().SingleAsync()).Id);
             Assert.Equal(migrations,await db.Database.GetAppliedMigrationsAsync());
         } finally {await using var cleanup=new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE",admin);await cleanup.ExecuteNonQueryAsync();}
     }

@@ -151,3 +151,7 @@ Ayrı gerçek PostgreSQL kurulum/yükseltme/tekrar/boş Down/re-Up ve veri/audit
 ## İŞ10 sayaç geçmişi
 
 20261011064227_MetersAndReadings: meters/meter_readings/meter_reading_revisions, ortak audit/version, composite FK, precision12/3, tarih tekilliği, immutable SQL revizyon trigger'ı. Dolu sayaç/okuma tablolarında Down veri kaybını engeller. İlk kurulum/yükseltme/tekrar ve tablo sayısı modelden alınan NOT NULL şema taraması ayrı PostgreSQL'de test edilir; sabit sayı kabul kriteri değildir. Yerel11.10.2026 yükseltmesinde17 önceki tablo hash'i eşit; yeni messaging+meter tabloları eklendi.
+
+## PersonProfilesAndMessages —12.10.2026
+
+20261011223446 yeni migration/snapshot: people üzerine8 nullable profil/hesap kolonu, legacyNULL koruması ve profilecheck; yeni person_messages BaseEntity ve Property/Person compositeFK+UUID tekilliği. İlk kurulum/yükseltme/tekrar/boş Down/dolu Down reddi/model/ortak8kolon ayrı PostgreSQL testlerinde geçti. Uygulanmış eski migration değiştirilmedi. Yerel update sonrası22 eski tablonun tüm mevcut alan/audit/version sayım/hashleri eşleşti. Önceki Person Address yok; compare yalnız people yeni8kolonunu çıkarır, diğer tabloların Address dahil alanları korunur. Yeni kişisel veri/mesaj geçmişi varsa Down ilk drop öncesi reddeder.

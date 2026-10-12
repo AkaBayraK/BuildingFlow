@@ -36,3 +36,7 @@ YYYY-MM2000–9998. Tek RepeatableRead snapshot; fan-out join ile parasal toplam
 - consumption: endeks farkı **sonraki okumanın ayına** atanır; LAG önceki ay baseline'ını da kullanır. BaselineCount bilinmeyen tüketimler; ReadingCount dahil fakat toplam dışında. Üç ölçü türü ayrı, birimler toplanmaz. Düzeltilmiş güncel endeksler kullanılır; aylık proration/tarife değildir.
 
 Para string iki ondalık, tüketim string üç ondalık; FE sayıları BigInt/ortak formatter ile gösterir. Boş veri0; bilinmeyen baseline ayrı belirtilir. CSV/PDF export, banka mutabakatı ve otomatik sayaç faturası bu teslimde yoktur.
+
+### Rapor ekranındaki toplam ve gider ayrımı (11.10.2026)
+
+Tüketim miktarı Su/Elektrik/Doğalgaz toplam kartlarında tür ve ölçü birimi ile ayrı gösterilir. Büyük toplamların üç ondalığı ortak BigInt formatter ile korunur. Bu sözleşme birim fiyat/fatura tutarı taşımadığından tüketim için TRY maliyeti veya otomatik Expense oluşturulmaz. Faturanın gerçek tutarı mevcut Giderler üzerinden kaydedildiğinde `occurredDate` ayının `expensesAmount` toplamına girer; sayaç okuması bu gideri ikinci kez eklemez. Rapor ekranı bu ayrımı ve Giderler bağlantısını gösterir. API/DB sözleşmesinde değişiklik yoktur.

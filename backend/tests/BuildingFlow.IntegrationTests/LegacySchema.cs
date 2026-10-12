@@ -27,6 +27,8 @@ internal static class LegacySchema
         public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
             base.Customize(modelBuilder, context);
+            foreach(var name in new[]{"PersonKind","Citizenship","CountryCode","IdentityNumber","BirthDate","Gender","Address","LinkedUserId"})modelBuilder.Entity<Person>().Ignore(name);
+            modelBuilder.Ignore<PersonMessage>();
             foreach (var name in new[] { "Neighborhood", "ConstructionYear", "HeatingType", "HasElevator", "ParkingType" })
                 modelBuilder.Entity<Property>().Ignore(name);
             foreach (var name in new[] { "ConstructionYear", "HeatingType", "HasElevator", "ParkingType" })

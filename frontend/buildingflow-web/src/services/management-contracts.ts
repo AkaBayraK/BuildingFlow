@@ -24,8 +24,15 @@ export function parseUnit(value:unknown,propertyId:string,buildingId:string|null
   return row as Unit;
 }
 export function parsePerson(value:unknown,propertyId:string,personId?:string):Person{
-  const row=common(value,propertyId);if(!uuid(row.id)||(personId&&row.id!==personId))throw new Error("Invalid person identity");string(row.firstName);string(row.lastName);integer(row.activeOccupancyCount);
+  const row=common(value,propertyId);if(!uuid(row.id)||(personId&&row.id!==personId))throw new Error("Invalid person identity");string(row.firstName);if(row.personKind!=="LEGAL")string(row.lastName);else if(typeof row.lastName!=="string")throw new Error("Invalid legal name");integer(row.activeOccupancyCount);
   if(![row.phoneNumber,row.email].every(item=>item===null||typeof item==="string"))throw new Error("Invalid person contact");
+  if(row.personKind!=null){
+    if(!["NATURAL","LEGAL"].includes(String(row.personKind))||!["DOMESTIC","FOREIGN"].includes(String(row.citizenship))||typeof row.countryCode!=="string"||!/^[A-Z]{2}$/.test(row.countryCode)||typeof row.identityNumber!=="string"||!row.identityNumber.trim()||row.birthDate!=null&&!dateOnly(row.birthDate)||row.gender!=null&&!["FEMALE","MALE","OTHER","UNSPECIFIED"].includes(String(row.gender)))throw new Error("Invalid person profile");
+    if((row.citizenship==="DOMESTIC"?row.countryCode!=="TR":row.countryCode==="TR")||row.personKind==="LEGAL"&&(row.birthDate!=null||row.gender!=null))throw new Error("Invalid person profile combination");
+    if(row.citizenship==="DOMESTIC"?!(row.personKind==="LEGAL"?/^[0-9]{10}$/:/^[1-9][0-9]{10}$/).test(String(row.identityNumber)):row.personKind==="NATURAL"&&!/^[A-Za-z0-9-]{6,30}$/.test(String(row.identityNumber)))throw new Error("Invalid person identifier");
+  }
+  for(const key of ["address","linkedUserId","propertyName"])if(row[key]!=null&&typeof row[key]!=="string")throw new Error("Invalid person field");
+  if(row.units!=null){if(!Array.isArray(row.units))throw new Error("Invalid person units");for(const unit of row.units){const u=object(unit);if(!uuid(u.unitId)||typeof u.number!=="string"||!['OWNER','TENANT','RESIDENT'].includes(String(u.role))||!(u.buildingId===null||uuid(u.buildingId))||!(u.buildingName===null||typeof u.buildingName==='string'))throw new Error("Invalid person unit");}}
   return row as Person;
 }
 export function parseOccupancyPage(value:unknown,propertyId:string,personId:string):PagedRows<Occupancy>{

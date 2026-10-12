@@ -20,7 +20,7 @@ export const milestones: Milestone[] = [
       done("keycloakAndJWTValidationFoundation", "realmInitialRolesIssuerAudienceLifetimeValidationAndCurrent"),
       done("dockerComposeServices", "localConfigurationAndVolumesForWebAPIWorkerPostgreSQL"),
       done("workerStorageAndMessagingFoundation", "workerHostAndContractsExistConsumersAndProvidersBelong"),
-      done("frontendShellAndLogo", "nextJsOverviewNavigationSelectedLogoAndAPIHealth"),
+      done("frontendShellAndLogo", "nextJsOverviewNavigationSelectedLogoAndAPIHealth", "workspaceFrameVerification"),
       done("initialVerification", "frontendNETBuilds11DomainTests2PersistenceTests"),
       done("localDevelopmentShortcuts", "readmeExampleEnvironmentSecretPasswordGenerationAndVSCode"),
       done("sharedFeedbackTitle", "sharedFeedbackDetail", "sharedFeedbackVerification"),
@@ -74,7 +74,7 @@ export const milestones: Milestone[] = [
   {
     number: "04", title: "peopleAndUnitRelationships", description: "completedPeopleDatedOwnerTenantResidentRelationshipsAndMove",
     tasks: [
-      done("personModelAndRecordFlows", "propertyScopedNamesAndOptionalContactCRUDSearchSort", "peopleapitestsManagementCRUDTrustedAuditVersionAndScopeBrowser"),
+      done("personModelAndRecordFlows", "propertyScopedNamesAndOptionalContactCRUDSearchSort", "personProfileVerification"),
       done("unitoccupancyRelationships", "realUnitOwnerTenantResidentLinksInclusiveDatesSame", "7NewDomainAnd18RealPostgreSQLAPICases"),
       done("moveInAndHistoryScreens", "unitPeopleNavigationDetail", "unitPeopleNavigationVerification"),
       done("privacyMigrationAndRegression", "managementRolesAndActiveMembershipProtectPersonalDataOngoing", "171NETTests28Unit143IntegrationNoneFailed"),

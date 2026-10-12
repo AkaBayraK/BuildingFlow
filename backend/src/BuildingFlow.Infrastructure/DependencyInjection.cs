@@ -11,6 +11,7 @@ public static class DependencyInjection
         services.AddDbContext<BuildingFlowDbContext>((provider, options) => options.UseBuildingFlowNpgsql(configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("ConnectionStrings:Database is required.")).AddInterceptors(provider.GetRequiredService<AuditInterceptor>()));
         services.AddScoped<BuildingFlow.Application.IPropertyStore, PropertyStore>();
         services.AddScoped<BuildingFlow.Application.IHierarchyStore, HierarchyStore>();
+        services.AddScoped<BuildingFlow.Application.IPersonMessageStore, PersonMessageStore>();
         services.AddScoped<BuildingFlow.Application.IPeopleStore, PeopleStore>();
         services.AddScoped<BuildingFlow.Application.IDuesStore, DuesStore>();
         services.AddScoped<BuildingFlow.Application.IPaymentStore, PaymentStore>();

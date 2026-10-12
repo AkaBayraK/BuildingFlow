@@ -68,3 +68,11 @@ test('visible feedback follows a changed language while preserving user names',(
  assert.equal(translateUiText('BF Test oluşturuldu.','en'),'BF Test created.');
  assert.equal(translateUiText('Geçerli bir e-posta adresi girin.','en'),'Enter a valid email address.');
 });
+
+test('login locale preference is shared and rejects unsupported external values',async()=>{
+ const {resolvePreferredLocale}=await import('../src/i18n/locale.ts');
+ assert.equal(resolvePreferredLocale('en','tr'),'en');
+ assert.equal(resolvePreferredLocale('tr','en'),'tr');
+ for(const invalid of ['de','EN','en;token=x',null,{},undefined])assert.equal(resolvePreferredLocale(invalid,'en'),'en');
+ assert.equal(resolvePreferredLocale(undefined,undefined),'tr');
+});

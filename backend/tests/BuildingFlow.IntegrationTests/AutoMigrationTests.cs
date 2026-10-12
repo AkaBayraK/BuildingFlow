@@ -40,7 +40,7 @@ public sealed class AutoMigrationTests
     public Task HandAddedColumnsAreAlignedInsteadOfFailing() => WithSchema(async (connection, schema) =>
     {
         await using var db = Context(connection, schema);
-        await db.GetService<IMigrator>().MigrateAsync(db.Database.GetMigrations().ToArray()[^2]);
+        await db.GetService<IMigrator>().MigrateAsync(BeforeDetails(db));
         await db.Database.ExecuteSqlRawAsync(InsertProperty);
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE properties ADD COLUMN construction_year bigint DEFAULT 0, ADD COLUMN neighborhood varchar(200) NOT NULL DEFAULT 'Moda'");
         await db.Database.ExecuteSqlRawAsync("UPDATE properties SET construction_year = NULL");
@@ -61,11 +61,11 @@ public sealed class AutoMigrationTests
     {
         await using var db = Context(connection, schema);
         var migrations = db.Database.GetMigrations().ToArray();
-        await db.GetService<IMigrator>().MigrateAsync(migrations[^2]);
+        await db.GetService<IMigrator>().MigrateAsync(BeforeDetails(db));
         await db.Database.ExecuteSqlRawAsync(InsertProperty);
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE properties ADD COLUMN neighborhood varchar(200); UPDATE properties SET neighborhood = repeat('x', 150)");
         await Assert.ThrowsAnyAsync<Exception>(() => StartApi(connection, true));
-        Assert.Equal(migrations[^1], Assert.Single(await db.Database.GetPendingMigrationsAsync()));
+        Assert.Contains(migrations.Single(m=>m.EndsWith("_ApartmentAndUnitDetails",StringComparison.Ordinal)),await db.Database.GetPendingMigrationsAsync());
         Assert.Null(await ColumnType(db, schema, "units", "bathroom_count"));
     });
 
@@ -93,6 +93,8 @@ public sealed class AutoMigrationTests
         Assert.Equal(db.Database.GetMigrations().Count(), (await migration).Count);
         Assert.Empty(await DatabaseMigration.ApplyPendingAsync(db, NullLogger.Instance));
     });
+
+    private static string BeforeDetails(BuildingFlowDbContext db){var migrations=db.Database.GetMigrations().ToArray();var i=Array.FindIndex(migrations,m=>m.EndsWith("_ApartmentAndUnitDetails",StringComparison.Ordinal));return migrations[i-1];}
 
     private const string InsertProperty = """
         INSERT INTO properties (id,name,city,district,address,type,version,created_at,created_by,modified_at,modified_by,is_deleted,is_enabled)

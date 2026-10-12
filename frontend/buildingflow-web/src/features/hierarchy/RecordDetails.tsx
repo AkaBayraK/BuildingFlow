@@ -1,4 +1,5 @@
 "use client";
+import {PersonProfileDetails} from "@/features/people/PersonProfileDetails";
 import {ManagementPanel} from "@/components/management/ManagementPanel";
 
 import {useCallback,useEffect,useState} from "react";
@@ -42,7 +43,7 @@ export function RecordDetails(props:Props){
       {error?<MessageBanner action={<Button variant="outline" onClick={()=>setRevision(n=>n+1)}>{t("tryAgain")}</Button>}>{error}</MessageBanner>:!record?<div role="status" className="space-y-4"><span className="sr-only">{t("loading")}</span><Skeleton className="h-24"/><Skeleton className="h-40"/></div>:<>
         <div className="mb-3 flex items-center gap-3"><IdentityMark icon={kind==="unit"?DoorOpen:Users} className="size-12"/><div className="min-w-0 flex-1"><strong className="block wrap-anywhere">{name}</strong><div className="mt-2"><StatusBadge enabled={record.isEnabled}/></div></div>{canEdit&&<Button variant="outline" size="sm" onClick={()=>{if(props.kind==="unit"&&"number" in record)props.onEdit(record);else if(props.kind==="person"&&"firstName" in record)props.onEdit(record);}}><Pencil className="size-4"/>{m("edit")}</Button>}</div>
         <dl className="grid grid-cols-2 gap-x-5">
-          {"number" in record?<><DetailField label={t("unitNumber")}>{record.number}</DetailField><DetailField label={t("type")}>{t(unitTypeNames[record.type])}</DetailField><DetailField label={t("floor")}>{formatNumber(record.floor,locale)}</DetailField><DetailField label={t("grossArea")}>{formatNumber(record.grossSquareMeters,locale)} m²</DetailField><DetailValues fields={unitDetailFields} record={record}/></>:<><DetailField label={t("phone")}>{record.phoneNumber??t("noPhone")}</DetailField><DetailField label={t("email")}>{record.email??t("noEmail")}</DetailField><DetailField label={m("ongoingRelationships")}>{formatNumber(record.activeOccupancyCount,locale)}</DetailField></>}
+          {"number" in record?<><DetailField label={t("unitNumber")}>{record.number}</DetailField><DetailField label={t("type")}>{t(unitTypeNames[record.type])}</DetailField><DetailField label={t("floor")}>{formatNumber(record.floor,locale)}</DetailField><DetailField label={t("grossArea")}>{formatNumber(record.grossSquareMeters,locale)} m²</DetailField><DetailValues fields={unitDetailFields} record={record}/></>:<><DetailField label={t("phone")}>{record.phoneNumber??t("noPhone")}</DetailField><DetailField label={t("email")}>{record.email??t("noEmail")}</DetailField><PersonProfileDetails person={record}/><DetailField label={m("ongoingRelationships")}>{formatNumber(record.activeOccupancyCount,locale)}</DetailField></>}
           <DetailField label={m("createdAt")}>{formatDate(record.createdAt,locale)}</DetailField>
         </dl>
         {"number" in record?<p className="mt-5 rounded-xl bg-muted p-4 text-xs leading-6 text-muted-foreground">{m("unitStatusExplanation")}</p>:<PersonRelationships propertyId={propertyId} personId={record.id}/>}

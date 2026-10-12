@@ -15,6 +15,7 @@ public sealed class BuildingFlowDbContext : DbContext
     public DbSet<PropertyMembership> PropertyMemberships => Set<PropertyMembership>();
     public DbSet<Building> Buildings => Set<Building>();
     public DbSet<Unit> Units => Set<Unit>();
+    public DbSet<PersonMessage> PersonMessages => Set<PersonMessage>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<UnitOccupancy> UnitOccupancies => Set<UnitOccupancy>();
     public DbSet<DuesAssessment> DuesAssessments => Set<DuesAssessment>();

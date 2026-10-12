@@ -27,6 +27,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<HierarchyService>();
 builder.Services.AddScoped<PeopleService>();
+builder.Services.AddScoped<PersonMessageService>();
 builder.Services.AddScoped<DuesService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ExpenseService>();

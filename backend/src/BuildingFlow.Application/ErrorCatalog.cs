@@ -24,6 +24,11 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition PersonProfileInvalid = new("BF_PERSON_PROFILE_INVALID", "Kişi türü, uyruk, ülke, kimlik ve zorunlu iletişim alanlarını kontrol edin.", "error");
+    public static readonly ErrorDefinition PersonAccountInvalid = new("BF_PERSON_ACCOUNT_INVALID", "Aynı yönetim alanında aktif üyeliği olan giriş hesabını seçin.", "error");
+    public static readonly ErrorDefinition PersonMessageInvalid = new("BF_PERSON_MESSAGE_INVALID", "Başlık, mesaj, istek kimliği ve desteklenen bildirim kanalı gerekli.", "error");
+    public static readonly ErrorDefinition PersonMessageConflict = new("BF_PERSON_MESSAGE_CONFLICT", "Mesaj isteği veya kişi sürümü değişti. Güncel kaydı kontrol edin.", "warning");
+
     public static readonly ErrorDefinition MeterInvalid = new("BF_METER_INVALID", "Geçerli sayaç adı, türü ve istek kimliği gerekli.", "error");
     public static readonly ErrorDefinition ReadingInvalid = new("BF_READING_INVALID", "2000 veya sonrası, gelecekte olmayan sabit tarih; sıfır veya pozitif en fazla üç ondalıklı endeks, gerekçe ve geçerli sürüm gerekli.", "error");
     public static readonly ErrorDefinition MeterConflict = new("BF_METER_CONFLICT", "Sayaç adı, okuma tarihi veya istek kimliği çakışıyor. Güncel listeyi kontrol edin.", "warning");
@@ -174,6 +179,7 @@ public static class ErrorCatalog
     public static string FieldKey(string label) => label == "Blok adı" ? "buildingName" : FieldLabels.First(value => value.Value == label).Key;
     public static IReadOnlyList<ErrorDefinition> All { get; } = Array.AsReadOnly(new[]
     {
+        PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict,
         ConstructionYearInvalid,
         HeatingTypeInvalid,
         ParkingTypeInvalid,

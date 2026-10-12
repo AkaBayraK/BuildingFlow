@@ -354,7 +354,7 @@ Notification
 - PhoneNumber (optional)
 - Email (optional)
 
-04 kararı: TC kimlik numarası toplanmaz. Person bir Keycloak giriş hesabı değildir; eklenmesi kullanıcı hesabı veya otomatik bildirim oluşturmaz.
+04 kararı: 12.10.2026 onaylı kişi genişletmesi: yerli gerçek T.C. kimlik, yerli tüzel vergi, yabancı gerçek pasaport, yabancı tüzel ülke+kuruluş kimlik numarası kaydedilir. Person bir Keycloak giriş hesabı değildir; eklenmesi kullanıcı hesabı veya otomatik bildirim oluşturmaz.
 
 #### UnitOccupancy
 
@@ -1074,3 +1074,7 @@ Kalıcı Duyurular/Belgeler menüleri, TR/EN, ortak sağ panel ve shadcn/TanStac
 İlk teknik planın8 fazı değişmez; ayrı iş yol haritası İŞ10(kayıt13/14) kullanıcı tarafından onaylandı. Ortak Property→opsiyonel Unit Meter; MeterReading→immutable MeterReadingRevision, sekiz BaseEntity alanı ve migration20261011064227_MetersAndReadings. Sayaç/tarih/endeks ve rapor anlamı [API sözleşmesinde](api/meters-reports.md); otomatik sayaç tahakkuku yok. Raporlar kişi verisi içermeyen alan/üyelik kontrollü özetlerdir.
 
 Minimum telemetry şimdi çalışır: API+worker OpenTelemetry →Collector →Prometheus/Loki →Grafana; request/histogram/error/worker ve bağımlılık erişimi dashboard'u. [İşletme/yerel run](OBSERVABILITY.md). Grafana log deposu değildir. Trace deposu/Tempo ve broker traceparent propagation bu teslimin dışındadır. Lisanslar [licenses.md](licenses.md), kanıtlar [TESTING.md](TESTING.md).
+
+## Onaylı kişi profili ve uygulama bildirimleri —12.10.2026
+
+Kullanıcı kapsamıyla Person NATURAL/LEGAL ve DOMESTIC/FOREIGN kimlik, ülke, opsiyonel doğum/cinsiyet/adres ve zorunlu telefon/email alanlarıyla genişledi. Person hâlâ giriş hesabı değildir; aynıProperty aktif üyelik subject eşleştirmesiyle PersonMessage kalıcı alıcı kutusu sunulur. Yeni yetki/üyelik yaratılmaz. SMS sağlayıcı bağlanana kadar kapalı. Legacy kimlik bilinmez/null, tahakkuk snapshot korunur; migration eskileri değiştirmez. Yetki/şema/mesaj ayrıntısı [people.md](api/people.md).
