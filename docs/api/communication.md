@@ -36,7 +36,7 @@ Metadata DB transaction’ına kaydedilir; MinIO ile dağıtık transaction yokt
 
 ## Yerel çalışma ve migration
 
-`bash scripts/dev.sh api` MinIO endpoint/access key/secret mevcut .env’den bellekte yükler; parola değiştirmez. Yerel endpoint **127.0.0.1:9000**: localhost IPv6 farklı uygulamaya gidiyordu. Docker API `minio:9000` kullanır. MinIO console `http://127.0.0.1:9001`; sadece yöneticiler için altyapı aracıdır. Varsayılan readiness DB’yi kontrol eder; dosya erişimi ayrı sağlayıcı hata sözleşmesine tabidir.
+`bash scripts/dev.sh api` MinIO endpoint/access key/secret mevcut .env’den bellekte yükler; parola değiştirmez. Yerel endpoint **127.0.0.1:9030**: localhost IPv6 farklı uygulamaya gidiyordu. Docker API `minio:9000` kullanır. MinIO console `http://127.0.0.1:9001`; sadece yöneticiler için altyapı aracıdır. Varsayılan readiness DB’yi kontrol eder; dosya erişimi ayrı sağlayıcı hata sözleşmesine tabidir.
 
 Migration `20261010043250_AnnouncementsAndDocuments`; iki uygulama tablosunda sekiz zorunlu BaseEntity alanı NOT NULL. Önceki migration’lar korunur. Down duyuru veya belge geçmişi varsa reddedilir; soft-delete edilmiş belge de engeldir. Yerelde `bash scripts/db.sh update` ve test için `bash scripts/test.sh`. Testler ayrı `buildingflow_tests` DB şeması ve fixture başına `buildingflow-test-*` özel bucket kullanır; yalnız bu geçici bucket temizlenir. Ortam verilmezse storage testi atlanır ve geçmiş sayılmaz.
 

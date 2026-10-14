@@ -1,3 +1,28 @@
+# Skill ve Agent durumu
+
+Güncelleme: 2026-10-12 — AI FAZ 03. Tek Agent korunur; özel Agent veya MCP kurulmadı.
+Yedi ortak Skill'in kanonik kaynağı `.claude/skills/`, Codex bağlantıları `.agents/skills/`.
+Dosyalar statik olarak doğrulandı; bu tur yeni Skills ile gerçek görev/runtime testi yapılmadı.
+
+| Skill | Kullanım bağlamı |
+| --- | --- |
+| `akadev-audit` | İstenen salt okunur depo veya AI yetenek denetimini kapsam ve dosya kanıtlarıyla yürütür. |
+| `akadev-contract` | API veya mimari değişiklikte etkilenen backend ve frontend tüketicilerinin sözleşmesini belirler. |
+| `akadev-phase` | Kullanıcının fazlara böldüğü BuildingFlow işinde doğru plan kimliği ve kabul kanıtlarını izler. |
+| `akadev-verify` | Yetkili değişikliğin kabul kriterlerini BuildingFlow mevcut kalite prosedürleriyle kanıtlar. |
+| `akadev-security` | İstenen güvenlik incelemesinde veya auth, üyelik, hassas veri yolları değişiminde sınırları kontrol eder. |
+| `akadev-license` | Bağımlılık, imaj veya harici kaynak değişiminde BuildingFlow lisans politikasını ve dağıtım envanterini değerlendirir. |
+| `akadev-docs` | Uygulanan davranış veya prosedür değişikliğini mevcut BuildingFlow belge ve kanıt kaynaklarıyla eşleştirir. |
+
+Kural kaynağı [AGENTS.md](../AGENTS.md); kurulum/kapsam [ai-capabilities.md](ai-capabilities.md);
+kabul kanıtı [TESTING.md](TESTING.md). Ürün roadmap ilerlemesi değiştirilmedi.
+Yeni ortak prosedürler mevcut domain belgelerine yönlenir; kural metinlerini çoğaltmaz.
+Bu kurulumda Skill Creator yönergeleri kullanıldı; alt Agent çalıştırılmadı.
+
+## Tarihsel kullanım kayıtları
+
+Aşağıdaki eski sayı ve durumlar kayıt tarihine aittir; güncel test sonucu değildir.
+
 # Skill ve agent durumu
 
 Güncelleme: 2026-10-09. Bu dosya durum kaydıdır; tek başına skill kurmaz veya agent başlatmaz. Depo kuralları: [AGENTS.md](../AGENTS.md).

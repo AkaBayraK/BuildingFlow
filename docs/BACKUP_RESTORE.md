@@ -43,3 +43,13 @@ Restore her zaman **yeni ve boş** bir hedefe yapılır; canlı volume'un üzeri
 - Bu turda canlı/yerel kullanıcı verisinin yedeği alınmadı ve hiçbir canlı hedefe restore yapılmadı; doğrulama kendi fixture'ıyla yapıldı.
 - Yedek tutarlılığı bakım penceresine dayanır (online/PITR yok). Saklama süresi, şifreleme anahtarı yönetimi ve uzak kopya hedef ortamda belirlenir.
 - Redis ve RabbitMQ yedeklenmez: önbellek ve geçici kuyruklardır; kalıcı mesaj durumu PostgreSQL outbox/inbox tablolarındadır.
+
+## Yerel ortak PostgreSQL 18.6 (12.10.2026)
+
+Yerel veriler bağımsız `../postgres-18.6` projesindeki `projects` veritabanına
+taşındı; uygulama `buildingflow`, kimlik `buildingflow_keycloak` şemasındadır.
+Yerel ortak yedek `bash ../postgres-18.6/scripts/backup.sh` ile alınır.
+Eski proje bazlı PostgreSQL yedeği/restore yöntemi ortak DB üzerinde uygulanmaz.
+Nesne deposu MinIO ayrıca yedeklenir. Ortak README, kesim/geri dönüş/izolasyon
+kanıtının kaynağıdır. PostgreSQL18.6 ve pgvector0.8.7 PostgreSQL License kullanır;
+uygulama paket/lock bağımlılıkları bu düzenlemede değişmedi.

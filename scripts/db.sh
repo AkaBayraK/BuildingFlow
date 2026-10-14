@@ -34,7 +34,7 @@ if [ "$mode" = update ] || [ "$mode" = status ]; then
   source .env
   set +a
   # This helper always targets local development; production uses deployment artifacts.
-  export ConnectionStrings__Database="Host=localhost;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+  export ConnectionStrings__Database="Host=${POSTGRES_LOCAL_HOST:-localhost};Port=${POSTGRES_PORT};Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
 else
   # Generating/checking source and SQL requires no production credentials.
   unset ConnectionStrings__Database

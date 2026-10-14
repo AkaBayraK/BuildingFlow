@@ -86,6 +86,8 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapGet("/api/v1/status", () => Results.Ok(new { application = "BuildingFlow", phase = "Foundation" }))
     .RequireAuthorization();
+app.MapMobileSessionEndpoints();
+app.MapMobileSyncEndpoints();
 app.MapPropertyEndpoints();
 app.MapHierarchyEndpoints();
 app.MapDirectUnitEndpoints();

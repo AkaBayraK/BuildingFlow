@@ -7,6 +7,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<BuildingFlow.Application.IMobileSessionStore, MobileSessionStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileSyncStore, MobileSyncStore>();
         services.AddSingleton(TimeProvider.System); services.AddScoped<AuditInterceptor>();
         services.AddDbContext<BuildingFlowDbContext>((provider, options) => options.UseBuildingFlowNpgsql(configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("ConnectionStrings:Database is required.")).AddInterceptors(provider.GetRequiredService<AuditInterceptor>()));
         services.AddScoped<BuildingFlow.Application.IPropertyStore, PropertyStore>();

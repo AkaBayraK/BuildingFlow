@@ -13,7 +13,7 @@ load_env() {
   set +a
 }
 backend_env() {
-  export ConnectionStrings__Database="Host=localhost;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+  export ConnectionStrings__Database="Host=${POSTGRES_LOCAL_HOST:-localhost};Port=${POSTGRES_PORT};Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
   export Authentication__Authority="http://localhost:${KEYCLOAK_PORT}/realms/buildingflow"
   export Authentication__Audience=buildingflow-api
   export Cors__Origins__0="http://localhost:${WEB_PORT}"
@@ -81,7 +81,8 @@ case "$mode" in
     require docker
     bash scripts/init-local.sh
     docker compose --env-file .env -f deploy/docker-compose.yml stop buildingflow-web buildingflow-api
-    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait postgres keycloak redis rabbitmq minio grafana mailpit otel-collector prometheus loki blackbox
+    bash ../keycloak-26.7.5/scripts/up.sh
+    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait redis rabbitmq minio grafana mailpit otel-collector prometheus loki blackbox
     bash scripts/configure-identity.sh
     ;;
   prepare)

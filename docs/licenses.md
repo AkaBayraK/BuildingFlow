@@ -92,3 +92,28 @@ Yeni npm/NuGet/container bağımlılığı yok. GitHub tarafından yayımlanan a
 Önceki İŞ11 incelemesinde resmî kaynaklardan alınan telif/lisans metinleri korunur: [checkout](licenses/phase11-checkout-LICENSE.txt), [setup-node](licenses/phase11-setup-node-LICENSE.txt), [setup-dotnet](licenses/phase11-setup-dotnet-LICENSE.txt). 11.10.2026 apartman/daire FE eşliği yeni paket, font, ikon veya dış görsel eklemedi; envanter **331** sürüm. Ekran kanıtları yerel uygulama görüntüleridir.
 
 11.10.2026 Daire/kişi bağlantıları ve tablet bakımında yeni paket/asset/font eklenmedi. Mevcut shadcn/ui + TanStack/Next.js/Lucide kullanıldı; npm/NuGet metadata kontrolü331 geçti, manifest/lock aynı. Ekran kanıtları yerel uygulama kabul görüntüleridir.
+
+## Yerel ortak PostgreSQL 18.6 (12.10.2026)
+
+Yerel veriler bağımsız `../postgres-18.6` projesindeki `projects` veritabanına
+taşındı; uygulama `buildingflow`, kimlik `buildingflow_keycloak` şemasındadır.
+Yerel ortak yedek `bash ../postgres-18.6/scripts/backup.sh` ile alınır.
+Eski proje bazlı PostgreSQL yedeği/restore yöntemi ortak DB üzerinde uygulanmaz.
+Nesne deposu MinIO ayrıca yedeklenir. Ortak README, kesim/geri dönüş/izolasyon
+kanıtının kaynağıdır. PostgreSQL18.6 ve pgvector0.8.7 PostgreSQL License kullanır;
+uygulama paket/lock bağımlılıkları bu düzenlemede değişmedi.
+
+## Ortak Keycloak yerel bakım teslimi — 13.10.2026
+
+Tek `keycloak-26.7.5` sunucusu ve `projects.keycloak` şeması; üç realm ve
+özgün kullanıcı/istemci/rol kimlikleri korunur. Ortak yönetim localhost8080;
+TraceFlow mobil issuer güncel LAN192.168.2.95:8080 üzerinden.
+Eski Keycloak konteynerleri/şemaları geri dönüş için korunur. Uygulama
+şemaları değişmez. Kaynak ve ayrıntılı operasyon/test kanıtı:
+`../keycloak-26.7.5/README.md` (AkaAI kökünden ../../keycloak-26.7.5).
+LDAP/federationID, DB rol izolasyonu, üç API için kendi token kabulü ve
+iki diğer realm token retleri; özel reset SPI anonim401/kendi204/diğer403.
+BuildingFlow17gerçek auth kontrolü, AkaAI10yerel/token testi,35frontend
+auth/güvenlik testi ve TypeScript geçti. Tam AkaAI frontend166/167;
+mevcut İngilizce compact sayı testinde1.3M/1.3m farkı kaydedildi.
+Test fixture'ları temizlendi. Domain/roadmap ve on-prem AkaAI değişmedi.

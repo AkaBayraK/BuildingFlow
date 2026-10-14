@@ -150,6 +150,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition PaymentsErrorCancelled = new("BF_PAYMENTS_ERROR_CANCELLED", "İptal edilmiş ödeme geçmişi yeniden yazılamaz.", "warning");
     public static readonly ErrorDefinition DuesErrorReason = new("BF_DUES_ERROR_REASON", "İptal gerekçesi zorunludur ve en fazla 500 karakter olabilir.", "error");
     public static readonly ErrorDefinition DuesChooseReason = new("BF_DUES_CHOOSE_REASON", "İptal nedeni seçin.", "error");
+    public static readonly ErrorDefinition MobileSyncConflict = new("BF_MOBILE_SYNC_CONFLICT", "Kayıt değişti veya işlem kimliği başka bir içerikle kullanıldı. Güncel bilgiyi kontrol edin.", "warning");
     public static readonly ErrorDefinition ValidationFailed = new("BF_VALIDATION_FAILED", "Alanları kontrol edin.", "error");
     public static readonly ErrorDefinition InvalidRequest = new("BF_INVALID_REQUEST", "Geçersiz istek.", "error");
     public static readonly ErrorDefinition SignInRequired = new("BF_SIGN_IN_REQUIRED", "Oturumunuzu yenileyip tekrar giriş yapın.", "error");
@@ -292,6 +293,7 @@ public static class ErrorCatalog
         PaymentsErrorCancelled,
         DuesErrorReason,
         DuesChooseReason,
+        MobileSyncConflict,
         ValidationFailed,
         InvalidRequest,
         SignInRequired,

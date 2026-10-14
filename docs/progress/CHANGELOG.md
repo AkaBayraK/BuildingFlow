@@ -231,3 +231,82 @@ Son kota okuması: 12.10.2026 07:39:22 Europe/Istanbul, Codex usage / rateLimits
 **Kanıt:** typecheck başarılı; frontend 104/104 test başarılı; üretim derlemesi mobil CSS düzeltmesi sonrası tekrar başarılı; git diff --check başarılı; paket manifest/lock değişikliği yok. Chrome masaüstü ve390×844 mobil: dört kimlik varyantı, zorunlu alanlarda5 hata/ilk alana odak, hesap popover Escape/odak dönüşü doğrulandı. Mobil son ölçüm388px içerik/388px scrollWidth, footer görünür. Görseller docs/screenshots/person-form-design-desktop.png ve person-form-design-mobile.png. Gerçek kişi kaydı/mesaj gönderimi yapılmadı.
 
 Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL. Codex hesap son okuma: 300dk kullanılan%93/kalan%7, reset12.10.2026 12:21:12 Europe/Istanbul; 10080dk kullanılan%62/kalan%38, reset18.10.2026 09:28:33. Hesap kotası bu turun token tüketimi değildir.
+
+## PROTOKOL — AkaDev AI FAZ 03 ortak çekirdek — 12.10.2026
+
+**Bu tur 4/4 adım = %100.00:** mevcut kaynak analizi, hazırlık/metadata kontrolü,
+izinli kurulum, statik kabul/teslim. Yedi ortak Skill ve yedi repo içi Codex bağlantısı;
+kök/frontend Claude import girişleri, salt okunur audit istisnası ve güncel katalog.
+Tek Agent kullanıldı; ayrı Agent veya MCP kurulmadı.
+
+**Statik kabul:** yedi YAML manifesti, ad/açıklama, proje içi referanslar ve bağlantı
+hedefleri, Claude importları, izinli değişiklik kapsamı, kaynak/manifest/lockfile/CI/roadmap
+SHA256 koruması ve git diff --check doğrulandı. PyYAML mevcut olmadığından hazır
+quick_validate.py kullanılamadı; YAML Ruby/Psych ile ayrıştırıldı.
+Uygulama testleri, restore/install, servis/DB ve runtime keşif/tetikleme denenmedi;
+geçmiş 481.NET/104FE sonuçları bu tur yeniden çalıştırılmış sayılmaz.
+Ürün/UI yol haritası ve resmi iş paydası korunur. FAZ 04 başlatılmadı.
+Token/context ölçümleri: BİLGİ MEVCUT DEĞİL; hesap kotası tur tüketimi değildir.
+
+## BAKIM: ortak PostgreSQL 18.6 — 12.10.2026
+
+Tek bağımsız `../postgres-18.6` konteyneri, `projects` veritabanı,
+`buildingflow` uygulama şeması ve `buildingflow_keycloak` kimlik şeması.
+Yerel host `localhost:5436`; Docker host `postgres-18.6:5432`.
+Bağlantı Search Path ile şema seçer; uygulanmış EF migration dosyaları korunur.
+API/Worker/migration/Keycloak harici `shared-postgres-net` ağına katılır.
+Yerel Compose PostgreSQL oluşturmaz; eski volume’ler geri dönüş için saklanır.
+Yeni ürün fazı veya roadmap tıkı eklenmedi. Doğrulama sonuçları ortak README’de.
+
+Ortak DB bakım kabulü:4/4=%100.00 (bağımsız kurulum,412 tablo veri koruması,
+üç proje bağlantıları,gerçek doğrulama). PostgreSQL18.6 üzerinde372 integration
++109unit=481test, hata/atlama0;331lisans kontrolü geçti. Test DB/rol temizlendi.
+API /health200; üç Keycloak realm discovery200. TraceFlow ve AkaAI güncel
+Java paketleri derlendi. Eski PGvolume'leri korunur; yeni şema yazımları nedeniyle
+geri dönüşte kesim sonrası değişiklikler ayrıca korunmalıdır. Yeni ürün fazı/tik yok.
+Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL.
+
+## Ortak Keycloak yerel bakım teslimi — 13.10.2026
+
+Tek `keycloak-26.7.5` sunucusu ve `projects.keycloak` şeması; üç realm ve
+özgün kullanıcı/istemci/rol kimlikleri korunur. Ortak yönetim localhost8080;
+TraceFlow mobil issuer güncel LAN192.168.2.95:8080 üzerinden.
+Eski Keycloak konteynerleri/şemaları geri dönüş için korunur. Uygulama
+şemaları değişmez. Kaynak ve ayrıntılı operasyon/test kanıtı:
+`../keycloak-26.7.5/README.md` (AkaAI kökünden ../../keycloak-26.7.5).
+LDAP/federationID, DB rol izolasyonu, üç API için kendi token kabulü ve
+iki diğer realm token retleri; özel reset SPI anonim401/kendi204/diğer403.
+BuildingFlow17gerçek auth kontrolü, AkaAI10yerel/token testi,35frontend
+auth/güvenlik testi ve TypeScript geçti. Tam AkaAI frontend166/167;
+mevcut İngilizce compact sayı testinde1.3M/1.3m farkı kaydedildi.
+Test fixture'ları temizlendi. Domain/roadmap ve on-prem AkaAI değişmedi.
+
+## BAKIM — TraceFlow Gateway / MinIO port ayrımı — 13.10.2026
+
+TraceFlow Gateway9000 ile çakışan MinIO host portu9030'a taşındı.
+.env/.env.example ve Compose fallback hizalandı; Docker içi minio:9000
+bağlantısı ve mevcut veri volume'u korunur. README ve iletişim API rehberi
+güncellendi. GEÇTİ: MinIO9030/minio/health/live200, BuildingFlow5005/health200,
+TraceFlow9000/actuator/health200 (IPv4 ve localhost). 9000 yalnız Java Gateway
+dinliyor; MinIO9030 Docker eşlemesi doğrulandı. TraceFlow gerçek Chrome
+S256 PKCE parola girişi ve originalclient code exchange geçti. IntelliJ
+servislerinde eski Keycloak IP ayarı bulundu; yeniden başlatma kullanıcıda
+bekliyor, mevcut API token401 sonucu başarı sayılmadı. Ürün fazı/yol haritası değişmedi; yeni bağımlılık yok.
+
+
+## MOBİL Faz 04 — 13.10.2026
+
+Kullanıcı onayıyla ayrı mobil uygulamaya OIDC/PKCE + SecureStore ve hesap/rol/mülk bağlamı. Yeni GET /api/v1/mobile/session; mevcut Person.LinkedUserId/PropertyMembership/UnitOccupancy okunur, şema/migration yok. Keycloak yalnız buildingflow-mobile public client; basic scope ve API audience, S256 zorunlu. Development issuer explicit allowlist, Production kuralları korunur. Ana API5005 durdurulmadı; mobil geliştirmeAPI5006 ayrı süreç. Mevcut kullanıcı parolaları/iş verileri değişmedi.
+Bu tur45/45 seçili integration, hata/atlama0; full regresyon yeniden çalıştırılmadı. Mobil TypeScript/lint8/8, üç platform export, ExpoDoctor21/21; backend331 lisans. Chrome geçici fixture PKCE giriş/API session/profil/çıkış ve yenileme kontrolü. Native cihaz/Keychain kabulü yapılmadı; ExpoGo OAuth desteklemez, development build gerekir. Önceki npm28 audit uyarısı açık. Ürün83/83/UI roadmap sayacı değişmedi; mobil plan buildingflow-mobile-prompts/PHASES.md'dir. Faz05 başlatılmadı; token tüketimi/kalan context BİLGİ MEVCUT DEĞİL.
+Sözleşme docs/api/mobile-session.md; ayrıntı ayrı mobil docs/mobile/PHASE04.md.
+
+
+### Mobil Faz04 devam — kullanıcı görsel referansı / native build
+13.10.2026: kullanıcı BuildingFlow Mobil Uygulama Tanıtımı.png referansını tüm UI fazları için onayladı. Ayrı mobil DESIGN_REFERENCE.md + AGENTS güncellendi; login lacivert hero/tipografi/Ionicons, alt menu çizgi ikonlarına geçti. TypeScript/lint8/8 ve üç platform export başarılı;690 mobil üst seviye lisans metadata belirsiz0. Geçici fixture remote logout sonrası uygulama login'e döndü; girişte Vazgeç popup'ı kapattı. Fixture hesabı ve yerel credential dosyaları temizlendi.
+iOS development build0hata/1Expo-script-uyarısı ile iPhone17Pro simulator'a kuruldu/açıldı; bu oturumdaki CUA Simulator'a erişemediği için native OAuth/Keychain görsel kabulü DOĞRULANAMADI. Fiziksel/Android kabulü açık, mağaza yayını yok. LAN104→6 değişimi gitignored mobil env ve ayrıAPI5006 issuer listesine uygulandı, Metro8081devclient açık. Ana API5005 ve iş/UI roadmap korunur; Faz05 başlamadı. Ayrıntı ayrı mobil docs/mobile/PHASE04.md.
+
+## MOBİL Faz06 — 14.10.2026
+
+Kullanıcı mobil API önkoşulu eksiğinin backend'de tamamlanmasını onayladı. Yeni mobile/sync command/pull, actor-scope idempotence receipts, version409 ve tombstone; migration20261014062447_MobileRequestSync yeni iki tabloyla yerel dev DB'ye uygulandı. Existing domain/UI83/83 sayacı değiştirilmedi. Mobile talep formu/photo sonraki Faz12'de; yalnız altyapı ve profil sync paneli eklendi.
+
+Bu tur52/52 seçili integration,0atlama; backend build0hata/0uyarı ve EF model check geçti. Mobil26/26, TypeScript/lint/üç platform export; iPhone şifreli SQLite nativeQueueReplay fixturetrue (HTTP simülasyonu, live business write yok). API5006/Metro8081 güncel LAN192.168.2.95; test modu kapalı. Main API5005 korunur. Gerçek uçak modu/soğuk açılış ve Android native UI kabulü açık. Yeni dependency yok; önceki npm28audit uyarısı devam ediyor. Kapsam docs/api/mobile-sync.md ve ayrı mobil docs/mobile/PHASE06.md. Commit/push/yayın yok. Token tüketimi/kalan bütçe BİLGİ MEVCUT DEĞİL.

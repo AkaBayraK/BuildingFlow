@@ -108,6 +108,9 @@ def restore_check(folder,verify=None):
    except RuntimeError:pass
 
 def compose_backup(args):
+ env_path=pathlib.Path(args.env_file)
+ if env_path.exists() and any(line.strip()=='POSTGRES_DB=projects' for line in env_path.read_text().splitlines()):
+  raise RuntimeError('Shared local PostgreSQL: use ../postgres-18.6/scripts/backup.sh and the shared README; keep the MinIO backup separate')
  base=['compose','--env-file',args.env_file,'-f',args.compose]
  def container(service):
   value=docker(*base,'ps','-a','-q',service).decode().strip()
