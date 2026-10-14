@@ -15,7 +15,7 @@ Veritabanı ilk kurulum, alan ekleme/değiştirme ve sürüm yükseltme rehberi:
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) açık olmalı. Docker Compose beraber gelir.
 - Terminal ve tarayıcı. macOS/Linux başlangıç scriptleri Bash ve OpenSSL kullanır; macOS'ta mevcuttur.
 
-PostgreSQL, Keycloak, Redis, RabbitMQ, MinIO veya Grafana'yı bilgisayara ayrıca kurmanız gerekmez; Compose başlatır. .NET ve Node.js de Docker ile çalıştırırken host makinede gerekmez.
+PostgreSQL, Keycloak, Redis, RabbitMQ, SeaweedFS veya Grafana'yı bilgisayara ayrıca kurmanız gerekmez; Compose başlatır. .NET ve Node.js de Docker ile çalıştırırken host makinede gerekmez.
 
 **Kod geliştirmek veya testleri host makinede çalıştırmak için ek olarak:**
 
@@ -50,8 +50,8 @@ bash scripts/smoke.sh
 | OpenAPI JSON | http://localhost:5005/openapi/v1.json |
 | Keycloak | http://localhost:8080/admin/ |
 | RabbitMQ UI | http://localhost:15672 |
-| MinIO Console | http://127.0.0.1:9001 |
-| MinIO API | http://127.0.0.1:9030 |
+| SeaweedFS iç yönetim | Dışarıya açılmaz |
+| SeaweedFS S3 | http://127.0.0.1:9040 |
 | Grafana | http://localhost:3002 |
 | Yerel e-posta kutusu (Mailpit) | http://localhost:8025 |
 | PostgreSQL | localhost:5432 |
@@ -75,7 +75,7 @@ docker compose --env-file .env -f deploy/docker-compose.yml logs -f buildingflow
 
 ```bash
 bash scripts/init-local.sh
-docker compose --env-file .env -f deploy/docker-compose.yml up -d postgres keycloak redis rabbitmq minio grafana mailpit
+docker compose --env-file .env -f deploy/docker-compose.yml up -d postgres keycloak redis rabbitmq seaweedfs-s3 grafana mailpit
 bash scripts/configure-identity.sh
 ```
 
@@ -230,7 +230,7 @@ Yönetim alanı oluşturma/düzenleme/silme SUPER_ADMIN; bina/blok ve bölüm ya
 
 `UnifiedPropertyModel` migration eski tabloları rename/backfill eder; uygulanmış önceki migration'lar değişmez. `bash scripts/db.sh update` yerel güncelleme; `.env`/parola/veri korunur. Yeni tablolar: properties, buildings, units, property_memberships. Her birinde sekiz BaseEntity kolonu zorunludur. Model kaydı: [ana mimari](docs/BUILDINGFLOW_PROJECT_CORE.md), [migration rehberi](docs/MIGRATIONS.md), [test kanıtları](docs/TESTING.md).
 
-MinIO API için **127.0.0.1:9030** kullanın. Docker IPv4 loopback'e yayın yapar; aynı bilgisayardaki Java uygulaması IPv6 9000 dinlerse localhost başka servise gidebilir. Smoke kontrolü bu yüzden MinIO'yu IPv4 adresinde kontrol eder.
+SeaweedFS S3 gateway için **http://127.0.0.1:9040** kullanılır; anonim istek403 alır. Filer/master/volume ve yönetim portları dışarıya yayımlanmaz.
 
 
 ## 04 — Kişiler, malik/kiracı/sakin ilişkileri
@@ -290,7 +290,7 @@ Yerel kurulumda proje kökünden `bash scripts/db.sh update` (yeni ExpensesAndBu
 
 ### Faz08 — Duyurular ve Belgeler
 
-Menüler `http://localhost:3003/announcements` ve `http://localhost:3003/documents`; önce yönetim alanı seçin. API başlatma `bash scripts/dev.sh api`, FE `bash scripts/dev.sh web`. Mevcut yerel MinIO çalışmalıdır; `docker compose --env-file .env -f deploy/docker-compose.yml up -d minio`. Kullanıcı parolalarını değiştirmeden .env’den bağlantı alınır. Yerel MinIO endpoint127.0.0.1:9030, console127.0.0.1:9001. Migration `bash scripts/db.sh update`, ayrı gerçek PostgreSQL/MinIO testleri `bash scripts/test.sh`. Yayınlanan duyuru içerik ve ekleri korunur; e-posta/SMS gönderimi sonraki fazdır. [API sözleşmesi](docs/api/communication.md).
+Menüler `http://localhost:3003/announcements` ve `http://localhost:3003/documents`; önce yönetim alanı seçin. API başlatma `bash scripts/dev.sh api`, FE `bash scripts/dev.sh web`. Mevcut yerel SeaweedFS çalışmalıdır; `docker compose --env-file .env -f deploy/docker-compose.yml up -d seaweedfs-s3`. Kullanıcı parolalarını değiştirmeden .env’den bağlantı alınır. Yerel SeaweedFS endpoint127.0.0.1:9040, yönetim portları dışarıya kapalı. Migration `bash scripts/db.sh update`, ayrı gerçek PostgreSQL/SeaweedFS testleri `bash scripts/test.sh`. Yayınlanan duyuru içerik ve ekleri korunur; e-posta/SMS gönderimi sonraki fazdır. [API sözleşmesi](docs/api/communication.md).
 
 ### Faz 10: Sayaçlar, raporlar ve gözlemlenebilirlik
 

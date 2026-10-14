@@ -1,9 +1,16 @@
 [
   {
     "ecosystem": "NuGet",
-    "name": "CommunityToolkit.HighPerformance",
-    "version": "8.4.0",
-    "license": "MIT",
+    "name": "AWSSDK.Core",
+    "version": "4.0.102.10",
+    "license": "Apache-2.0",
+    "source": "package .nuspec"
+  },
+  {
+    "ecosystem": "NuGet",
+    "name": "AWSSDK.S3",
+    "version": "4.0.104.3",
+    "license": "Apache-2.0",
     "source": "package .nuspec"
   },
   {
@@ -484,13 +491,6 @@
   },
   {
     "ecosystem": "NuGet",
-    "name": "Minio",
-    "version": "7.0.0",
-    "license": "Apache-2.0",
-    "source": "package .nuspec"
-  },
-  {
-    "ecosystem": "NuGet",
     "name": "Mono.TextTemplating",
     "version": "3.0.0",
     "license": "MIT",
@@ -624,22 +624,8 @@
   },
   {
     "ecosystem": "NuGet",
-    "name": "System.IO.Hashing",
-    "version": "9.0.4",
-    "license": "MIT",
-    "source": "package .nuspec"
-  },
-  {
-    "ecosystem": "NuGet",
     "name": "System.IdentityModel.Tokens.Jwt",
     "version": "8.19.2",
-    "license": "MIT",
-    "source": "package .nuspec"
-  },
-  {
-    "ecosystem": "NuGet",
-    "name": "System.Reactive",
-    "version": "6.0.1",
     "license": "MIT",
     "source": "package .nuspec"
   },

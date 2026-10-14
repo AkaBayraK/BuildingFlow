@@ -17,11 +17,10 @@ backend_env() {
   export Authentication__Authority="http://localhost:${KEYCLOAK_PORT}/realms/buildingflow"
   export Authentication__Audience=buildingflow-api
   export Cors__Origins__0="http://localhost:${WEB_PORT}"
-  export MinIO__Endpoint="127.0.0.1:${MINIO_PORT}"
-  export MinIO__AccessKey="${MINIO_ROOT_USER}"
-  export MinIO__SecretKey="${MINIO_ROOT_PASSWORD}"
-  export MinIO__Bucket="${MINIO_BUCKET:-buildingflow-documents}"
-  export MinIO__UseSSL=false
+  export ObjectStorage__Endpoint="http://127.0.0.1:${OBJECT_STORAGE_PORT:-9040}"
+  export ObjectStorage__AccessKey="${OBJECT_STORAGE_ACCESS_KEY}"
+  export ObjectStorage__SecretKey="${OBJECT_STORAGE_SECRET_KEY}"
+  export ObjectStorage__Bucket="buildingflow-documents"
   export ASPNETCORE_ENVIRONMENT=Development
   export ASPNETCORE_URLS="http://localhost:${API_PORT}"
   export Telemetry__Enabled="${BUILDINGFLOW_TELEMETRY_ENABLED:-true}"
@@ -82,7 +81,8 @@ case "$mode" in
     bash scripts/init-local.sh
     docker compose --env-file .env -f deploy/docker-compose.yml stop buildingflow-web buildingflow-api
     bash ../keycloak-26.7.5/scripts/up.sh
-    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait redis rabbitmq minio grafana mailpit otel-collector prometheus loki blackbox
+    python3 scripts/configure-object-storage.py
+    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait redis rabbitmq seaweedfs-s3 grafana mailpit otel-collector prometheus loki blackbox
     bash scripts/configure-identity.sh
     ;;
   prepare)

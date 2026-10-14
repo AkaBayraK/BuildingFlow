@@ -21,7 +21,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IMeterStore, MeterStore>();
         services.AddScoped<BuildingFlow.Application.IExpenseStore, ExpenseStore>();
         services.AddScoped<BuildingFlow.Application.ICommunicationStore, CommunicationStore>();
-        services.AddSingleton<BuildingFlow.Application.IFileStorage, MinioFileStorage>();
+        services.AddSingleton<BuildingFlow.Application.IFileStorage, S3FileStorage>();
         services.AddSingleton(_ => RabbitMessagingOptions.From(configuration));
         services.AddSingleton<BuildingFlow.Application.IMessagePublisher, RabbitMessagePublisher>();
         services.AddScoped<BuildingFlow.Application.IMessageOutbox, EfMessageOutbox>();

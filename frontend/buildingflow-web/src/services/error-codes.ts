@@ -1,5 +1,6 @@
 // Public code/parameter contract; translations live in messages/tr.json and en.json.
 export const errorCodes = {
+  "BF_MOBILE_SYNC_CONFLICT": {"status": 409, "severity": "warning", "parameters": []},
   "BF_PERSON_PROFILE_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_PERSON_ACCOUNT_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_PERSON_MESSAGE_INVALID": {"status": 400, "severity": "error", "parameters": []},

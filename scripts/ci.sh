@@ -15,7 +15,7 @@ python3 scripts/check-licenses.py
 python3 scripts/test_ci_gates.py
 python3 scripts/test_release_preflight.py
 (cd frontend/buildingflow-web && npm test && npm run typecheck && npm run build && npm audit --audit-level=high)
-# This runner prepares separate PG schemas and fixture-only MinIO/RabbitMQ/Mailpit.
+# This runner prepares separate PG schemas and fixture-only SeaweedFS/RabbitMQ/Mailpit.
 bash scripts/test.sh --no-restore --logger trx --results-directory "$(pwd)/artifacts/ci/test-results"
 python3 scripts/check-test-results.py artifacts/ci/test-results
 (cd backend && dotnet ef migrations has-pending-model-changes --no-build --project src/BuildingFlow.Infrastructure && dotnet ef migrations script --idempotent --no-build --project src/BuildingFlow.Infrastructure --output ../artifacts/ci/migrations.sql)

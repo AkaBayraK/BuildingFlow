@@ -111,7 +111,7 @@
              class="${properties.kcHeaderWrapperClass!}">${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}</div>
     </div>
     <div class="${properties.kcFormCardClass!}">
-        <img class="bf-logo" src="${url.resourcesPath}/img/buildingflow-logo.png" alt="BuildingFlow" />
+        <img class="bf-logo" src="${url.resourcesPath}/img/buildingflow-logo.svg" alt="BuildingFlow" />
         <header class="${properties.kcFormHeaderClass!}">
             <#if realm.internationalizationEnabled  && locale.supported?size gt 1>
                 <div class="${properties.kcLocaleMainClass!}" id="kc-locale">

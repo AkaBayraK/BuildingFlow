@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import {BuildingFlowMark} from "@/components/BuildingFlowMark";
 import {useEffect,useRef,useState} from "react";
 import {usePathname} from "next/navigation";
 import {useTranslations} from "next-intl";
@@ -32,7 +33,7 @@ function Shell({children}:{children:React.ReactNode}){
  const planned=[{label:t("shellSharedAreas"),Icon:Plus},{label:t("shellParking"),Icon:Car},{label:t("shellSuppliers"),Icon:BriefcaseBusiness}];
  function links(values:typeof items){return values.map(item=><Link key={item.section} href={item.href} aria-label={item.label} title={item.label} className={section===item.section?"active":""} aria-current={section===item.section?"page":undefined} onNavigate={()=>setMenuOpen(false)}><item.Icon size={18} aria-hidden="true"/><span>{item.label}</span></Link>);}
  const navigation=<>
-  <Link className="brand" href="/" onNavigate={()=>setMenuOpen(false)} aria-label={t("buildingflowOverview")}><Building2 size={44} aria-hidden="true"/><span>Building<span className="brand-flow">Flow</span></span></Link>
+  <Link className="brand" href="/" onNavigate={()=>setMenuOpen(false)} aria-label={t("buildingflowOverview")}><BuildingFlowMark size={44} variant="light"/><span>Building<span className="brand-flow">Flow</span></span></Link>
   <div className="sidebar-scroll">
    <span className="label">{t("shellMainMenu")}</span>
    <nav aria-label={t("mainNavigation")}>{[home,propertyLink].map(item=><Link key={item.href} href={item.href} aria-label={item.label} title={item.label} className={item.active?"active":""} aria-current={item.active?"page":undefined} onNavigate={()=>setMenuOpen(false)}><item.Icon size={18} aria-hidden="true"/><span>{item.label}</span></Link>)}{links(mainItems)}{planned.map(item=><button key={item.label} className="sidebar-planned" disabled title={t("shellPlanned")}><item.Icon size={18} aria-hidden="true"/><span>{item.label}</span></button>)}</nav>

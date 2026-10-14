@@ -32,13 +32,13 @@ services:
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
       Telemetry__Enabled: "true"
       Telemetry__Endpoint: http://otel-collector:4318
-      MinIO__Endpoint: minio:9000
-      MinIO__AccessKey: ${MINIO_ROOT_USER:-buildingflow}
-      MinIO__SecretKey: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
+      ObjectStorage__Endpoint: http://seaweedfs-s3:8333
+      ObjectStorage__AccessKey: ${OBJECT_STORAGE_ACCESS_KEY:?Run scripts/init-local.sh}
+      ObjectStorage__SecretKey: ${OBJECT_STORAGE_SECRET_KEY:?Run scripts/init-local.sh}
     ports: ["127.0.0.1:${API_PORT:-5005}:8080"]
     depends_on:
       buildingflow-migrations: {condition: service_completed_successfully}
-    networks: [default, shared-postgres]
+    networks: [default, shared-postgres, storage]
   buildingflow-migrations:
     image: buildingflow-api:local
     build:
@@ -96,14 +96,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
-  minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
-    command: ["server", "/data", "--console-address", ":9001"]
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["mini", "-dir=/data", "-ip=seaweedfs", "-s3=false", "-admin.ui=false", "-webdav=false", "-s3.iam.readOnly=true", "-s3.allowDeleteBucketNotEmpty=false"]
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-buildingflow}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
-    ports: ["127.0.0.1:${MINIO_PORT:-9030}:9000", "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"]
-    volumes: ["minio-data:/data"]
+      AWS_ACCESS_KEY_ID: ${OBJECT_STORAGE_ACCESS_KEY:?Run scripts/init-local.sh}
+      AWS_SECRET_ACCESS_KEY: ${OBJECT_STORAGE_SECRET_KEY:?Run scripts/init-local.sh}
+      S3_BUCKET: buildingflow-documents
+    volumes: ["seaweedfs-data:/data"]
+    networks: [storage-data]
+  seaweedfs-s3:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["s3", "-filer=seaweedfs:8888", "-port=8333", "-config=/run/secrets/s3.json", "-iam.readOnly=true", "-allowDeleteBucketNotEmpty=false"]
+    volumes: ["./seaweedfs/private-s3.json:/run/secrets/s3.json:ro"]
+    ports: ["127.0.0.1:${OBJECT_STORAGE_PORT:-9040}:8333"]
+    depends_on:
+      seaweedfs: {condition: service_started}
+    networks: [storage-data, storage]
   mailpit:
     image: axllent/mailpit:v1.27.10
     ports: ["127.0.0.1:${MAILPIT_PORT:-8025}:8025"]
@@ -140,7 +149,7 @@ services:
     image: prom/blackbox-exporter:v0.28.0
     command: ["--config.file=/etc/blackbox.yml"]
     volumes: ["./observability/blackbox.yml:/etc/blackbox.yml:ro"]
-    networks: [default, shared-postgres]
+    networks: [default, shared-postgres, storage]
   loki:
     image: grafana/loki:3.7.8
     command: ["-config.file=/etc/loki/config.yml"]
@@ -149,6 +158,10 @@ services:
       - ./observability/loki.yml:/etc/loki/config.yml:ro
       - loki-data:/loki
 networks:
+  storage-data:
+    internal: true
+  storage:
+    name: buildingflow-storage-s3
   default:
     name: buildingflow-network
   shared-postgres:
@@ -157,7 +170,7 @@ networks:
 volumes:
   redis-data:
   rabbitmq-data:
-  minio-data:
+  seaweedfs-data:
   grafana-data:
   prometheus-data:
   loki-data:

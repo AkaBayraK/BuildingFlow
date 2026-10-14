@@ -20,7 +20,7 @@ python3 scripts/test-backup-restore.py
 python3 scripts/release-preflight.py /güvenli/konum/production.env
 ```
 
-Kurallar: `Production` ortamı; HTTPS issuer/metadata; açık HTTPS CORS origin'leri; `*` içermeyen AllowedHosts; forwarded header yalnız tek tek IP olarak listelenen proxy'den; rate limit açık; web `BUILDINGFLOW_PUBLIC_HTTPS=true`, HTTPS API/OIDC ve API ile aynı issuer; en az 16 karakterlik DB/RabbitMQ/MinIO sırları; SMTP açıksa dış host, STARTTLS, yerel olmayan gönderen ve parola.
+Kurallar: `Production` ortamı; HTTPS issuer/metadata; açık HTTPS CORS origin'leri; `*` içermeyen AllowedHosts; forwarded header yalnız tek tek IP olarak listelenen proxy'den; rate limit açık; web `BUILDINGFLOW_PUBLIC_HTTPS=true`, HTTPS API/OIDC ve API ile aynı issuer; en az 16 karakterlik DB/RabbitMQ/SeaweedFS sırları; SMTP açıksa dış host, STARTTLS, yerel olmayan gönderen ve parola.
 
 API de aynı güvenlik kurallarını başlangıçta kendisi denetler ve geçersiz yapılandırmada açılmaz (`ReleaseSecurity.ValidateProduction`).
 
@@ -59,7 +59,7 @@ Worker'da `Smtp__Enabled=true`, dış host, 587/STARTTLS ve sır deposundan gele
 
 | Kontrol | Komut | Not |
 | --- | --- | --- |
-| Servis ve kimlik smoke'u | `bash scripts/smoke.sh` | Salt-okunur; web/API/DB sağlığı, anonim ve geçersiz JWT 401, Keycloak discovery, broker, MinIO, Grafana, worker |
+| Servis ve kimlik smoke'u | `bash scripts/smoke.sh` | Salt-okunur; web/API/DB sağlığı, anonim ve geçersiz JWT 401, Keycloak discovery, broker, SeaweedFS, Grafana, worker |
 | Gözlemlenebilirlik | `python3 scripts/test-observability.py` | Salt-okunur; metrik, log, trace ve hassas sorgu dışlama |
 | Anonim SSR | Oturumsuz `curl` ile yönetim rotaları | HTML'de kayıt adı veya kişi verisi bulunmamalı |
 | Güvenlik başlıkları | `curl -I` | API: HSTS, `no-store`, `nosniff`, `DENY`. Web: nonce'lu CSP, HSTS |

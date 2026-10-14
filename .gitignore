@@ -9,3 +9,6 @@
 **/*.tsbuildinfo
 *.bak
 artifacts/
+
+deploy/seaweedfs/private-s3.json
+**/__pycache__/

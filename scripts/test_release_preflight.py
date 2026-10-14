@@ -6,7 +6,7 @@ tool=root/'scripts/release-preflight.py'
 def filled():
  lines=[]
  for line in (root/'deploy/production.env.example').read_text().splitlines():
-  if line.endswith(('Password=','RabbitMQ__Password=','MinIO__SecretKey=')) or line=='Smtp__Username=':
+  if line.endswith(('Password=','RabbitMQ__Password=','ObjectStorage__SecretKey=')) or line=='Smtp__Username=':
    line+=('smtp-user' if line=='Smtp__Username=' else secrets.token_hex(16))
   lines.append(line)
  return dict(l.split('=',1) for l in lines if l and not l.startswith('#'))
@@ -28,6 +28,7 @@ cases={'development':('ASPNETCORE_ENVIRONMENT','Development'),'http authority':(
  'web http mode':('BUILDINGFLOW_PUBLIC_HTTPS','false'),'web http api':('NEXT_PUBLIC_API_URL','http://api.example.com'),
  'issuer mismatch':('NEXT_PUBLIC_OIDC_AUTHORITY','https://other.example.com/realms/buildingflow'),
  'weak db password':('ConnectionStrings__Database','Host=db;Database=b;Username=u;Password=short'),'empty broker secret':('RabbitMQ__Password',''),
+ 'http storage':('ObjectStorage__Endpoint','http://objects.example.com'),'empty storage key':('ObjectStorage__AccessKey',''),'empty storage secret':('ObjectStorage__SecretKey',''),
  'smtp local':('Smtp__Host','mailpit'),'smtp plaintext':('Smtp__UseStartTls','false'),'smtp insecure':('Smtp__AllowInsecureLocal','true'),
  'smtp local sender':('Smtp__From','no-reply@buildingflow.local'),'smtp missing password':('Smtp__Password','')}
 accepted=[name for name,(k,v) in cases.items() if run(dict(base,**{k:v}))==0]

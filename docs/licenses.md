@@ -29,7 +29,7 @@ Kontrol tarihi: 2026-10-08. Kullanıcının kuralı: lisanssız/korsan veya kull
 | Keycloak 26.7.0 | Apache-2.0 | Özelleştirilmiş template için lisans/NOTICE eklendi |
 | RabbitMQ 4.1.4 | [MPL-2.0](https://github.com/rabbitmq/rabbitmq-server/blob/main/LICENSE) | Değiştirilen MPL dosyaları/dağıtım şartları ayrıca incelenir |
 | Redis 8.2.1 | [AGPLv3 / RSALv2 / SSPLv1 seçenekleri](https://redis.io/legal/licenses/) | Bu projenin açık kaynak kullanım tercihi AGPLv3; yayın/dağıtım yükümlülükleri kontrol edilir |
-| MinIO | [AGPLv3](https://github.com/minio/minio/blob/master/LICENSE) | Ayrı servis; ticari alternatifleri aynı lisans varsayımıyla kullanma |
+| SeaweedFS4.48 | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE) | BuildingFlow aktif nesne deposu; lisans/NOTICE ve container bağımlılık koşulları korunur |
 | Grafana OSS | [AGPLv3](https://github.com/grafana/grafana/blob/main/LICENSE) | Enterprise eklentileri bu kapsama dahil değildir |
 | sharp / libvips | Apache-2.0 / LGPL-3.0-or-later | Next image bağımlılığı; libvips copyleft bildirimi ve yeniden bağlama/dağıtım koşulları korunur |
 | caniuse-lite | CC-BY-4.0 | Veri atıf bildirimleri korunur |
@@ -117,3 +117,7 @@ BuildingFlow17gerçek auth kontrolü, AkaAI10yerel/token testi,35frontend
 auth/güvenlik testi ve TypeScript geçti. Tam AkaAI frontend166/167;
 mevcut İngilizce compact sayı testinde1.3M/1.3m farkı kaydedildi.
 Test fixture'ları temizlendi. Domain/roadmap ve on-prem AkaAI değişmedi.
+
+## 14.10.2026 depolama refactoru
+Aktif MinIO sunucusu ve Minio7.0.0 NuGet bağımlılığı kaldırıldı. Tarihsel İŞ08 lisans ve test kayıtları geçmiş kanıt olarak korunur; yeni runtime bunları kullanmaz.
+SeaweedFS4.48: Apache-2.0; resmi digest4e61d15... sabit. Tam metin seaweedfs-4.48-LICENSE.txt. Resmi AWSSDK.S3 4.0.104.3 ve transitif AWSSDK.Core: paket .nuspec Apache-2.0. Tam LICENSE ve NOTICE aws-sdk-Apache-2.0.txt / aws-sdk-NOTICE.txt ile API ve worker imajlarına kopyalanır. Yeni kod AWS bulutuna bağlanmaz; yalnız configured SeaweedFS gateway kullanılır. Paket metadata envanteri329, belirsiz0. Bu kayıt tüm container işletim sistemi paketlerinin aynı lisans olduğu veya hukuki uyumluluk garantisi anlamına gelmez.

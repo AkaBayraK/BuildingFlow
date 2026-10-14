@@ -131,9 +131,9 @@ export const milestones: Milestone[] = [
     number: "08", title: "announcementsAndFiles", description: "communityCommunicationAndSecureDocumentStorage",
     tasks: [
       done("publishAnnouncements", "titleContentAudienceAndPublicationStatusCreateListScreens", "phase08Verification"),
-      done("minioStorageProvider", "implementIFileStorageBucketObjectKeysAndDatabaseMetadataOnly", "phase08Verification"),
+      done("seaweedfsStorageProvider", "implementIFileStorageBucketObjectKeysAndDatabaseMetadataOnly", "phase08Verification"),
       done("secureFileAccess", "validateSizeTypeScopeAuthorizedDownloadsAndDeletion", "phase08Verification"),
-      done("attachmentsAndIntegrationTests", "connectAnnouncementsDocumentsVerifyMinIOUploadDownloadAndUnauthorized", "phase08Verification"),
+      done("attachmentsAndIntegrationTests", "connectAnnouncementsDocumentsVerifySeaweedFSUploadDownloadAndUnauthorized", "phase08Verification"),
     ],
   },
   {

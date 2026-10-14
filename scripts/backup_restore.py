@@ -4,7 +4,7 @@ No raw Docker output/credentials/SQL/object bodies are logged. Restore creates o
 """
 import argparse,hashlib,json,os,pathlib,secrets,subprocess,tarfile,time,uuid
 PG_IMAGE='postgres:17.6-alpine'
-MINIO_IMAGE='quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z'
+SEAWEED_IMAGE='chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d'
 def docker(*args,stdin=None,output=None,env=None):
  r=subprocess.run(['docker',*args],input=stdin,stdout=output or subprocess.PIPE,stderr=subprocess.PIPE,env=env)
  if r.returncode:raise RuntimeError('Docker command failed; check the named service privately')
@@ -41,9 +41,9 @@ def archive_files(path):
 def backup(output,databases,volume,writers):
  # Operator must also quiesce native apps/external writers; container guards are additional checks.
  for name in writers:
-  if inspect(name)['State']['Running']:raise RuntimeError('Writers/MinIO must be stopped before a consistent backup')
+  if inspect(name)['State']['Running']:raise RuntimeError('Writers/SeaweedFS must be stopped before a consistent backup')
  p=pathlib.Path(output).resolve();p.mkdir(mode=0o700,parents=True,exist_ok=False);os.chmod(p,0o700)
- manifest={'format':1,'postgresImage':PG_IMAGE,'minioImage':MINIO_IMAGE,'databases':{},'sha256':{}}
+ manifest={'format':2,'postgresImage':PG_IMAGE,'seaweedImage':SEAWEED_IMAGE,'databases':{},'sha256':{}}
  try:
   for label,(container,user,db) in databases.items():
    if label not in ('application','keycloak'):raise RuntimeError('Unknown database label')
@@ -52,9 +52,15 @@ def backup(output,databases,volume,writers):
    with target.open('xb') as f:docker('exec',container,'pg_dump','-U',user,'-d',db,'--format=custom','--no-owner','--no-acl',output=f)
    if fingerprint(container,user,db)!=before:raise RuntimeError('Database changed during backup; quiesce all writers')
    manifest['databases'][label]={'fingerprint':before};manifest['sha256'][target.name]=digest(target);os.chmod(target,0o600)
-  target=p/'minio.tar.gz'
+  storage=[inspect(name) for name in writers if inspect(name)['Config']['Image']==SEAWEED_IMAGE and any(v.startswith('AWS_SECRET_ACCESS_KEY=') for v in inspect(name)['Config']['Env'])]
+  if len(storage)!=1:raise RuntimeError('Expected one SeaweedFS writer for authenticated restore')
+  env=dict(v.split('=',1) for v in storage[0]['Config']['Env'] if '=' in v)
+  auth={key:env.get(key,'') for key in ('AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY')}
+  if not all(auth.values()):raise RuntimeError('Missing object storage credentials; never restore anonymous S3')
+  target=p/'storage-auth.json';target.write_text(json.dumps(auth));os.chmod(target,0o600);manifest['sha256'][target.name]=digest(target)
+  target=p/'seaweed.tar.gz'
   with target.open('xb') as f:docker('run','--rm','--network','none','--mount','type=volume,src='+volume+',dst=/data,readonly','--entrypoint','tar',PG_IMAGE,'-C','/data','-czf','-','.',output=f)
-  manifest['sha256'][target.name]=digest(target);manifest['minioFiles']=archive_files(target);os.chmod(target,0o600)
+  manifest['sha256'][target.name]=digest(target);manifest['seaweedFiles']=archive_files(target);os.chmod(target,0o600)
   (p/'manifest.json').write_text(json.dumps(manifest,indent=2));os.chmod(p/'manifest.json',0o600)
   return manifest
  except Exception:
@@ -65,18 +71,20 @@ def validate_backup(folder):
  p=pathlib.Path(folder)
  if (p/'INCOMPLETE').exists():raise RuntimeError('Incomplete backup')
  m=json.loads((p/'manifest.json').read_text())
- if m.get('format')!=1 or set(m.get('sha256',{}))!={'application.dump','keycloak.dump','minio.tar.gz'} or set(m.get('databases',{}))!={'application','keycloak'}:raise RuntimeError('Invalid backup manifest')
- if m.get('postgresImage')!=PG_IMAGE or m.get('minioImage')!=MINIO_IMAGE:raise RuntimeError('Unsupported backup image version')
+ if m.get('format')!=2 or set(m.get('sha256',{}))!={'application.dump','keycloak.dump','seaweed.tar.gz','storage-auth.json'} or set(m.get('databases',{}))!={'application','keycloak'}:raise RuntimeError('Invalid/legacy backup manifest; migrate legacy objects through S3 before creating a SeaweedFS backup')
+ if m.get('postgresImage')!=PG_IMAGE or m.get('seaweedImage')!=SEAWEED_IMAGE:raise RuntimeError('Unsupported backup image version')
  for name,expected in m['sha256'].items():
   f=p/name
   if f.is_symlink() or not f.is_file() or digest(f)!=expected:raise RuntimeError('Backup checksum mismatch')
- if archive_files(p/'minio.tar.gz')!=m.get('minioFiles'):raise RuntimeError('Object archive fingerprint mismatch')
+ auth=json.loads((p/'storage-auth.json').read_text())
+ if set(auth)!={'AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY'} or not all(isinstance(v,str) and v for v in auth.values()):raise RuntimeError('Invalid object storage auth snapshot')
+ if archive_files(p/'seaweed.tar.gz')!=m.get('seaweedFiles'):raise RuntimeError('Object archive fingerprint mismatch')
  return m
 
 def restore_check(folder,verify=None):
  """Restore into brand-new owned resources only, compare fingerprints, then remove them."""
  p=pathlib.Path(folder).resolve();m=validate_backup(p);prefix='buildingflow-test-restore-'+uuid.uuid4().hex
- pg=prefix+'-pg';volume=prefix+'-objects';minio=prefix+'-minio';network=prefix+'-net';created=[]
+ pg=prefix+'-pg';volume=prefix+'-objects';seaweed=prefix+'-seaweed';network=prefix+'-net';created=[]
  password=secrets.token_hex(24);env=dict(os.environ,POSTGRES_PASSWORD=password)
  try:
   docker('network','create','--internal',network);created.append(('network',network))
@@ -89,19 +97,23 @@ def restore_check(folder,verify=None):
     r=subprocess.run(['docker','exec','-i',pg,'pg_restore','-U','restore','-d',label,'--no-owner','--no-acl','--exit-on-error'],stdin=f,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     if r.returncode:raise RuntimeError('Backup restore failed')
    if fingerprint(pg,'restore',label)!=data['fingerprint']:raise RuntimeError('Restored database fingerprint mismatch')
-  with (p/'minio.tar.gz').open('rb') as f:
+  with (p/'seaweed.tar.gz').open('rb') as f:
    r=subprocess.run(['docker','run','--rm','-i','--network','none','--mount','type=volume,src='+volume+',dst=/data','--entrypoint','tar',PG_IMAGE,'-C','/data','-xzf','-'],stdin=f,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
    if r.returncode:raise RuntimeError('Object restore failed')
   import tempfile
   with tempfile.TemporaryDirectory(prefix='buildingflow-test-restore-check-') as temp:
    a=pathlib.Path(temp)/'objects.tar.gz'
    with a.open('wb') as f:docker('run','--rm','--network','none','--mount','type=volume,src='+volume+',dst=/data,readonly','--entrypoint','tar',PG_IMAGE,'-C','/data','-czf','-','.',output=f)
-   if archive_files(a)!=m['minioFiles']:raise RuntimeError('Restored object fingerprint mismatch')
+   if archive_files(a)!=m['seaweedFiles']:raise RuntimeError('Restored object fingerprint mismatch')
   if verify:
-   menv=dict(os.environ,MINIO_ROOT_USER='restore-test',MINIO_ROOT_PASSWORD=password)
-   docker('run','-d','--name',minio,'--network',network,'-e','MINIO_ROOT_USER','-e','MINIO_ROOT_PASSWORD','--mount','type=volume,src='+volume+',dst=/data',MINIO_IMAGE,'server','/data',env=menv);created.append(('container',minio))
-   verify({'network':network,'postgres':pg,'postgresUser':'restore','minio':minio,'minioUser':'restore-test','password':password,'register':created.append})
-  return len(m['databases']),len(m['minioFiles'])
+   storage_network=prefix+'-s3-net'
+   docker('network','create',storage_network);created.append(('network',storage_network))
+   # The private auth snapshot restores the same credentials; never start anonymous S3.
+   auth=json.loads((p/'storage-auth.json').read_text());storage_env=dict(os.environ,**auth)
+   docker('run','-d','--name',seaweed,'--network',storage_network,'-p','127.0.0.1::8333','-e','AWS_ACCESS_KEY_ID','-e','AWS_SECRET_ACCESS_KEY','--mount','type=volume,src='+volume+',dst=/data',SEAWEED_IMAGE,'mini','-dir=/data','-admin.ui=false','-webdav=false','-s3.iam.readOnly=true','-s3.allowDeleteBucketNotEmpty=false',env=storage_env);created.append(('container',seaweed))
+   storage_url='http://'+docker('port',seaweed,'8333').decode().strip()
+   verify({'network':network,'postgres':pg,'postgresUser':'restore','seaweed':seaweed,'storageUrl':storage_url,'password':password,'register':created.append})
+  return len(m['databases']),len(m['seaweedFiles'])
  finally:
   for kind,name in reversed(created):
    try:docker('rm','-f',name) if kind=='container' else docker(kind,'rm',name)
@@ -110,19 +122,19 @@ def restore_check(folder,verify=None):
 def compose_backup(args):
  env_path=pathlib.Path(args.env_file)
  if env_path.exists() and any(line.strip()=='POSTGRES_DB=projects' for line in env_path.read_text().splitlines()):
-  raise RuntimeError('Shared local PostgreSQL: use ../postgres-18.6/scripts/backup.sh and the shared README; keep the MinIO backup separate')
+  raise RuntimeError('Shared local PostgreSQL: use ../postgres-18.6/scripts/backup.sh and the shared README; keep the SeaweedFS backup separate')
  base=['compose','--env-file',args.env_file,'-f',args.compose]
  def container(service):
   value=docker(*base,'ps','-a','-q',service).decode().strip()
   if not value or '\n' in value:raise RuntimeError('Expected one container per backup service')
   return value
- app=container('postgres');keycloak=container('keycloak-db');minio=container('minio')
+ app=container('postgres');keycloak=container('keycloak-db');seaweed=container('seaweedfs')
  def settings(name):return dict(v.split('=',1) for v in inspect(name)['Config']['Env'] if '=' in v)
  a=settings(app);k=settings(keycloak)
- mount=next((m for m in inspect(minio)['Mounts'] if m['Destination']=='/data' and m['Type']=='volume'),None)
- if not mount:raise RuntimeError('Expected dedicated MinIO named volume')
+ mount=next((m for m in inspect(seaweed)['Mounts'] if m['Destination']=='/data' and m['Type']=='volume'),None)
+ if not mount:raise RuntimeError('Expected dedicated SeaweedFS named volume')
  writers=[]
- for service in ('buildingflow-web','buildingflow-api','buildingflow-worker','keycloak','minio'):
+ for service in ('buildingflow-web','buildingflow-api','buildingflow-worker','keycloak','seaweedfs','seaweedfs-s3'):
   ids=docker(*base,'ps','-a','-q',service).decode().splitlines();writers.extend(ids)
  return backup(args.output,{'application':(app,a['POSTGRES_USER'],a['POSTGRES_DB']),'keycloak':(keycloak,k['POSTGRES_USER'],k['POSTGRES_DB'])},mount['Name'],writers)
 if __name__=='__main__':
