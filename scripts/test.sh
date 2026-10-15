@@ -29,6 +29,9 @@ elif [ "${CI:-}" = true ]; then
     docker exec postgres-18.6 pg_isready -U postgres -h 127.0.0.1 >/dev/null 2>&1 && break
     sleep 1
   done
+  # The shared server provides citext up front; installing it in template1's public schema gives every
+  # database the tests create the same type, whatever schema search path a test uses.
+  docker exec postgres-18.6 psql -U postgres -d template1 -v ON_ERROR_STOP=1 -qc 'CREATE EXTENSION IF NOT EXISTS citext SCHEMA public'
   docker exec postgres-18.6 psql -U postgres -v ON_ERROR_STOP=1 -qc 'DROP DATABASE IF EXISTS buildingflow_ci_test' -c 'CREATE DATABASE buildingflow_ci_test'
   BUILDINGFLOW_TEST_DATABASE="Host=127.0.0.1;Port=${POSTGRES_PORT:-5436};Database=buildingflow_ci_test;Username=postgres;Password=$POSTGRES_PASSWORD"
   cleanup_test_database() { :; }
