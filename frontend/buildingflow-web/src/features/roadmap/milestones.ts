@@ -166,14 +166,44 @@ export const milestones: Milestone[] = [
   {
     number: "12", title: "phase12Title", description: "phase12Description",
     tasks: [
-      planned("phase12Analysis", "phase12AnalysisDetail"),
-      planned("phase12PersonCode", "phase12PersonCodeDetail"),
-      planned("phase12SmsManagement", "phase12SmsManagementDetail"),
-      planned("phase12RegistrationSms", "phase12RegistrationSmsDetail"),
-      planned("phase12UserManagement", "phase12UserManagementDetail"),
-      planned("phase12MobileSignup", "phase12MobileSignupDetail"),
-      planned("phase12CodeLink", "phase12CodeLinkDetail"),
-      planned("phase12Tests", "phase12TestsDetail"),
+      planned("phase12Task1", "phase12Task1Detail"),
+      planned("phase12Task2", "phase12Task2Detail"),
+      planned("phase12Task3", "phase12Task3Detail"),
+      planned("phase12Task4", "phase12Task4Detail"),
+      planned("phase12Task5", "phase12Task5Detail"),
+    ],
+  },
+  {
+    number: "13", title: "phase13Title", description: "phase13Description",
+    tasks: [
+      planned("phase13Task1", "phase13Task1Detail"),
+      planned("phase13Task2", "phase13Task2Detail"),
+      planned("phase13Task3", "phase13Task3Detail"),
+      planned("phase13Task4", "phase13Task4Detail"),
+      planned("phase13Task5", "phase13Task5Detail"),
+      planned("phase13Task6", "phase13Task6Detail"),
+    ],
+  },
+  {
+    number: "14", title: "phase14Title", description: "phase14Description",
+    tasks: [
+      planned("phase14Task1", "phase14Task1Detail"),
+      planned("phase14Task2", "phase14Task2Detail"),
+      planned("phase14Task3", "phase14Task3Detail"),
+      planned("phase14Task4", "phase14Task4Detail"),
+      planned("phase14Task5", "phase14Task5Detail"),
+      planned("phase14Task6", "phase14Task6Detail"),
+    ],
+  },
+  {
+    number: "15", title: "phase15Title", description: "phase15Description",
+    tasks: [
+      planned("phase15Task1", "phase15Task1Detail"),
+      planned("phase15Task2", "phase15Task2Detail"),
+      planned("phase15Task3", "phase15Task3Detail"),
+      planned("phase15Task4", "phase15Task4Detail"),
+      planned("phase15Task5", "phase15Task5Detail"),
+      planned("phase15Task6", "phase15Task6Detail"),
     ],
   },
 ];

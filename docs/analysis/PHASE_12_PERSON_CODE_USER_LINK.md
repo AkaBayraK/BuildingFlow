@@ -1,6 +1,6 @@
-# İŞ12 — Kişi kodu, kayıt SMS'i ve kullanıcı–kişi eşleştirme analizi
+# İŞ12–15 — Kişi kodu, SMS, kullanıcı yönetimi ve mobil eşleştirme analizi
 
-15.10.2026 kullanıcı talebiyle salt okunur analiz yapıldı; faz ve sekiz resmi görev milestones.ts'e `planned` olarak eklendi. Uygulama kullanıcı onayı olmadan başlamaz. Bu turda build/test çalıştırılmadı, kod yazılmadı. İş yol haritası toplamı 83 → 91 görev olur; yüzde bu nedenle düşer (yeni kapsam, gerileme değil).
+15.10.2026 kullanıcı talebiyle salt okunur analiz yapıldı; kapsam kullanıcı isteğiyle küçük tutulmak için dört faza (İŞ12–15) ve 23 numaralı task'a bölündü; hepsi milestones.ts'te `planned`. Uygulama kullanıcı onayı olmadan başlamaz. Bu turda build/test çalıştırılmadı, kod yazılmadı. İş yol haritası toplamı 83 → 106 görev olur; yüzde bu nedenle düşer (yeni kapsam, gerileme değil).
 
 ## Talep özeti
 
@@ -37,18 +37,62 @@
 12. **Mobil kayıt (karar, 15.10.2026):** ilk kayıtta kullanıcı adı, parola + parola tekrarı, ad, soyad, cep telefonu, e-posta ve **isteğe bağlı** kişi kodu girilir. Backend `POST /api/v1/mobile/registrations` Admin API ile Keycloak kullanıcısını açar (ROPC açılmaz, realm `registrationAllowed=false` kalır), giriş mevcut PKCE akışıyla yapılır. Parola tekrarı istemcide, parola politikası (12+, büyük/küçük harf, rakam) sunucuda doğrulanır. Kod girildiyse kayıttan hemen sonra eşleşme denenir; tutmazsa hesap açık kalır, kullanıcı uyarılır. Kayıt ucu IP/cihaz rate limit'i ve idempotent `requestId` ile korunur; kullanıcı adı/e-posta çakışması tek tip hata döner (hesap var/yok bilgisi sızmaz).
 13. **Kodsuz hesap ve kısmi hata (karar):** kodsuz ya da eşleşmemiş hesap yalnız **hesap bilgileri** ekranını görür ve kendi ad/soyad/telefon/e-postasını güncelleyebilir (yalnız Keycloak'ta); site/borç/talep/duyuru ekranları ve senkronizasyon kapalıdır. Bu backend'de zaten zorunludur: `MobileSessionStore` bağsız kullanıcıya bağlam döndürmez, mobil uçlar bağlam olmadan veri vermez; mobil yalnız arayüzde gizler, yetkiyi sunucu verir. Kod sonradan girilince ya da güncellenince eşleşme yapılır, bağlam oluşur ve ekranlar + senkron açılır. Yeni kod girmek mevcut bağı silmez; ek bir kişiye (başka daire/site) bağlanır. Bağ çözme yalnız merkezden. Eşleşmeden sonra kullanıcının mobilde değiştirdiği bilgiler merkezdeki Person kaydını **değiştirmez** (aksi halde eşleşme kontrolü anlamsızlaşır); merkez kaydını yönetici günceller. Bağsız hesaplar yönetim ekranında "bağlı kişi yok" filtresiyle görünür ve temizlenebilir.
 14. **Çevrimdışı parola:** parola yerel DB'ye veya SecureStore'a **düz yazılmaz**. Çevrimdışı açılış mevcut refresh token + cihaz kilidi/biyometri ile; yerel parola kontrolü istenirse yalnız Argon2id/PBKDF2 karması SecureStore'da, sunucuda parola değişirse eski parola cihazda çalışmaya devam eder (kabul edilmesi gereken risk). Yerel DB'ye profil (ad, soyad, telefon, e-posta) ve eşleşme durumu şifreli önbellekte yazılır; şema v8 migration. Kodsuz hesapta çevrimdışı yalnız profil görünür.
-15. **Faz numaralandırması:** bu iş İŞ12'dir; mobil tarafı mobil Faz14/15 sırasını değiştirmez, mobil uygulama adımları İŞ12 görevlerine bağlanır. Mobil teslimde `npm run check`/`npm run build` kuralı geçerlidir.
+15. **Faz numaralandırması:** bu iş İŞ12–15'tir; mobil tarafı mobil Faz14/15 sırasını değiştirmez, mobil uygulama adımları İŞ15 task'larına bağlanır. Mobil teslimde `npm run check`/`npm run build` kuralı geçerlidir.
 
-## Resmi görevler (milestones.ts — İŞ12)
+## Faz ve task planı
 
-1. **Analiz ve kararlar** — bu belge; 15.10.2026'da sağlayıcı (MOCK/tablo), kod biçimi (6 rakam) ve mobil kayıt akışı kararlaştırıldı.
-2. **Kişi kodu** — Person'a kod alanı (BaseEntity sekiz alan korunur), 6 haneli CSPRNG üretim ve zayıf desen reddi, HMAC saklama, benzersiz indeks, maskeli gösterim/yenileme ve eski kişiler için kod üreten EF migration'ı.
-3. **SMS yönetimi** — TraceFlow ekranlarının uyarlaması: hesaplar (şifreli secret, gönderici başlığı, kontör/eşik), kontör yükleme ve hareketleri, tip+şablon (`PERSON_REGISTERED` tipi, `{{code}}`, `{{fullName}}`, segment tahmini), maskeli mesaj geçmişi, elle gönderim; MOCK sağlayıcı tabloya yazar, Faz09 outbox/consumer üzerinden çalışır.
-4. **Kayıt SMS'i** — kişi oluşturma ile aynı transaction'da outbox'a `SmsRequested`; telefon yok/geçersiz/kontör yetersiz durumları ekranda; yeniden gönderim yönetici eylemi.
-5. **Merkez kullanıcı yönetimi** — Keycloak Admin API istemcisi, kapsamlı liste (sayfalı), oluştur/güncelle/devre dışı/parola sıfırlama e-postası, rol allowlist'i, kişiye bağla/çöz.
-6. **Mobil kayıt ve çevrimdışı profil** — kullanıcı adı, parola ×2, ad, soyad, telefon, e-posta, isteğe bağlı kod; backend kayıt ucu, PKCE giriş; kodsuz hesapta yalnız hesap bilgileri ve güncelleme; şifreli yerel profil, parola saklamama.
-7. **Kod ile eşleştirme** — kayıtta veya sonradan kod girişi, ad/soyad/telefon/e-posta kişi kaydıyla eşleşmezse hata uyarısı, eşleşince kiracı/ev sahibi/sakin bilgisinin kişiden gelmesi, rate limit/kilit, tek transaction'da bağ + üyelik + kod tüketimi; eşleşince mobil ekranlar ve senkron açılır.
-8. **Testler ve kabul** — kod tahmin edilemezlik/benzersizlik, yetki/kapsam sızıntısı, rate limit, transaction/idempotency, SMS maskeleme, Keycloak test realm'i, mobil çevrimdışı; TR/EN ve mobil kabul. Gerçek kişiye SMS kabul testine dahil değildir.
+15.10.2026 kullanıcı analizi onayladı ve fazlara bölünmesini istedi. Task numarası `T<faz>.<sıra>` biçimindedir; kodlama task numarasıyla istenebilir. Grup etiketi ([KOD], [SMS], [KULLANICI], [MOBİL]) ilişkili task'ları bir arada gösterir, Bağımlılık sütunu önce bitmesi gerekeni söyler. Önerilen sıra: İŞ12 → İŞ13 ve İŞ14 (birbirinden bağımsız) → İŞ15. Her faz ayrı onayla başlar.
+
+### İŞ12 [KOD] — Kişi kodu
+
+6 haneli rastgele kişi kodu: üretim, HMAC saklama, yenileme, eski kişilere kod.
+
+| Task | İş | Bağımlılık |
+|---|---|---|
+| T12.1 | **Kod alanı ve migration** — Person'a HMAC kod karması, son 2 hane, üretim/son kullanma zamanı; benzersiz indeks ve EF migration. | — |
+| T12.2 | **Kod üretici** — CSPRNG ile 6 hane, ilk hane 1–9; ardışık/tekrarlı desen reddi, çakışmada yeniden üretim; birim testleri. | — |
+| T12.3 | **Kişi kaydında kod ve yenileme** — Kişi oluşturulurken kod üretimi, yenileme ucu, merkez kişi ekranında maskeli gösterim ve yenile düğmesi. | 12.1, 12.2 |
+| T12.4 | **Eski kişilere kod** — Kodsuz mevcut kişilere tek seferlik kod üretimi; toplu SMS gönderilmez. | 12.1, 12.2 |
+| T12.5 | **Testler ve kabul** — Tahmin edilemezlik, desen reddi, benzersizlik, maskeleme, yetki; TESTING ve API belgesi. | 12.1–12.4 |
+
+### İŞ13 [SMS] — SMS modülü (MOCK)
+
+TraceFlow SMS ekranlarının uyarlaması; sağlayıcı yokken MOCK mesajı tabloya yazar.
+
+| Task | İş | Bağımlılık |
+|---|---|---|
+| T13.1 | **SMS veri modeli** — Hesap, kontör hareketi, şablon ve mesaj tabloları (BaseEntity, şifreli secret) ve migration. | — |
+| T13.2 | **MOCK sağlayıcı ve SMS tüketicisi** — Faz09 SmsRequested tüketicisi; şablon render, kontör düşümü, maskeli kayıt; MOCK tabloya SENT yazar. | 13.1 |
+| T13.3 | **SMS API** — Hesap, kontör yükleme/hareket, şablon, mesaj geçmişi ve elle gönderim uçları; sayfalama ve yetki. | 13.1, 13.2 |
+| T13.4 | **Merkez SMS ekranları** — Hesaplar, kontör, şablonlar, mesajlar sekmeleri ve elle gönderim; segment tahmini, TR/EN. | 13.3 |
+| T13.5 | **Kayıt SMS'i** — Kişi kaydıyla aynı işlemde PERSON_REGISTERED SMS'i outbox'a; telefonsuz/geçersiz/kontör uyarısı, yeniden gönderim. | 12.3, 13.2 |
+| T13.6 | **Testler ve kabul** — Maskeleme, kontör tutarlılığı, idempotency, yetki, tarayıcı kabulü; gerçek SMS gönderilmez. | 13.1–13.5 |
+
+### İŞ14 [KULLANICI] — Merkez kullanıcı yönetimi
+
+Keycloak kullanıcılarını kapsamlı listeleme, CRUD ve kişiye bağlama/çözme.
+
+| Task | İş | Bağımlılık |
+|---|---|---|
+| T14.1 | **Keycloak servis hesabı** — Confidential client, yalnız view/query/manage-users; realm dosyası ve ortam değişkenleri. | — |
+| T14.2 | **Keycloak Admin istemcisi** — Infrastructure istemcisi, token önbelleği, hata eşleme; SUPER_ADMIN tümü, SITE_ADMIN kendi üyeleri. | 14.1 |
+| T14.3 | **Kullanıcı API** — Sayfalı liste/arama, oluştur, güncelle, devre dışı bırak, parola sıfırlama e-postası, rol allowlist'i. | 14.2 |
+| T14.4 | **Kişiye bağla/çöz** — Merkezden kullanıcıyı kişiye bağlama ve çözme; üyeliği aynı işlemde açma/kapatma. | 14.2 |
+| T14.5 | **Kullanıcı yönetim ekranı** — Liste, filtre (bağlı kişi yok), form, bağla/çöz diyalogları; TR/EN ve mobil görünüm. | 14.3, 14.4 |
+| T14.6 | **Testler ve kabul** — Kapsam sızıntısı, rol yükseltme reddi, test realm'i, tarayıcı kabulü. | 14.1–14.5 |
+
+### İŞ15 [MOBİL] — Mobil kayıt ve kodla eşleşme
+
+Mobilde kayıt, kodsuz hesap modu, kod ve kişisel bilgiyle eşleşme, çevrimdışı profil.
+
+| Task | İş | Bağımlılık |
+|---|---|---|
+| T15.1 | **Eşleştirme servisi** — Kod + ad/soyad/telefon/e-posta karşılaştırma, tek tip hata, deneme sınırı/kilit; bağ+üyelik+kod tüketimi tek işlemde. | 12.3, 14.4 |
+| T15.2 | **Mobil kayıt ucu** — Backend Keycloak kullanıcısı açar; parola politikası, idempotent requestId, rate limit, tek tip çakışma hatası. | 14.2 |
+| T15.3 | **Mobil kayıt ekranı** — Kullanıcı adı, parola ×2, ad, soyad, telefon, e-posta, isteğe bağlı kod; sonra PKCE giriş. | 15.2 |
+| T15.4 | **Kodsuz hesap ve kod girişi** — Bağsız hesapta yalnız hesap bilgileri ve güncelleme; kod gir/güncelle ekranı, eşleşince ekranlar açılır. | 15.1, 15.3 |
+| T15.5 | **Çevrimdışı profil ve senkron** — SQLite v8 şifreli profil ve eşleşme durumu; parola saklanmaz; eşleşince senkron açılır. | 15.4 |
+| T15.6 | **Testler ve kabul** — Merkez integration, mobil npm run check/build, uçak modu ve cihaz kabulü. | 15.1–15.5 |
 
 ## Kalan açık noktalar
 
