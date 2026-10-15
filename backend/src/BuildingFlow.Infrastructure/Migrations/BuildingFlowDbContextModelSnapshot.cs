@@ -202,6 +202,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int?>("ConstructionYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("construction_year");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -215,6 +219,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<int?>("FloorCount")
                         .HasColumnType("integer")
                         .HasColumnName("floor_count");
+
+                    b.Property<bool?>("HasElevator")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_elevator");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -240,6 +253,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("citext")
                         .HasColumnName("name");
 
+                    b.Property<string>("ParkingType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("parking_type");
+
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid")
                         .HasColumnName("property_id");
@@ -257,7 +275,13 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("buildings", null, t =>
                         {
+                            t.HasCheckConstraint("ck_buildings_construction_year", "construction_year IS NULL OR construction_year BETWEEN 1800 AND 9999");
+
                             t.HasCheckConstraint("ck_buildings_floor_count", "floor_count IS NULL OR floor_count > 0");
+
+                            t.HasCheckConstraint("ck_buildings_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_buildings_parking_type", "parking_type IS NULL OR parking_type IN ('OPEN','CLOSED','OPEN_AND_CLOSED','NONE')");
                         });
                 });
 
@@ -1106,6 +1130,319 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.MobileOperationReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("result");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId", "OperationId")
+                        .IsUnique();
+
+                    b.ToTable("mobile_operation_receipts", (string)null);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.MobileProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("first_name");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("last_name");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("phone");
+
+                    b.Property<Guid?>("PhotoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("photo_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerUserId", "PhotoId");
+
+                    b.ToTable("mobile_profiles", (string)null);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.MobileProfilePhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("object_key");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("sha256");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("state");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId", "OperationId")
+                        .IsUnique();
+
+                    b.HasIndex("State", "CreatedAt");
+
+                    b.ToTable("mobile_profile_photos", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_profile_photo_size", "size BETWEEN 1 AND 262144");
+
+                            t.HasCheckConstraint("ck_profile_photo_state", "state IN ('STAGED','CURRENT','RETIRED','PURGED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.MobileRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContextRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("context_role");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.HasIndex("OwnerUserId", "PropertyId", "UnitId", "ContextRole");
+
+                    b.ToTable("mobile_requests", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_mobile_requests_description", "length(trim(description)) BETWEEN 1 AND 2000");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1423,6 +1760,25 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("address");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date")
+                        .HasColumnName("birth_date");
+
+                    b.Property<string>("Citizenship")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("citizenship");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("country_code");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -1444,6 +1800,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("first_name");
 
+                    b.Property<string>("Gender")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("IdentityNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("identity_number");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -1458,6 +1824,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("last_name");
 
+                    b.Property<string>("LinkedUserId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("linked_user_id");
+
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
@@ -1467,6 +1838,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("modified_by");
+
+                    b.Property<string>("PersonKind")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("person_kind");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(30)
@@ -1486,7 +1862,101 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasIndex("PropertyId", "LastName", "FirstName");
 
-                    b.ToTable("people", (string)null);
+                    b.ToTable("people", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_people_profile", "(person_kind IS NULL AND citizenship IS NULL AND country_code IS NULL AND identity_number IS NULL AND birth_date IS NULL AND gender IS NULL AND address IS NULL AND linked_user_id IS NULL) OR COALESCE((person_kind IN ('NATURAL','LEGAL') AND citizenship IN ('DOMESTIC','FOREIGN') AND country_code ~ '^[A-Z]{2}$' AND length(btrim(identity_number)) BETWEEN 1 AND 50 AND length(btrim(phone_number)) > 0 AND length(btrim(email)) > 0 AND ((citizenship = 'DOMESTIC' AND country_code = 'TR' AND identity_number ~ CASE WHEN person_kind = 'NATURAL' THEN '^[1-9][0-9]{10}$' ELSE '^[0-9]{10}$' END) OR (citizenship = 'FOREIGN' AND country_code <> 'TR' AND (person_kind = 'LEGAL' OR identity_number ~ '^[A-Za-z0-9-]{6,30}$'))) AND (person_kind = 'NATURAL' OR (birth_date IS NULL AND gender IS NULL)) AND (gender IS NULL OR gender IN ('FEMALE','MALE','OTHER','UNSPECIFIED')) AND (birth_date IS NULL OR birth_date >= DATE '1900-01-01')), FALSE)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PersonMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("read_at");
+
+                    b.Property<string>("RecipientUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("recipient_user_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "PersonId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("RecipientUserId", "CreatedAt");
+
+                    b.ToTable("person_messages", (string)null);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.ProcessedMessage", b =>
@@ -1595,6 +2065,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("city");
 
+                    b.Property<int?>("ConstructionYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("construction_year");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -1614,6 +2088,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<int?>("FloorCount")
                         .HasColumnType("integer")
                         .HasColumnName("floor_count");
+
+                    b.Property<bool?>("HasElevator")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_elevator");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1639,6 +2122,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Neighborhood")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("ParkingType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("parking_type");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1654,7 +2147,15 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("properties", null, t =>
                         {
+                            t.HasCheckConstraint("ck_properties_building_features", "type = 'APARTMENT' OR (construction_year IS NULL AND heating_type IS NULL AND has_elevator IS NULL AND parking_type IS NULL)");
+
+                            t.HasCheckConstraint("ck_properties_construction_year", "construction_year IS NULL OR construction_year BETWEEN 1800 AND 9999");
+
                             t.HasCheckConstraint("ck_properties_floor_count", "floor_count IS NULL OR (type = 'APARTMENT' AND floor_count > 0)");
+
+                            t.HasCheckConstraint("ck_properties_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_properties_parking_type", "parking_type IS NULL OR parking_type IN ('OPEN','CLOSED','OPEN_AND_CLOSED','NONE')");
 
                             t.HasCheckConstraint("ck_properties_type", "type IN ('APARTMENT','SITE','RESIDENCE','MIXED')");
                         });
@@ -1914,6 +2415,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int?>("BathroomCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("bathroom_count");
+
                     b.Property<Guid?>("BuildingId")
                         .HasColumnType("uuid")
                         .HasColumnName("building_id");
@@ -1932,10 +2437,24 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("floor");
 
+                    b.Property<string>("FloorPosition")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("floor_position");
+
                     b.Property<decimal>("GrossSquareMeters")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("gross_square_meters");
+
+                    b.Property<bool?>("HasBalcony")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_balcony");
+
+                    b.Property<string>("HeatingType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("heating_type");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1944,6 +2463,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<bool?>("IsMezzanine")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_mezzanine");
+
+                    b.Property<string>("KitchenType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kitchen_type");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1955,6 +2483,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("modified_by");
 
+                    b.Property<decimal?>("NetSquareMeters")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("net_square_meters");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -1964,6 +2497,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid")
                         .HasColumnName("property_id");
+
+                    b.Property<string>("RoomLayout")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("room_layout");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -1990,7 +2528,19 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("units", null, t =>
                         {
+                            t.HasCheckConstraint("ck_units_bathroom_count", "bathroom_count IS NULL OR bathroom_count BETWEEN 0 AND 6");
+
+                            t.HasCheckConstraint("ck_units_floor_position", "floor_position IS NULL OR (floor_position IN ('BELOW_ENTRANCE','BASEMENT') AND floor < 0) OR (floor_position IN ('GROUND','GARDEN','ENTRANCE','HIGH_ENTRANCE') AND floor = 0) OR (floor_position IN ('REGULAR','ROOF') AND floor >= 1)");
+
+                            t.HasCheckConstraint("ck_units_heating_type", "heating_type IS NULL OR heating_type IN ('NONE','STOVE','GAS_STOVE','FLOOR_HEATER','CENTRAL','CENTRAL_METERED','COMBI','UNDERFLOOR','AIR_CONDITIONING','OTHER')");
+
+                            t.HasCheckConstraint("ck_units_kitchen_type", "kitchen_type IS NULL OR kitchen_type IN ('OPEN','CLOSED')");
+
+                            t.HasCheckConstraint("ck_units_net_area", "net_square_meters IS NULL OR (net_square_meters > 0 AND net_square_meters <= gross_square_meters)");
+
                             t.HasCheckConstraint("ck_units_positive_area", "gross_square_meters > 0");
+
+                            t.HasCheckConstraint("ck_units_room_layout", "room_layout IS NULL OR room_layout IN ('STUDIO','R1_1','R1_5_1','R2_0','R2_1','R2_5_1','R3_1','R3_5_1','R4_1','R4_5_1','R5_1','R5_2','R6_PLUS')");
 
                             t.HasCheckConstraint("ck_units_type", "type IN ('APARTMENT','OFFICE','SHOP','VILLA','WAREHOUSE','WORKSHOP')");
                         });
@@ -2220,6 +2770,30 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.MobileProfile", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.MobileProfilePhoto", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId", "PhotoId")
+                        .HasPrincipalKey("OwnerUserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.MobileRequest", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.OutboxMessage", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.Property", null)
@@ -2261,6 +2835,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasOne("BuildingFlow.Domain.Property", null)
                         .WithMany()
                         .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PersonMessage", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Person", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "PersonId")
+                        .HasPrincipalKey("PropertyId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

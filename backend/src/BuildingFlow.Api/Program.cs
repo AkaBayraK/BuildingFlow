@@ -27,12 +27,14 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<HierarchyService>();
 builder.Services.AddScoped<PeopleService>();
+builder.Services.AddScoped<PersonMessageService>();
 builder.Services.AddScoped<DuesService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<MeterService>();
 builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<CommunicationService>();
+builder.Services.AddHostedService<ProfilePhotoMaintenance>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
     .WithMethods("GET", "POST", "PUT", "DELETE")
@@ -40,11 +42,21 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgres", tags: ["ready"]);
 
 var app = builder.Build();
-if (args.Contains("--migrate", StringComparer.Ordinal))
+var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
+if (migrateOnly || app.Configuration.GetValue("Database:AutoMigrate", app.Environment.IsDevelopment()))
 {
+    var migrationLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("BuildingFlow.Migrations");
     await using var scope = app.Services.CreateAsyncScope();
-    await scope.ServiceProvider.GetRequiredService<BuildingFlowDbContext>().Database.MigrateAsync();
-    return;
+    try
+    {
+        await DatabaseMigration.ApplyPendingAsync(scope.ServiceProvider.GetRequiredService<BuildingFlowDbContext>(), migrationLogger);
+    }
+    catch (Exception exception)
+    {
+        migrationLogger.LogCritical("BuildingFlow.Migrations: schema migration failed ({ExceptionType}); the API will not start", exception.GetType().Name);
+        throw;
+    }
+    if (migrateOnly) return;
 }
 
 app.UseReleaseSecurity();
@@ -75,6 +87,12 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapGet("/api/v1/status", () => Results.Ok(new { application = "BuildingFlow", phase = "Foundation" }))
     .RequireAuthorization();
+app.MapMobileSessionEndpoints();
+app.MapMobileSyncEndpoints();
+app.MapMobileProfileEndpoints();
+app.MapMobileOwnerEndpoints();
+app.MapMobileManagerEndpoints();
+app.MapMobileFinanceEndpoints();
 app.MapPropertyEndpoints();
 app.MapHierarchyEndpoints();
 app.MapDirectUnitEndpoints();

@@ -21,10 +21,10 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+      ConnectionStrings__Database: Host=${POSTGRES_HOST:-postgres-18.6};Port=5432;Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB:-projects};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
       Authentication__Authority: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
       Authentication__Audience: buildingflow-api
-      Authentication__MetadataAddress: http://keycloak:8080/realms/buildingflow/.well-known/openid-configuration
+      Authentication__MetadataAddress: http://${KEYCLOAK_INTERNAL_HOST:-keycloak-26.7.5}:8080/realms/buildingflow/.well-known/openid-configuration
       Cors__Origins__0: http://localhost:${WEB_PORT:-3003}
       Redis__ConnectionString: redis:6379
       RabbitMQ__Host: rabbitmq
@@ -32,14 +32,13 @@ services:
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
       Telemetry__Enabled: "true"
       Telemetry__Endpoint: http://otel-collector:4318
-      MinIO__Endpoint: minio:9000
-      MinIO__AccessKey: ${MINIO_ROOT_USER:-buildingflow}
-      MinIO__SecretKey: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
+      ObjectStorage__Endpoint: http://seaweedfs-s3:8333
+      ObjectStorage__AccessKey: ${OBJECT_STORAGE_ACCESS_KEY:?Run scripts/init-local.sh}
+      ObjectStorage__SecretKey: ${OBJECT_STORAGE_SECRET_KEY:?Run scripts/init-local.sh}
     ports: ["127.0.0.1:${API_PORT:-5005}:8080"]
     depends_on:
-      postgres: {condition: service_healthy}
       buildingflow-migrations: {condition: service_completed_successfully}
-      keycloak: {condition: service_started}
+    networks: [default, shared-postgres, storage]
   buildingflow-migrations:
     image: buildingflow-api:local
     build:
@@ -48,17 +47,16 @@ services:
     command: ["--migrate"]
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+      ConnectionStrings__Database: Host=${POSTGRES_HOST:-postgres-18.6};Port=5432;Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB:-projects};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
       Authentication__Authority: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
       Authentication__Audience: buildingflow-api
-    depends_on:
-      postgres: {condition: service_healthy}
+    networks: [default, shared-postgres]
   buildingflow-worker:
     build:
       context: ..
       dockerfile: backend/src/BuildingFlow.Worker/Dockerfile
     environment:
-      ConnectionStrings__Database: Host=postgres;Database=${POSTGRES_DB:-buildingflow};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
+      ConnectionStrings__Database: Host=${POSTGRES_HOST:-postgres-18.6};Port=5432;Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB:-projects};Username=${POSTGRES_USER:-buildingflow};Password=${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-buildingflow}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-local.sh}
@@ -74,53 +72,8 @@ services:
     depends_on:
       rabbitmq: {condition: service_healthy}
       mailpit: {condition: service_started}
-      postgres: {condition: service_healthy}
       buildingflow-migrations: {condition: service_completed_successfully}
-  postgres:
-    image: postgres:17.6-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-buildingflow}
-      POSTGRES_DB: ${POSTGRES_DB:-buildingflow}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init-local.sh}
-    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
-    volumes: ["postgres-data:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-  keycloak-db:
-    image: postgres:17.6-alpine
-    environment:
-      POSTGRES_USER: keycloak
-      POSTGRES_DB: keycloak
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Run scripts/init-local.sh}
-    volumes: ["keycloak-data:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.7.0
-    command: ["start-dev", "--import-realm", "--spi-theme--static-max-age=-1", "--spi-theme--cache-themes=false", "--spi-theme--cache-templates=false"]
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-buildingflow-admin}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Run scripts/init-local.sh}
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Run scripts/init-local.sh}
-      KC_HOSTNAME: http://localhost:${KEYCLOAK_PORT:-8080}
-      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
-      KC_HEALTH_ENABLED: 'true'
-      KC_METRICS_ENABLED: 'true'
-    ports: ["127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"]
-    volumes:
-      - ./keycloak/realm-buildingflow.json:/opt/keycloak/data/import/realm-buildingflow.json:ro
-      - ./keycloak/themes/buildingflow:/opt/keycloak/themes/buildingflow:ro
-    depends_on:
-      keycloak-db: {condition: service_healthy}
+    networks: [default, shared-postgres]
   redis:
     image: redis:8.2.1-alpine
     command: ["redis-server", "--appendonly", "yes"]
@@ -143,17 +96,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
-  minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
-    command: ["server", "/data", "--console-address", ":9001"]
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["mini", "-dir=/data", "-ip=seaweedfs", "-s3=false", "-admin.ui=false", "-webdav=false", "-s3.iam.readOnly=true", "-s3.allowDeleteBucketNotEmpty=false"]
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-buildingflow}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run scripts/init-local.sh}
-    ports: ["127.0.0.1:${MINIO_PORT:-9000}:9000", "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"]
-    volumes: ["minio-data:/data"]
+      AWS_ACCESS_KEY_ID: ${OBJECT_STORAGE_ACCESS_KEY:?Run scripts/init-local.sh}
+      AWS_SECRET_ACCESS_KEY: ${OBJECT_STORAGE_SECRET_KEY:?Run scripts/init-local.sh}
+      S3_BUCKET: buildingflow-documents
+    volumes: ["seaweedfs-data:/data"]
+    networks: [storage-data]
+  seaweedfs-s3:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["s3", "-filer=seaweedfs:8888", "-port=8333", "-config=/run/secrets/s3.json", "-iam.readOnly=true", "-allowDeleteBucketNotEmpty=false"]
+    volumes: ["./seaweedfs/private-s3.json:/run/secrets/s3.json:ro"]
+    ports: ["127.0.0.1:${OBJECT_STORAGE_PORT:-9040}:8333"]
+    depends_on:
+      seaweedfs: {condition: service_started}
+    networks: [storage-data, storage]
   mailpit:
     image: axllent/mailpit:v1.27.10
     ports: ["127.0.0.1:${MAILPIT_PORT:-8025}:8025"]
+    networks: [default, shared-postgres]
   grafana:
     image: grafana/grafana:12.4.11
     environment:
@@ -186,6 +149,7 @@ services:
     image: prom/blackbox-exporter:v0.28.0
     command: ["--config.file=/etc/blackbox.yml"]
     volumes: ["./observability/blackbox.yml:/etc/blackbox.yml:ro"]
+    networks: [default, shared-postgres, storage]
   loki:
     image: grafana/loki:3.7.8
     command: ["-config.file=/etc/loki/config.yml"]
@@ -194,14 +158,19 @@ services:
       - ./observability/loki.yml:/etc/loki/config.yml:ro
       - loki-data:/loki
 networks:
+  storage-data:
+    internal: true
+  storage:
+    name: buildingflow-storage-s3
   default:
     name: buildingflow-network
+  shared-postgres:
+    external: true
+    name: ${SHARED_POSTGRES_NETWORK:-shared-postgres-net}
 volumes:
-  postgres-data:
-  keycloak-data:
   redis-data:
   rabbitmq-data:
-  minio-data:
+  seaweedfs-data:
   grafana-data:
   prometheus-data:
   loki-data:

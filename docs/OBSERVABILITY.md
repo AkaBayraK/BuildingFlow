@@ -32,7 +32,7 @@ Portlar .env.example'daki OTLP_PORT/PROMETHEUS_PORT/LOKI_PORT ile override edili
 
 `buildingflow_http_requests_total`: code-owned route template, GET/POST/PUT/DELETE/OPTIONS/HEAD/OTHER ve HTTP status. Ham URL/UUID/query etiketi yok. `buildingflow_http_duration_seconds_bucket` histogram; Grafana p95. Worker messages/failures/deliveries; outcome processed/duplicate/retry/dead_letter ve bounded relay/consumer/delivery operation.
 
-Blackbox: API /health, Keycloak /health/ready, MinIO /health/live HTTP; PostgreSQL/Redis/RabbitMQ TCP erişimi. TCP probe kimlik bilgisi/işlem doğrulaması değildir. Docker API8080 ve yerel API5005 ayrı hedeflerdir; kullanılmayan çalıştırma biçiminin probe'u0 olabilir. Özel API_PORT kullanımında prometheus.yml yerel hedefi güncelleyin. Üretim alarm/replication/retention/backups İŞ11 kapsamında ayrıca değerlendirilir.
+Blackbox: API /health, Keycloak /health/ready, SeaweedFS S3 anonim403 HTTP; PostgreSQL/Redis/RabbitMQ TCP erişimi. TCP probe kimlik bilgisi/işlem doğrulaması değildir. Docker API8080 ve yerel API5005 ayrı hedeflerdir; kullanılmayan çalıştırma biçiminin probe'u0 olabilir. Özel API_PORT kullanımında prometheus.yml yerel hedefi güncelleyin. Üretim alarm/replication/retention/backups İŞ11 kapsamında ayrıca değerlendirilir.
 
 OTLP log provider yalnız BuildingFlow.* kategorisini Information+ aktarır. Framework request URL, EF SQL/body/auth başlıkları aktarılmaz. API olayında method/route/status/süre; hata olayında exception türü/status (mesaj/stack yok). Activity.TraceId/SpanId metadata ile Grafana Loki'de correlation. Worker olayları sayılar veya izinli işlem türleri; e-posta adresi, mesaj body veya credential yok. Console JSON trace scope'u korur; üretimde mevcut framework log seviye/politikası ayrı gözden geçirilmeli.
 
@@ -52,3 +52,5 @@ python3 scripts/test-observability.py
 ```
 
 Salt-okunur health/401/404 istekleri; sayılar/histogram/worker,3 TCP probe, Grafana datasource/dashboard, Loki API+worker/trace_id ve hassas sorgu marker yokluğu. API/Broker iş verisi mutasyonu veya gerçek mail yok; parola/log body yazdırılmaz. Ayrıntı [TESTING.md](TESTING.md).
+
+SeaweedFS S3 için s3_auth_guard modülü beklenen403 yanıtını izler. Bu, kimlikli yükleme/indirme kanıtı değildir; gerçek imzalı round-trip integration testleri ayrıca çalışır. Filer/master portları API veya monitoring ağına açılmaz.

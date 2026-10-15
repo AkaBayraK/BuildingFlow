@@ -13,6 +13,15 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.Property(value => value.LastName).HasColumnName("last_name").HasMaxLength(100);
         builder.Property(value => value.PhoneNumber).HasColumnName("phone_number").HasMaxLength(30);
         builder.Property(value => value.Email).HasColumnName("email").HasMaxLength(254);
+        builder.Property(v=>v.PersonKind).HasColumnName("person_kind").HasMaxLength(10);
+        builder.Property(v=>v.Citizenship).HasColumnName("citizenship").HasMaxLength(10);
+        builder.Property(v=>v.CountryCode).HasColumnName("country_code").HasMaxLength(2);
+        builder.Property(v=>v.IdentityNumber).HasColumnName("identity_number").HasMaxLength(50);
+        builder.Property(v=>v.BirthDate).HasColumnName("birth_date");
+        builder.Property(v=>v.Gender).HasColumnName("gender").HasMaxLength(20);
+        builder.Property(v=>v.Address).HasColumnName("address").HasMaxLength(500);
+        builder.Property(v=>v.LinkedUserId).HasColumnName("linked_user_id").HasMaxLength(200);
+        builder.ToTable(t=>t.HasCheckConstraint("ck_people_profile", "(person_kind IS NULL AND citizenship IS NULL AND country_code IS NULL AND identity_number IS NULL AND birth_date IS NULL AND gender IS NULL AND address IS NULL AND linked_user_id IS NULL) OR COALESCE((person_kind IN ('NATURAL','LEGAL') AND citizenship IN ('DOMESTIC','FOREIGN') AND country_code ~ '^[A-Z]{2}$' AND length(btrim(identity_number)) BETWEEN 1 AND 50 AND length(btrim(phone_number)) > 0 AND length(btrim(email)) > 0 AND ((citizenship = 'DOMESTIC' AND country_code = 'TR' AND identity_number ~ CASE WHEN person_kind = 'NATURAL' THEN '^[1-9][0-9]{10}$' ELSE '^[0-9]{10}$' END) OR (citizenship = 'FOREIGN' AND country_code <> 'TR' AND (person_kind = 'LEGAL' OR identity_number ~ '^[A-Za-z0-9-]{6,30}$'))) AND (person_kind = 'NATURAL' OR (birth_date IS NULL AND gender IS NULL)) AND (gender IS NULL OR gender IN ('FEMALE','MALE','OTHER','UNSPECIFIED')) AND (birth_date IS NULL OR birth_date >= DATE '1900-01-01')), FALSE)"));
         builder.HasAlternateKey(value => new { value.PropertyId, value.Id });
         builder.HasOne<Property>().WithMany().HasForeignKey(value => value.PropertyId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(value => new { value.PropertyId, value.LastName, value.FirstName });

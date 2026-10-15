@@ -218,3 +218,23 @@ Gider immutable; iptal gerekçeli/version, yeni kayıt UUID aynı içerik retry.
 ## İŞ08 dosya/duyuru ekranları
 
 Duyurular ve Belgeler bağımsız menü, ortak RecordList/TanStack ve sağ ManagementPanel kullanır. Düz metin duyuru React text olarak gösterilir; HTML işleme yok. Upload FormData ve download Blob ortak authorizedRequest üzerinden geçer; multipart Content-Type browser tarafından boundary ile belirlenir. Blob boyut/MIME/SHA256 doğrulanmadan download URL üretilmez; geçici URL iptal edilir. Dosya kabulü PDF/JPEG/PNG≤10MiB; backend aynı sınırı ve imzayı bağımsız doğrular. ApiError ham server/SDK exception mesajı göstermeden kodla TR/EN sağ üst ortak bildirimde sunulur. Duyuru eki görünürlüğü server’da üst kayıttan gelir; FE rolü veri yetkisi değildir.
+
+## Apartman/daire detay alanları — 11.10.2026
+
+`features/property-details/model.ts` mevcut backend enum ve nullable alanlarının ortak FE kayıt defteridir. Oluşturma, düzenleme, 409 yeniden yükleme, detay, tablo ve mobil kartlar aynı alan tanımını kullanır. `DetailInputs`/`DetailValues` mevcut Input/Label/FieldError/DetailField ve TR/EN sözlükleriyle çalışır. Boş seçim null'dır; false/0 kaybolmaz. Net alan ≤brüt alan, iki ondalık; yapım yılı Europe/Istanbul güncel yılına kadar, kat konumu floor ile uyumlu olmalıdır. Yıl binlik ayırıcı olmadan gösterilir. Apartman özellikleri yalnız APARTMENT Property veya Building üzerinde tutulur. Yeni Unit sütunlarında backend desteklemediği için sort açılmaz; TanStack columnVisibility Sütunlar menüsünden yönetilir. API DTO'ları `management-contracts` ile dış veri/ebeveyn kapsamı kontrolünden geçer. PUT mevcut opsiyonel alanları taşımalı; yalnız temel alanları göndermek detayları null'a çevirir. Test kanıtı [TESTING.md](TESTING.md), sözleşme [hierarchy.md](api/hierarchy.md).
+
+### Daire–kişi gezinme kalıbı (11.10.2026)
+
+`features/people/unit-links.ts` canonical doğrudan/binalı UUID filtreli hedef, strict query ve batch DTO doğrulamasını paylaşır. PersonPage/PersonOccupancies/RecordDetails kişi/bölüm kimliğini doğrular; ham kişi/telefon/e-posta query'ye yazılmaz. `useUnitPeople` yalnız yönetici rolünde, görünen daire sayfası için tek bounded batch; loading/error/ilişki-yok farklı, iptalde/eski sayfada sonuç yayınlanmaz. ACCOUNTANT için görünür kişi sütunu veya kişi API isteği açılmaz.
+
+`RecordList` varsayılan md davranışını korur; daireler `cardBreakpoint="xl"` kullanır: tablet/mobil kart, sm'den itibaren iki sütun (tek sonuç tam genişlik),1280px'den itibaren tablo. Kişi bağlantıları en az44px ve satır kırılmalı; yeni kişi alanları önce gösterilir. Yeni route/query OIDC whitelist + negatif testle birlikte gelir. Kanıt TESTING.md, gerçek iPad Safari kabulü Chrome ölçü önizlemesinden ayrıdır.
+
+## Sabit çalışma çerçevesi — 11.10.2026
+
+WorkspaceShell `100dvh` çerçevesidir: masaüstü (1024px ve üstü) sol menü ile üst/alt menü kaydırmada yerinde kalır. `workspace-content` tek ana içerik scroll alanıdır; min-height:0 ve flex ile footer son kaydı örtmez. Uzun sol menünün yalnız kendi listesi kayabilir; sürüm bilgisi çerçevede kalır. 1024px altında üst düğme aynı rol/kapsam menüsünü 320px sol Dialog içinde açar; alt kısa yollar Genel Bakış/Yönetim Alanları/Daireler ve yetkili Kişiler'dir. Mobil safe-area korunur. İçeriğe atla, isimli/odaklanabilir scroll region, klavye scroll, ESC ve dialog kapanış odağı korunur; rota değişiminde içerik başa döner. Yeni sayfalarda window/body scroll veya üst/alt menüyü içerik içine tekrar koyma. Dialog formları kendi scroll alanını korur. Sayaç Okumaları bilgi tablosu için ortak sağ panelin genişlik istisnası896px; onaylı kişi kayıt editörü768px genişlikte iki sütun/gruplanmış alanlar kullanır, mobilde tek sütuna iner. Diğer CRUD formları512px kalır.
+
+Tüketim toplamları fiziksel miktardır: her sayaç türü ayrı, üç ondalık `formatConsumption` ile BigInt hassasiyeti korunur. Tarife olmadan TRY maliyeti uydurulmaz; faturalar mevcut Expense gerçekleşme ayının giderine girer. UI'de faturaya erişim ve bu ayrım açıklanır. Test kanıtı TESTING.md BAKIM sabit menüler bölümündedir.
+
+## Kişi profili ve iletişim —12.10.2026
+
+Person form/detay/listesi ortak EntityEditor/ManagementPanel/RecordList; genişleyen liste tablet/mobilde xl kart eşiği. Gerçek/tüzel–yerli/yabancı alanları backend sözleşmesiyle doğrulanır, telefon/email zorunlu. PersonAccountPicker aktifProperty üyeliğini sunucuda arar/sayfalar, keycloak user directory değildir. Mesaj paneli typed parse/abort/UUID retry, tel ve snapshot aidat geçmişini kullanır; NotificationInbox yalnız kendi alıcı kutusunu okur. SMS kapalı ve görünür açıklamalı. TR/EN, field-error/notification/odak/busy/ESC ortak davranışları korunur. Yeni paket yok.

@@ -2,9 +2,10 @@ using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
 public sealed record PeopleQuery(int Page = 1, int PageSize = 10, string? Search = null, string SortBy = "name", string SortDirection = "asc");
-public sealed record CreatePersonRequest(string? FirstName, string? LastName, string? PhoneNumber = null, string? Email = null);
-public sealed record UpdatePersonRequest(string? FirstName, string? LastName, string? PhoneNumber, string? Email, bool? IsEnabled, long Version);
-public sealed record PersonResponse(Guid Id, Guid PropertyId, string FirstName, string LastName, string? PhoneNumber, string? Email, bool IsEnabled, long Version, DateTimeOffset CreatedAt, int ActiveOccupancyCount);
+public sealed record CreatePersonRequest(string? FirstName, string? LastName, string? PhoneNumber = null, string? Email = null, string? PersonKind = null, string? Citizenship = null, string? CountryCode = null, string? IdentityNumber = null, DateOnly? BirthDate = null, string? Gender = null, string? Address = null, string? LinkedUserId = null);
+public sealed record UpdatePersonRequest(string? FirstName, string? LastName, string? PhoneNumber, string? Email, bool? IsEnabled, long Version, string? PersonKind = null, string? Citizenship = null, string? CountryCode = null, string? IdentityNumber = null, DateOnly? BirthDate = null, string? Gender = null, string? Address = null, string? LinkedUserId = null);
+public sealed record PersonResponse(Guid Id, Guid PropertyId, string FirstName, string LastName, string? PhoneNumber, string? Email, bool IsEnabled, long Version, DateTimeOffset CreatedAt, int ActiveOccupancyCount, string? PersonKind = null, string? Citizenship = null, string? CountryCode = null, string? IdentityNumber = null, DateOnly? BirthDate = null, string? Gender = null, string? Address = null, string? LinkedUserId = null, string? PropertyName = null, IReadOnlyList<PersonUnitSummary>? Units = null);
+public sealed record PersonUnitSummary(Guid UnitId, string Number, Guid? BuildingId, string? BuildingName, string Role);
 public sealed record CreateOccupancyRequest(Guid PersonId, Guid UnitId, string Type, DateOnly? StartDate, DateOnly? EndDate = null, bool IsPrimaryContact = false);
 public sealed record ChargeCancellationApproval(Guid ChargeId, long Version);
 public sealed record EndOccupancyRequest(DateOnly? EndDate, long Version, IReadOnlyList<ChargeCancellationApproval>? CancellationApprovals = null);
@@ -16,14 +17,19 @@ public sealed record OccupancyResponse(Guid Id, Guid PropertyId, Guid PersonId, 
     string PersonName, string UnitNumber, string? BuildingName, string Type, DateOnly StartDate, DateOnly? EndDate,
     bool IsPrimaryContact, string Status, long Version, TenantDebtResult? TenantDebtResult = null);
 public sealed record UnitChoice(Guid Id, Guid? BuildingId, string Number, string? BuildingName, bool IsEnabled);
+public sealed record UnitPersonLink(Guid PersonId, string PersonName);
+public sealed record UnitCurrentParties(Guid UnitId, Guid? BuildingId, IReadOnlyList<UnitPersonLink> Owners, IReadOnlyList<UnitPersonLink> Tenants);
+public sealed record UnitCurrentPartiesResponse(Guid PropertyId, DateOnly AsOfDate, IReadOnlyList<UnitCurrentParties> Items);
 public interface IPeopleStore
 {
+    Task<PagedRows<string>?> AccountChoicesAsync(Guid property,PeopleQuery query,AccessScope access,CancellationToken token);
     Task<PagedRows<PersonResponse>?> ListAsync(Guid property, PeopleQuery query, AccessScope access, CancellationToken token);
     Task<PersonResponse?> GetAsync(Guid property, Guid person, AccessScope access, CancellationToken token);
     Task<PersonResponse?> CreateAsync(Guid property, CreatePersonRequest request, AccessScope access, CancellationToken token);
     Task<PersonResponse?> UpdateAsync(Guid property, Guid person, UpdatePersonRequest request, AccessScope access, CancellationToken token);
     Task<bool> DeleteAsync(Guid property, Guid person, long version, AccessScope access, CancellationToken token);
     Task<PagedRows<UnitChoice>?> UnitChoicesAsync(Guid property, PeopleQuery query, AccessScope access, CancellationToken token);
+    Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, AccessScope access, CancellationToken token);
     Task<PagedRows<OccupancyResponse>?> OccupanciesAsync(Guid property, Guid? person, Guid? unit, PeopleQuery query, AccessScope access, CancellationToken token);
     Task<OccupancyResponse?> GetOccupancyAsync(Guid property, Guid occupancy, AccessScope access, CancellationToken token);
     Task<OccupancyResponse?> CreateOccupancyAsync(Guid property, CreateOccupancyRequest request, AccessScope access, CancellationToken token);
@@ -31,7 +37,7 @@ public interface IPeopleStore
     Task<TenantMoveOutPreview?> EndPreviewAsync(Guid property, Guid occupancy, DateOnly endDate, long version, AccessScope access, CancellationToken token);
 }
 
-public sealed class PeopleService(IPeopleStore store, ICurrentUserService user)
+public sealed class PeopleService(IPeopleStore store, ICurrentUserService user, TimeProvider? clock = null)
 {
     private AccessScope Access()
     {
@@ -42,14 +48,25 @@ public sealed class PeopleService(IPeopleStore store, ICurrentUserService user)
     }
     private static void Check(Dictionary<string, ApiErrorMessage[]> errors)
     { if (errors.Count > 0) throw new RequestValidationException(errors); }
-    private static void ValidatePerson(string? first, string? last, string? phone, string? email)
+    private void ValidatePerson(string? first, string? last, string? phone, string? email, string? kind, string? citizenship, string? country, string? number, DateOnly? birth, string? gender, string? address, string? linkedUserId)
     {
         Dictionary<string, ApiErrorMessage[]> errors = [];
-        foreach (var (field, value, label) in new[] { ("firstName", first, "Ad"), ("lastName", last, "Soyad") })
-            if (string.IsNullOrWhiteSpace(value) || value.Trim().Length > 100) errors[field] = [ErrorCatalog.FieldRequiredMax.Create(("field", ErrorCatalog.FieldKey(label)), ("max", 100))];
-        if (phone?.Trim().Length > 30) errors["phoneNumber"] = [ErrorCatalog.PhoneTooLong.Create()];
-        if (!string.IsNullOrWhiteSpace(email) && (email.Trim().Length > 254 || !System.Net.Mail.MailAddress.TryCreate(email.Trim(), out var parsed) || parsed.Address != email.Trim()))
-            errors["email"] = [ErrorCatalog.UiEnterAValidEmailAddress.Create()];
+        void Invalid(string field) => errors[field] = [ErrorCatalog.PersonProfileInvalid.Create()];
+        if (string.IsNullOrWhiteSpace(first) || first.Trim().Length > 100) Invalid("firstName");
+        if (kind != "LEGAL" && string.IsNullOrWhiteSpace(last) || last?.Trim().Length > 100) Invalid("lastName");
+        if (string.IsNullOrWhiteSpace(phone) || phone.Trim().Length > 30 || phone.Trim().Count(char.IsAsciiDigit) is < 8 or > 15 || !System.Text.RegularExpressions.Regex.IsMatch(phone.Trim(),@"^\+?[0-9 ()-]+$")) Invalid("phoneNumber");
+        if (string.IsNullOrWhiteSpace(email) || email.Trim().Length > 254 || !System.Net.Mail.MailAddress.TryCreate(email.Trim(), out var parsed) || parsed.Address != email.Trim()) Invalid("email");
+        if (kind is not ("NATURAL" or "LEGAL")) Invalid("personKind");
+        if (citizenship is not ("DOMESTIC" or "FOREIGN")) Invalid("citizenship");
+        if (string.IsNullOrWhiteSpace(country) || country.Length != 2 || country.Any(c => c is < 'A' or > 'Z') || (citizenship == "DOMESTIC" ? country != "TR" : country == "TR")) Invalid("countryCode");
+        else { try { _ = new System.Globalization.RegionInfo(country); } catch (ArgumentException) { Invalid("countryCode"); } }
+        if (string.IsNullOrWhiteSpace(number) || number.Trim().Length > 50 || number.Any(char.IsControl)) Invalid("identityNumber");
+        else if (citizenship == "DOMESTIC" && (number.Trim().Length != (kind == "LEGAL" ? 10 : 11) || number.Trim().Any(c => c is < '0' or > '9') || (kind == "NATURAL" && number.Trim()[0] == '0'))) Invalid("identityNumber");
+        else if (citizenship == "FOREIGN" && kind == "NATURAL" && (number.Trim().Length is < 6 or > 30 || number.Trim().Any(c => !char.IsAsciiLetterOrDigit(c) && c != '-'))) Invalid("identityNumber");
+        if (birth is { } date && (date < new DateOnly(1900,1,1) || date > DateOnly.FromDateTime(TimeZoneInfo.ConvertTime((clock ?? TimeProvider.System).GetUtcNow(),TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")).DateTime)) || kind == "LEGAL" && birth != null) Invalid("birthDate");
+        if (gender is not (null or "FEMALE" or "MALE" or "OTHER" or "UNSPECIFIED") || kind == "LEGAL" && gender != null) Invalid("gender");
+        if (address?.Trim().Length > 500 || address?.Any(c=>char.IsControl(c) && c is not ('\r' or '\n' or '\t')) == true) Invalid("address");
+        if (linkedUserId?.Trim().Length > 200 || linkedUserId?.Any(char.IsControl) == true) Invalid("linkedUserId");
         Check(errors);
     }
     private static void Query(PeopleQuery query)
@@ -64,14 +81,15 @@ public sealed class PeopleService(IPeopleStore store, ICurrentUserService user)
     }
     private static void Version(long version)
     { if (version < 1) throw new RequestValidationException(new() { ["version"] = [ErrorCatalog.VersionRequired.Create()] }); }
+    public Task<PagedRows<string>?> AccountChoicesAsync(Guid property,PeopleQuery query,CancellationToken token){var access=Access();Query(query);return store.AccountChoicesAsync(property,query,access,token);}
     public Task<PagedRows<PersonResponse>?> ListAsync(Guid property, PeopleQuery query, CancellationToken token)
     { var access = Access(); Query(query); return store.ListAsync(property, query, access, token); }
     public Task<PersonResponse?> GetAsync(Guid property, Guid person, CancellationToken token) => store.GetAsync(property, person, Access(), token);
     public Task<PersonResponse?> CreateAsync(Guid property, CreatePersonRequest request, CancellationToken token)
-    { var access = Access(); ValidatePerson(request.FirstName, request.LastName, request.PhoneNumber, request.Email); return store.CreateAsync(property, request, access, token); }
+    { var access = Access(); ValidatePerson(request.FirstName, request.LastName, request.PhoneNumber, request.Email, request.PersonKind, request.Citizenship, request.CountryCode, request.IdentityNumber, request.BirthDate, request.Gender, request.Address, request.LinkedUserId); return store.CreateAsync(property, request, access, token); }
     public Task<PersonResponse?> UpdateAsync(Guid property, Guid person, UpdatePersonRequest request, CancellationToken token)
     {
-        var access = Access(); ValidatePerson(request.FirstName, request.LastName, request.PhoneNumber, request.Email); Version(request.Version);
+        var access = Access(); ValidatePerson(request.FirstName, request.LastName, request.PhoneNumber, request.Email, request.PersonKind, request.Citizenship, request.CountryCode, request.IdentityNumber, request.BirthDate, request.Gender, request.Address, request.LinkedUserId); Version(request.Version);
         if (request.IsEnabled is null) throw new RequestValidationException(new() { ["isEnabled"] = [ErrorCatalog.EnabledRequired.Create()] });
         return store.UpdateAsync(property, person, request, access, token);
     }
@@ -79,6 +97,13 @@ public sealed class PeopleService(IPeopleStore store, ICurrentUserService user)
     { var access = Access(); Version(version); return store.DeleteAsync(property, person, version, access, token); }
     public Task<PagedRows<UnitChoice>?> UnitChoicesAsync(Guid property, PeopleQuery query, CancellationToken token)
     { var access = Access(); Query(query); return store.UnitChoicesAsync(property, query, access, token); }
+    public Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, CancellationToken token)
+    {
+        var access = Access();
+        if (unitIds.Count is < 1 or > 100 || unitIds.Any(id => id == Guid.Empty) || unitIds.Distinct().Count() != unitIds.Count)
+            throw new RequestValidationException(new() { ["unitId"] = [ErrorCatalog.InvalidRequest.Create()] });
+        return store.CurrentUnitPartiesAsync(property, unitIds, access, token);
+    }
     public Task<PagedRows<OccupancyResponse>?> OccupanciesAsync(Guid property, Guid? person, Guid? unit, PeopleQuery query, CancellationToken token)
     { var access = Access(); Query(query); return store.OccupanciesAsync(property, person, unit, query, access, token); }
     public Task<OccupancyResponse?> GetOccupancyAsync(Guid property, Guid occupancy, CancellationToken token) => store.GetOccupancyAsync(property, occupancy, Access(), token);

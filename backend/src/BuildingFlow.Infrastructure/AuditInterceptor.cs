@@ -27,6 +27,8 @@ public sealed class AuditInterceptor(ICurrentUserService currentUser, TimeProvid
         if (context is null) return;
 
         var now = clock.GetUtcNow();
+        // PostgreSQL stores microseconds; Linux clocks tick in 100 ns, so trim to keep tracked and stored values equal.
+        now = now.AddTicks(-(now.Ticks % 10));
         var actor = currentUser.IsAuthenticated ? currentUser.UserId ?? "system" : "system";
 
         foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())

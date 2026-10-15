@@ -1,4 +1,4 @@
-using Minio;
+using Amazon.S3.Model;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -72,7 +72,7 @@ public sealed class CommunicationApiTests(SiteApiTests.SiteApiFactory factory) :
         using(var f=Form(request)){r=await c.PostAsync(Root(x.Property.Id)+"/documents",f);Assert.Equal(HttpStatusCode.OK,r.StatusCode);Assert.True((await r.Content.ReadFromJsonAsync<DocumentResponse>())!.Replayed);}
         using(var f=Form(request,name:"different.pdf"))Assert.Equal(HttpStatusCode.Conflict,(await c.PostAsync(Root(x.Property.Id)+"/documents",f)).StatusCode);
         string? key=null;await factory.WithDb(async db=>{var value=await db.StoredDocuments.SingleAsync(v=>v.Id==d.Id);key=value.ObjectKey;Assert.Equal(x.Actor,value.CreatedBy);Assert.Equal(1,value.Version);});
-        using var direct=new HttpClient();Assert.Equal(HttpStatusCode.Forbidden,(await direct.GetAsync("http://"+Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT")+"/"+factory.StorageBucket+"/"+key)).StatusCode);
+        using var direct=new HttpClient();Assert.Equal(HttpStatusCode.Forbidden,(await direct.GetAsync(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ENDPOINT")+"/"+factory.StorageBucket+"/"+key)).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict,(await c.DeleteAsync(root+"?version=999")).StatusCode);Assert.Equal(HttpStatusCode.NoContent,(await c.DeleteAsync(root+"?version="+d.Version)).StatusCode);Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(root+"/download")).StatusCode);
         using(var f=Form(request))Assert.Equal(HttpStatusCode.Conflict,(await c.PostAsync(Root(x.Property.Id)+"/documents",f)).StatusCode);
         await factory.WithDb(async db=>{var value=await db.StoredDocuments.IgnoreQueryFilters().SingleAsync(v=>v.Id==d.Id);Assert.True(value.IsDeleted);Assert.Equal(2,value.Version);Assert.Equal(d.Sha256,value.Sha256);});
@@ -115,13 +115,13 @@ public sealed class CommunicationApiTests(SiteApiTests.SiteApiFactory factory) :
     [StorageFact] public async Task ProviderRefusesAnUnexpectedBucketPolicy()
     {
         var x=await Seed();using var c=TestToken.Client(factory,x.Actor,"SUPER_ADMIN");var d=await Upload(c,x.Property.Id);
-        using var minio=new Minio.MinioClient().WithEndpoint(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT")).WithCredentials(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ACCESS_KEY"),Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_SECRET_KEY")).Build();
+        using var storage=StorageTestClient.Create();
         var policy=System.Text.Json.JsonSerializer.Serialize(new{Version="2012-10-17",Statement=new[]{new{Effect="Deny",Principal="*",Action=new[]{"s3:GetObject"},Resource=new[]{"arn:aws:s3:::"+factory.StorageBucket+"/*"}}}});
-        await minio.SetPolicyAsync(new Minio.DataModel.Args.SetPolicyArgs().WithBucket(factory.StorageBucket).WithPolicy(policy));
+        await storage.PutBucketPolicyAsync(new PutBucketPolicyRequest {BucketName=factory.StorageBucket,Policy=policy});
         try{var r=await c.GetAsync(Root(x.Property.Id)+$"/documents/{d.Id}/download");Assert.Equal(HttpStatusCode.ServiceUnavailable,r.StatusCode);Assert.Contains("BF_STORAGE_UNAVAILABLE",await r.Content.ReadAsStringAsync());}
-        finally{await minio.RemovePolicyAsync(new Minio.DataModel.Args.RemovePolicyArgs().WithBucket(factory.StorageBucket));}
+        finally{await storage.DeleteBucketPolicyAsync(new DeleteBucketPolicyRequest {BucketName=factory.StorageBucket});}
     }
 
 }
 public sealed class StorageFactAttribute : FactAttribute
-{ public StorageFactAttribute(){if(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE"))||string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT")))Skip="Dedicated PostgreSQL and MinIO test configuration required.";} }
+{ public StorageFactAttribute(){if(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE"))||string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ENDPOINT")))Skip="Dedicated PostgreSQL and SeaweedFS S3 test configuration required.";} }

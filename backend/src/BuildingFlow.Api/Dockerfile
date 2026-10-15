@@ -5,7 +5,8 @@ RUN dotnet publish backend/src/BuildingFlow.Api/BuildingFlow.Api.csproj -c Relea
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY docs/licenses/minio-dotnet-7.0.0-LICENSE.txt ./LICENSES/Minio-LICENSE.txt
+COPY docs/licenses/aws-sdk-Apache-2.0.txt ./LICENSES/AWS-SDK-LICENSE.txt
+COPY docs/licenses/aws-sdk-NOTICE.txt ./LICENSES/AWS-SDK-NOTICE.txt
 COPY docs/licenses/rabbitmq-client-7.2.1-LICENSE-APACHE2.txt ./LICENSES/RabbitMQ.Client-LICENSE-APACHE2.txt
 COPY docs/licenses/opentelemetry-1.18.0-LICENSE.txt ./LICENSES/OpenTelemetry-LICENSE.txt
 COPY docs/licenses/opentelemetry-1.18.0-NOTICES.txt ./LICENSES/OpenTelemetry-NOTICES.txt

@@ -13,6 +13,36 @@ BuildingFlow, PostgreSQL şema değişikliklerini **EF Core Migrations** ile sü
 
 Mevcut sıra: `20261007131600_InitialFoundation` → `20261007154935_SiteMembershipAccess` → `20261007210343_UnifiedPropertyModel` → `20261008065215_PeopleAndUnitOccupancies` → `20261008185906_DuesAndCharges`. İlk iki migration site/blok/daire ve üyeliği kurar; üçüncü rename/backfill ile Property/Building/Unit modeline taşır; dördüncü People/UnitOccupancy ve composite FK/index/tarih kısıtlarını ekler. Yeni veritabanında sıra baştan, mevcut veritabanında yalnızca eksik migration'lar uygulanır. Kaynak, Designer ve snapshot birlikte Git'te tutulur. People migration Down, kişi veya ilişki geçmişi varsa tablo silmeyi reddeder; silinmiş geçmişi otomatik geri getirmez.
 
+## Yeni kolon ekleme: entity → migration → çalıştır (otomatik)
+
+Liquibase'de changeset yazıp uygulamayı başlatmak ne ise burada da aynısı geçerli: migration dosyası changeset'in karşılığıdır ve API açılırken bekleyen migration'ları kendisi uygular.
+
+1. Alanı entity'ye ekleyin. Kolon adını `EntityConfigurations.cs` içinde `HasColumnName("snake_case")` ile verin; zorunlu (NOT NULL) bir alan için varsayılan değer veya backfill planlayın.
+2. Migration'ı üretin:
+   - `bash scripts/dev.sh api` bunu zaten yapar: açılmadan önce `bash scripts/db.sh sync` çalışır. Entity değiştiyse `AutoSchema_<zaman>` migration'ı üretilir.
+   - Elle üretmek isterseniz: `bash scripts/db.sh sync` (otomatik ad) veya `bash scripts/db.sh add AnlamliAd`.
+3. API'yi çalıştırın. `Database:AutoMigrate` açıksa bekleyen migration'lar açılışta uygulanır, log'da `BuildingFlow.Migrations: applying …` satırı görünür.
+4. Üretilen `.cs`, `.Designer.cs` ve snapshot dosyalarını inceleyip entity değişikliğiyle **aynı commit'te** kaydedin.
+
+`sync` yalnız **eklemeli** değişiklikleri otomatik üretir. Üretilen `Up` içinde kolon/tablo silme, yeniden adlandırma, tip değiştirme veya ham SQL varsa dosyaları siler, snapshot'ı geri yükler ve durur. Bu tür değişiklik için `bash scripts/db.sh add Ad` ile migration'ı elle yazıp inceleyin (rename için `RenameColumn`, veri kaybı değerlendirmesi).
+
+### Açılışta otomatik migration
+
+| Ayar | Varsayılan | Not |
+| --- | --- | --- |
+| `Database:AutoMigrate` (`Database__AutoMigrate`) | Development'ta `true`, diğer ortamlarda `false` | `dev.sh api` bunu `BUILDINGFLOW_AUTO_MIGRATE` (varsayılan `true`) ile ayarlar |
+| `--migrate` argümanı | — | Yalnız migration uygular ve çıkar (compose `buildingflow-migrations`, üretim işi) |
+
+- Kapatmak için: `BUILDINGFLOW_AUTO_MIGRATE=false bash scripts/dev.sh api` ya da `Database__AutoMigrate=false`.
+- Aynı anda birden fazla API örneği veya migration işi çalışsa da şemayı tek bir süreç değiştirir: PostgreSQL advisory lock (`DatabaseMigration.AdvisoryLockKey`) alınır, diğerleri bekler, kilit bırakılınca bekleyen migration kalmadığını görür. Worker migration yapmaz.
+- Entity değişmiş ama migration üretilmemişse API açılmaz ve `Run: bash scripts/db.sh sync` mesajı verir. Bu, eksik kolon yüzünden ekranların çalışma anında hata vermesini önler.
+- Migration başarısız olursa (ör. elle eklenmiş bir kolondaki veri yeni tipe sığmıyorsa) migration transaction'ı geri alınır, API açılmaz ve `BuildingFlow.Migrations: schema migration failed` yazar.
+- Üretimde varsayılan kapalıdır. Önce yedek alınır, sonra `--migrate` işi veya incelenmiş idempotent SQL çalıştırılır ([RELEASE.md](RELEASE.md)).
+
+### Veritabanına elle kolon eklemeyin
+
+Elle eklenen kolon `__EFMigrationsHistory`'de görünmez ve migration "kolon zaten var" hatasıyla durur. `20261011082637_ApartmentAndUnitDetails` bu duruma karşı korumalıdır: her kolonu `ADD COLUMN IF NOT EXISTS` ile ekler, varsa tipini, NULL'luğunu ve varsayılanını modele hizalar. Yerel DB'de elle eklenen `properties.construction_year` (`bigint` → `integer`) ve `properties.neighborhood` (`varchar(200)` → `varchar(100)`) böyle düzeltildi. Yeni migration'larda bu koruma yoktur; kolonu her zaman migration ile ekleyin.
+
 ## Proje kökünden komutlar
 
 .NET 10 SDK gerekir; `backend/dotnet-tools.json` EF CLI sürümünü **10.0.12** olarak sabitler. Helper tool restore yapar. Kaynak listesi, check ve SQL üretimi DB bağlantısı/şifresi istemez. `status` ve `update` yalnızca `.env` içindeki **yerel** veritabanını hedefler.
@@ -29,6 +59,9 @@ bash scripts/db.sh check
 
 # Model ve mapping değişikliklerinden yeni dosya üret; DB'ye uygulamaz
 bash scripts/db.sh add AddSiteDescription
+
+# Entity değiştiyse yalnız eklemeli migration'ı otomatik üret (dev.sh api bunu açılışta yapar)
+bash scripts/db.sh sync
 
 # İncelenebilir kurulum/yükseltme SQL'i üret; DB'ye uygulamaz
 bash scripts/db.sh sql
@@ -118,3 +151,7 @@ Ayrı gerçek PostgreSQL kurulum/yükseltme/tekrar/boş Down/re-Up ve veri/audit
 ## İŞ10 sayaç geçmişi
 
 20261011064227_MetersAndReadings: meters/meter_readings/meter_reading_revisions, ortak audit/version, composite FK, precision12/3, tarih tekilliği, immutable SQL revizyon trigger'ı. Dolu sayaç/okuma tablolarında Down veri kaybını engeller. İlk kurulum/yükseltme/tekrar ve tablo sayısı modelden alınan NOT NULL şema taraması ayrı PostgreSQL'de test edilir; sabit sayı kabul kriteri değildir. Yerel11.10.2026 yükseltmesinde17 önceki tablo hash'i eşit; yeni messaging+meter tabloları eklendi.
+
+## PersonProfilesAndMessages —12.10.2026
+
+20261011223446 yeni migration/snapshot: people üzerine8 nullable profil/hesap kolonu, legacyNULL koruması ve profilecheck; yeni person_messages BaseEntity ve Property/Person compositeFK+UUID tekilliği. İlk kurulum/yükseltme/tekrar/boş Down/dolu Down reddi/model/ortak8kolon ayrı PostgreSQL testlerinde geçti. Uygulanmış eski migration değiştirilmedi. Yerel update sonrası22 eski tablonun tüm mevcut alan/audit/version sayım/hashleri eşleşti. Önceki Person Address yok; compare yalnız people yeni8kolonunu çıkarır, diğer tabloların Address dahil alanları korunur. Yeni kişisel veri/mesaj geçmişi varsa Down ilk drop öncesi reddeder.

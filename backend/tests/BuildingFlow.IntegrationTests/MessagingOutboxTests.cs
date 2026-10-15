@@ -307,16 +307,16 @@ public sealed class MessagingMigrationTests
         await using (var create = new NpgsqlCommand($"CREATE SCHEMA \"{schema}\"", admin)) await create.ExecuteNonQueryAsync();
         try {
             config.SearchPath = schema + ",public";
-            await using var db = new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>()
+            await using var db = new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>().BeforeApartmentDetails()
                 .UseNpgsql(config.ConnectionString, o => o.MigrationsHistoryTable("__EFMigrationsHistory", schema))
                 .AddInterceptors(new AuditInterceptor(new Actor(), TimeProvider.System)).Options);
             var previous = db.Database.GetMigrations().Single(v => v.EndsWith("_AnnouncementsAndDocuments", StringComparison.Ordinal));
             var migrator = db.GetService<IMigrator>(); await migrator.MigrateAsync(previous);
             var p = new Property("Upgrade preserved", "City", "District", "Address", PropertyType.APARTMENT); db.Add(p); await db.SaveChangesAsync();
-            var before = await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={p.Id}").SingleAsync();
+            var before = await db.Database.SqlQuery<string>($"SELECT (to_jsonb(p) - ARRAY['neighborhood','construction_year','heating_type','has_elevator','parking_type'])::text AS \"Value\" FROM properties p WHERE id={p.Id}").SingleAsync();
             await db.Database.MigrateAsync(); await db.Database.MigrateAsync();
-            Assert.Equal(before, await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={p.Id}").SingleAsync());
-            Assert.False(db.Database.HasPendingModelChanges());
+            Assert.Equal(before, await db.Database.SqlQuery<string>($"SELECT (to_jsonb(p) - ARRAY['neighborhood','construction_year','heating_type','has_elevator','parking_type'])::text AS \"Value\" FROM properties p WHERE id={p.Id}").SingleAsync());
+            LegacySchema.AssertCurrentModelMatchesMigrations();
             await migrator.MigrateAsync(previous); await db.Database.MigrateAsync();
             foreach (var table in new[] { "outbox_messages", "processed_messages" }) {
                 var columns = await db.Database.SqlQuery<string>($"SELECT column_name::text AS \"Value\" FROM information_schema.columns WHERE table_schema={schema} AND table_name={table} AND is_nullable='NO'").ToListAsync();

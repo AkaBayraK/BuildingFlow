@@ -9,7 +9,7 @@
 **Frontend:** Next.js  
 **Backend:** .NET / ASP.NET Core  
 **Database:** PostgreSQL  
-**Object Storage:** MinIO  
+**Object Storage:** SeaweedFS
 **Authentication & Authorization:** Keycloak  
 **Cache:** Redis  
 **Messaging:** RabbitMQ  
@@ -58,7 +58,7 @@
             │         │
             ▼         ▼
     ┌────────────┐  ┌─────────────┐
-    │ PostgreSQL │  │    MinIO     │
+    │ PostgreSQL │  │    SeaweedFS     │
     │ relational │  │ documents   │
     └────────────┘  └─────────────┘
 
@@ -104,7 +104,7 @@ buildingflow/
 │   ├── keycloak/
 │   ├── rabbitmq/
 │   ├── redis/
-│   ├── minio/
+│   ├── seaweedfs/
 │   └── grafana/
 │
 ├── docs/
@@ -157,7 +157,7 @@ Must NOT depend on:
 - Keycloak
 - Redis
 - RabbitMQ
-- MinIO
+- SeaweedFS
 - Grafana
 - HTTP
 
@@ -195,7 +195,7 @@ Contains implementations for:
 - PostgreSQL
 - Redis
 - RabbitMQ
-- MinIO
+- SeaweedFS
 - Keycloak integration helpers
 - Audit interceptor
 - Soft delete behavior
@@ -354,7 +354,7 @@ Notification
 - PhoneNumber (optional)
 - Email (optional)
 
-04 kararı: TC kimlik numarası toplanmaz. Person bir Keycloak giriş hesabı değildir; eklenmesi kullanıcı hesabı veya otomatik bildirim oluşturmaz.
+04 kararı: 12.10.2026 onaylı kişi genişletmesi: yerli gerçek T.C. kimlik, yerli tüzel vergi, yabancı gerçek pasaport, yabancı tüzel ülke+kuruluş kimlik numarası kaydedilir. Person bir Keycloak giriş hesabı değildir; eklenmesi kullanıcı hesabı veya otomatik bildirim oluşturmaz.
 
 #### UnitOccupancy
 
@@ -474,9 +474,9 @@ Rules:
 
 ---
 
-## 10. MinIO
+## 10. SeaweedFS
 
-Use MinIO for:
+Use SeaweedFS for:
 
 - announcement attachments
 - apartment/site documents
@@ -497,7 +497,7 @@ public interface IFileStorage
 }
 ```
 
-Infrastructure implements this using MinIO.
+Infrastructure implements this using SeaweedFS.
 
 Database stores metadata, not raw file contents.
 
@@ -619,7 +619,7 @@ Then add distributed tracing.
 - RabbitMQ health
 - Redis health
 - Keycloak health
-- MinIO health
+- SeaweedFS health
 - worker failures
 
 ---
@@ -638,7 +638,7 @@ postgres
 keycloak
 redis
 rabbitmq
-minio
+seaweedfs
 grafana
 ```
 
@@ -658,7 +658,7 @@ Never hardcode:
 - client secrets
 - DB credentials
 - Keycloak admin password
-- MinIO secret
+- SeaweedFS secret
 - SMTP credentials
 - SMS API secret
 
@@ -680,7 +680,7 @@ Examples:
 postgres:5432
 redis:6379
 rabbitmq:5672
-minio:9000
+seaweedfs-s3:8333
 keycloak:8080
 ```
 
@@ -700,8 +700,8 @@ Keycloak       8080
 Redis          6379
 RabbitMQ       5672
 RabbitMQ UI    15672
-MinIO API      9000
-MinIO Console  9001
+SeaweedFS S3 API  8333 (yerel9040)
+SeaweedFS filer/master: yalnız iç veri ağı
 Grafana        3001
 ```
 
@@ -774,7 +774,7 @@ Focus on:
 - API endpoints
 - authentication/authorization
 - RabbitMQ workflows
-- MinIO integration when necessary
+- SeaweedFS integration when necessary
 
 Do not rely on EF Core InMemory provider for relational behavior that requires real PostgreSQL semantics.
 
@@ -816,7 +816,7 @@ Create:
 - PostgreSQL
 - Redis
 - RabbitMQ
-- MinIO
+- SeaweedFS
 - Keycloak
 - Grafana
 - health endpoints
@@ -874,7 +874,7 @@ Create:
 
 Create:
 
-- MinIO abstraction
+- SeaweedFS abstraction
 - document upload/download
 - metadata table
 
@@ -914,7 +914,7 @@ The initial project skeleton is complete only when:
 - PostgreSQL is reachable
 - Redis is reachable
 - RabbitMQ is reachable
-- MinIO is reachable
+- SeaweedFS is reachable
 - Keycloak is reachable
 - Grafana is reachable
 - API health endpoint reports dependencies
@@ -1063,9 +1063,9 @@ Kalıcı Gider ve Bütçe menüsü, TR/EN, shadcn/TanStack liste/mobil kart ve o
 
 ## İŞ 08 — Duyurular ve özel dosya yönetimi — 10.10.2026
 
-Onaylı uygulama Announcement + StoredDocument ve IFileStorage'ın Minio7.0.0 sağlayıcısıdır. Modular monolith korunur; iki yeni uygulama tablosu ortak BaseEntity/audit/version/soft-delete sözleşmesini kullanır. Aktif Property üyeliği, SUPER_ADMIN/SITE_ADMIN/MANAGER yazımı; diğer üyeler yalnız yayımlanmış ALL_MEMBERS içeriğini okur. Person/UnitOccupancy giriş hesabı veya otomatik hedef kitle değildir.
+Onaylı uygulama Announcement + StoredDocument ve IFileStorage'ın SeaweedFS7.0.0 sağlayıcısıdır. Modular monolith korunur; iki yeni uygulama tablosu ortak BaseEntity/audit/version/soft-delete sözleşmesini kullanır. Aktif Property üyeliği, SUPER_ADMIN/SITE_ADMIN/MANAGER yazımı; diğer üyeler yalnız yayımlanmış ALL_MEMBERS içeriğini okur. Person/UnitOccupancy giriş hesabı veya otomatik hedef kitle değildir.
 
-DRAFT→PUBLISHED→ARCHIVED; düz metin içerik, taslak başına en çok10 ek ve yayın geçmişi korunur. Belgeler PDF/JPEG/PNG imza+MIME+uzantı kontrolü,10MiB; özel bucket/sunucu UUID anahtarı, metadata DB'de. API kimlik bilgisi/nesne anahtarı/public URL döndürmez; JWT kontrollü attachment/no-store/nosniff indirme ve SHA256/boyut doğrulaması. UUID/fingerprint replay, parent kilidi/version ve composite Property FK korunur. MinIO ile DB dağıtık transaction değildir; belirsiz commit nesnesini otomatik silme. Soft-delete metadata geçmişini ve özel nesneyi korur; retention/orphan temizliği ayrı bakım kapsamıdır.
+DRAFT→PUBLISHED→ARCHIVED; düz metin içerik, taslak başına en çok10 ek ve yayın geçmişi korunur. Belgeler PDF/JPEG/PNG imza+MIME+uzantı kontrolü,10MiB; özel bucket/sunucu UUID anahtarı, metadata DB'de. API kimlik bilgisi/nesne anahtarı/public URL döndürmez; JWT kontrollü attachment/no-store/nosniff indirme ve SHA256/boyut doğrulaması. UUID/fingerprint replay, parent kilidi/version ve composite Property FK korunur. SeaweedFS ile DB dağıtık transaction değildir; belirsiz commit nesnesini otomatik silme. Soft-delete metadata geçmişini ve özel nesneyi korur; retention/orphan temizliği ayrı bakım kapsamıdır.
 
 Kalıcı Duyurular/Belgeler menüleri, TR/EN, ortak sağ panel ve shadcn/TanStack liste/mobil düzen kullanılır. [API](api/communication.md), [analiz](analysis/PHASE_08_ANNOUNCEMENTS_DOCUMENTS.md), [test kanıtı](TESTING.md). Mail/SMS İŞ09'dur; finans eki, virüs taraması ve üretim dosya saklama operasyonları tamamlanmış sayılmaz.
 
@@ -1074,3 +1074,7 @@ Kalıcı Duyurular/Belgeler menüleri, TR/EN, ortak sağ panel ve shadcn/TanStac
 İlk teknik planın8 fazı değişmez; ayrı iş yol haritası İŞ10(kayıt13/14) kullanıcı tarafından onaylandı. Ortak Property→opsiyonel Unit Meter; MeterReading→immutable MeterReadingRevision, sekiz BaseEntity alanı ve migration20261011064227_MetersAndReadings. Sayaç/tarih/endeks ve rapor anlamı [API sözleşmesinde](api/meters-reports.md); otomatik sayaç tahakkuku yok. Raporlar kişi verisi içermeyen alan/üyelik kontrollü özetlerdir.
 
 Minimum telemetry şimdi çalışır: API+worker OpenTelemetry →Collector →Prometheus/Loki →Grafana; request/histogram/error/worker ve bağımlılık erişimi dashboard'u. [İşletme/yerel run](OBSERVABILITY.md). Grafana log deposu değildir. Trace deposu/Tempo ve broker traceparent propagation bu teslimin dışındadır. Lisanslar [licenses.md](licenses.md), kanıtlar [TESTING.md](TESTING.md).
+
+## Onaylı kişi profili ve uygulama bildirimleri —12.10.2026
+
+Kullanıcı kapsamıyla Person NATURAL/LEGAL ve DOMESTIC/FOREIGN kimlik, ülke, opsiyonel doğum/cinsiyet/adres ve zorunlu telefon/email alanlarıyla genişledi. Person hâlâ giriş hesabı değildir; aynıProperty aktif üyelik subject eşleştirmesiyle PersonMessage kalıcı alıcı kutusu sunulur. Yeni yetki/üyelik yaratılmaz. SMS sağlayıcı bağlanana kadar kapalı. Legacy kimlik bilinmez/null, tahakkuk snapshot korunur; migration eskileri değiştirmez. Yetki/şema/mesaj ayrıntısı [people.md](api/people.md).

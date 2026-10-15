@@ -24,12 +24,28 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition PersonProfileInvalid = new("BF_PERSON_PROFILE_INVALID", "Kişi türü, uyruk, ülke, kimlik ve zorunlu iletişim alanlarını kontrol edin.", "error");
+    public static readonly ErrorDefinition PersonAccountInvalid = new("BF_PERSON_ACCOUNT_INVALID", "Aynı yönetim alanında aktif üyeliği olan giriş hesabını seçin.", "error");
+    public static readonly ErrorDefinition PersonMessageInvalid = new("BF_PERSON_MESSAGE_INVALID", "Başlık, mesaj, istek kimliği ve desteklenen bildirim kanalı gerekli.", "error");
+    public static readonly ErrorDefinition PersonMessageConflict = new("BF_PERSON_MESSAGE_CONFLICT", "Mesaj isteği veya kişi sürümü değişti. Güncel kaydı kontrol edin.", "warning");
+
     public static readonly ErrorDefinition MeterInvalid = new("BF_METER_INVALID", "Geçerli sayaç adı, türü ve istek kimliği gerekli.", "error");
     public static readonly ErrorDefinition ReadingInvalid = new("BF_READING_INVALID", "2000 veya sonrası, gelecekte olmayan sabit tarih; sıfır veya pozitif en fazla üç ondalıklı endeks, gerekçe ve geçerli sürüm gerekli.", "error");
     public static readonly ErrorDefinition MeterConflict = new("BF_METER_CONFLICT", "Sayaç adı, okuma tarihi veya istek kimliği çakışıyor. Güncel listeyi kontrol edin.", "warning");
     public static readonly ErrorDefinition MeterInvalidUnit = new("BF_METER_INVALID_UNIT", "Aynı yönetim alanındaki aktif bağımsız bölümü seçin.", "warning");
     public static readonly ErrorDefinition MeterInactive = new("BF_METER_INACTIVE", "Pasif sayaca yeni okuma veya düzeltme eklenemez.", "warning");
     public static readonly ErrorDefinition ReadingOrder = new("BF_READING_ORDER", "Endeks önceki okumadan küçük veya sonraki okumadan büyük olamaz.", "warning");
+
+    public static readonly ErrorDefinition ConstructionYearInvalid = new("BF_CONSTRUCTION_YEAR_INVALID", "Yapım yılı 1800 ile içinde bulunulan yıl arasında olmalı.", "error");
+    public static readonly ErrorDefinition HeatingTypeInvalid = new("BF_HEATING_TYPE_INVALID", "Geçerli bir ısıtma tipi seçin.", "error");
+    public static readonly ErrorDefinition ParkingTypeInvalid = new("BF_PARKING_TYPE_INVALID", "Geçerli bir otopark seçeneği seçin.", "error");
+    public static readonly ErrorDefinition BuildingFeaturesApartmentOnly = new("BF_BUILDING_FEATURES_APARTMENT_ONLY", "Yapım yılı, ısıtma, asansör ve otopark bu türde bina/blok üzerinde tutulur.", "error");
+    public static readonly ErrorDefinition NetAreaInvalid = new("BF_NET_AREA_INVALID", "Net alan 0'dan büyük, brüt alandan büyük olmayan ve en fazla iki ondalık basamaklı olmalı.", "error");
+    public static readonly ErrorDefinition RoomLayoutInvalid = new("BF_ROOM_LAYOUT_INVALID", "Geçerli bir oda sayısı seçin.", "error");
+    public static readonly ErrorDefinition FloorPositionInvalid = new("BF_FLOOR_POSITION_INVALID", "Bulunduğu kat seçimi kat numarasıyla uyumlu olmalı.", "error");
+    public static readonly ErrorDefinition FloorExceedsFloorCount = new("BF_FLOOR_EXCEEDS_FLOOR_COUNT", "Bulunduğu kat binanın kat sayısını aşamaz.", "error");
+    public static readonly ErrorDefinition BathroomCountInvalid = new("BF_BATHROOM_COUNT_INVALID", "Banyo sayısı 0 ile 6 (6 ve üzeri) arasında olmalı.", "error");
+    public static readonly ErrorDefinition KitchenTypeInvalid = new("BF_KITCHEN_TYPE_INVALID", "Açık (Amerikan) veya kapalı mutfak seçin.", "error");
 
     public static readonly ErrorDefinition ContentInvalid = new("BF_CONTENT_INVALID", "Başlık 1–200, içerik 1–10000 karakter olmalı; geçerli hedef seçin.", "error");
     public static readonly ErrorDefinition ContentState = new("BF_CONTENT_STATE", "Bu işlem duyurunun mevcut yayın durumunda yapılamaz.", "warning");
@@ -134,6 +150,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition PaymentsErrorCancelled = new("BF_PAYMENTS_ERROR_CANCELLED", "İptal edilmiş ödeme geçmişi yeniden yazılamaz.", "warning");
     public static readonly ErrorDefinition DuesErrorReason = new("BF_DUES_ERROR_REASON", "İptal gerekçesi zorunludur ve en fazla 500 karakter olabilir.", "error");
     public static readonly ErrorDefinition DuesChooseReason = new("BF_DUES_CHOOSE_REASON", "İptal nedeni seçin.", "error");
+    public static readonly ErrorDefinition MobileSyncConflict = new("BF_MOBILE_SYNC_CONFLICT", "Kayıt değişti veya işlem kimliği başka bir içerikle kullanıldı. Güncel bilgiyi kontrol edin.", "warning");
     public static readonly ErrorDefinition ValidationFailed = new("BF_VALIDATION_FAILED", "Alanları kontrol edin.", "error");
     public static readonly ErrorDefinition InvalidRequest = new("BF_INVALID_REQUEST", "Geçersiz istek.", "error");
     public static readonly ErrorDefinition SignInRequired = new("BF_SIGN_IN_REQUIRED", "Oturumunuzu yenileyip tekrar giriş yapın.", "error");
@@ -153,6 +170,7 @@ public static class ErrorCatalog
         ["city"] = "Şehir",
         ["district"] = "İlçe",
         ["address"] = "Adres",
+        ["neighborhood"] = "Mahalle/semt",
         ["buildingName"] = "Bina/blok adı",
         ["unitNumber"] = "Daire numarası",
         ["firstName"] = "Ad",
@@ -162,6 +180,17 @@ public static class ErrorCatalog
     public static string FieldKey(string label) => label == "Blok adı" ? "buildingName" : FieldLabels.First(value => value.Value == label).Key;
     public static IReadOnlyList<ErrorDefinition> All { get; } = Array.AsReadOnly(new[]
     {
+        PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict,
+        ConstructionYearInvalid,
+        HeatingTypeInvalid,
+        ParkingTypeInvalid,
+        BuildingFeaturesApartmentOnly,
+        NetAreaInvalid,
+        RoomLayoutInvalid,
+        FloorPositionInvalid,
+        FloorExceedsFloorCount,
+        BathroomCountInvalid,
+        KitchenTypeInvalid,
         ContentInvalid,
         ContentState,
         DocumentInvalid,
@@ -264,6 +293,7 @@ public static class ErrorCatalog
         PaymentsErrorCancelled,
         DuesErrorReason,
         DuesChooseReason,
+        MobileSyncConflict,
         ValidationFailed,
         InvalidRequest,
         SignInRequired,

@@ -21,6 +21,13 @@ internal static class AuthenticationConfiguration
             options.MapInboundClaims = false;
             options.RequireHttpsMetadata = !environment.IsDevelopment();
             options.TokenValidationParameters.ValidateIssuer = true;
+            if (environment.IsDevelopment())
+            {
+                var extra = configuration.GetSection("Authentication:DevelopmentIssuers").Get<string[]>() ?? [];
+                if (extra.Any(v => !Uri.TryCreate(v, UriKind.Absolute, out var uri) || uri.UserInfo.Length > 0 || uri.Query.Length > 0 || uri.Fragment.Length > 0 || uri.AbsolutePath != "/realms/buildingflow" || (uri.Scheme != "http" && uri.Scheme != "https")))
+                    throw new InvalidOperationException("Invalid explicit development issuer.");
+                options.TokenValidationParameters.ValidIssuers = extra.Append(authority).ToArray();
+            }
             options.TokenValidationParameters.ValidateAudience = true;
             options.TokenValidationParameters.ValidateLifetime = true;
             options.TokenValidationParameters.RoleClaimType = "buildingflow_role";

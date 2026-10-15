@@ -18,7 +18,7 @@ public sealed class DuesMigrationTests
         try
         {
             var connection=new NpgsqlConnectionStringBuilder(original){SearchPath=schema+",public"};
-            await using var db=new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>()
+            await using var db=new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>().BeforeApartmentDetails()
                 .UseNpgsql(connection.ConnectionString,options=>options.MigrationsHistoryTable("__EFMigrationsHistory",schema))
                 .AddInterceptors(new AuditInterceptor(new Actor(),TimeProvider.System)).Options);
             var previous=db.Database.GetMigrations().Single(value=>value.EndsWith("_PeopleAndUnitOccupancies",StringComparison.Ordinal));

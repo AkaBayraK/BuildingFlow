@@ -1,4 +1,6 @@
-using Minio;
+using Amazon.S3;
+using Amazon.S3.Model;
+using BuildingFlow.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
@@ -8,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using BuildingFlow.Application;
 using BuildingFlow.Domain;
-using BuildingFlow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -267,12 +268,13 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
         {
             builder.ConfigureHostConfiguration(config=>config.AddInMemoryCollection(new Dictionary<string,string?> {
                 ["ConnectionStrings:Database"]=connection ?? "Host=localhost;Database=unused_sites_tests",
+                ["Database:AutoMigrate"]="false",
                 ["Authentication:Authority"]=Issuer,["Authentication:Audience"]="buildingflow-api",["Authentication:MetadataAddress"]="",
-                ["MinIO:Endpoint"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT"),
-                ["MinIO:AccessKey"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ACCESS_KEY"),
-                ["MinIO:SecretKey"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_SECRET_KEY"),
-                ["MinIO:Bucket"]=StorageBucket,
-                ["MinIO:UseSSL"]="false"
+                ["ObjectStorage:Endpoint"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ENDPOINT"),
+                ["ObjectStorage:AccessKey"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ACCESS_KEY"),
+                ["ObjectStorage:SecretKey"]=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_SECRET_KEY"),
+                ["ObjectStorage:Bucket"]=StorageBucket,
+                ["ObjectStorage:Region"]="us-east-1"
             }));
             return base.CreateHost(builder);
         }
@@ -286,14 +288,21 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
         }
         async Task IAsyncLifetime.DisposeAsync()
         {
-            if (connection is not null && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT"))) {
+            if (connection is not null && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ENDPOINT"))) {
                 // Only this fixture's random bucket is cleaned; production buckets are never queried.
-                using var storage = new Minio.MinioClient().WithEndpoint(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ENDPOINT"))
-                    .WithCredentials(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_ACCESS_KEY"), Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_MINIO_SECRET_KEY")).Build();
-                if (await storage.BucketExistsAsync(new Minio.DataModel.Args.BucketExistsArgs().WithBucket(StorageBucket))) {
-                    await foreach (var item in storage.ListObjectsEnumAsync(new Minio.DataModel.Args.ListObjectsArgs().WithBucket(StorageBucket).WithRecursive(true)))
-                        await storage.RemoveObjectAsync(new Minio.DataModel.Args.RemoveObjectArgs().WithBucket(StorageBucket).WithObject(item.Key));
-                    await storage.RemoveBucketAsync(new Minio.DataModel.Args.RemoveBucketArgs().WithBucket(StorageBucket));
+                using var storage = StorageTestClient.Create();
+                var exists = true;
+                try { await storage.GetBucketLocationAsync(new GetBucketLocationRequest { BucketName = StorageBucket }); }
+                catch (AmazonS3Exception e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound) { exists = false; }
+                if (exists) {
+                    string? next = null;
+                    do {
+                        var page = await storage.ListObjectsV2Async(new ListObjectsV2Request { BucketName = StorageBucket, ContinuationToken = next });
+                        foreach (var item in page.S3Objects ?? [])
+                            await storage.DeleteObjectAsync(new DeleteObjectRequest { BucketName = StorageBucket, Key = item.Key });
+                        next = page.IsTruncated == true ? page.NextContinuationToken : null;
+                    } while (next != null);
+                    await storage.DeleteBucketAsync(new DeleteBucketRequest { BucketName = StorageBucket });
                 }
             }
             await DisposeAsync();

@@ -11,4 +11,5 @@
     <ProjectReference Include="../../src/BuildingFlow.Infrastructure/BuildingFlow.Infrastructure.csproj" />
     <ProjectReference Include="../../src/BuildingFlow.Api/BuildingFlow.Api.csproj" />
   </ItemGroup>
+  <ItemGroup><None Update="Fixtures/avatar.jpg" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

@@ -29,7 +29,7 @@ Kontrol tarihi: 2026-10-08. Kullanıcının kuralı: lisanssız/korsan veya kull
 | Keycloak 26.7.0 | Apache-2.0 | Özelleştirilmiş template için lisans/NOTICE eklendi |
 | RabbitMQ 4.1.4 | [MPL-2.0](https://github.com/rabbitmq/rabbitmq-server/blob/main/LICENSE) | Değiştirilen MPL dosyaları/dağıtım şartları ayrıca incelenir |
 | Redis 8.2.1 | [AGPLv3 / RSALv2 / SSPLv1 seçenekleri](https://redis.io/legal/licenses/) | Bu projenin açık kaynak kullanım tercihi AGPLv3; yayın/dağıtım yükümlülükleri kontrol edilir |
-| MinIO | [AGPLv3](https://github.com/minio/minio/blob/master/LICENSE) | Ayrı servis; ticari alternatifleri aynı lisans varsayımıyla kullanma |
+| SeaweedFS4.48 | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE) | BuildingFlow aktif nesne deposu; lisans/NOTICE ve container bağımlılık koşulları korunur |
 | Grafana OSS | [AGPLv3](https://github.com/grafana/grafana/blob/main/LICENSE) | Enterprise eklentileri bu kapsama dahil değildir |
 | sharp / libvips | Apache-2.0 / LGPL-3.0-or-later | Next image bağımlılığı; libvips copyleft bildirimi ve yeniden bağlama/dağıtım koşulları korunur |
 | caniuse-lite | CC-BY-4.0 | Veri atıf bildirimleri korunur |
@@ -88,3 +88,36 @@ Yeni sabit container sürümleri: [Collector contrib0.162.0 Apache-2.0](https://
 ## İŞ11 CI yardımcıları
 
 Yeni npm/NuGet/container bağımlılığı yok. GitHub tarafından yayımlanan actions/checkout, actions/setup-node, actions/setup-dotnet MIT lisanslıdır; CI yetkisi contents:read, sır/dump cache veya artifact yüklemesi yok. Resmî lisanslar: https://github.com/actions/checkout/blob/main/LICENSE, https://github.com/actions/setup-node/blob/main/LICENSE, https://github.com/actions/setup-dotnet/blob/main/LICENSE. Action'lar commit SHA ile sabitlenir: checkout v4.4.0, setup-node v4.4.0, setup-dotnet v4.3.1 (etiketler `git ls-remote` ile doğrulandı). Workflow geliştirmesi yerel kalite akışıyla doğrulanır; GitHub üzerinde çalıştırılmış sayılmaz.
+
+Önceki İŞ11 incelemesinde resmî kaynaklardan alınan telif/lisans metinleri korunur: [checkout](licenses/phase11-checkout-LICENSE.txt), [setup-node](licenses/phase11-setup-node-LICENSE.txt), [setup-dotnet](licenses/phase11-setup-dotnet-LICENSE.txt). 11.10.2026 apartman/daire FE eşliği yeni paket, font, ikon veya dış görsel eklemedi; envanter **331** sürüm. Ekran kanıtları yerel uygulama görüntüleridir.
+
+11.10.2026 Daire/kişi bağlantıları ve tablet bakımında yeni paket/asset/font eklenmedi. Mevcut shadcn/ui + TanStack/Next.js/Lucide kullanıldı; npm/NuGet metadata kontrolü331 geçti, manifest/lock aynı. Ekran kanıtları yerel uygulama kabul görüntüleridir.
+
+## Yerel ortak PostgreSQL 18.6 (12.10.2026)
+
+Yerel veriler bağımsız `../postgres-18.6` projesindeki `projects` veritabanına
+taşındı; uygulama `buildingflow`, kimlik `buildingflow_keycloak` şemasındadır.
+Yerel ortak yedek `bash ../postgres-18.6/scripts/backup.sh` ile alınır.
+Eski proje bazlı PostgreSQL yedeği/restore yöntemi ortak DB üzerinde uygulanmaz.
+Nesne deposu MinIO ayrıca yedeklenir. Ortak README, kesim/geri dönüş/izolasyon
+kanıtının kaynağıdır. PostgreSQL18.6 ve pgvector0.8.7 PostgreSQL License kullanır;
+uygulama paket/lock bağımlılıkları bu düzenlemede değişmedi.
+
+## Ortak Keycloak yerel bakım teslimi — 13.10.2026
+
+Tek `keycloak-26.7.5` sunucusu ve `projects.keycloak` şeması; üç realm ve
+özgün kullanıcı/istemci/rol kimlikleri korunur. Ortak yönetim localhost8080;
+TraceFlow mobil issuer güncel LAN192.168.2.95:8080 üzerinden.
+Eski Keycloak konteynerleri/şemaları geri dönüş için korunur. Uygulama
+şemaları değişmez. Kaynak ve ayrıntılı operasyon/test kanıtı:
+`../keycloak-26.7.5/README.md` (AkaAI kökünden ../../keycloak-26.7.5).
+LDAP/federationID, DB rol izolasyonu, üç API için kendi token kabulü ve
+iki diğer realm token retleri; özel reset SPI anonim401/kendi204/diğer403.
+BuildingFlow17gerçek auth kontrolü, AkaAI10yerel/token testi,35frontend
+auth/güvenlik testi ve TypeScript geçti. Tam AkaAI frontend166/167;
+mevcut İngilizce compact sayı testinde1.3M/1.3m farkı kaydedildi.
+Test fixture'ları temizlendi. Domain/roadmap ve on-prem AkaAI değişmedi.
+
+## 14.10.2026 depolama refactoru
+Aktif MinIO sunucusu ve Minio7.0.0 NuGet bağımlılığı kaldırıldı. Tarihsel İŞ08 lisans ve test kayıtları geçmiş kanıt olarak korunur; yeni runtime bunları kullanmaz.
+SeaweedFS4.48: Apache-2.0; resmi digest4e61d15... sabit. Tam metin seaweedfs-4.48-LICENSE.txt. Resmi AWSSDK.S3 4.0.104.3 ve transitif AWSSDK.Core: paket .nuspec Apache-2.0. Tam LICENSE ve NOTICE aws-sdk-Apache-2.0.txt / aws-sdk-NOTICE.txt ile API ve worker imajlarına kopyalanır. Yeni kod AWS bulutuna bağlanmaz; yalnız configured SeaweedFS gateway kullanılır. Paket metadata envanteri329, belirsiz0. Bu kayıt tüm container işletim sistemi paketlerinin aynı lisans olduğu veya hukuki uyumluluk garantisi anlamına gelmez.

@@ -35,7 +35,7 @@ export function Roadmap() {
           const count = milestone.tasks.filter(task => task.done).length;
           const finished = count === milestone.tasks.length;
           return (
-            <details key={milestone.number} className={`milestone ${finished ? "milestone-done" : ""}`} open={Number(milestone.number) <= 3}>
+            <details key={milestone.number} className={`milestone ${finished ? "milestone-done" : ""}`}>
               <summary>
                 <span className="milestone-number">{milestone.number}</span>
                 <span className="milestone-title">{t(milestone.title)}<span className="milestone-description">{t(milestone.description)}</span></span>

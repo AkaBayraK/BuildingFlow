@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Backup/restore rehearsal with an owned fixture only.
 
-Creates buildingflow-test-backup-* PostgreSQL, Keycloak and MinIO resources, backs them up while quiesced,
+Creates buildingflow-test-backup-* PostgreSQL, Keycloak and SeaweedFS resources, backs them up while quiesced,
 restores into new isolated targets and compares schema/data, identity and object hashes. Live services,
 volumes and the developer databases are never read or written. Secrets are generated per run and never printed.
 """
-import hashlib,importlib.util,json,os,pathlib,secrets,shutil,subprocess,sys,tarfile,tempfile,time,uuid
+import http.client,urllib.error,hashlib,importlib.util,json,os,pathlib,secrets,shutil,subprocess,sys,tarfile,tempfile,time,uuid
 root=pathlib.Path(__file__).resolve().parent.parent
 spec=importlib.util.spec_from_file_location('backup_restore',root/'scripts/backup_restore.py');br=importlib.util.module_from_spec(spec);spec.loader.exec_module(br)
 KEYCLOAK_IMAGE='quay.io/keycloak/keycloak:26.7.0'
@@ -19,7 +19,7 @@ def wait(check,what,seconds=180):
  while time.time()<deadline:
   try:
    if check():return
-  except RuntimeError:pass
+  except (RuntimeError,OSError,http.client.HTTPException,urllib.error.URLError):pass
   time.sleep(2)
  raise RuntimeError(what+' did not become ready')
 def postgres(name,network,user,db,password):
@@ -32,8 +32,7 @@ def keycloak(name,network,db_host,db_name,db_user,db_password,admin_password):
 def kcadm(name,admin_password,*args):
  docker('exec',name,'/opt/keycloak/bin/kcadm.sh','config','credentials','--config','/tmp/kcadm.config','--server','http://localhost:8080','--realm','master','--user','fixture-admin','--password',admin_password)
  return docker('exec',name,'/opt/keycloak/bin/kcadm.sh',*args,'--config','/tmp/kcadm.config')
-def mc(container,user,password,*args):
- return docker('exec','-e','MC_HOST_f=http://'+user+':'+password+'@127.0.0.1:9000',container,'mc','--quiet',*args)
+from s3_client import S3
 def expect_failure(action,message):
  try:action()
  except (RuntimeError,FileExistsError,tarfile.TarError) as e:
@@ -53,8 +52,8 @@ def ok(name):checks.append(name);print('[TEST]',name,'— PASS',flush=True)
 def main(sql_path):
  live_before=compose_state()
  network=own('network',prefix+'-net');docker('network','create','--internal',network)
- app_pw,kcdb_pw,admin_pw,minio_pw=(secrets.token_hex(24) for _ in range(4))
- app=prefix+'-app';kcdb=prefix+'-kcdb';kc=own('container',prefix+'-kc');minio=prefix+'-minio';volume=own('volume',prefix+'-objects')
+ app_pw,kcdb_pw,admin_pw,seaweed_pw=(secrets.token_hex(24) for _ in range(4))
+ app=prefix+'-app';kcdb=prefix+'-kcdb';kc=own('container',prefix+'-kc');seaweed=prefix+'-seaweed';volume=own('volume',prefix+'-objects')
  postgres(app,network,'fixture','buildingflow',app_pw)
  with open(sql_path,'rb') as f:
   r=subprocess.run(['docker','exec','-i',app,'psql','-U','fixture','-d','buildingflow','-v','ON_ERROR_STOP=1','-q'],stdin=f,capture_output=True)
@@ -67,26 +66,26 @@ def main(sql_path):
  keycloak(kc,network,kcdb,'keycloak','keycloak',kcdb_pw,admin_pw)
  kcadm(kc,admin_pw,'create','realms','-s','realm='+REALM,'-s','enabled=true')
  kcadm(kc,admin_pw,'create','users','-r',REALM,'-s','username=fixture-user','-s','email=fixture-user@example.test','-s','enabled=true')
- docker('run','-d','--name',own('container',minio),'--network','none','-e','MINIO_ROOT_USER=fixture','-e','MINIO_ROOT_PASSWORD','--mount','type=volume,src='+volume+',dst=/data',br.MINIO_IMAGE,'server','/data',env=dict(os.environ,MINIO_ROOT_PASSWORD=minio_pw))
- wait(lambda:mc(minio,'fixture',minio_pw,'ls','f') is not None,'MinIO fixture')
- mc(minio,'fixture',minio_pw,'mb','f/buildingflow-test-fixture')
+ storage_network=own('network',prefix+'-s3-net');docker('network','create',storage_network)
+ docker('run','-d','--name',own('container',seaweed),'--network',storage_network,'-p','127.0.0.1::8333','-e','AWS_ACCESS_KEY_ID=fixture','-e','AWS_SECRET_ACCESS_KEY','-e','S3_BUCKET=buildingflow-test-fixture','--mount','type=volume,src='+volume+',dst=/data',br.SEAWEED_IMAGE,'mini','-dir=/data','-admin.ui=false','-webdav=false','-s3.iam.readOnly=true',env=dict(os.environ,AWS_SECRET_ACCESS_KEY=seaweed_pw))
+ storage_url='http://'+docker('port',seaweed,'8333').decode().strip();storage=S3(storage_url,'fixture',seaweed_pw)
+ wait(lambda:storage.buckets() is not None,'SeaweedFS fixture')
  objects={}
  for key,size in (('documents/a.pdf',4096),('documents/b.png',70000),('c.bin',1)):
-  docker('exec',minio,'sh','-c',f'head -c {size} /dev/urandom > /tmp/upload')
-  mc(minio,'fixture',minio_pw,'cp','/tmp/upload','f/buildingflow-test-fixture/'+key)
-  objects[key]=hashlib.sha256(mc(minio,'fixture',minio_pw,'cat','f/buildingflow-test-fixture/'+key)).hexdigest()
+  storage.put('buildingflow-test-fixture',key,os.urandom(size),'application/octet-stream')
+  objects[key]=hashlib.sha256(storage.get('buildingflow-test-fixture',key)[0]).hexdigest()
  ok(f'Fixture: {migrations} migrations + 2 rows, Keycloak realm/user, {len(objects)} objects')
  databases={'application':(app,'fixture','buildingflow'),'keycloak':(kcdb,'keycloak','keycloak')}
  work=pathlib.Path(tempfile.mkdtemp(prefix=prefix+'-files-'))
  try:
-  expect_failure(lambda:br.backup(work/'running',databases,volume,[kc,minio]),'must be stopped');assert not (work/'running').exists()
-  ok('Backup refused while Keycloak/MinIO writers run')
-  docker('stop',kc);docker('stop',minio)
-  backup=work/'backup';manifest=br.backup(backup,databases,volume,[kc,minio])
+  expect_failure(lambda:br.backup(work/'running',databases,volume,[kc,seaweed]),'must be stopped');assert not (work/'running').exists()
+  ok('Backup refused while Keycloak/SeaweedFS writers run')
+  docker('stop',kc);docker('stop',seaweed)
+  backup=work/'backup';manifest=br.backup(backup,databases,volume,[kc,seaweed])
   assert oct(backup.stat().st_mode&0o777)=='0o700' and all(oct(f.stat().st_mode&0o777)=='0o600' for f in backup.iterdir())
-  assert set(manifest['sha256'])=={'application.dump','keycloak.dump','minio.tar.gz'} and manifest['minioFiles']
+  assert set(manifest['sha256'])=={'application.dump','keycloak.dump','seaweed.tar.gz','storage-auth.json'} and manifest['seaweedFiles']
   ok('Quiesced backup: SHA256 manifest, 0700 folder / 0600 files')
-  expect_failure(lambda:br.backup(backup,databases,volume,[kc,minio]),None);ok('Existing backup folder is never overwritten')
+  expect_failure(lambda:br.backup(backup,databases,volume,[kc,seaweed]),None);ok('Existing backup folder is never overwritten')
   def variant(name,mutate,message):
    copy=work/name;shutil.copytree(backup,copy);mutate(copy);expect_failure(lambda:br.validate_backup(copy),message);expect_failure(lambda:br.restore_check(copy),message)
   def flip(copy):
@@ -105,8 +104,12 @@ def main(sql_path):
    rows=br.sql(ctx['postgres'],'restore','application',"SELECT name||'|'||version||'|'||is_deleted FROM properties ORDER BY name;").splitlines()
    assert rows==['Restore Fixture A|3|false','Restore Fixture B|1|true'],'restored rows differ'
    assert int(br.sql(ctx['postgres'],'restore','application','SELECT count(*) FROM "__EFMigrationsHistory";'))==migrations
-   wait(lambda:mc(ctx['minio'],ctx['minioUser'],ctx['password'],'ls','f') is not None,'Restored MinIO')
-   seen['objects']={k:hashlib.sha256(mc(ctx['minio'],ctx['minioUser'],ctx['password'],'cat','f/buildingflow-test-fixture/'+k)).hexdigest() for k in objects}
+   restored=S3(ctx['storageUrl'],'fixture',seaweed_pw)
+   wait(lambda:restored.buckets() is not None,'Restored SeaweedFS')
+   seen['objects']={k:hashlib.sha256(restored.get('buildingflow-test-fixture',k)[0]).hexdigest() for k in objects}
+   import urllib.request,urllib.error
+   try:urllib.request.urlopen(ctx['storageUrl'],timeout=5);raise AssertionError('Restored S3 allowed anonymous access')
+   except urllib.error.HTTPError as e:assert e.code==403
    restored_kc=ctx['postgres'].replace('-pg','-kc');ctx['register'](('container',restored_kc))
    keycloak(restored_kc,ctx['network'],ctx['postgres'],'keycloak',ctx['postgresUser'],ctx['password'],admin_pw)
    users=json.loads(kcadm(restored_kc,admin_pw,'get','users','-r',REALM,'-q','username=fixture-user'))

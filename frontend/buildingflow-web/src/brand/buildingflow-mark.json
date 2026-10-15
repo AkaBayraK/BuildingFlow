@@ -1,0 +1,12 @@
+{
+  "viewBox": "0 0 128 128",
+  "strokeWidth": 7.2,
+  "colors": { "navy": "#082B49", "blue": "#2384B5", "teal": "#58A5B1" },
+  "paths": [
+    { "d": "M94 51 L105 57 V110", "tone": "teal" },
+    { "d": "M27 111 V58 L34 52 L39 55", "tone": "navy" },
+    { "d": "M46 111 V28 L64 16 L82 28 V112 H116", "tone": "navy" },
+    { "d": "M14 112 H56 L66 101 V75", "tone": "navy" },
+    { "d": "M66 101 V66", "tone": "blue" }
+  ]
+}

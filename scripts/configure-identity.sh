@@ -26,11 +26,11 @@ for attempt in {1..60}; do
   if curl -fsS "http://localhost:${KEYCLOAK_PORT}/realms/buildingflow/.well-known/openid-configuration" >/dev/null 2>&1; then break; fi
   sleep 1
 done
-docker compose --env-file .env -f deploy/docker-compose.yml exec -T -e BF_WEB_PORT="$WEB_PORT" -e BF_DEV_USERNAME="$BUILDINGFLOW_DEV_USERNAME" -e BF_DEV_EMAIL="$BUILDINGFLOW_DEV_EMAIL" -e BF_DEV_PASSWORD="$BUILDINGFLOW_DEV_PASSWORD" keycloak sh -ec '
+docker exec -i -e BF_WEB_PORT="$WEB_PORT" -e BF_DEV_USERNAME="$BUILDINGFLOW_DEV_USERNAME" -e BF_DEV_EMAIL="$BUILDINGFLOW_DEV_EMAIL" -e BF_DEV_PASSWORD="$BUILDINGFLOW_DEV_PASSWORD" "${KEYCLOAK_INTERNAL_HOST:-keycloak-26.7.5}" sh -ec '
   cfg=$(mktemp)
   trap '\''rm -f "$cfg"'\'' EXIT
   kc=/opt/keycloak/bin/kcadm.sh
-  "$kc" config credentials --config "$cfg" --server http://localhost:8080 --realm master --user "$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$KC_BOOTSTRAP_ADMIN_PASSWORD" >/dev/null 2>&1
+  "$kc" config credentials --config "$cfg" --server http://localhost:8080 --realm master --user "$SHARED_ADMIN_USERNAME" --password "$SHARED_ADMIN_PASSWORD" >/dev/null 2>&1
   "$kc" update realms/buildingflow --config "$cfg" -s loginTheme=buildingflow -s resetPasswordAllowed=true -s internationalizationEnabled=true -s '\''supportedLocales=["tr","en"]'\'' -s defaultLocale=tr -s actionTokenGeneratedByUserLifespan=600 -s '\''passwordPolicy="length(12) and digits(1) and upperCase(1) and lowerCase(1)"'\'' -s '\''smtpServer={"host":"mailpit","port":"1025","from":"no-reply@buildingflow.local","fromDisplayName":"BuildingFlow","auth":"false","ssl":"false","starttls":"false"}'\''
   id=$("$kc" get clients --config "$cfg" -r buildingflow -q clientId=buildingflow-web --fields id --format csv --noquotes)
   "$kc" update "clients/$id" --config "$cfg" -r buildingflow -s "redirectUris=[\"http://localhost:$BF_WEB_PORT/\",\"http://localhost:$BF_WEB_PORT/login\"]" -s "webOrigins=[\"http://localhost:$BF_WEB_PORT\"]" -s "attributes.\"post.logout.redirect.uris\"=http://localhost:$BF_WEB_PORT/login"

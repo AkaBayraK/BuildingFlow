@@ -40,4 +40,10 @@ public sealed class PeopleDomainTests
         Assert.Throws<ArgumentException>(() => new UnitOccupancy(id, id, id, (OccupancyType)99, day));
         Assert.Throws<ArgumentException>(() => new UnitOccupancy(id, id, id, OccupancyType.OWNER, day, day.AddDays(-1)));
     }
+    [Theory][InlineData("NATURAL","DOMESTIC","TR","12345678901")][InlineData("LEGAL","DOMESTIC","TR","1234567890")][InlineData("NATURAL","FOREIGN","GB","P1234567")][InlineData("LEGAL","FOREIGN","GB","GB-REG-1")]
+    public void PersonProfilesAcceptFourKinds(string kind,string citizenship,string country,string number)
+    {var p=new Person(Guid.NewGuid(),"Fixture","Example");p.SetProfile(kind,citizenship,country,number,null,null," Address ",null);Assert.Equal(number,p.IdentityNumber);Assert.Equal("Address",p.Address);}
+    [Theory][InlineData("NATURAL","DOMESTIC","TR","bad")][InlineData("LEGAL","DOMESTIC","TR","123")][InlineData("NATURAL","FOREIGN","TR","P1234567")][InlineData("OTHER","FOREIGN","GB","P1234567")]
+    public void InvalidProfileDoesNotOverwriteExistingState(string kind,string citizenship,string country,string number)
+    {var p=new Person(Guid.NewGuid(),"Fixture","Example");p.SetProfile("NATURAL","DOMESTIC","TR","12345678901",null,null,null,null);Assert.Throws<ArgumentException>(()=>p.SetProfile(kind,citizenship,country,number,null,null,null,null));Assert.Equal("12345678901",p.IdentityNumber);}
 }

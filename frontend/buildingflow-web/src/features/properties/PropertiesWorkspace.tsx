@@ -20,12 +20,15 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { useIdentity } from "@/auth/AuthGate";
 import { ApiError, errorMessage, type Property, type PropertyPage, type PropertyType, propertyTypeNames, useAuthorizedApi } from "@/services/api";
 
+import {detailFields,detailValues,detailPayload,validateDetailValues,buildingDetailFields,neighborhoodField} from "@/features/property-details/model";
+import {DetailInputs,DetailValue} from "@/features/property-details/DetailFields";
+import {parseProperty,parsePropertyPage} from "@/services/management-contracts";
 const fieldDefinitions=[{key:"name",label:"propertyName",max:200,placeholder:"eGMapleCommunity"},{key:"city",label:"city",max:100,placeholder:"eGIstanbul"},{key:"district",label:"district",max:100,placeholder:"eGKadikoy"},{key:"address",label:"address",max:500,placeholder:"neighborhoodStreetAndBuildingNumber"}] as const;
 const empty={name:"",city:"",district:"",address:""};
-const columnNames:Record<string,string>={address:"address",createdAt:"registrationDate"};
+const columnNames:Record<string,string>={address:"address",createdAt:"registrationDate",neighborhood:"neighborhood",...Object.fromEntries(buildingDetailFields.map(f=>[f.key,f.label]))};
 
 export function PropertiesWorkspace({destination}:{destination?:"units"|"people"|"dues"|"payments"|"expenses"|"announcements"|"documents"|"meters"|"reports"}={}) {
-  const t=useTranslations("ui"); const locale=useLocale();const notification=useNotification();
+  const t=useTranslations("ui");const codes=useTranslations("apiErrors"); const locale=useLocale();const notification=useNotification();
 
   const fields=fieldDefinitions.map(field=>({...field,label:t(field.label),placeholder:t(field.placeholder)}));
   const identity=useIdentity();
@@ -34,7 +37,7 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
   const [open,setOpen]=useState(false);
   const [values,setValues]=useState(empty);
   const [propertyType,setPropertyType]=useState<PropertyType>("APARTMENT");
-  const [floorCount,setFloorCount]=useState("");
+  const [floorCount,setFloorCount]=useState("");const [features,setFeatures]=useState(()=>detailValues(null,"property"));
   const [errors,setErrors]=useState<Record<string,string[]>>({});
   const [saving,setSaving]=useState(false);
   const lock=useRef(false);
@@ -45,7 +48,7 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
   const [loading,setLoading]=useState(true);
   const [pagination,setPagination]=useState<PaginationState>({pageIndex:0,pageSize:10});
   const [sorting,setSorting]=useState<SortingState>([{id:"name",desc:false}]);
-  const [visibility,setVisibility]=useState<VisibilityState>({address:false});
+  const [visibility,setVisibility]=useState<VisibilityState>({address:false,constructionYear:false,heatingType:false,hasElevator:false,parkingType:false});
   const [term,setTerm]=useState("");
   const [search,setSearch]=useState("");
   const [revision,setRevision]=useState(0);
@@ -57,7 +60,7 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
     const controller=new AbortController();setLoading(true);setListError("");
     const sort=sorting[0] ?? {id:"name",desc:false};
     const query=new URLSearchParams({page:String(pagination.pageIndex+1),pageSize:String(pagination.pageSize),search,sortBy:sort.id,sortDirection:sort.desc ? "desc" : "asc"});
-    void api<PropertyPage>(`/api/v1/properties?${query}`,{signal:controller.signal})
+    void api<unknown>(`/api/v1/properties?${query}`,{signal:controller.signal}).then(parsePropertyPage)
       .then(result=>{if(!controller.signal.aborted)setData(result);})
       .catch(error=>{if(!controller.signal.aborted)setListError(errorMessage(error,locale));})
       .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
@@ -77,12 +80,13 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
       else if(value.length>field.max)validation[field.key]=[t("fieldMaxCharacters",{field:field.label,max:field.max})];
     }
     if(propertyType==="APARTMENT" && floorCount && (!Number.isInteger(Number(floorCount)) || Number(floorCount)<=0 || Number(floorCount)>2147483647))validation.floorCount=[t("theNumberOfFloorsMustBeAPositiveInteger")];
+    for(const [key,code] of Object.entries(validateDetailValues(features,"property",propertyType)))validation[key]=[code.startsWith("BF_")?codes(code):t(code)];
     setErrors(validation);setFormError("");
     if(Object.keys(validation).length){document.getElementById(`site-${Object.keys(validation)[0]}`)?.focus();return;}
     lock.current=true;setSaving(true);
     try {
-      const result=await api<Property>("/api/v1/properties",{method:"POST",body:JSON.stringify({...values,type:propertyType,floorCount:propertyType==="APARTMENT" && floorCount?Number(floorCount):null})});
-      notification.success(t("propertyCreated",{name:result.name}));setCreated(result);setValues(empty);setFloorCount("");setOpen(false);setTerm("");setSearch("");
+      const result=parseProperty(await api<unknown>("/api/v1/properties",{method:"POST",body:JSON.stringify({...values,...detailPayload(features,"property",propertyType),type:propertyType,floorCount:propertyType==="APARTMENT" && floorCount?Number(floorCount):null})}));
+      notification.success(t("propertyCreated",{name:result.name}));setCreated(result);setValues(empty);setFloorCount("");setFeatures(detailValues(null,"property"));setOpen(false);setTerm("");setSearch("");
       setPagination(value=>({...value,pageIndex:0}));setRevision(value=>value+1);
     } catch(error) {
       if(error instanceof ApiError)setErrors(error.errors);
@@ -94,6 +98,7 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
     {id:"type",enableHiding:false,enableSorting:false,header:t("typeStructure"),cell:({row})=><div className="min-w-40"><Badge variant="secondary" className="bg-blue-50 text-primary">{t(propertyTypeNames[row.original.type])}</Badge><span className="mt-2 block text-xs text-muted-foreground">{row.original.type==="APARTMENT"?t("apartmentSummary",{floors:row.original.floorCount ?? "—",units:row.original.unitCount}):t("buildingSummary",{buildings:row.original.buildingCount,units:row.original.unitCount})}</span></div>},
     {accessorKey:"city",enableHiding:false,header:({column})=><SortHeading title={t("location")} direction={column.getIsSorted()} onClick={()=>column.toggleSorting(column.getIsSorted()==="asc")}/>,cell:({row})=><div className="min-w-32"><span className="font-medium text-slate-700">{row.original.city}</span><span className="mt-1 block text-xs text-muted-foreground">{row.original.district}</span></div>},
     {accessorKey:"address",enableSorting:false,header:t("address"),cell:({row})=><span className="block max-w-52 truncate text-muted-foreground" title={row.original.address}>{row.original.address}</span>},
+    ...[neighborhoodField,...buildingDetailFields].map(f=>({id:f.key,header:t(f.label),enableSorting:false,cell:({row}:{row:{original:Property}})=><DetailValue field={f} value={(row.original as unknown as Record<string,unknown>)[f.key]}/>})),
     {accessorKey:"createdAt",header:({column})=><SortHeading title={t("registrationDate")} direction={column.getIsSorted()} onClick={()=>column.toggleSorting(column.getIsSorted()==="asc")}/>,cell:({row})=><span className="text-xs text-muted-foreground">{formatDate(row.original.createdAt,locale)}</span>},
     {accessorKey:"isEnabled",enableSorting:false,enableHiding:false,header:t("status"),cell:({row})=><Badge variant="secondary" className={row.original.isEnabled ? "gap-1.5 border border-emerald-100 bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}><span className={`size-1.5 rounded-full ${row.original.isEnabled ? "bg-emerald-500" : "bg-slate-400"}`}/>{row.original.isEnabled ? t("active") : t("inactive")}</Badge>},
     {id:"actions",enableSorting:false,enableHiding:false,header:()=><span className="sr-only">{t("details")}</span>,cell:({row})=><Button variant="ghost" size="icon" asChild><Link href={`/properties/${row.original.id}${destination?`/${destination}`:""}`} aria-label={destination?t("openPropertyModule",{name:row.original.name,module:t(destination==="meters"?"navMeters":destination==="reports"?"navReports":destination==="units"?"navUnits":destination==="people"?"people":destination==="announcements"?"navAnnouncements":destination==="documents"?"navDocuments":destination==="expenses"?"navExpenses":destination==="payments"?"navPayments":"navDues")}):t("viewRecord",{name:row.original.name})}><ArrowUpRight className="size-4"/></Link></Button>}
@@ -120,6 +125,7 @@ export function PropertiesWorkspace({destination}:{destination?:"units"|"people"
         <div><Label className="mb-3">{t("whatWouldYouLikeToManage")}</Label><div className="grid grid-cols-2 gap-3">{(Object.keys(propertyTypeNames) as PropertyType[]).map(type=><Button type="button" key={type} variant="outline" aria-pressed={propertyType===type} className={`h-auto flex-col items-start whitespace-normal rounded-xl px-4 py-3 text-left ${propertyType===type?"border-primary bg-blue-50 text-primary":"bg-white"}`} onClick={()=>{setPropertyType(type);setErrors(previous=>({...previous,type:[]}));}}><Building2 className="size-5"/><strong>{t(propertyTypeNames[type])}</strong><span className="text-[11px] font-normal text-muted-foreground">{type==="APARTMENT"?t("oneBuildingDirectUnits"):type==="SITE"?t("buildingBlockUnits"):type==="RESIDENCE"?t("towerBlockUnits"):t("apartmentsOfficesCommercialUnits")}</span></Button>)}</div></div>
         <div className="grid gap-5 sm:grid-cols-2">{fields.map(field=><div className={`space-y-2 ${field.key==="name" || field.key==="address" ? "sm:col-span-2" : ""}`} key={field.key}><Label htmlFor={`site-${field.key}`} className="text-sm font-semibold text-slate-700">{field.label}<span className="text-muted-foreground">*</span></Label>{field.key==="address" ? <Textarea id={`site-${field.key}`} value={values[field.key]} onChange={event=>updateField(field.key,event.target.value)} placeholder={field.placeholder} maxLength={field.max} required aria-invalid={!!errors[field.key]} aria-describedby={errors[field.key] ? `error-${field.key}` : undefined} className="min-h-24 resize-y rounded-lg bg-white"/> : <Input id={`site-${field.key}`} value={values[field.key]} onChange={event=>updateField(field.key,event.target.value)} placeholder={field.placeholder} maxLength={field.max} required aria-invalid={!!errors[field.key]} aria-describedby={errors[field.key] ? `error-${field.key}` : undefined} className="h-11 rounded-lg bg-white"/>}{errors[field.key] && <FieldError id={`error-${field.key}`}>{errors[field.key].join(" ")}</FieldError>}</div>)}</div>
         {propertyType==="APARTMENT" && <div className="space-y-2"><Label htmlFor="site-floorCount">{t("numberOfFloorsOptional")}</Label><Input id="site-floorCount" type="number" step="1" min="1" value={floorCount} onChange={event=>{setFloorCount(event.target.value);setErrors(previous=>({...previous,floorCount:[]}));}} aria-invalid={!!errors.floorCount?.length} aria-describedby={errors.floorCount?.length?"site-floorCount-error":undefined}/>{errors.floorCount?.length?<FieldError id="site-floorCount-error">{errors.floorCount.join(" ")}</FieldError>:null}<p className="text-xs leading-6 text-muted-foreground">{t("addApartmentsIndividuallyAfterSavingTheApartmentCountComes")}</p></div>}
+        <section className="space-y-4 border-t pt-5"><h3 className="text-sm font-semibold">{t("buildingDetailFeatures")}</h3><DetailInputs prefix="site" fields={detailFields("property",propertyType)} values={features} errors={errors} onChange={(key,value)=>{setFeatures(previous=>({...previous,[key]:value}));setErrors(previous=>({...previous,[key]:[]}));}}/>{propertyType!=="APARTMENT"&&<p className="text-xs leading-5 text-muted-foreground">{t("buildingFeaturesOnBlocks")}</p>}</section>
         <p className="text-xs text-muted-foreground">{t("fieldsMarkedWithAnAsteriskAreRequired")}</p><DialogFooter className="border-t pt-5"><Button type="button" variant="outline" disabled={saving} onClick={()=>setOpen(false)}>{t("cancel")}</Button><Button type="submit" disabled={saving} className="min-w-32">{saving ? <><LoaderCircle className="size-4 animate-spin"/>{t("saving")}</> : <><Plus className="size-4"/>{t("create")}</>}</Button></DialogFooter>
       </fieldset></form>
     </ManagementPanel></Dialog>

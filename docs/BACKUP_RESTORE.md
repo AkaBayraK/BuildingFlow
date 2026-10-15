@@ -8,20 +8,20 @@
 | --- | --- | --- |
 | Uygulama PostgreSQL (`postgres`) | `pg_dump --format=custom --no-owner --no-acl` | Dump öncesi/sonrası tablo satır parmak izi aynı olmalı |
 | Keycloak PostgreSQL (`keycloak-db`) | aynı | Kullanıcı, realm, istemci ve kimlik bilgisi hash'leri burada |
-| MinIO verisi (`/data` named volume) | Durdurulmuş volume'un salt-okunur `tar.gz` cold snapshot'ı | Nesne bazında SHA256 listesi manifest'e yazılır |
+| SeaweedFS verisi (`/data` named volume) | Durdurulmuş volume'un salt-okunur `tar.gz` cold snapshot'ı | Nesne bazında SHA256 listesi manifest'e yazılır |
 
-SQL dump tek başına yeterli değildir: belge metadata'sı uygulama DB'sinde, dosyanın kendisi MinIO'da, kullanıcı kimliği Keycloak DB'sindedir. Üçü aynı bakım penceresinde alınır.
+SQL dump tek başına yeterli değildir: belge metadata'sı uygulama DB'sinde, dosyanın kendisi SeaweedFS'da, kullanıcı kimliği Keycloak DB'sindedir. Üçü aynı bakım penceresinde alınır.
 
 ## Yedek alma (bakım penceresi)
 
-1. API, worker, web, Keycloak ve MinIO'yu durdurun; yerel `dotnet run` süreçleri dahil başka yazıcı kalmamalı. PostgreSQL konteynerleri çalışır kalır.
+1. API, worker, web, Keycloak ve SeaweedFS'yu durdurun; yerel `dotnet run` süreçleri dahil başka yazıcı kalmamalı. PostgreSQL konteynerleri çalışır kalır.
 2. Yedek klasörü yeni olmalı; araç var olan klasörün üzerine yazmaz.
 
 ```bash
 python3 scripts/backup_restore.py backup --confirm-maintenance --output /güvenli/konum/buildingflow-2026-10-11
 ```
 
-3. Çıktı: `application.dump`, `keycloak.dump`, `minio.tar.gz`, `manifest.json` (SHA256 + DB parmak izleri + nesne listesi). Klasör `0700`, dosyalar `0600`. Hata olursa `INCOMPLETE` işareti bırakılır; bu klasör geri yüklenemez.
+3. Çıktı: `application.dump`, `keycloak.dump`, `seaweed.tar.gz`, `storage-auth.json`, `manifest.json` (SHA256 + DB parmak izleri + nesne listesi). Klasör `0700`, dosyalar `0600`. Hata olursa `INCOMPLETE` işareti bırakılır; bu klasör geri yüklenemez.
 4. Servisleri yeniden başlatın. Yedekler kişisel veri ve parola hash'leri içerir: şifreli ortamda saklayın, Git'e, CI artifact'ine veya paylaşımlı klasöre koymayın.
 
 Araç çalışan yazıcı konteyner görürse veya dump sırasında DB parmak izi değişirse durur.
@@ -36,10 +36,22 @@ Manifest, sürümler ve tüm SHA256'lar kontrol edilir; ardından **yalnız yeni
 
 ## Gerçek geri dönüş
 
-Restore her zaman **yeni ve boş** bir hedefe yapılır; canlı volume'un üzerine yazılmaz. Önce `restore-check` geçmelidir. Ardından yeni PostgreSQL örneğinde iki boş DB'ye `pg_restore --no-owner --no-acl --exit-on-error`, yeni bir MinIO volume'una `tar -xzf`; uygulama bağlantıları yeni hedefe çevrilir ve doğrulandıktan sonra eski ortam emekliye ayrılır. Migration'lar yedekteki sürümden ileri gitmez; uygulama sürümü yedeğin alındığı sürümle eşleşmelidir.
+Restore her zaman **yeni ve boş** bir hedefe yapılır; canlı volume'un üzerine yazılmaz. Önce `restore-check` geçmelidir. Ardından yeni PostgreSQL örneğinde iki boş DB'ye `pg_restore --no-owner --no-acl --exit-on-error`, yeni bir SeaweedFS volume'una `tar -xzf`; uygulama bağlantıları yeni hedefe çevrilir ve doğrulandıktan sonra eski ortam emekliye ayrılır. Migration'lar yedekteki sürümden ileri gitmez; uygulama sürümü yedeğin alındığı sürümle eşleşmelidir.
 
 ## Sınırlar
 
 - Bu turda canlı/yerel kullanıcı verisinin yedeği alınmadı ve hiçbir canlı hedefe restore yapılmadı; doğrulama kendi fixture'ıyla yapıldı.
 - Yedek tutarlılığı bakım penceresine dayanır (online/PITR yok). Saklama süresi, şifreleme anahtarı yönetimi ve uzak kopya hedef ortamda belirlenir.
 - Redis ve RabbitMQ yedeklenmez: önbellek ve geçici kuyruklardır; kalıcı mesaj durumu PostgreSQL outbox/inbox tablolarındadır.
+
+## Yerel ortak PostgreSQL 18.6 (12.10.2026)
+
+Yerel veriler bağımsız `../postgres-18.6` projesindeki `projects` veritabanına
+taşındı; uygulama `buildingflow`, kimlik `buildingflow_keycloak` şemasındadır.
+Yerel ortak yedek `bash ../postgres-18.6/scripts/backup.sh` ile alınır.
+Eski proje bazlı PostgreSQL yedeği/restore yöntemi ortak DB üzerinde uygulanmaz.
+Nesne deposu SeaweedFS ayrıca yedeklenir. Ortak README, kesim/geri dönüş/izolasyon
+kanıtının kaynağıdır. PostgreSQL18.6 ve pgvector0.8.7 PostgreSQL License kullanır;
+uygulama paket/lock bağımlılıkları bu düzenlemede değişmedi.
+
+14.10.2026 format2: SeaweedFS4.48 volume snapshot ve özel storage-auth.json birlikte korunur. Bu JSON S3 erişim anahtarlarını içerir;0700/0600 ve dış ortam şifrelemesi zorunludur. Restore aynı yetkileri kurar; anonim erişim kapalı kalır. Eski MinIO format1 arşivi SeaweedFS volume’una açılamaz; özgün ortamda izole S3 taşımasıyla yeni format2 yedeği üretilmelidir. Eski kaynak arşiv/volume otomatik silinmez. Shared PostgreSQL için ortak postgres-18.6 yedek akışı korunur; nesne snapshot’ı ayrı aynı bakım penceresinde alınır.

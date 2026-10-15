@@ -13,15 +13,14 @@ load_env() {
   set +a
 }
 backend_env() {
-  export ConnectionStrings__Database="Host=localhost;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+  export ConnectionStrings__Database="Host=${POSTGRES_LOCAL_HOST:-localhost};Port=${POSTGRES_PORT};Search Path=${POSTGRES_SCHEMA:-buildingflow},extensions;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
   export Authentication__Authority="http://localhost:${KEYCLOAK_PORT}/realms/buildingflow"
   export Authentication__Audience=buildingflow-api
   export Cors__Origins__0="http://localhost:${WEB_PORT}"
-  export MinIO__Endpoint="127.0.0.1:${MINIO_PORT}"
-  export MinIO__AccessKey="${MINIO_ROOT_USER}"
-  export MinIO__SecretKey="${MINIO_ROOT_PASSWORD}"
-  export MinIO__Bucket="${MINIO_BUCKET:-buildingflow-documents}"
-  export MinIO__UseSSL=false
+  export ObjectStorage__Endpoint="http://127.0.0.1:${OBJECT_STORAGE_PORT:-9040}"
+  export ObjectStorage__AccessKey="${OBJECT_STORAGE_ACCESS_KEY}"
+  export ObjectStorage__SecretKey="${OBJECT_STORAGE_SECRET_KEY}"
+  export ObjectStorage__Bucket="buildingflow-documents"
   export ASPNETCORE_ENVIRONMENT=Development
   export ASPNETCORE_URLS="http://localhost:${API_PORT}"
   export Telemetry__Enabled="${BUILDINGFLOW_TELEMETRY_ENABLED:-true}"
@@ -81,7 +80,9 @@ case "$mode" in
     require docker
     bash scripts/init-local.sh
     docker compose --env-file .env -f deploy/docker-compose.yml stop buildingflow-web buildingflow-api
-    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait postgres keycloak redis rabbitmq minio grafana mailpit otel-collector prometheus loki blackbox
+    bash ../keycloak-26.7.5/scripts/up.sh
+    python3 scripts/configure-object-storage.py
+    docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait redis rabbitmq seaweedfs-s3 grafana mailpit otel-collector prometheus loki blackbox
     bash scripts/configure-identity.sh
     ;;
   prepare)
@@ -104,6 +105,9 @@ case "$mode" in
     load_env
     check_api_port
     backend_env
+    # Entity changes become a migration first; the API applies pending migrations on startup (Database__AutoMigrate).
+    bash scripts/db.sh sync
+    export Database__AutoMigrate="${BUILDINGFLOW_AUTO_MIGRATE:-true}"
     cd backend
     exec dotnet run --project src/BuildingFlow.Api --no-launch-profile
     ;;

@@ -32,16 +32,16 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     }
     private static async Task<PersonResponse> Person(HttpClient client, Guid property, string first = "Ada")
     {
-        var response = await client.PostAsJsonAsync(Root(property) + "/people", new CreatePersonRequest(first, "Kaya", "+90 555 123", "ada@example.test"));
+        var response = await client.PostAsJsonAsync(Root(property) + "/people", new CreatePersonRequest(first, "Kaya", "+90 555 123", "ada@example.test", "NATURAL", "DOMESTIC", "TR", "12345678901"));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode); return (await response.Content.ReadFromJsonAsync<PersonResponse>())!;
     }
     private static CreateOccupancyRequest Link(PersonResponse person, Unit unit, string role = "OWNER", bool primary = false, DateOnly? end = null) => new(person.Id, unit.Id, role, Today.AddDays(-10), end, primary);
-    private static UpdatePersonRequest Edit(PersonResponse person, bool enabled = true) => new("Edited", person.LastName, person.PhoneNumber, person.Email, enabled, person.Version);
+    private static UpdatePersonRequest Edit(PersonResponse person, bool enabled = true) => new("Edited", person.LastName, person.PhoneNumber, person.Email, enabled, person.Version, person.PersonKind, person.Citizenship, person.CountryCode, person.IdentityNumber, person.BirthDate, person.Gender, person.Address, person.LinkedUserId);
 
     [PostgresFact] public async Task AnonymousIsRejectedBeforePersonalDataAccess()
     {
         using var client = TestToken.Client(factory, null, ""); var root = Root(Guid.NewGuid());
-        foreach (var path in new[] { "/people", "/people/" + Guid.NewGuid(), "/occupancies", "/occupancies/" + Guid.NewGuid(), "/unit-choices" }) Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(root + path)).StatusCode);
+        foreach (var path in new[] { "/people", "/people/" + Guid.NewGuid(), "/occupancies", "/occupancies/" + Guid.NewGuid(), "/unit-choices", "/unit-parties?unitIds=" + Guid.NewGuid() }) Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(root + path)).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(root + "/people", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(root + "/occupancies", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PutAsJsonAsync(root + "/occupancies/" + Guid.NewGuid() + "/end", new { })).StatusCode);
@@ -50,7 +50,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     public async Task ReadOnlyAndForgedRolesCannotReadOrWritePersonalData(string role)
     {
         var x = await Seed(); using var client = TestToken.Client(factory, x.Actor, role); var root = Root(x.Property.Id);
-        foreach (var path in new[] { "/people", "/occupancies", "/unit-choices" }) Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(root + path)).StatusCode);
+        foreach (var path in new[] { "/people", "/occupancies", "/unit-choices", "/unit-parties?unitIds=" + Guid.NewGuid() }) Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(root + path)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(root + "/people", new CreatePersonRequest("A", "B"))).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(root + "/occupancies", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync(root + "/people/" + Guid.NewGuid() + "?version=1")).StatusCode);
@@ -59,7 +59,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     public async Task ManagersCanCrudPeopleWithTrustedAuditAndVersion(string role)
     {
         var x = await Seed(); using var client = TestToken.Client(factory, x.Actor, role); var root = Root(x.Property.Id);
-        var response = await client.PostAsJsonAsync(root + "/people", new { firstName = " Ada ", lastName = " Kaya ", createdBy = "forged", propertyId = Guid.NewGuid(), isDeleted = true });
+        var response = await client.PostAsJsonAsync(root + "/people", new { firstName = " Ada ", lastName = " Kaya ", phoneNumber="+905551234567", email="ada@example.test",personKind="NATURAL",citizenship="DOMESTIC",countryCode="TR",identityNumber="12345678901", createdBy = "forged", propertyId = Guid.NewGuid(), isDeleted = true });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode); var person = (await response.Content.ReadFromJsonAsync<PersonResponse>())!;
         Assert.Equal("Ada", person.FirstName); Assert.Equal(x.Property.Id, person.PropertyId); Assert.Equal(1, person.Version);
         Assert.Equal(root + "/people/" + person.Id, response.Headers.Location!.ToString());
@@ -151,7 +151,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         Assert.Equal(HttpStatusCode.OK, (await client.PutAsJsonAsync(root + "/people/" + p.Id, Edit(p,false))).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync(root + "/occupancies",Link(p,x.Unit))).StatusCode);
         await factory.WithDb(async db => { (await db.Properties.SingleAsync(value => value.Id==x.Property.Id)).SetEnabled(false); await db.SaveChangesAsync(); });
-        Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync(root+"/people",new CreatePersonRequest("A","B"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync(root+"/people",new CreatePersonRequest("A","B","+905551234567","a@example.test","NATURAL","DOMESTIC","TR","12345678901"))).StatusCode);
     }
     [PostgresFact] public async Task DatabaseRejectsCrossPropertyForeignKeysAndInvalidDates()
     {

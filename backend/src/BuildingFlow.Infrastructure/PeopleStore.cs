@@ -33,14 +33,25 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
     {
         var today = Today;
         return query.Select(value => new PersonResponse(value.Id, value.PropertyId, value.FirstName, value.LastName, value.PhoneNumber,
-            value.Email, value.IsEnabled, value.Version, value.CreatedAt, db.UnitOccupancies.Count(link => link.PersonId == value.Id && link.StartDate <= today && (link.EndDate == null || link.EndDate >= today))));
+            value.Email, value.IsEnabled, value.Version, value.CreatedAt, db.UnitOccupancies.Count(link => link.PersonId == value.Id && link.StartDate <= today && (link.EndDate == null || link.EndDate >= today)), value.PersonKind,value.Citizenship,value.CountryCode,value.IdentityNumber,value.BirthDate,value.Gender,value.Address,value.LinkedUserId,db.Properties.Where(p=>p.Id==value.PropertyId).Select(p=>p.Name).First(),
+            (from link in db.UnitOccupancies join unit in db.Units on new {link.PropertyId,Id=link.UnitId} equals new {unit.PropertyId,unit.Id}
+             join building in db.Buildings on unit.BuildingId equals (Guid?)building.Id into buildings from building in buildings.DefaultIfEmpty()
+             where link.PropertyId==value.PropertyId && link.PersonId==value.Id && link.StartDate<=today && (link.EndDate==null || link.EndDate>=today) && (unit.BuildingId==null || building!=null)
+             select new PersonUnitSummary(unit.Id,unit.Number,unit.BuildingId,building==null?null:building.Name,link.Type.ToString())).ToList()));
     }
     private static string Pattern(string text) => "%" + text.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
+    public async Task<PagedRows<string>?> AccountChoicesAsync(Guid property,PeopleQuery request,AccessScope access,CancellationToken token)
+    {
+        if(!await Properties(access).AnyAsync(p=>p.Id==property,token))return null;
+        var q=db.PropertyMemberships.Where(m=>m.PropertyId==property&&m.IsEnabled);
+        if(!string.IsNullOrWhiteSpace(request.Search)){var pattern=Pattern(request.Search);q=q.Where(m=>EF.Functions.ILike(m.UserId,pattern,"\\"));}
+        var users=q.Select(m=>m.UserId).Distinct();return new(await users.OrderBy(id=>id).Skip((request.Page-1)*request.PageSize).Take(request.PageSize).ToListAsync(token),request.Page,request.PageSize,await users.CountAsync(token));
+    }
     public async Task<PagedRows<PersonResponse>?> ListAsync(Guid property, PeopleQuery request, AccessScope access, CancellationToken token)
     {
         if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
         var query = People(property, access).AsNoTracking();
-        if (!string.IsNullOrWhiteSpace(request.Search)) { var pattern = Pattern(request.Search); query = query.Where(value => EF.Functions.ILike(value.FirstName + " " + value.LastName, pattern, "\\")); }
+        if (!string.IsNullOrWhiteSpace(request.Search)) { var pattern = Pattern(request.Search); query = query.Where(value => (EF.Functions.ILike(value.FirstName + " " + value.LastName, pattern, "\\") || EF.Functions.ILike(value.PhoneNumber ?? "",pattern,"\\") || EF.Functions.ILike(value.Email ?? "",pattern,"\\"))); }
         var count = await query.CountAsync(token);
         var sorted = request.SortBy == "createdAt" ? (request.SortDirection == "desc" ? query.OrderByDescending(value => value.CreatedAt) : query.OrderBy(value => value.CreatedAt))
             : (request.SortDirection == "desc" ? query.OrderByDescending(value => value.LastName).ThenByDescending(value => value.FirstName) : query.OrderBy(value => value.LastName).ThenBy(value => value.FirstName));
@@ -50,7 +61,10 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
     public async Task<PersonResponse?> CreateAsync(Guid property, CreatePersonRequest request, AccessScope access, CancellationToken token)
     {
         var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token); if (parent is null) return null;
-        Active(parent); var person = new Person(property, request.FirstName!, request.LastName!, request.PhoneNumber, request.Email);
+        Active(parent); await CheckLinked(property,request.LinkedUserId,token);
+        var person = new Person(property, request.FirstName!, request.PersonKind=="LEGAL" ? "—" : request.LastName!, request.PhoneNumber, request.Email);
+        person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
+        person.Update(request.FirstName!,request.LastName ?? "",request.PhoneNumber,request.Email,true);
         db.People.Add(person); Touch(parent); await Save(token); return await GetAsync(property, person.Id, access, token);
     }
     public async Task<PersonResponse?> UpdateAsync(Guid property, Guid personId, UpdatePersonRequest request, AccessScope access, CancellationToken token)
@@ -59,8 +73,15 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
         var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return null;
         Active(parent); Expected(person, request.Version);
         if (request.IsEnabled == false && await HasUnfinished(personId, null, token)) throw new HierarchyConflictException(ErrorCatalog.PersonHasOccupancy.Create());
+        await CheckLinked(property,request.LinkedUserId,token);
+        person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
         person.Update(request.FirstName!, request.LastName!, request.PhoneNumber, request.Email, request.IsEnabled!.Value);
         Touch(person); Touch(parent); await Save(token); return await GetAsync(property, personId, access, token);
+    }
+    private async Task CheckLinked(Guid property,string? subject,CancellationToken token)
+    {
+        if (!string.IsNullOrWhiteSpace(subject) && !await db.PropertyMemberships.AnyAsync(m=>m.PropertyId==property && m.UserId==subject.Trim() && m.IsEnabled,token))
+            throw new RequestValidationException(new(){["linkedUserId"]=[ErrorCatalog.PersonAccountInvalid.Create()]});
     }
     private Task<bool> HasUnfinished(Guid? person, Guid? unit, CancellationToken token)
     { var today = Today; return db.UnitOccupancies.AnyAsync(value => (person == null || value.PersonId == person) && (unit == null || value.UnitId == unit) && (value.EndDate == null || value.EndDate >= today), token); }
@@ -86,6 +107,31 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
         return new(await sorted.ThenBy(value => value.Unit.Id).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
             .Select(value => new UnitChoice(value.Unit.Id, value.Unit.BuildingId, value.Unit.Number, value.Building == null ? null : value.Building.Name, value.Unit.IsEnabled && (value.Building == null || value.Building.IsEnabled))).ToListAsync(token), request.Page, request.PageSize, count);
     }
+    public async Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, AccessScope access, CancellationToken token)
+    {
+        // One consistent batch for the visible page; no historical IgnoreQueryFilters here.
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, token);
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        var units = await db.Units.AsNoTracking().Where(unit => unit.PropertyId == property && unitIds.Contains(unit.Id) &&
+            (unit.BuildingId == null || db.Buildings.Any(building => building.Id == unit.BuildingId && building.PropertyId == property)))
+            .Select(unit => new { unit.Id, unit.BuildingId }).ToListAsync(token);
+        if (units.Count != unitIds.Count) return null; // Entire selection must belong to the authorized property.
+        var today = Today;
+        var links = await (from link in db.UnitOccupancies.AsNoTracking()
+            join person in db.People.AsNoTracking() on new { link.PropertyId, Id = link.PersonId } equals new { person.PropertyId, person.Id }
+            where link.PropertyId == property && unitIds.Contains(link.UnitId) && link.StartDate <= today && (link.EndDate == null || link.EndDate >= today) &&
+                (link.Type == OccupancyType.OWNER || link.Type == OccupancyType.TENANT)
+            orderby person.LastName, person.FirstName, person.Id
+            select new { link.UnitId, link.Type, person.Id, Name = person.FirstName + " " + person.LastName }).ToListAsync(token);
+        var groups = links.ToLookup(link => link.UnitId);
+        var byId = units.ToDictionary(unit => unit.Id);
+        var items = unitIds.Select(id => new UnitCurrentParties(id, byId[id].BuildingId,
+            groups[id].Where(link => link.Type == OccupancyType.OWNER).Select(link => new UnitPersonLink(link.Id, link.Name)).DistinctBy(link => link.PersonId).ToArray(),
+            groups[id].Where(link => link.Type == OccupancyType.TENANT).Select(link => new UnitPersonLink(link.Id, link.Name)).DistinctBy(link => link.PersonId).ToArray())).ToArray();
+        await transaction.CommitAsync(token);
+        return new(property, today, items);
+    }
+
     private sealed class HistoryRow
     {
         public UnitOccupancy Link { get; init; } = null!;

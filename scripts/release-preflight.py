@@ -41,7 +41,9 @@ def rules(env):
  yield 'Web build uses HTTPS API and OIDC',https(env.get('NEXT_PUBLIC_API_URL'),True) and https(env.get('NEXT_PUBLIC_OIDC_AUTHORITY'))
  yield 'Web and API share one issuer',env.get('NEXT_PUBLIC_OIDC_AUTHORITY','').rstrip('/')==env.get('Authentication__Authority','').rstrip('/')
  yield 'Database connection has a strong password',connection_password(env.get('ConnectionStrings__Database'))
- yield 'Broker and object storage secrets set',secret(env.get('RabbitMQ__Password')) and secret(env.get('MinIO__SecretKey'))
+ yield 'HTTPS object storage endpoint',https(env.get('ObjectStorage__Endpoint'))
+ yield 'Object storage access key set',bool(env.get('ObjectStorage__AccessKey'))
+ yield 'Broker and object storage secrets set',secret(env.get('RabbitMQ__Password')) and secret(env.get('ObjectStorage__SecretKey'))
  yield 'SMTP uses an external host with STARTTLS',not smtp or (env.get('Smtp__Host','').lower() not in LOCAL|{''} and env.get('Smtp__UseStartTls','true').lower()!='false' and env.get('Smtp__AllowInsecureLocal','false').lower()!='true')
  yield 'SMTP sender and credentials',not smtp or (re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s.]+',env.get('Smtp__From','')) is not None and not env.get('Smtp__From','').endswith('.local') and (not env.get('Smtp__Username') or secret(env.get('Smtp__Password'))))
 def main(path):
