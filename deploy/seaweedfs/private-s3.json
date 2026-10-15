@@ -1,1 +1,0 @@
-{"identities": [{"name": "buildingflow-api", "credentials": [{"accessKey": "bf-1a0ab2204aa7943d9bfaa86c", "secretKey": "1baf76f5a4cdb1af244619b7c33f1c021c43299601a7a31d274c53cbaaef91f1"}], "actions": ["Admin", "Read", "Write", "List", "Tagging"]}]}
