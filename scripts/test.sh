@@ -43,6 +43,12 @@ export BUILDINGFLOW_TEST_DATABASE
 trap cleanup_test_database EXIT
 python3 scripts/configure-object-storage.py
 docker compose --env-file .env -f deploy/docker-compose.yml up -d seaweedfs-s3 rabbitmq
+# The S3 gateway accepts connections only after its filer is up; wait so storage tests do not race it.
+for _ in $(seq 60); do
+  curl -s -o /dev/null "http://127.0.0.1:${OBJECT_STORAGE_PORT:-9040}/" && break
+  docker compose --env-file .env -f deploy/docker-compose.yml up -d seaweedfs-s3 >/dev/null 2>&1
+  sleep 2
+done
 export BUILDINGFLOW_TEST_STORAGE_ENDPOINT="http://127.0.0.1:${OBJECT_STORAGE_PORT:-9040}"
 export BUILDINGFLOW_TEST_STORAGE_ACCESS_KEY="${OBJECT_STORAGE_ACCESS_KEY}"
 export BUILDINGFLOW_TEST_STORAGE_SECRET_KEY="${OBJECT_STORAGE_SECRET_KEY}"
