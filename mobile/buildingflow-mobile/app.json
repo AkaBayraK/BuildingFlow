@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "BuildingFlow",
+    "slug": "buildingflow-mobile",
+    "version": "0.1.0",
+    "scheme": "buildingflow-dev",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Profil fotoğrafınızı seçmek için fotoğraflarınıza erişim kullanılır.",
+          "cameraPermission": "İsteğiniz üzerine profil fotoğrafı çekmek için kamera kullanılır.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.buildingflow.mobile.dev",
+      "appleTeamId": "458K2B3ZS8"
+    },
+    "android": {
+      "package": "com.buildingflow.mobile.dev",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-foreground.png",
+        "backgroundColor": "#F6F9FC"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/brand/favicon.png"
+    },
+    "icon": "./assets/brand/app-icon.png"
+  }
+}

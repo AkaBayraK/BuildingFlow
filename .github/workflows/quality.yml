@@ -32,3 +32,23 @@ jobs:
       - name: Backup and isolated restore rehearsal (fixture only)
         run: python3 scripts/test-backup-restore.py artifacts/ci/migrations.sql
       # No secrets, DB dumps or personal-data artifacts are uploaded/cached.
+  mobile:
+    name: Mobile (typecheck, lint, test, export)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mobile/buildingflow-mobile
+    env:
+      EXPO_NO_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mobile/buildingflow-mobile/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run project:test
+      - run: npm run build

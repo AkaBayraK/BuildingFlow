@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {managedBody,matchItems,parsePhases,validatePlans,marker,assertCreationSafe} from './core.mjs';
+const plan={key:'phase-01',title:'Faz 01',status:'Done',priority:'P1',body:'Güvenli ilerleme raporu.'};
+const fields=[{name:'Status',options:[{name:'Done',id:'done'}]},{name:'Priority',options:[{name:'P1',id:'p1'}]}];
+test('canonical roadmap is parsed as exactly fifteen ordered phases',()=>{const source=readFileSync(new URL('../../../buildingflow-mobile-prompts/PHASES.md',import.meta.url),'utf8');const p=parsePhases(source);assert.equal(p.length,15);assert.ok(p[8].scope.includes('Kiracı'));assert.throws(()=>parsePhases(source.replace('## Faz 09','## Faz 19')));});
+test('human notes outside managed block survive updates and reruns are identical',()=>{const existing='Human before\n'+managedBody(plan.key,'old')+'\nHuman after';const next=managedBody(plan.key,'new',existing);assert.ok(next.startsWith('Human before'));assert.ok(next.endsWith('Human after'));assert.equal(managedBody(plan.key,'new',next),next);});
+test('foreign existing items remain unmatched; duplicate ownership and non-drafts abort',()=>{const foreign={id:'foreign',content:{type:'Issue',body:'Unrelated',title:'Other'}};assert.equal(matchItems([plan],[foreign]).get(plan.key),null);const owned={content:{type:'DraftIssue',body:managedBody(plan.key,'old')}};assert.equal(matchItems([plan],[owned]).get(plan.key),owned);assert.throws(()=>matchItems([plan],[owned,owned]));assert.throws(()=>matchItems([plan],[{content:{...owned.content,type:'Issue'}}]));});
+test('same-title unmanaged card cannot be silently duplicated or overwritten',()=>{assert.throws(()=>matchItems([plan],[{content:{type:'DraftIssue',title:plan.title,body:'Human-owned'}}]));});
+test('status/priority/duplicate-key and private data preflight rejects before mutation',()=>{assert.ok(validatePlans([plan],fields));for(const changed of [{status:'Unknown'},{priority:'P0'},{body:'Bearer '+'a'.repeat(40)},{body:'/Users/private/person'},{body:'github_pat_hidden'}])assert.throws(()=>validatePlans([{...plan,...changed}],fields));assert.throws(()=>validatePlans([plan,plan],fields));});
+test('ambiguous managed markers fail closed and never replace arbitrary human content',()=>{assert.throws(()=>managedBody(plan.key,'new','Human body'));assert.throws(()=>managedBody(plan.key,'new',marker(plan.key)+'one'+marker(plan.key)+'two'));});
+
+test('uncertain remote creation is never retried as a second draft',()=>{assert.throws(()=>assertCreationSafe(null,{pending:true},'phase-01'));assert.throws(()=>assertCreationSafe(null,{pending:false,itemId:'known'},'phase-01'));assert.doesNotThrow(()=>assertCreationSafe({id:'found'},{pending:true},'phase-01'));assert.doesNotThrow(()=>assertCreationSafe(null,undefined,'phase-01'));});
