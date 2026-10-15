@@ -1,0 +1,11 @@
+# Kodlama Standartları — Zorunlu
+- Mevcut dil/sürüm, formatter, linter, katman mimarisi ve isimlendirmeye uy; yeni framework dayatma.
+- Önce ilgili modülde mevcut servis, method, DTO, validator, hook, component ve repository'yi hedefli ara. Aynı davranış için ikinci uygulama üretme.
+- SOLID, DRY, KISS, YAGNI: iş kuralını tek kaynakta tut; sırf DRY adına ilgisiz domainleri birleştirme; gereksiz abstraction/utility yazma.
+- Java: nullability, transaction sınırı, checked/unchecked hata modeli, JPA N+1, lazy loading ve thread safety'yi kontrol et.
+- .NET: async/await, CancellationToken, DI scope, EF Core tracking, concurrency ve transaction sınırlarını kontrol et.
+- TypeScript: strict tipler, `any` kaçınma, tek API sözleşmesi, server/client ayrımı, erişilebilir ve yeniden kullanılabilir UI.
+- API: doğrulama, tutarlı hata modeli, yetkilendirme, pagination, idempotency (gereken yerde), geriye uyumluluk.
+- DB: migration, indeks gerekçesi, tenant scope, optimistic concurrency ve veri kaybı önlemi.
+- Değişiklik minimal diff olmalı; ilgisiz refactor, formatlama, yeniden adlandırma ve büyük dosya taşıma yok.
+- Değişen iş kuralı için pozitif/negatif ve sınır durum testleri ekle; test sonuçlarını uydurma.

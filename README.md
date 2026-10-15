@@ -141,10 +141,24 @@ npm run typecheck
 npm run build
 ```
 
+Mobil doğrulaması (Node.js ≥ 22.18):
+
+```bash
+cd mobile/buildingflow-mobile
+npm ci
+npm run check   # typecheck + lint + node testleri
+npm run build   # expo export (iOS/Android/web)
+```
+
+Cihazda giriş için Expo Go yeterli değildir; `npx expo run:ios` / `npx expo run:android` ile development build gerekir. Telefonun yerel backend'e bağlanması için `scripts/mobile-api.sh` varsayılan olarak bu deponun kökünü kullanır. Ayrıntı [mobil README](mobile/buildingflow-mobile/README.md).
+
 ## Mimari ve mevcut kapsam
 
 ```text
 frontend/buildingflow-web   Next.js, shadcn/ui + TanStack yönetim tabloları, OIDC ve sağlık durumu
+mobile/buildingflow-mobile  Expo SDK 57 + React Native mobil istemci (Expo Router, OIDC PKCE, SQLCipher önbellek)
+mobile/buildingflow-mobile-prompts  Mobil 15 fazlık kanonik plan ve mobil çalışma kuralları
+mobile/docs                 Mobil faz raporları, marka ve bağımlılık envanteri
 backend/src
   BuildingFlow.Domain         BaseEntity, Property, Building, Unit, PropertyMembership; dış bağımlılık yok
   BuildingFlow.Application    Yönetim CRUD/DTO/validasyon, current user, storage/messaging sözleşmeleri

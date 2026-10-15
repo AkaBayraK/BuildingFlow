@@ -1,3 +1,7 @@
+## 15.10.2026 — BAKIM: BuildingFlowMobil mobil modül olarak depoya eklendi
+
+Ayrı yerel klasörde (`buildingflow-mobile`, GitHub remote yok) duran Expo uygulaması `mobile/` altına taşındı: uygulama `mobile/buildingflow-mobile`, 15 fazlık plan `mobile/buildingflow-mobile-prompts`, faz raporları `mobile/docs`, tasarım `mobile/design`. Göreli bağlantılar korunsun diye klasör düzeni aynen alındı; yalnız `scripts/mobile-api.sh` backend kökünü artık depo kökü olarak bulur. Mobilin kendi `.github` iş akışı kök `quality.yml` içinde `mobile` işi olarak birleştirildi. Mobil git geçmişi (tek "Initial commit") ve `node_modules`/`ios`/`dist`/`.env` taşınmadı. Doğrulama (Linux, Node 22): `npm ci`, `npm run check` (typecheck + lint + **54/54** test), `project:test` **7/7**, `expo export` geçti. Uygulama kodu ve yol haritası değişmedi; yeni ürün fazı açılmadı.
+
 ## 11.10.2026 — main birleştirme ve yerel servis güncellemesi
 
 `faz-10-11-release` → `main` (`--no-ff`, push yok). main'de ci.sh 426 .NET / 85 FE geçti. Ana DB'de bekleyen migration yoktu, DB'ye yazılmadı. Worker yeni kodla yeniden başlatıldı; API kullanıcı tarafından yeniden başlatılmıştı. Smoke 15/15, gözlemlenebilirlik 11/11. Gözlemlenebilirlik sayısı 12/12 → 11/11 düzeltildi.
