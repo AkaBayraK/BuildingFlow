@@ -1,8 +1,10 @@
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { canRetryJob } from '../sync/outbox';
+import { canRetry as canRetryPhoto, canDiscard as canDiscardPhoto, type PhotoJob } from '../requests/outbox';
 import { useAuth } from '../auth/AuthProvider';
 import { Icon, styles } from './Screen';
 const labels={pending:'Bekliyor',sending:'Gönderiliyor',retry:'Yeniden denenecek',sent:'Gönderildi',conflict:'Çakışma',blocked:'Yetki gerekiyor',failed:'Gönderilemedi',cancelled:'İptal edildi'};
+const photoNote=(job:PhotoJob,parent:string|undefined)=>job.status==='conflict'?'Talep merkezde değişmiş veya fotoğraf sınırı dolmuş.':job.status==='blocked'?'Talep kaydına erişim doğrulanamadı.':job.status==='failed'?(job.error_code===-2?'Cihazdaki şifreli fotoğraf okunamadı.':job.error_code===400?'Fotoğraf kabul edilmedi (biçim veya 3 fotoğraf sınırı).':'Gönderim tamamlanamadı.'):job.status==='cancelled'?'Bu fotoğraf gönderilmeyecek.':parent&&parent!=='sent'?'Önce talep metninin gönderilmesi bekleniyor.':job.attempts?job.attempts+' gönderim denemesi':'Henüz gönderilmedi.';
 export function SyncPanel() {
   const auth=useAuth();
   if(auth.selected?.role==='ACCOUNTANT' || !auth.selected)return null;
@@ -18,6 +20,10 @@ export function SyncPanel() {
       {visible.map(job=><View key={job.operation_id} style={s.job}><Text style={styles.text}>Talep işlemi · {labels[job.status]}</Text><Text style={styles.muted}>{job.status==='conflict'?'Kayıt sunucuda değişmiş. Güncel bilgi kontrol edilmeden üzerine yazılmaz.':job.status==='blocked'?'Bu işlem için erişimin yeniden doğrulanmalı.':job.attempts ? job.attempts+' gönderim denemesi':'Henüz gönderilmedi.'}</Text><View style={s.buttons}>
         {canRetryJob(job)&&<Pressable accessibilityRole="button" disabled={auth.syncBusy || auth.offline} style={s.secondary} onPress={()=>void auth.retryJob(job.operation_id)}><Text style={s.secondaryText}>Tekrar dene</Text></Pressable>}
         {job.status==='pending' && job.attempts===0 && <Pressable accessibilityRole="button" disabled={auth.syncBusy} style={s.secondary} onPress={()=>Alert.alert('Bekleyen işlem iptal edilsin mi?','Henüz gönderilmemiş bu işlem sunucuya iletilmeyecek.',[{text:'Vazgeç',style:'cancel'},{text:'İşlemi iptal et',style:'destructive',onPress:()=>void auth.cancelJob(job.operation_id)}])}><Text style={s.secondaryText}>İptal et</Text></Pressable>}
+      </View></View>)}
+      {auth.photoJobs.filter(j=>!['sent','cancelled'].includes(j.status)).slice(0,10).map(job=><View key={job.operation_id} style={s.job}><Text style={styles.text}>Fotoğraf eki · {labels[job.status]}</Text><Text style={styles.muted}>{photoNote(job,auth.syncJobs.find(p=>p.operation_id===job.parent_operation_id)?.status)}</Text><View style={s.buttons}>
+        {canRetryPhoto(job)&&<Pressable accessibilityRole="button" disabled={auth.syncBusy || auth.offline} style={s.secondary} onPress={()=>void auth.retryPhoto(job.operation_id)}><Text style={s.secondaryText}>Tekrar dene</Text></Pressable>}
+        {canDiscardPhoto(job)&&<Pressable accessibilityRole="button" disabled={auth.syncBusy} style={s.secondary} onPress={()=>Alert.alert('Fotoğraf kuyruktan silinsin mi?',job.attempts?'Gönderim denendiği için fotoğraf merkeze ulaşmış olabilir; yalnız bu cihazdaki kopya silinir.':'Bu fotoğraf merkeze gönderilmeyecek ve cihazdan silinecek.',[{text:'Vazgeç',style:'cancel'},{text:'Sil',style:'destructive',onPress:()=>void auth.discardPhoto(job.operation_id)}])}><Text style={s.secondaryText}>Sil</Text></Pressable>}
       </View></View>)}
     </>}
   </View>;

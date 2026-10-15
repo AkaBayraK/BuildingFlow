@@ -888,3 +888,9 @@ MobileFinance DTO/query/store/endpoint; OWNER/TENANT gerçek ilişki+aktif üyel
 Mobil ortak finans ekranı,detay/geçmiş geçişi,paraBigInt/ortakparseCharge,24saat/sonsayfa/detailcache,403purge,geçyanıtguard. Yönetici+finans ortak useScopedRead. Yeni dependency/migration/nativebinary yok; canlı finans/rol/kişisel veri yazımı ve commit/push/yayın yok.
 
 Bu tur54/54mobil;42/42gerçekizolePGintegration(MobileFinance6+MobileManager/Owner/Tenant/Session+PaymentApi),8/8PaymentDomain0skip; geçiciDB/roletemizlendi. TypeScript,lint0hata1öncekiuyarı,3platformexport,merkezbuild0hata0uyarı;7GitHubscript testi. Görsel/gerçektelefonofflinekabulü yapılmadı. Kanıt docs/api/mobile-finance.md ve kardeş mobil docs/mobile/PHASE11.md. Token/context/tur tüketimi:BİLGİ MEVCUT DEĞİL.
+
+## Mobil Faz12 — Talep/arıza, fotoğraf ekleri ve offline outbox — 15.10.2026
+
+MobileRequest kategori/öncelik, MobileRequestPhoto (STAGED→CURRENT→RETIRED→PURGED), fotoğraf yükleme/indirme endpoint'leri ve bakım; owner snapshot'ta kategori/öncelik/fotoğraf sayısı. Mobil şifreli taslak, fotoğraf işi kuyruğu (üst komut gönderilmeden claim edilmez), OWNER+TENANT formu ve eşitleme paneli.
+
+Bu tur: **109/109 unit, 401 integration geçti / 22 atlandı** (ayrı geçici PostgreSQL 18.6 + SeaweedFS 4.48 S3; atlananlar ortamda olmayan Keycloak/RabbitMQ vb. fixture'lar). Yeni: MobileRequestPhotoTests 4 (kategori/legacy/DELETE doğrulaması; fotoğraf biçim/413/scope/ACCOUNTANT/anonim; eşzamanlı replay, 3 sınırı, yabancı erişim, silme ve purge; üyelik iptali) ve MobileRequestMigrationTests 1 (backfill, check, composite FK, dolu Down reddi). MobileTenantTests owner snapshot metadata doğrulaması. Mobil **62/62** (yeni requests.test.mjs 8), TypeScript, lint 0 hata/1 önceki uyarı, üç platform export. Gerçek cihaz uçak modu/kamera kabulü yapılmadı. Ayrıntı docs/api/mobile-sync.md ve mobile/docs/mobile/PHASE12.md. Token/context tüketimi: BİLGİ MEVCUT DEĞİL.

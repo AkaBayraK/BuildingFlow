@@ -1,20 +1,26 @@
-import {useRef,useState} from 'react';
-import {Platform,Pressable,StyleSheet,Text,TextInput,View} from 'react-native';
-import * as Crypto from 'expo-crypto';
+import {Alert,Image,Platform,Pressable,StyleSheet,Text,TextInput,View} from 'react-native';
 import {useAuth} from '../auth/AuthProvider';
-import {tenantRequest} from '../owner/request';
+import {CATEGORIES,PRIORITIES,MAX_REQUEST_PHOTOS} from '../sync/contracts';
+import {categoryLabels,priorityLabels} from '../requests/contracts';
+import {useRequestDraft} from '../requests/useRequestDraft';
 import {SyncPanel} from './SyncPanel';
 import {Icon,styles} from './Screen';
+// Owners and tenants report maintenance issues for the selected unit; drafts and photos stay encrypted on the device.
 export function TenantRequestForm({onQueued}:{onQueued:()=>Promise<void>}){
- const auth=useAuth(),[description,setDescription]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');const lock=useRef(false);
- const submit=async()=>{
-  const context=auth.selected;if(lock.current||context?.role!=='TENANT'||!context.unitId||!auth.session)return;
-  if(!description.trim()||description.trim().length>2000){setMessage('Talep açıklaması 1–2000 karakter olmalı.');return;}
-  lock.current=true;setBusy(true);setMessage('');
-  try{await auth.queueCommand(tenantRequest(auth.session,context,description,Crypto.randomUUID(),Crypto.randomUUID()));setDescription('');setMessage(auth.offline?'Talep şifreli kuyruğa kaydedildi. Bağlantı gelince gönderilecek.':'Talep kuyruğa kaydedildi. Merkez onayını aşağıdaki eşitleme alanından izleyebilirsiniz.');await onQueued();}
-  catch{setMessage('Talep kuyruğa kaydedilemedi. Açıklamanız korunuyor.');}
-  finally{lock.current=false;setBusy(false);}
- };
- return <><View style={styles.card}><View style={s.row}><Icon name="construct-outline" color="#a75c13"/><Text style={styles.cardTitle}>Bakım / arıza talebi oluştur</Text></View><Text style={styles.muted}>Talep seçili dairenizden yönetime iletilir. Acil yardım hizmeti değildir.</Text>{Platform.OS==='web'?<Text style={styles.muted}>Güvenli çevrimdışı kuyruk için BuildingFlow mobil uygulamasını kullanın. Tarayıcıdan talep gönderimi bu fazda sunulmaz.</Text>:<><TextInput accessibilityLabel="Talep açıklaması" placeholder="Örneğin: Dairedeki su sayacında sızıntı var…" value={description} onChangeText={setDescription} maxLength={2000} multiline editable={!busy} style={s.input}/><Text style={styles.muted}>{description.length}/2000</Text><Pressable disabled={busy} accessibilityRole="button" accessibilityLabel="Talebi kuyruğa kaydet" onPress={()=>void submit()} style={[styles.button,busy&&{opacity:.5}]}><Text style={styles.buttonText}>{busy?'Kaydediliyor…':auth.offline?'Çevrimdışı kuyruğa kaydet':'Talebi gönder'}</Text></Pressable></>}{!!message&&<Text accessibilityRole="alert" style={styles.text}>{message}</Text>}</View><SyncPanel/></>;
+ const auth=useAuth(),m=useRequestDraft(onQueued),d=m.draft;
+ const chip=(selected:boolean)=>[s.chip,selected&&s.chipOn];
+ return <><View style={styles.card}><View style={s.row}><Icon name="construct-outline" color="#a75c13"/><Text style={styles.cardTitle}>Bakım / arıza talebi oluştur</Text></View><Text style={styles.muted}>Talep seçili dairenizden yönetime iletilir. Acil yardım hizmeti değildir; can ve mal güvenliği için 112’yi arayın.</Text>
+  {Platform.OS==='web'?<Text style={styles.muted}>Güvenli çevrimdışı kuyruk ve fotoğraf eki için BuildingFlow mobil uygulamasını kullanın. Tarayıcıdan talep gönderimi sunulmaz.</Text>:<>
+   <Text style={s.label}>Kategori</Text><View style={s.chips}>{CATEGORIES.map(c=><Pressable key={c} accessibilityRole="radio" accessibilityState={{selected:d.category===c,disabled:m.busy}} disabled={m.busy} onPress={()=>m.update({category:c})} style={chip(d.category===c)}><Text style={[s.chipText,d.category===c&&s.chipTextOn]}>{categoryLabels[c]}</Text></Pressable>)}</View>
+   <Text style={s.label}>Öncelik</Text><View style={s.chips}>{PRIORITIES.map(p=><Pressable key={p} accessibilityRole="radio" accessibilityState={{selected:d.priority===p,disabled:m.busy}} disabled={m.busy} onPress={()=>m.update({priority:p})} style={chip(d.priority===p)}><Text style={[s.chipText,d.priority===p&&s.chipTextOn]}>{priorityLabels[p]}</Text></Pressable>)}</View>
+   <TextInput accessibilityLabel="Talep açıklaması" placeholder="Örneğin: Mutfak lavabosunun altında su sızıntısı var…" value={d.description} onChangeText={v=>m.update({description:v})} maxLength={2000} multiline editable={!m.busy&&m.loaded} style={s.input}/><Text style={styles.muted}>{d.description.length}/2000</Text>
+   <Text style={s.label}>Fotoğraflar ({d.photos.length}/{MAX_REQUEST_PHOTOS})</Text>
+   <View style={s.photos}>{d.photos.map((f,i)=><View key={f} style={s.thumb}>{m.previews[f]?<Image source={{uri:m.previews[f]}} style={s.image} accessibilityLabel={`Ek fotoğraf ${i+1}`}/>:<Icon name="image-outline"/>}<Pressable accessibilityRole="button" accessibilityLabel={`Fotoğraf ${i+1} kaldır`} disabled={m.busy} onPress={()=>void m.removePhoto(f)} style={s.remove}><Icon name="close" size={16} color="#fff"/></Pressable></View>)}</View>
+   {d.photos.length<MAX_REQUEST_PHOTOS&&<View style={s.buttons}><Pressable accessibilityRole="button" disabled={m.busy||!m.loaded} onPress={()=>void m.addPhoto(true)} style={s.secondary}><Text style={s.secondaryText}>Fotoğraf çek</Text></Pressable><Pressable accessibilityRole="button" disabled={m.busy||!m.loaded} onPress={()=>void m.addPhoto(false)} style={s.secondary}><Text style={s.secondaryText}>Galeriden seç</Text></Pressable></View>}
+   <Text style={styles.muted}>Taslak ve fotoğraflar cihazda şifreli saklanır; uygulama kapansa da kaybolmaz. Konum bilgisi istenmez ve gönderilmez.</Text>
+   <Pressable disabled={m.busy||!m.loaded} accessibilityRole="button" accessibilityLabel="Talebi kuyruğa kaydet" onPress={()=>void m.submit()} style={[styles.button,(m.busy||!m.loaded)&&{opacity:.5}]}><Text style={styles.buttonText}>{m.busy?'Kaydediliyor…':auth.offline?'Çevrimdışı kuyruğa kaydet':'Talebi gönder'}</Text></Pressable>
+   {(!!d.description||d.photos.length>0)&&<Pressable accessibilityRole="button" disabled={m.busy} onPress={()=>Alert.alert('Taslak silinsin mi?','Açıklama ve eklenen fotoğraflar bu cihazdan silinecek.',[{text:'Vazgeç',style:'cancel'},{text:'Taslağı sil',style:'destructive',onPress:()=>void m.clear()}])} style={s.secondary}><Text style={s.secondaryText}>Taslağı sil</Text></Pressable>}
+  </>}
+  {!!m.message&&<Text accessibilityRole="alert" style={styles.text}>{m.message}</Text>}</View><SyncPanel/></>;
 }
-const s=StyleSheet.create({row:{flexDirection:'row',gap:10,alignItems:'center'},input:{minHeight:120,textAlignVertical:'top',borderWidth:1,borderColor:'#dce5ef',borderRadius:12,padding:14,color:'#102342',fontSize:15,lineHeight:23}});
+const s=StyleSheet.create({row:{flexDirection:'row',gap:10,alignItems:'center'},label:{color:'#102342',fontSize:14,fontWeight:'600',marginTop:4},chips:{flexDirection:'row',flexWrap:'wrap',gap:8},chip:{minHeight:40,paddingHorizontal:12,justifyContent:'center',borderRadius:20,borderWidth:1,borderColor:'#dce5ef',backgroundColor:'#fff'},chipOn:{backgroundColor:'#2056bc',borderColor:'#2056bc'},chipText:{color:'#2056bc',fontSize:13,fontWeight:'600'},chipTextOn:{color:'#fff'},input:{minHeight:120,textAlignVertical:'top',borderWidth:1,borderColor:'#dce5ef',borderRadius:12,padding:14,color:'#102342',fontSize:15,lineHeight:23},photos:{flexDirection:'row',gap:10,flexWrap:'wrap'},thumb:{width:88,height:88,borderRadius:12,backgroundColor:'#f3f6fa',alignItems:'center',justifyContent:'center',overflow:'hidden'},image:{width:88,height:88},remove:{position:'absolute',top:4,right:4,width:28,height:28,borderRadius:14,backgroundColor:'rgba(8,43,73,.75)',alignItems:'center',justifyContent:'center'},buttons:{flexDirection:'row',gap:10,flexWrap:'wrap'},secondary:{padding:12,minHeight:48,justifyContent:'center',borderRadius:12,backgroundColor:'#edf3fc'},secondaryText:{color:'#2056bc',fontSize:14,fontWeight:'600'}});
