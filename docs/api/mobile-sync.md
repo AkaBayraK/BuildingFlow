@@ -22,3 +22,23 @@ Migration20261014062447_MobileRequestSync: mobile_requests + mobile_operation_re
 Tüketici ayrı buildingflow-mobile: SQLCipher schema3 outbox/request cache/sync state; stable UUID, bounded backoff,401/403/409, partial snapshot reddi, onaysız otomatik overwrite yok. Çıkışta Faz05 anahtar/kopya temizliği kuyruğu da siler. Henüz talep formu/fotoğraf/kategori UI yok (Faz12).
 
 Doğrulama:52/52 seçili MobileSync/MobileSession/Authentication/ReleaseSecurity integration test (atlama0), ayrı geçici PostgreSQL DB/role/schema temizlendi. Backend build0hata/0uyarı. Mobil26/26 gerçek SQLite+kontrollü HTTP test, TypeScript/lint, üç platform export geçti. iPhone SQLCipher fixture nativeQueueReplaytrue; kontrollü HTTP simülasyonu ve ayrı API entegrasyon testlerinin kanıtları ayrıdır. Gerçek kullanıcı uçak modu/soğuk açılış ve Android native kabulü açık; sahte canlı talep/başarı kaydı üretilmedi.
+
+## Faz12 — kategori, öncelik ve fotoğraf ekleri (15.10.2026)
+
+POST /api/v1/mobile/sync/commands
+- Opsiyonel `category` PLUMBING|ELECTRICAL|HEATING|ELEVATOR|CLEANING|SECURITY|OTHER ve `priority` LOW|NORMAL|HIGH|URGENT. CREATE'te boşsa OTHER/NORMAL; UPDATE'te boş alan mevcut değeri korur; DELETE'te ikisi de null olmalı (400).
+- İkisi de null olan komutlar Faz06 fingerprint'ini kullanır; kuyruktaki eski işlemler replay olarak kalır.
+- `record` yanıtına `category`, `priority`, `photos[{id,sha256,size}]` eklendi; tombstone'da null/boş.
+
+POST /api/v1/mobile/sync/requests/{requestId}/photos — `{operationId,propertyId,unitId,role,photoBase64}`
+- Yalnız talebin sahibi, talebin Property/Unit/role bağlamında ve aktif yetkiyle. ACCOUNTANT 403; yabancı/olmayan talep 403; silinmiş talep 409.
+- JPEG yapısal doğrulama ve EXIF/APP/yorum temizliği (profil fotoğrafıyla ortak), en çok 256 KiB, gövde 384 KiB (413), JSON değilse 415. Talep başına en çok 3 güncel fotoğraf (400).
+- Yüklemeden önce STAGED kaydı; aynı actor+operationId+fingerprint replay olarak döner, farklı içerik/talep 409. Talep version'ı değişmez.
+- Nesne anahtarı `requests/{requestId}/{photoId}.jpg` sunucu UUID'sidir.
+
+GET /api/v1/mobile/sync/requests/{requestId}/photos/{photoId}?propertyId&unitId&role
+- Sahibi ve aynı bağlam; SHA256/boyut doğrulanır, `no-store`. Başka kullanıcı/silinmiş talep 404.
+
+Talep DELETE edilince fotoğraflar RETIRED olur; bakım işi (2 dk) RETIRED ve 30 dk'dan eski STAGED nesneleri siler ve PURGED yapar. Yönetici ekranında fotoğraf görüntüleme bu fazda yoktur.
+
+Migration 20261015133409_MobileRequestCategoriesAndPhotos: mobile_requests.category/priority (varsayılan backfill + check), mobile_request_photos (Property+Request composite FK, actor/operation unique, state/size check). Down, fotoğraf veya varsayılan dışı kategori/öncelik varsa reddeder.

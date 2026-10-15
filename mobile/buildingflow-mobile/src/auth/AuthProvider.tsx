@@ -10,6 +10,9 @@ import { synchronize, summary, SyncError, type Summary } from '../sync/engine';
 import { jobs, cancel as cancelQueued, retry as retryQueued, enqueue, type Job, type SyncDb } from '../sync/outbox';
 import type { PrivateFiles } from '../profile/files';
 import type { Command } from '../sync/contracts';
+import { synchronizePhotos, PhotoSyncError } from '../requests/engine';
+import { photoJobs as listPhotoJobs, submit as submitRequest, retry as retryPhotoJob, discard as discardPhotoJob, type PhotoJob } from '../requests/outbox';
+import type { Draft } from '../requests/contracts';
 import { authConfig } from './config';
 import { contextKey, parseSession, selectContext, type Context, type Session } from './contracts';
 import { readRefresh, writeRefresh } from './storage';
@@ -19,7 +22,7 @@ const config = authConfig();
 const cacheScope = config ? `${config.issuer}|${config.api}|${config.clientId}` : 'unconfigured';
 const expoGo = Platform.OS !== 'web' && Constants.appOwnership === 'expo';
 type State = 'loading' | 'signedOut' | 'signedIn' | 'working';
-type Value = { financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; cancel: () => void; choose: (key: string) => void };
+type Value = { financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; photoJobs: PhotoJob[]; queueRequest: (command: Command, draft: Draft, photoOperations: string[]) => Promise<void>; retryPhoto: (id: string) => Promise<void>; discardPhoto: (id: string) => Promise<void>; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; cancel: () => void; choose: (key: string) => void };
 const AuthContext = createContext<Value | null>(null);
 const redirectUri = AuthSession.makeRedirectUri({ scheme: 'buildingflow-dev', path: 'auth', native: 'buildingflow-dev://auth' });
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -27,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState('');
   const [syncSummary, setSyncSummary] = useState<Summary | null>(null);
   const [syncJobs, setSyncJobs] = useState<Job[]>([]);
+  const [photoJobs, setPhotoJobs] = useState<PhotoJob[]>([]);
   const [syncScopeKey, setSyncScopeKey] = useState<string | null>(null);
   const [syncBusy, setSyncBusy] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
@@ -50,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profileAborts = useRef(new Set<AbortController>());
   const clear = useCallback(async () => {
     profileAborts.current.forEach(c=>c.abort()); profileAborts.current.clear();
-    syncAbort.current?.abort(); setSyncSummary(null); setSyncJobs([]); setSyncScopeKey(null); setSyncBusy(false); setSyncMessage('');
+    syncAbort.current?.abort(); setSyncSummary(null); setSyncJobs([]); setPhotoJobs([]); setSyncScopeKey(null); setSyncBusy(false); setSyncMessage('');
     generation.current++; token.current = null; activeUser.current=null; lastContext.current = null; setSession(null); setSelected(null); setState('signedOut');
     setOffline(false); setVerifiedAt(null); setCacheNote('');
     const results = await Promise.allSettled([writeRefresh(null), clearCache()]);
@@ -149,8 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (Platform.OS === 'web' || !session || !selected || selected.role === 'ACCOUNTANT') return;
     const epoch = generation.current; const key = contextKey(selected);
     try {
-      const value = await withSyncCache(cacheScope, session.userId, async db => ({ summary: await summary(db,session.userId,key), jobs: await jobs(db,session.userId,key) }), () => epoch === generation.current);
-      if (epoch === generation.current && lastContext.current === key) { setSyncScopeKey(key); setSyncSummary(value.summary); setSyncJobs(value.jobs); }
+      const value = await withSyncCache(cacheScope, session.userId, async db => ({ summary: await summary(db,session.userId,key), jobs: await jobs(db,session.userId,key), photos: await listPhotoJobs(db,session.userId,key) }), () => epoch === generation.current);
+      if (epoch === generation.current && lastContext.current === key) { setSyncScopeKey(key); setSyncSummary(value.summary); setSyncJobs(value.jobs); setPhotoJobs(value.photos); }
     } catch { if (epoch === generation.current) setSyncMessage('Yerel eşitleme deposu açılamadı.'); }
   }, [session, selected]);
   const synchronizeNow = useCallback(async () => {
@@ -161,10 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const active = () => epoch === generation.current && !controller.signal.aborted && lastContext.current === key;
     try {
       const accessToken = token.current.accessToken;
-      const result = await synchronize({
-        now: Date.now, active,
-        db: task => withSyncCache(cacheScope,session.userId,task,active),
-        request: async (path, command) => {
+      const send = async (path:string, command?:unknown) => {
           const requestAbort = new AbortController(); const cancel = () => requestAbort.abort();
           controller.signal.addEventListener('abort',cancel,{once:true});
           const timeout=setTimeout(cancel,15000);
@@ -173,8 +174,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const seconds=Number(response.headers.get('Retry-After'));
             return {status:response.status,json:()=>response.json(),retryAfter:Number.isFinite(seconds)&&seconds>0?seconds*1000:undefined};
           } finally {clearTimeout(timeout);controller.signal.removeEventListener('abort',cancel);}
-        }
-      },session,selected);
+      };
+      const result = await synchronize({ now: Date.now, active, db: task => withSyncCache(cacheScope,session.userId,task,active), request: send },session,selected);
+      if (!active()) return;
+      // Photos upload only after their request command is acknowledged; failures stay queued per photo.
+      try { await synchronizePhotos({ now: Date.now, active, store: task => withProfileCache(cacheScope,session.userId,task,active), request: send },result.session,selectContext(result.session,key)); }
+      catch (error) { if (error instanceof PhotoSyncError && error.status===401) throw new SyncError(401); if (active()) setSyncMessage('Bazı fotoğraflar gönderilemedi. Kuyrukta korunuyor.'); }
       if (!active()) return;
       setSession(result.session); setSyncScopeKey(key); setSyncSummary(result.summary);
       // Persist fresh authorization so removed scopes cannot reappear offline.
@@ -204,6 +209,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const epoch=generation.current; const key=contextKey(selected);
     await withSyncCache(cacheScope,session.userId,db=>enqueue(db,session,key,command,Date.now()),()=>epoch===generation.current && lastContext.current===key);
     await refreshSyncView();void synchronizeNow();
+  };
+  const queueRequest = async (command:Command, draft:Draft, photoOperations:string[]) => {
+    if (!session || !selected || Platform.OS==='web') throw new Error('Mobil oturum gerekli.');
+    const epoch=generation.current; const key=contextKey(selected);
+    await withProfileCache(cacheScope,session.userId,db=>submitRequest(db,session,key,command,draft,photoOperations,Date.now()),()=>epoch===generation.current && lastContext.current===key);
+    await refreshSyncView();void synchronizeNow();
+  };
+  const changePhoto = async (id:string,retry:boolean) => {
+    if (!session || !selected || syncBusy || Platform.OS==='web') return;
+    const epoch=generation.current;const key=contextKey(selected);
+    try {
+      await withProfileCache(cacheScope,session.userId,(db,files)=>retry?retryPhotoJob(db,session.userId,key,id,Date.now()):discardPhotoJob(db,files,session.userId,key,id),()=>epoch===generation.current && lastContext.current===key);
+      await refreshSyncView();if(retry)void synchronizeNow();
+    } catch {setSyncMessage('Fotoğraf işlemi değiştirilemedi. Güncel durumunu kontrol et.');}
   };
   const changeJob = async (id:string,retry:boolean) => {
     if (!session || !selected || syncBusy || Platform.OS==='web') return;
@@ -304,7 +323,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   const choose = (key: string) => { if (session) { const context = selectContext(session, key); syncAbort.current?.abort(); lastContext.current = key; setSelected(context); void saveSelection(key, cacheScope).catch(() => setCacheNote('Mülk seçimi cihazda saklanamadı.')); } };
   const note = expoGo ? 'Güvenli giriş için BuildingFlow development build gerekli. Expo Go özel giriş dönüş adresini desteklemiyor.' : !config ? 'Giriş yapılandırması hazır değil.' : message;
-  return <AuthContext.Provider value={{ financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && state === 'signedOut', retrySetup, login, logout, cancel, choose }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], photoJobs: selected && syncScopeKey===contextKey(selected) ? photoJobs : [], queueRequest, retryPhoto: id=>changePhoto(id,true), discardPhoto: id=>changePhoto(id,false), syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && state === 'signedOut', retrySetup, login, logout, cancel, choose }}>{children}</AuthContext.Provider>;
 }
 export function useOptionalAuth() { return useContext(AuthContext); }
 export function useAuth() { const v = useOptionalAuth(); if (!v) throw new Error('AuthProvider gerekli.'); return v; }

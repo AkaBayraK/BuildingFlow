@@ -5,7 +5,7 @@ export interface Database {
   runAsync(sql: string, ...values: SqlValue[]): Promise<unknown>;
   getFirstAsync<T>(sql: string, ...values: SqlValue[]): Promise<T | null>;
 }
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 export const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
 export type Snapshot = { session: Session; verifiedAt: number; selectedKey: string | null };
 export async function migrate(db: Database) {
@@ -46,6 +46,11 @@ export async function migrate(db: Database) {
       CREATE TABLE profile_settings (user_id TEXT PRIMARY KEY NOT NULL REFERENCES account(user_id),show_photo INTEGER NOT NULL DEFAULT 1 CHECK(show_photo IN (0,1)));
     `);
     if(version<5)await db.execAsync('CREATE TABLE owner_snapshots(user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,payload TEXT NOT NULL,checked_at INTEGER NOT NULL,PRIMARY KEY(user_id,context_key));');
+    if(version<6)await db.execAsync(`
+      CREATE TABLE request_drafts (user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,payload TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(user_id,context_key));
+      CREATE TABLE request_photo_jobs (operation_id TEXT PRIMARY KEY NOT NULL,user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,record_id TEXT NOT NULL,parent_operation_id TEXT NOT NULL,body_file TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','sending','retry','sent','conflict','blocked','failed','cancelled')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt_at INTEGER NOT NULL,created_at INTEGER NOT NULL,error_code INTEGER);
+      CREATE INDEX request_photo_jobs_due ON request_photo_jobs(user_id,context_key,status,next_attempt_at);
+    `);
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}; COMMIT;`);
   } catch (error) { await db.execAsync('ROLLBACK'); throw error; }
 }
