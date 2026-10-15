@@ -35,6 +35,7 @@ elif [ "${CI:-}" = true ]; then
   docker exec postgres-18.6 psql -U postgres -v ON_ERROR_STOP=1 -qc 'DROP DATABASE IF EXISTS buildingflow_ci_test' -c 'CREATE DATABASE buildingflow_ci_test'
   BUILDINGFLOW_TEST_DATABASE="Host=127.0.0.1;Port=${POSTGRES_PORT:-5436};Database=buildingflow_ci_test;Username=postgres;Password=$POSTGRES_PASSWORD"
   cleanup_test_database() { :; }
+  ci_runner=1
 else
   echo 'Shared PostgreSQL project ../postgres-18.6 not found.' >&2
   exit 1
@@ -42,6 +43,10 @@ fi
 export BUILDINGFLOW_TEST_DATABASE
 trap cleanup_test_database EXIT
 python3 scripts/configure-object-storage.py
+if [ -n "${ci_runner:-}" ]; then
+  # Linux bind mounts keep host ownership; the gateway runs as the image's seaweed user (uid 1000).
+  sudo chown 1000:1000 deploy/seaweedfs/private-s3.json
+fi
 docker compose --env-file .env -f deploy/docker-compose.yml up -d seaweedfs-s3 rabbitmq
 # The S3 gateway accepts connections only after its filer is up; wait so storage tests do not race it.
 for _ in $(seq 60); do
