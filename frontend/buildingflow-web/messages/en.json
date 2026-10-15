@@ -1,5 +1,17 @@
 {
   "ui": {
+    "signoutBrandEyebrow": "SIMPLIFY BUILDING LIFE",
+    "signoutBrandHeadline": "Better organised buildings.",
+    "signoutBrandHeadlineAccent": "A more peaceful home.",
+    "signoutBrandDescription": "All the important information about your living space, in one place.",
+    "signoutFeatureProperties": "Properties and residents",
+    "signoutFeaturePayments": "Dues and payments",
+    "signoutFeatureDocuments": "News and documents",
+    "signoutStatusLabel": "SIGNED OUT",
+    "signoutLoginAgain": "Sign in again",
+    "signoutSecurityNote": "Access your account through the secure sign-in page.",
+    "signoutFooterTagline": "Your living space, in one place.",
+
     "aMOREORGANIZEDCOMMUNITY": "A MORE ORGANIZED COMMUNITY",
     "theFoundationOfEverything": "The foundation of everything,",
     "isGoodManagement": "is good management.",

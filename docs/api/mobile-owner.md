@@ -1,0 +1,11 @@
+# Mobil ev sahibi — Faz08
+
+14.10.2026. GET `/api/v1/mobile/owner?propertyId=<uuid>&unitId=<uuid>`, authenticated. Malik erişimi JWT sub + linked Person/aktif OWNER occupancy/aktif PropertyMembership/Property/Unit/Building ile mevcut MobileSessionStore üzerinden doğrulanır. Yönetici claim’i malik bağı yerine geçmez; rol atama veya kişi kaydı yazımı yok. Anonim401, yetkisiz/iptal bağlam403, eksik/geçersiz query400.
+
+RepeatableRead snapshot: userId/contextKey (`property:unit:OWNER`), asOf UTC; unit adres/bina/numara/kat/brütalan; aktif tenant yalnız ad+ilişki tarihleri; balance/overdue decimal0.00string; charge id/dönem/tutar/ödenen/kalan/vade/status; yayınlanmış ALL_MEMBERS duyuru id/title/content/publishedAt; JWT sahibinin aynıOWNER/daire bağlamındaki MobileRequest id/description/modifiedAt. Kimlik/doğum/telefon/email/linkedUserId, diğer hesap talepleri, özel veya taslak duyuru yok.
+
+Borç görünürlüğü: assessment.DebtorType UNIT ve kişisel debtor snapshot yok veya OWNER debtor snapshot’ı hesaba bağlı kişiye ait. Kiracının/diğer malikin kişisel borcu hariç. Aktif görünür charge’lar, mevcut soft-delete filtreleri korunur; IsCancelled history0balance. Balance/overdue tüm görünür satırlardan SUM, charge listesi son50. Tenant10, duyuru/talep20; more* bayrakları sınırlı listeyi belirtir. Detay/ek/ödeme sağlayıcısı veya kira sözleşmesi modeli eklenmedi. Tenant ilişki tarihleri kira sözleşmesi tarihleri değildir.
+
+Yeni backend entity/migration/mutation yok. Mobil native SQLCipher schema5owner_snapshots userId/contextKey,24saatTTL; whitespace/private extra alanlar whitelisted; eski asOf reddi,403scopepurge, generation/context guard, offline/güncellik/hata/boş durumları. Web yalnız bellek. Yeni dependency yok.
+
+59/59 gerçek izole PostgreSQL integration: MobileOwner/Session/Sync/Authentication/ReleaseSecurity. Malik/anonim/forgedSUPER_ADMIN/başkaunit/property/üyelik ve ownership iptali, tenantborç/PII/duyuru/talep ayrımı ve51 görünürcharge’ın50listeden bağımsız toplamı. Mobil41/41+lint/typecheck/üç platformexport. API/workerDockerbuild/deploy;5005/5006health200, anonimowner401,Metro8081status200. Kullanıcı talimatıyla görsel inceleme yok; gerçek kullanıcı kişisel verisine test yazımı yok. Ayrıntı kardeş buildingflow-mobile/docs/mobile/PHASE08.md.

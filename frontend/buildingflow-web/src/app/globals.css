@@ -449,3 +449,33 @@ main { min-width: 0; }
 .person-editor-panel [data-slot="dialog-footer"].person-editor-footer{display:flex;flex-direction:row;flex-shrink:0;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 -32px;padding:16px 32px;border-top:1px solid var(--border);background:var(--card);}
 .person-editor-required{display:flex;align-items:center;gap:8px;flex:1;min-width:180px;font-size:11px;line-height:1.5;color:var(--muted-foreground);}
 @media(max-width:639px){[data-slot="dialog-content"].person-editor-panel{gap:20px;padding:24px 20px 0;}.person-form-grid{grid-template-columns:minmax(0,1fr);gap:16px;}.person-editor-panel [data-slot="dialog-footer"].person-editor-footer{margin-inline:-20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));}.person-editor-required{flex-basis:100%;min-width:0;}.person-editor-footer>div{width:100%;}.person-editor-footer button{flex:1;}.person-form-section-title{margin-top:24px;}}
+
+/* Branded signed-out landing page; authentication actions keep their existing route. */
+.signed-out.signout-layout{min-height:100svh;padding:48px 32px;display:grid;place-items:center;background:radial-gradient(ellipse at 12% 0%,#e2edf5,transparent 55%),#f4f7fb;text-align:left;gap:0}
+.signout-shell{width:min(1120px,100%);min-height:680px;display:grid;grid-template-columns:1.05fr 1fr;background:#fff;border:1px solid #e1e8f0;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px #0929400c}
+.signout-brand-panel{position:relative;isolation:isolate;overflow:hidden;padding:42px 44px 34px;color:#fff;background:radial-gradient(ellipse at 50% 80%,#174d63 0%,transparent 65%),linear-gradient(145deg,#061e36,#102e4c);display:flex;flex-direction:column}
+.signout-wordmark{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:750;letter-spacing:-1px;position:relative;z-index:1}
+.signout-wordmark svg{flex-shrink:0}.signout-flow{color:#00cafa}
+.signout-brand-copy{position:relative;z-index:1;margin-top:46px}.signout-eyebrow{font-size:10px;letter-spacing:2px;font-weight:650;color:#9fc9d9}
+.signout-brand-copy h2{font-size:38px;line-height:1.2;letter-spacing:-1.4px;font-weight:600;margin:18px 0}
+.signout-brand-copy h2 span{display:block;color:#81d5e1;margin-top:7px}
+.signout-brand-copy p{font-size:14px;line-height:1.8;max-width:310px;color:#c2d5e3;margin:0}
+.signout-city{height:245px;position:relative;margin:0 -28px;overflow:hidden;flex:1;min-height:190px}
+.signout-city img{position:absolute;width:110%;height:auto;max-width:none;left:-5%;bottom:-74px;opacity:.85}
+.signout-feature-list{display:flex;gap:16px;flex-wrap:wrap;border-top:1px solid #ffffff20;padding-top:22px;position:relative;z-index:1}
+.signout-feature-list span{display:flex;gap:7px;align-items:center;color:#c5dbe7;font-size:10px;line-height:1.5}
+.signout-feature-list svg{color:#81d5e1;flex-shrink:0}
+.signout-action-panel{padding:30px 44px 26px;display:flex;flex-direction:column;min-width:0;background:#fff}
+.signout-toolbar{display:flex;justify-content:flex-end}.signout-toolbar .language-switcher select{background:#fff;border-color:#e2e8f0}
+.signout-content{width:100%;max-width:352px;align-self:center;margin:auto 0;padding:52px 0}
+.signout-status-icon{width:66px;height:66px;display:grid;place-items:center;background:#eaf6f2;color:#21836f;border-radius:21px;margin-bottom:26px;border:1px solid #d6eee5}
+.signout-status-label{font-size:10px;letter-spacing:1.9px;color:#6e8295;font-weight:650}
+.signed-out .signout-content h1{font-size:34px;line-height:1.2;letter-spacing:-1.2px;color:#082b49;font-weight:650;margin:13px 0 16px}
+.signed-out .signout-description{font-size:15px;color:#60758a;line-height:1.85;margin:0 0 29px;max-width:320px}
+.signout-login-button{display:flex;align-items:center;justify-content:space-between;gap:18px;text-decoration:none;min-height:54px;padding:16px 20px;border-radius:12px;background:#082b49;font-size:14px;font-weight:600;transition:background .15s,box-shadow .15s}
+.signout-login-button:hover{background:#12415e;box-shadow:0 6px 18px #082b491a}.signout-login-button:focus-visible{outline:3px solid #00cafa;outline-offset:4px}
+.signout-security{display:flex;gap:9px;align-items:flex-start;margin-top:20px;font-size:11px;line-height:1.7;color:#718398}.signout-security svg{flex-shrink:0;margin-top:1px;color:#547b87}
+.signout-footer{display:flex;gap:16px;justify-content:space-between;border-top:1px solid #eaf0f4;padding-top:20px;font-size:10px;color:#8898a8;line-height:1.7}
+.signout-footer>span:first-child{font-weight:650;color:#506c80}
+@media(max-width:900px){.signed-out.signout-layout{padding:24px}.signout-shell{min-height:620px;grid-template-columns:1fr 1fr}.signout-brand-panel{padding:32px 28px}.signout-brand-copy h2{font-size:30px}.signout-action-panel{padding:26px 28px}.signed-out .signout-content h1{font-size:30px}.signout-feature-list{gap:12px}.signout-feature-list span{font-size:10px}}
+@media(max-width:650px){.signed-out.signout-layout{padding:16px;place-items:start center}.signout-shell{grid-template-columns:1fr;min-height:0;border-radius:22px}.signout-brand-panel{padding:24px;min-height:230px}.signout-wordmark{font-size:23px}.signout-wordmark svg{width:39px;height:39px}.signout-brand-copy{margin-top:24px;max-width:255px}.signout-eyebrow{font-size:8px;letter-spacing:1.6px}.signout-brand-copy h2{font-size:25px;letter-spacing:-.8px;margin:12px 0 0}.signout-brand-copy p,.signout-feature-list,.signout-city{display:none}.signout-action-panel{padding:20px 24px}.signout-content{padding:26px 0 34px;max-width:none}.signout-status-icon{width:52px;height:52px;border-radius:16px;margin-bottom:20px}.signed-out .signout-content h1{font-size:29px;margin-bottom:14px}.signed-out .signout-description{font-size:14px;margin-bottom:24px}.signout-footer{font-size:9px;gap:12px}.signout-toolbar select{min-height:40px}}

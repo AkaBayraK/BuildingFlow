@@ -34,6 +34,7 @@ builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<MeterService>();
 builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<CommunicationService>();
+builder.Services.AddHostedService<ProfilePhotoMaintenance>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
     .WithMethods("GET", "POST", "PUT", "DELETE")
@@ -88,6 +89,10 @@ app.MapGet("/api/v1/status", () => Results.Ok(new { application = "BuildingFlow"
     .RequireAuthorization();
 app.MapMobileSessionEndpoints();
 app.MapMobileSyncEndpoints();
+app.MapMobileProfileEndpoints();
+app.MapMobileOwnerEndpoints();
+app.MapMobileManagerEndpoints();
+app.MapMobileFinanceEndpoints();
 app.MapPropertyEndpoints();
 app.MapHierarchyEndpoints();
 app.MapDirectUnitEndpoints();

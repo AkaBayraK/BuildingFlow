@@ -1,0 +1,110 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using Microsoft.EntityFrameworkCore;
+namespace BuildingFlow.Infrastructure;
+public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionStore sessions,ICurrentUserService actor,IFileStorage storage,TimeProvider clock):IMobileProfileStore {
+ private string User()=>actor.IsAuthenticated && !string.IsNullOrWhiteSpace(actor.UserId)?actor.UserId:throw new UnauthorizedAccessException();
+ private async Task Authorize(CancellationToken token) {
+  var s=await sessions.ReadAsync(User(),actor.Username,new[]{"SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"}.Where(actor.IsInRole).ToArray(),token);
+  if(s.HasMore || s.Contexts.Count==0)throw new UnauthorizedAccessException();
+ }
+ private static HierarchyConflictException Conflict()=>new(ErrorCatalog.MobileSyncConflict.Create());
+ private async Task<MobileProfileDto> Dto(MobileProfile? p,string user,CancellationToken token) {
+  var photo=p?.PhotoId is Guid id?await db.Set<MobileProfilePhoto>().AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id && x.OwnerUserId==user && x.State=="CURRENT" && x.IsEnabled,token):null;
+  return new(user,p?.FirstName??"",p?.LastName??"",p?.Phone,photo?.Id,photo?.Sha256,p?.Version??0,p?.ModifiedAt);
+ }
+ public async Task<MobileProfileDto> ReadAsync(CancellationToken token) {
+  await Authorize(token);var user=User();var p=await db.Set<MobileProfile>().IgnoreQueryFilters().AsNoTracking().SingleOrDefaultAsync(x=>x.OwnerUserId==user,token);
+  if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
+  return await Dto(p,user,token);
+ }
+ public async Task<MobileProfileResult> SaveAsync(MobileProfileCommand c,CancellationToken token) {
+  await Authorize(token);var user=User();
+  if(c.OperationId==Guid.Empty || c.ExpectedVersion<0 || string.IsNullOrWhiteSpace(c.FirstName) || c.FirstName.Trim().Length>80 || c.FirstName.Any(char.IsControl) || string.IsNullOrWhiteSpace(c.LastName) || c.LastName.Trim().Length>80 || c.LastName.Any(char.IsControl) || c.PhotoAction is not ("KEEP" or "REPLACE" or "REMOVE") || (c.PhotoAction!="REPLACE" && c.PhotoBase64!=null))throw new ArgumentException("Invalid profile.");
+  var phone=string.IsNullOrWhiteSpace(c.Phone)?null:c.Phone.Trim();
+  if(phone!=null) {
+   var digits=phone.Count(char.IsAsciiDigit);
+   if(phone.Length>32 || digits is <7 or >15 || phone.Any(x=>!char.IsAsciiDigit(x) && !"+ -()".Contains(x)))throw new ArgumentException("Invalid phone.");
+  }
+  byte[]? bytes=null;
+  if(c.PhotoAction=="REPLACE") {
+   if(c.PhotoBase64==null || c.PhotoBase64.Length>350000)throw new ArgumentException("Invalid image.");
+   try {bytes=ProfilePhoto.Normalize(Convert.FromBase64String(c.PhotoBase64));}catch(FormatException){throw new ArgumentException("Invalid image encoding.");}
+  }
+  var hash=bytes==null?null:Convert.ToHexString(SHA256.HashData(bytes));
+  var canonical=c with{FirstName=c.FirstName.Trim(),LastName=c.LastName.Trim(),Phone=phone,PhotoBase64=hash};
+  var fingerprint=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("profile:"+JsonSerializer.Serialize(canonical))));
+  // Durable reservation before upload: failed/uncertain storage writes can be reclaimed later.
+  MobileProfilePhoto? staged=null;
+  if(bytes!=null) {
+   staged=await db.Set<MobileProfilePhoto>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token);
+   if(staged==null) {
+    staged=new(user,c.OperationId,fingerprint,hash!,bytes.Length);db.Add(staged);
+    try {await db.SaveChangesAsync(token);}
+    catch(DbUpdateException e) when(e.InnerException is Npgsql.PostgresException pg && pg.SqlState=="23505") {
+     db.Entry(staged).State=EntityState.Detached;
+     staged=await db.Set<MobileProfilePhoto>().IgnoreQueryFilters().SingleAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token);
+    }
+   }
+   if(staged.Fingerprint!=fingerprint || staged.IsDeleted || !staged.IsEnabled)throw Conflict();
+  }
+  await using var tx=await db.Database.BeginTransactionAsync(token);
+  await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"profile:"+user},0))",token);
+  await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({user+":"+c.OperationId},0))",token);
+  await Authorize(token);
+  var receipt=await db.Set<MobileOperationReceipt>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token);
+  if(receipt!=null) {
+   if(receipt.IsDeleted || receipt.Fingerprint!=fingerprint)throw Conflict();
+   return new(c.OperationId,JsonSerializer.Deserialize<MobileProfileDto>(receipt.Result)!,true);
+  }
+  var p=await db.Set<MobileProfile>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user,token);
+  if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
+  if((p?.Version??0)!=c.ExpectedVersion)throw Conflict();
+  if(p==null){p=new(user);db.Add(p);}
+  var photoId=p.PhotoId;
+  if(c.PhotoAction!="KEEP") {
+   if(p.PhotoId is Guid old) {
+    var previous=await db.Set<MobileProfilePhoto>().SingleAsync(x=>x.Id==old && x.OwnerUserId==user,token);previous.Retire();
+   }
+   photoId=null;
+   if(bytes!=null && staged!=null) {
+    await db.Entry(staged).ReloadAsync(token);
+    using var stream=new MemoryStream(bytes);
+    await storage.UploadAsync(staged.ObjectKey,stream,"image/jpeg",token);
+    staged.Current();photoId=staged.Id;
+   }
+  }
+  p.Edit(canonical.FirstName,canonical.LastName,phone,photoId);
+  if(db.Entry(p).State!=EntityState.Added)db.Entry(p).State=EntityState.Modified;
+  await db.SaveChangesAsync(token);
+  var result=await Dto(p,user,token);
+  db.Add(new MobileOperationReceipt(user,c.OperationId,fingerprint,JsonSerializer.Serialize(result)));
+  await db.SaveChangesAsync(token);await tx.CommitAsync(token);
+  return new(c.OperationId,result,false);
+ }
+ public async Task<byte[]?> PhotoAsync(Guid id,CancellationToken token) {
+  await Authorize(token);var user=User();
+  var photo=await db.Set<MobileProfilePhoto>().AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id && x.OwnerUserId==user && x.State=="CURRENT" && x.IsEnabled && db.Set<MobileProfile>().Any(p=>p.OwnerUserId==user && p.PhotoId==id && p.IsEnabled),token);
+  if(photo==null)return null;
+  await using var stream=await storage.DownloadAsync(photo.ObjectKey,token);
+  using var output=new MemoryStream();var buffer=new byte[8192];int read;
+  while((read=await stream.ReadAsync(buffer,token))>0){if(output.Length+read>ProfilePhoto.MaxBytes)throw new StorageUnavailableException();await output.WriteAsync(buffer.AsMemory(0,read),token);}
+  var bytes=output.ToArray();
+  if(bytes.Length!=photo.Size || Convert.ToHexString(SHA256.HashData(bytes))!=photo.Sha256)throw new StorageUnavailableException();
+  return bytes;
+ }
+ public async Task MaintainAsync(CancellationToken token) {
+  var expiry=clock.GetUtcNow().AddMinutes(-30);
+  var candidates=await db.Set<MobileProfilePhoto>().Where(x=>x.State=="RETIRED" || (x.State=="STAGED" && x.CreatedAt<expiry)).OrderBy(x=>x.CreatedAt).Take(5).ToArrayAsync(token);
+  foreach(var photo in candidates) {
+   await using var tx=await db.Database.BeginTransactionAsync(token);
+   await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"profile:"+photo.OwnerUserId},0))",token);
+   await db.Entry(photo).ReloadAsync(token);
+   if(photo.State is not ("STAGED" or "RETIRED") || (photo.State=="STAGED" && photo.CreatedAt>=expiry) || await db.Set<MobileProfile>().IgnoreQueryFilters().AnyAsync(x=>x.PhotoId==photo.Id,token))continue;
+   await storage.DeleteAsync(photo.ObjectKey,token);photo.Purged();await db.SaveChangesAsync(token);await tx.CommitAsync(token);
+  }
+ }
+}

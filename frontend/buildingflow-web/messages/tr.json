@@ -1,5 +1,17 @@
 {
   "ui": {
+    "signoutBrandEyebrow": "BİNA YAŞAMINI KOLAYLAŞTIRIN",
+    "signoutBrandHeadline": "Daha düzenli binalar.",
+    "signoutBrandHeadlineAccent": "Daha huzurlu bir yaşam.",
+    "signoutBrandDescription": "Yaşam alanınızla ilgili tüm önemli bilgiler, tek bir yerde.",
+    "signoutFeatureProperties": "Mülkler ve sakinler",
+    "signoutFeaturePayments": "Aidat ve ödemeler",
+    "signoutFeatureDocuments": "Duyuru ve belgeler",
+    "signoutStatusLabel": "ÇIKIŞ TAMAMLANDI",
+    "signoutLoginAgain": "Yeniden giriş yap",
+    "signoutSecurityNote": "Hesabınıza güvenli giriş sayfası üzerinden erişebilirsiniz.",
+    "signoutFooterTagline": "Yaşam alanınız, tek bir yerde.",
+
     "aMOREORGANIZEDCOMMUNITY": "DAHA DÜZENLİ BİR YAŞAM ALANI",
     "theFoundationOfEverything": "Her şeyin temeli,",
     "isGoodManagement": "iyi bir yönetim.",

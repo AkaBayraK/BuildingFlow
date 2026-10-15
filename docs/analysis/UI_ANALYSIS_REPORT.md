@@ -1,7 +1,7 @@
 # BuildingFlow — UI Aşama 01 analiz raporu
 
 Tarih: **8 Ekim 2026**  
-Proje: /Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow  
+Proje: /Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow
 Teslim: docs/analysis/UI_ANALYSIS_REPORT.md
 
 ## 1. Sonuç ve kapsam
@@ -33,17 +33,17 @@ Sonraki prompt'ta gerçek referans klasörü, tek rapor yolu ve “UI Aşama 02�
 
 Okunan temel kaynaklar:
 
-- [Kök AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/AGENTS.md)
-- [Frontend AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/AGENTS.md)
-- [Frontend Convention — 17 standart](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/frontend-rules.md)
-- [MASTER_PROMPT.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-ui-plan/MASTER_PROMPT.md)
-- [UI planı AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-ui-plan/AGENTS.md)
-- [UI PHASES.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-ui-plan/PHASES.md)
-- [Mimari kaynak](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/BUILDINGFLOW_PROJECT_CORE.md)
-- [Test kaydı](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/TESTING.md)
-- [Migration kuralları](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/MIGRATIONS.md)
-- [Kişi/ilişki API sözleşmesi](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/api/people.md)
-- [Lisans politikası](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/docs/licenses.md)
+- [Kök AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/AGENTS.md)
+- [Frontend AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/AGENTS.md)
+- [Frontend Convention — 17 standart](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/frontend-rules.md)
+- [MASTER_PROMPT.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-ui-plan/MASTER_PROMPT.md)
+- [UI planı AGENTS.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-ui-plan/AGENTS.md)
+- [UI PHASES.md](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-ui-plan/PHASES.md)
+- [Mimari kaynak](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/BUILDINGFLOW_PROJECT_CORE.md)
+- [Test kaydı](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/TESTING.md)
+- [Migration kuralları](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/MIGRATIONS.md)
+- [Kişi/ilişki API sözleşmesi](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/api/people.md)
+- [Lisans politikası](/Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/docs/licenses.md)
 
 ## 3. Mevcut teknoloji ve mimari
 
@@ -73,7 +73,7 @@ Sürümler package.json/proje dosyalarından okundu; aralıklı değerler manife
 ### 3.2. Yapı ve sorumluluklar
 
 ~~~text
-BuldingFlow/
+BuildingFlow/
 ├── AGENTS.md
 ├── backend/
 │   ├── BuildingFlow.sln
@@ -187,7 +187,7 @@ Her ekran aşağıdaki sekiz başlıkla değerlendirilmiştir.
 
 ### 6.1. Genel Bakış
 
-Referans: [BuildingFlow Genel Bakış Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Genel Bakış Paneli.png>)
+Referans: [BuildingFlow Genel Bakış Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Genel Bakış Paneli.png>)
 
 Fotoğraflı karşılama/hava durumu, altı KPI, doluluk donut'u, blok doluluk, gelir-gider, duyuru, son aidat/talep ve gider dağılımı. Üç ana bant mobilde tek sütuna inmeli.
 
@@ -204,7 +204,7 @@ Fotoğraflı karşılama/hava durumu, altı KPI, doluluk donut'u, blok doluluk, 
 
 ### 6.2. Yönetim Alanları
 
-Referans: [BuildingFlow Yönetim Alanları Panosu.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Yönetim Alanları Panosu.png>)
+Referans: [BuildingFlow Yönetim Alanları Panosu.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Yönetim Alanları Panosu.png>)
 
 Dört KPI, fotoğraflı üç alan kartı, checkbox/aksiyon/pagination table; search, durum/il/ilçe, görünüm, refresh, Excel/PDF ve create. Kartlar mobilde tek akışa, table ortak mobil listeye dönüşmeli.
 
@@ -221,7 +221,7 @@ Dört KPI, fotoğraflı üç alan kartı, checkbox/aksiyon/pagination table; sea
 
 ### 6.3. Daireler / Bağımsız Bölümler
 
-Referans: [Daire Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/Daire Yönetim Paneli.png>)
+Referans: [Daire Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/Daire Yönetim Paneli.png>)
 
 Alan başlığı/KPI, büyük table, sağda kat dağılımı, oda donut'u ve aktivite. Kolonlar no/blok/kat/3+1/m²/kişi/doluluk/güncelleme; sağ sütun mobilde alta alınmalı.
 
@@ -238,7 +238,7 @@ Alan başlığı/KPI, büyük table, sağda kat dağılımı, oda donut'u ve akt
 
 ### 6.4. Kişiler / Sakinler
 
-Referans: [BuildingFlow Sakinler Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Sakinler Yönetim Paneli.png>)
+Referans: [BuildingFlow Sakinler Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Sakinler Yönetim Paneli.png>)
 
 Dört KPI, avatar/rol/iletişim table, sağda Genel/Daire/Aile/Notlar sekmesi. Panelde TC/doğum/cinsiyet, hızlı aidat/talep/mesaj/arama var.
 
@@ -255,7 +255,7 @@ Dört KPI, avatar/rol/iletişim table, sağda Genel/Daire/Aile/Notlar sekmesi. P
 
 ### 6.5. Aidat İşlemleri
 
-Referans: [BuildingFlow Aidat Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Aidat Yönetim Paneli.png>)
+Referans: [BuildingFlow Aidat Yönetim Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Aidat Yönetim Paneli.png>)
 
 Ay seçimi, tahakkuk/tahsilat/bakiye KPI, karma grafik, ödendi/kısmi/ödenmedi donut, liste ve hızlı borçlandırma/makbuz/hatırlatma. Daire/Kişi/Blok/Site sekmelerinin kapsamı ayrıca tanımlanmalı.
 
@@ -272,7 +272,7 @@ Ay seçimi, tahakkuk/tahsilat/bakiye KPI, karma grafik, ödendi/kısmi/ödenmedi
 
 ### 6.6. Muhasebe
 
-Referans: [BuildingFlow Muhasebe Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Muhasebe Paneli.png>)
+Referans: [BuildingFlow Muhasebe Paneli.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Muhasebe Paneli.png>)
 
 Tarih aralığı, gelir/gider/net/bakiye KPI, iki chart, transaction table, banka hesapları/hızlı işlemler. Gelir/Gider/Transfer/Fatura/Bütçe/Cari Hesap sekmeleri mevcut iş kapsamından daha geniş.
 
@@ -289,7 +289,7 @@ Tarih aralığı, gelir/gider/net/bakiye KPI, iki chart, transaction table, bank
 
 ### 6.7. Talep ve Arızalar
 
-Referans: [BuildingFlow Talep ve Arıza Yönetimi.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Talep ve Arıza Yönetimi.png>)
+Referans: [BuildingFlow Talep ve Arıza Yönetimi.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Talep ve Arıza Yönetimi.png>)
 
 Durum KPI/sekme, kategori/konum/öncelik filtreleri, table ve sağda timeline/sorumlu/ek/not. Örnek toplam 48, alt durumlar 12 + 18 + 34 + 3 = 67; aynı kapsamın dağılımı olarak tutarsızdır.
 
@@ -306,7 +306,7 @@ Durum KPI/sekme, kategori/konum/öncelik filtreleri, table ve sağda timeline/so
 
 ### 6.8. Raporlar
 
-Referans: [BuildingFlow Raporlar Dashboard’u.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Raporlar Dashboard’u.png>)
+Referans: [BuildingFlow Raporlar Dashboard’u.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Raporlar Dashboard’u.png>)
 
 Dönem seçimi, altı kategori KPI, dört chart, kategori menüsü/katalog; son çalışma, görüntüle, Excel/PDF, yeni rapor/zamanla. Mobilde kategori seçici ve tek sütun grafik.
 
@@ -323,7 +323,7 @@ Dönem seçimi, altı kategori KPI, dört chart, kategori menüsü/katalog; son 
 
 ### 6.9. Sistem Ayarları
 
-Referans: [BuildingFlow Sistem Ayarları Dashboard’u.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuldingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Sistem Ayarları Dashboard’u.png>)
+Referans: [BuildingFlow Sistem Ayarları Dashboard’u.png](</Users/abdulkadiraltunbayrak/Desktop/Projects/BuildingFlow/frontend/buildingflow-web/doc/ui-references/BuildingFlow Sistem Ayarları Dashboard’u.png>)
 
 Yedi üst kategori, iç sidebar, merkezi form, sağda kurum/servis durumu ve sistem işlemleri. Tema/dil/SMTP/SMS/güvenlik/audit/bakım/backup/cache/restart farklı yetki ve veri sorumluluğu taşır.
 

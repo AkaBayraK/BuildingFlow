@@ -163,7 +163,7 @@ Grafana görselleştirme katmanıdır; şu anda datasource/dashboard yüklenmez.
 
 ## VS Code görevleri ile çalıştırma
 
-VS Code'da **File → Open Folder** ile bu projenin kök klasörünü (`BuldingFlow`) açın. `.NET 10 SDK`, `Node.js 24` ve Docker Desktop kurulu olmalı. SDK/Node kurulumu sonrası VS Code'u yeniden açın. C# Dev Kit uzantısı önerilir.
+VS Code'da **File → Open Folder** ile bu projenin kök klasörünü (`BuildingFlow`) açın. `.NET 10 SDK`, `Node.js 24` ve Docker Desktop kurulu olmalı. SDK/Node kurulumu sonrası VS Code'u yeniden açın. C# Dev Kit uzantısı önerilir.
 
 1. **Terminal → Run Task → BuildingFlow: Prepare local development**: Docker'daki FE/BE'yi durdurur, altyapıyı başlatır, backend build/migration ve `npm ci` çalıştırır. İlk kullanımda veya bağımlılıklar/migration değiştiğinde çalıştırın.
 2. Hazırlık başarıyla bitince **Terminal → Run Task → BuildingFlow: FE + BE**: FE ve BE'yi iki ayrı VS Code terminalinde host makinede çalıştırır.

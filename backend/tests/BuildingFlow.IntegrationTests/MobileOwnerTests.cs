@@ -1,0 +1,29 @@
+using System.Net;
+using System.Net.Http.Json;
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using Xunit;
+namespace BuildingFlow.IntegrationTests;
+public sealed class MobileOwnerTests(SiteApiTests.SiteApiFactory factory):IClassFixture<SiteApiTests.SiteApiFactory>{
+ private async Task<(HttpClient Client,Guid Property,Guid Unit,Guid OtherUnit,string User,Guid Membership,Guid Occupancy)> Setup(){
+  var user=Guid.NewGuid().ToString();var p=new Property("Owner fixture","City","District","Address");var b=p.AddBuilding("A");var u=b.AddUnit("1",2,90m);var other=b.AddUnit("2",3,80m);
+  var owner=new Person(p.Id,"Owner","Fixture","5550000001","owner@example.test");owner.SetProfile("NATURAL","FOREIGN","US","TEST1234",null,null,null,user);
+  var tenant=new Person(p.Id,"Tenant","Fixture","5550000000","private@example.test");tenant.SetProfile("NATURAL","FOREIGN","US","TENANT123",null,null,null,null);
+  var today=DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow,TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")).DateTime);
+  var occupancy=new UnitOccupancy(p.Id,u.Id,owner.Id,OccupancyType.OWNER,today.AddYears(-1));var lease=new UnitOccupancy(p.Id,u.Id,tenant.Id,OccupancyType.TENANT,today.AddYears(-1));var member=new PropertyMembership(p.Id,user);
+  var publicNote=new Announcement(p.Id,"Published fixture","Visible content",ContentAudience.ALL_MEMBERS);publicNote.Publish(DateTimeOffset.UtcNow);var secret=new Announcement(p.Id,"Private management","Hidden content",ContentAudience.MANAGEMENT);secret.Publish(DateTimeOffset.UtcNow);
+  var assessment=new DuesAssessment(p.Id,Guid.NewGuid(),new string('a',64),new DateOnly(today.Year,today.Month,1),100m,"TRY",today.AddDays(-1),"fixture");assessment.AddCharge(u.Id);assessment.AddCharge(other.Id);
+  var tenantAssessment=new DuesAssessment(p.Id,Guid.NewGuid(),new string('b',64),new DateOnly(today.Year,today.Month,1).AddMonths(-1),300m,"TRY",today.AddDays(-1),"Tenant personal","TENANT");var tenantCharge=tenantAssessment.AddCharge(u.Id);tenantCharge.RecordParties([new DuesChargeParty(tenantCharge,lease,tenant,true)]);
+  await factory.WithDb(async db=>{db.Add(tenantAssessment);db.AddRange(p,owner,tenant,occupancy,lease,member,publicNote,secret,assessment);db.Add(new MobileRequest(Guid.NewGuid(),p.Id,u.Id,"OWNER",user,"Own request"));db.Add(new MobileRequest(Guid.NewGuid(),p.Id,u.Id,"OWNER","other-user","Hidden request"));await db.SaveChangesAsync();});
+  return(TestToken.Client(factory,user,"RESIDENT"),p.Id,u.Id,other.Id,user,member.Id,occupancy.Id);
+ }
+ private static string Path(Guid property,Guid unit)=>$"/api/v1/mobile/owner?propertyId={property}&unitId={unit}";
+ [PostgresFact] public async Task OwnerReadsOnlyOwnUnitPublishedAnnouncementsAndOwnRequests(){var s=await Setup();using var c=s.Client;var response=await c.GetAsync(Path(s.Property,s.Unit));Assert.Equal(HttpStatusCode.OK,response.StatusCode);var snapshot=(await response.Content.ReadFromJsonAsync<OwnerSnapshot>())!;Assert.Equal(s.User,snapshot.UserId);Assert.Equal("1",snapshot.Unit.Number);Assert.Equal("100.00",snapshot.Balance);Assert.Equal("100.00",snapshot.Overdue);Assert.Single(snapshot.Charges);Assert.Equal("Tenant Fixture",Assert.Single(snapshot.Tenants).Name);Assert.Equal("Published fixture",Assert.Single(snapshot.Announcements).Title);Assert.Equal("Own request",Assert.Single(snapshot.Requests).Description);var json=await response.Content.ReadAsStringAsync();Assert.DoesNotContain("private@example.test",json);Assert.DoesNotContain("TENANT123",json);Assert.DoesNotContain("5550000000",json);Assert.DoesNotContain("Hidden",json);Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(Path(s.Property,s.OtherUnit))).StatusCode);}
+ [PostgresFact] public async Task TotalsCoverAllRowsEvenWhenHistoryIsBounded(){
+  var s=await Setup();using var c=s.Client;var today=DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow,TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")).DateTime);var period=new DateOnly(today.Year,today.Month,1);
+  await factory.WithDb(async db=>{for(var i=2;i<=51;i++){var a=new DuesAssessment(s.Property,Guid.NewGuid(),new string('c',64),period.AddMonths(-i),1m,"TRY",today.AddDays(-1),"Bounded fixture");a.AddCharge(s.Unit);db.Add(a);}await db.SaveChangesAsync();});
+  var snapshot=(await c.GetFromJsonAsync<OwnerSnapshot>(Path(s.Property,s.Unit)))!;Assert.Equal("150.00",snapshot.Balance);Assert.True(snapshot.MoreCharges);Assert.Equal(50,snapshot.Charges.Length);
+ }
+ [PostgresFact] public async Task ForgedRoleAnonymousAndRevokedMembershipCannotRead(){var s=await Setup();using var c=s.Client;using var forged=TestToken.Client(factory,Guid.NewGuid().ToString(),"SUPER_ADMIN");Assert.Equal(HttpStatusCode.Forbidden,(await forged.GetAsync(Path(s.Property,s.Unit))).StatusCode);using var anon=TestToken.Client(factory,null,"");Assert.Equal(HttpStatusCode.Unauthorized,(await anon.GetAsync(Path(s.Property,s.Unit))).StatusCode);await factory.WithDb(async db=>{var m=await db.PropertyMemberships.FindAsync(s.Membership);m!.SetEnabled(false);await db.SaveChangesAsync();});Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(Path(s.Property,s.Unit))).StatusCode);}
+ [PostgresFact] public async Task DisabledOwnershipAndForeignPropertyFailClosed(){var s=await Setup();using var c=s.Client;Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(Path(Guid.NewGuid(),s.Unit))).StatusCode);await factory.WithDb(async db=>{var o=await db.UnitOccupancies.FindAsync(s.Occupancy);o!.SetEnabled(false);await db.SaveChangesAsync();});Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(Path(s.Property,s.Unit))).StatusCode);}
+}
