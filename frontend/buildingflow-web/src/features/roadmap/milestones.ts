@@ -163,4 +163,17 @@ export const milestones: Milestone[] = [
       done("endToEndAcceptanceAndRelease", "verifyCoreJourneysAccessibilityErrorsCompleteOperationsUserDocs", "phase11Step04Verification"),
     ],
   },
+  {
+    number: "12", title: "phase12Title", description: "phase12Description",
+    tasks: [
+      planned("phase12Analysis", "phase12AnalysisDetail"),
+      planned("phase12PersonCode", "phase12PersonCodeDetail"),
+      planned("phase12SmsManagement", "phase12SmsManagementDetail"),
+      planned("phase12RegistrationSms", "phase12RegistrationSmsDetail"),
+      planned("phase12UserManagement", "phase12UserManagementDetail"),
+      planned("phase12MobileSignup", "phase12MobileSignupDetail"),
+      planned("phase12CodeLink", "phase12CodeLinkDetail"),
+      planned("phase12Tests", "phase12TestsDetail"),
+    ],
+  },
 ];
