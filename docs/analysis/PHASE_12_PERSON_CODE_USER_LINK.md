@@ -25,7 +25,7 @@
 
 1. **Kod güvenliği:** kod tek başına kişiye erişim veren bir sırdır. CSPRNG (`RandomNumberGenerator`), en az 10 karakter Crockford Base32 (I/L/O/U yok, okunabilir), sistem genelinde benzersiz indeks, çakışmada yeniden üretim. Ardışık/zaman tabanlı/ID türevi üretim yasak. Kod log, hata mesajı, outbox payload logu ve mesaj geçmişinde maskelenir.
 2. **Kodun saklanması:** önerilen: düz metin yerine HMAC-SHA256 karması + son 3 karakter görünür. Yeniden gönderimde kod yenilenir (eski geçersiz). Yöneticinin kodu ekranda tekrar görmesi isteniyorsa şifreli saklama gerekir — **karar kullanıcıda**.
-3. **Tek başına kod yetmez:** SMS ile gittiği için telefonu ele geçiren veya kodu gören herkes kişiyi sahiplenebilir. Öneri: kod + kayıt telefonunun `Person.PhoneNumber` ile normalize eşleşmesi; isteğe bağlı OTP. Kod tek kullanımlık, eşleşmeden sonra tüketilir; süre sınırı (öneri 30 gün) ve yeniden üretim yönetici eylemidir.
+3. **Tek başına kod yetmez:** SMS ile gittiği için telefonu ele geçiren veya kodu gören herkes kişiyi sahiplenebilir. Karar (kullanıcı, 15.10.2026): eşleşmede mobilde girilen ad, soyad, cep telefonu ve e-posta merkezdeki Person kaydıyla karşılaştırılır; tutmazsa eşleşme yapılmaz ve hata uyarısı verilir. Karşılaştırma normalize edilir (TR locale büyük/küçük harf, boşluk, telefon E.164, e-posta küçük harf); merkezde boş olan alan karşılaştırmaya girmez, telefon zorunludur. Hata mesajı hangi alanın tutmadığını söylemez (kişi verisi sızıntısını ve deneme yoluyla bilgi toplamayı önler), tek bir "bilgiler kayıtla uyuşmuyor" kodu döner. İsteğe bağlı OTP. Kod tek kullanımlık, eşleşmeden sonra tüketilir; süre sınırı (öneri 30 gün) ve yeniden üretim yönetici eylemidir.
 4. **Kaba kuvvet:** kod doğrulama ucu kullanıcı + IP bazlı rate limit, art arda 5 hatada geçici kilit, tüm denemeler güvenlik olayı olarak loglanır (kod değeri olmadan).
 5. **Eşleşme kuralları:** kişi aktif ve en az bir aktif `UnitOccupancy`'ye sahip olmalı; kişi zaten başka kullanıcıya bağlıysa ret; aynı kullanıcı farklı Property'lerdeki kişi kayıtlarına bağlanabilir, aynı Property'de tek kişiye. Eşleşme tek transaction'da: `LinkedUserId` atanır, gerekirse aktif `PropertyMembership` (RESIDENT) oluşturulur, kod tüketilir. `CheckLinked` üyelik şartı bu akışta üyeliği önce yaratacak şekilde ele alınmalı. Kişinin ilişkisi bitince bağ kalır; mobil bağlam zaten aktif ilişki filtresiyle kapanır.
 6. **Mevcut kişiler:** kodsuz eski kişiler için backfill migration kod üretir; backfill toplu SMS **göndermez** (yönetici seçerek gönderir).
@@ -47,12 +47,11 @@
 4. **Kayıt SMS'i** — kişi oluşturma ile aynı transaction'da outbox'a `SmsRequested`; telefon yok/geçersiz/kontör yetersiz durumları ekranda; yeniden gönderim yönetici eylemi.
 5. **Merkez kullanıcı yönetimi** — Keycloak Admin API istemcisi, kapsamlı liste (sayfalı), oluştur/güncelle/devre dışı/parola sıfırlama e-postası, rol allowlist'i, kişiye bağla/çöz.
 6. **Mobil kayıt ve çevrimdışı profil** — kayıt formu, backend kayıt ucu, PKCE giriş, şifreli yerel profil, parola saklamama.
-7. **Kod ile eşleştirme** — mobil kod girişi, telefon eşleşmesi, rate limit/kilit, tek transaction'da bağ + üyelik + kod tüketimi, OWNER/TENANT/RESIDENT bağlamının mobilde görünmesi.
+7. **Kod ile eşleştirme** — mobil kod girişi, ad/soyad/telefon/e-posta kişi kaydıyla eşleşmezse hata uyarısı, eşleşince kiracı/ev sahibi/sakin bilgisinin kişiden gelmesi, rate limit/kilit, tek transaction'da bağ + üyelik + kod tüketimi, OWNER/TENANT/RESIDENT bağlamının mobilde görünmesi.
 8. **Testler ve kabul** — kod tahmin edilemezlik/benzersizlik, yetki/kapsam sızıntısı, rate limit, transaction/idempotency, SMS maskeleme, Keycloak test realm'i, mobil çevrimdışı; TR/EN ve mobil kabul. Gerçek kişiye SMS kabul testine dahil değildir.
 
 ## Kullanıcıdan beklenen kararlar
 
 - SMS sağlayıcısı ve gönderici başlığı (öneri: Netgsm veya İleti Merkezi; seçilene kadar MOCK).
 - Kod saklama: karma + yenileme (öneri) veya şifreli + tekrar görüntüleme.
-- Eşleşmede telefon doğrulaması zorunlu mu (öneri: evet).
 - Mobil kayıt: backend kayıt ucu + PKCE (öneri) veya ROPC.

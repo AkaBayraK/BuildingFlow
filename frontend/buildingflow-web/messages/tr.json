@@ -623,7 +623,7 @@
     "phase12MobileSignup": "Mobil kayıt ve çevrimdışı profil",
     "phase12MobileSignupDetail": "Online kayıtla Keycloak kullanıcısı aç, profili şifreli yerel veritabanına al; parolayı cihazda saklama.",
     "phase12CodeLink": "Kod ile kişi eşleştirme",
-    "phase12CodeLinkDetail": "Kod ve telefon kontrolüyle ev sahibi/kiracı/sakin kişisine tek işlemde bağlan; deneme sınırı ve kilit uygula.",
+    "phase12CodeLinkDetail": "Kod ve kişisel bilgiler (ad, soyad, telefon, e-posta) kişi kaydıyla eşleşirse ev sahibi/kiracı/sakin kişisine tek işlemde bağlan; uyuşmazsa hata ver, deneme sınırı ve kilit uygula.",
     "phase12Tests": "Testler ve kabul",
     "phase12TestsDetail": "Kod güvenliği, yetki kapsamı, deneme sınırı, SMS maskeleme, Keycloak test realm'i ve mobil çevrimdışı kabulü.",
     "phase11Version": "v0.11 · Yayın adayı",

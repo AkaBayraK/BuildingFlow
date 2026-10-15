@@ -623,7 +623,7 @@
     "phase12MobileSignup": "Mobile sign-up and offline profile",
     "phase12MobileSignupDetail": "Create the Keycloak user online, store the profile in the encrypted local database; never store the password on device.",
     "phase12CodeLink": "Link a person by code",
-    "phase12CodeLinkDetail": "Link to the owner/tenant/resident person in one transaction with code and phone checks, attempt limits and lockout.",
+    "phase12CodeLinkDetail": "Link to the owner/tenant/resident person in one transaction when the code and personal details (name, phone, email) match the record; otherwise show an error, with attempt limits and lockout.",
     "phase12Tests": "Tests and acceptance",
     "phase12TestsDetail": "Code security, permission scope, attempt limits, SMS masking, Keycloak test realm and mobile offline acceptance.",
     "phase11Version": "v0.11 · Release candidate",
