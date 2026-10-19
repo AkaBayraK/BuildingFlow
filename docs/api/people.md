@@ -22,7 +22,7 @@ Kişi oluşturma:
 {"firstName":"Deniz","lastName":"Örnek","phoneNumber":"+905551234567","email":"deniz@example.test","personKind":"NATURAL","citizenship":"DOMESTIC","countryCode":"TR","identityNumber":"12345678901"}
 ```
 
-Ad/kurum adı zorunlu ve en fazla100 karakter; soyad yalnız gerçek kişide zorunlu, tüzelde boş string. Telefon zorunlu/en fazla30 karakter ve8–15 rakam; e-posta zorunlu/en fazla254 ve geçerli adres. Güncellemede bu alanlara `isEnabled` ve son okunan `version` eklenir. Kişi yanıtı id/propertyId, bu alanlar, createdAt, version, activeOccupancyCount içerir. Occupancy yazımı parent/person/unit version değerlerini de değiştirebilir; güncelleme öncesi güncel kayıt okunur.
+Ad/kurum adı zorunlu ve en fazla100 karakter; soyad yalnız gerçek kişide zorunlu, tüzelde boş string. Gerçek kişide ad ve soyad sunucuda biçimlenir (17.10.2026): soyad tamamen büyük, ad ve ikinci ad yalnız ilk harfi büyük, fazla boşluk silinir (`ali  veli`/`yılmaz` → `Ali Veli`/`YILMAZ`); Türkçe i/İ kuralı, yabancı uyrukta dil bağımsız; tüzel unvan yazıldığı gibi kalır. Yanıt saklanan biçimi döner. Telefon zorunlu/en fazla30 karakter ve8–15 rakam; e-posta zorunlu/en fazla254 ve geçerli adres. Güncellemede bu alanlara `isEnabled` ve son okunan `version` eklenir. Kişi yanıtı id/propertyId, bu alanlar, createdAt, version, activeOccupancyCount içerir. Occupancy yazımı parent/person/unit version değerlerini de değiştirebilir; güncelleme öncesi güncel kayıt okunur.
 
 İlişki oluşturma:
 
@@ -91,3 +91,22 @@ Yönetici kökü altında POST `/people/{personId}/messages`: `{requestId:UUID,v
 GET `/people/{personId}/messages?page=1`: aynı yönetici+Property scope,10 satır mesaj geçmişi. `/api/v1/notifications?page=1` tüm girişli roller için yalnız JWT sub alıcısı ve hâlâ aktif Property üyeliği+aktif/silinmemiş parent;10 satır. PUT `/api/v1/notifications/{id}/read`: aynı alıcı scope404 izolasyonu ve idempotent readAt. Farklı alıcı/yetki query'si desteklenmez. PersonMessage BaseEntity, aynı Property composite FK, tek UUID ve sekiz NOT NULL kolonu taşır. Yeni migration Down, profile veya mesaj geçmişi varsa ilk drop öncesi reddeder.
 
 Kişi işlem paneli `tel:` ile cihazın arama uygulamasını açar; uygulama kendi telefon görüşmesini yapmaz. Aidat geçmişi mevcut yönetici yetkili Dues personId filtresiyle DuesChargeParty snapshot'ını gösterir; güncel occupancy üzerinden eski borç kişiye atanmaz. ACCOUNTANT kişi/profile/account-choices yetkisi almaz. Rapor/finans DTO'larına T.C./vergi/pasaport/telefon bilgisi eklenmedi.
+
+## Kişi kodu (İŞ12)
+
+Her kişi oluşturulduğunda 6 haneli, yalnız rakamdan oluşan, ilk hanesi 1–9 olan bir kişi kodu üretilir. Kod `RandomNumberGenerator` ile seçilir; 4+ haneli artan/azalan dizi (123456, 654321), üç aynı ardışık rakam (111…), aynı rakamın 4+ kez geçmesi ve 2/3 haneli tekrar (121212, 123123) reddedilip yeniden üretilir. Düz kod veritabanına yazılmaz: `PersonCode:HmacKey` (en az 32 bayt hex, ortam değişkeni `PersonCode__HmacKey`) ile HMAC-SHA256 karması `people.person_code_hash` kolonunda benzersiz indeksle (`uidx_people_person_code_hash`) tutulur; ekranda yalnız son iki hane (`person_code_hint`) ve üretim zamanı görünür.
+
+- POST `/people` yanıtı tek seferlik `issuedPersonCode` alanını içerir ve `Cache-Control: no-store` döner. Okuma/liste yanıtlarında düz kod yoktur; `personCodeHint` ve `personCodeIssuedAt` döner.
+- POST `/people/{personId}/code` `{version}`: yönetici kişi politikası (SUPER_ADMIN/SITE_ADMIN/MANAGER) ve Property kapsamı; yeni kod üretir, eskisi geçersiz olur, version artar. Eski version 409, version<1 400, kapsam dışı 404. Yanıt yine tek seferlik `issuedPersonCode` + `no-store`.
+- Çakışma: 20 denemede benzersiz kod bulunamazsa veya eşzamanlı yarışta indeks ihlali olursa `BF_PERSON_CODE_UNAVAILABLE` (409).
+- Eski kişiler: migration adımı (açılıştaki AutoMigrate veya `--migrate` işi) sonrası kodsuz kişilere 200'lük gruplarla kod atanır; bu toplu işlem SMS göndermez, audit aktörü `system` olur ve kişinin version'ı artar. Hata API'yi durdurmaz, uyarı loglanır ve bir sonraki migration çalışmasında devam eder.
+- Production açılışı geçerli `PersonCode:HmacKey` olmadan başlamaz; Development/test ana makinelerinde anahtar yoksa paylaşılan geliştirme anahtarı kullanılır. Anahtar değişirse mevcut kodlar doğrulanamaz; kodlar yeniden üretilmelidir.
+
+
+## PERSON FAZ03 — paralel canonical backend
+
+Eski v1 alan kapsamlı kişi API'si bu fazda korunur; yeni tenant-scoped `/api/v2/tenants/{id}/people` varsayılan kapalıdır. Eski Person/UnitOccupancy/kişi kodu/finans veya mobil DTO canonical kayda otomatik aktarılmadı. Identity doğrulaması ortak PersonProfileValidation'a taşındı; v1 iletişim zorunluluğu değişmedi. Gerçek geçiş/alias/backfill FAZ04 onayına bağlı. Uygulanan genişletme [central-people](central-people.md), teslim [FAZ03](../refactor/person/phase-03-report.md).
+
+## İŞ19 — Bağlı hesabın fotoğrafı
+
+`GET /api/v1/properties/{propertyId}/people/{personId}/photo`: kişiye bağlı giriş hesabının profil fotoğrafı (`image/jpeg`). Kişiyi okuma kapsamıyla aynı (yönetim rolü + aktif üyelik); bağ veya fotoğraf yoksa 404. Liste ve detay yanıtında `linkedPhotoId` (güncel fotoğraf kimliği, yoksa null). Fotoğrafı yalnız hesap sahibi rızasıyla ekler. Ayrıntı [account.md](account.md).

@@ -2,7 +2,7 @@
 
 import type {ReactNode} from "react";
 import type {LucideIcon} from "lucide-react";
-import {RefreshCw,Search,RotateCcw,CheckCircle2,PauseCircle} from "lucide-react";
+import {RefreshCw,Search,RotateCcw,CheckCircle2,PauseCircle,ShieldCheck,Building2,UserCog,Calculator,House,KeyRound,DoorOpen,UserRound} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -32,8 +32,8 @@ export function ListToolbar({term,onTerm,searchLabel,placeholder,loading,onRefre
   return <div className="flex flex-wrap items-center gap-3 border-b bg-muted/30 p-4 sm:px-5">
     <div className="relative min-w-0 basis-full sm:min-w-48 sm:flex-1 sm:basis-auto"><Search aria-hidden="true" className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground"/><Input value={term} maxLength={200} onChange={event=>onTerm(event.target.value)} className="h-10 bg-card pl-9" placeholder={placeholder} aria-label={searchLabel}/></div>
     {children}
-    <Button variant="ghost" size="sm" disabled={!resetEnabled} onClick={onReset}><RotateCcw className="size-4"/>{m("reset")}</Button>
-    <Button variant="outline" size="icon" aria-label={t("refresh")} disabled={loading} onClick={onRefresh}><RefreshCw className={cn("size-4",loading&&"animate-spin")}/></Button>
+    <Button variant="outline" size="sm" disabled={!resetEnabled} onClick={onReset}><RotateCcw className="size-4"/>{m("reset")}</Button>
+    <Button variant="view" size="icon" aria-label={t("refresh")} disabled={loading} onClick={onRefresh}><RefreshCw className={cn("size-4",loading&&"animate-spin")}/></Button>
   </div>;
 }
 
@@ -46,4 +46,28 @@ export function DetailField({label,children}:{label:string;children:ReactNode}){
 export function StatusBadge({enabled}:{enabled:boolean}){
   const t=useTranslations("ui");const Icon=enabled?CheckCircle2:PauseCircle;
   return <Badge variant="secondary" className={enabled?"border border-(--message-success-border) bg-(--message-success-bg) text-(--message-success-text)":"border bg-muted text-muted-foreground"}><Icon aria-hidden="true" className="size-3"/>{enabled?t("active"):t("inactive")}</Badge>;
+}
+
+// İŞ19: coloured badge from the shared semantic tokens (no per-screen palette); an icon always accompanies the colour.
+export type Tone="success"|"warning"|"info"|"error"|"violet"|"teal"|"neutral";
+const tones:Record<Tone,string>={
+  success:"border-(--message-success-border) bg-(--message-success-bg) text-(--message-success-text)",
+  warning:"border-(--message-warning-border) bg-(--message-warning-bg) text-(--message-warning-text)",
+  info:"border-(--message-info-border) bg-(--message-info-bg) text-(--message-info-text)",
+  error:"border-(--message-error-border) bg-(--message-error-bg) text-(--message-error-text)",
+  violet:"border-(--tone-violet-border) bg-(--tone-violet-bg) text-(--tone-violet-text)",
+  teal:"border-(--tone-teal-border) bg-(--tone-teal-bg) text-(--tone-teal-text)",
+  neutral:"border-border bg-muted text-muted-foreground",
+};
+export function ToneBadge({tone,icon:Icon,children}:{tone:Tone;icon?:LucideIcon;children:ReactNode}){
+  return <Badge variant="secondary" className={cn("border",tones[tone])}>{Icon&&<Icon aria-hidden="true" className="size-3"/>}{children}</Badge>;
+}
+// One colour and icon per role everywhere (users list, my account, linked properties).
+const roleTones:Record<string,{tone:Tone;icon:LucideIcon}>={
+  SUPER_ADMIN:{tone:"violet",icon:ShieldCheck},SITE_ADMIN:{tone:"info",icon:Building2},MANAGER:{tone:"teal",icon:UserCog},
+  ACCOUNTANT:{tone:"warning",icon:Calculator},RESIDENT:{tone:"neutral",icon:House},OWNER:{tone:"success",icon:KeyRound},TENANT:{tone:"info",icon:DoorOpen},
+};
+export function RoleBadge({role,label}:{role:string;label:string}){
+  const style=roleTones[role]??{tone:"neutral" as Tone,icon:UserRound};
+  return <ToneBadge tone={style.tone} icon={style.icon}>{label}</ToneBadge>;
 }

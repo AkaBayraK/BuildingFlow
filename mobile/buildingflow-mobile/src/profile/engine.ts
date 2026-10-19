@@ -2,6 +2,7 @@ import { parseProfile, parseReceipt, bytesBase64, MAX_PHOTO_BYTES, type Profile 
 import * as queue from './outbox.ts';
 import type {SyncDb} from '../sync/outbox';
 import type {PrivateFiles} from './files';
+import {CONSENT_HOLD,consentRequiredCode} from '../consents/contracts.ts';
 export type Ports={store:<T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>;request:(path:string,body?:unknown)=>Promise<Response>;active:()=>boolean;now:()=>number;digest:(bytes:Uint8Array)=>Promise<string>};
 export class ProfileError extends Error {status:number;constructor(status:number,message:string){super(message);this.status=status;}}
 const path='/api/v1/mobile/profile';
@@ -13,7 +14,12 @@ export async function synchronizeProfile(p:Ports,user:string):Promise<Profile> {
    const command=await p.store((_,files)=>queue.loadCommand(files,job));
    const response=await p.request(path+'/commands',command);
    if(!p.active())throw Error('Hesap değişti.');
-   if(response.status===403){await p.store((db,files)=>queue.purge(db,files,user));throw new ProfileError(403,'Profil erişimi kaldırıldı.');}
+   if(response.status===403){
+    // Missing photo consent keeps the draft (İŞ18); any other 403 means the account lost profile access.
+    let held=false;try{held=((await response.json()) as {code?:unknown})?.code===consentRequiredCode;}catch{/* Plain 403. */}
+    if(held){await p.store(db=>queue.finish(db,job,'failed',CONSENT_HOLD,p.now()));throw new ProfileError(CONSENT_HOLD,'Profil fotoğrafı için açık rıza gerekiyor. Rıza verdiğinizde taslak yeniden gönderilir; isterseniz taslağı kaldırabilirsiniz.');}
+    await p.store((db,files)=>queue.purge(db,files,user));throw new ProfileError(403,'Profil erişimi kaldırıldı.');
+   }
    if(response.status===409){await p.store(db=>queue.finish(db,job,'conflict',409,p.now()));throw new ProfileError(409,'Profil başka bir cihazda değişti. Merkezdeki bilgileri alıp yeniden düzenleyin.');}
    if(!response.ok){const status=response.status;await p.store(db=>queue.finish(db,job,(status===429||status>=500)&&job.attempts<6?'retry':'failed',status,p.now(),Math.max(Math.min(120000,Math.max(0,Number(response.headers.get('Retry-After'))||0)*1000),Math.min(60000,2000*2**Math.min(job.attempts,5)))));throw new ProfileError(status,'Profil gönderilemedi. Taslak korunuyor.');}
    try {receipt=parseReceipt(await response.json(),command,user);}catch{await p.store(db=>queue.finish(db,job,'failed',-1,p.now()));throw new ProfileError(-1,'Merkez makbuzu doğrulanamadı. Aynı işlem yeniden denenebilir.');}

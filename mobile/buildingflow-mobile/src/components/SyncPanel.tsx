@@ -1,10 +1,13 @@
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { canRetryJob } from '../sync/outbox';
+import {QueuedRequestPreview} from './QueuedRequestPreview';
+import {Alert,Platform,StyleSheet,Text,View} from 'react-native';
+import {Action as Pressable} from './Action';
+import { canRetryJob, canCancelJob, isConsentHeld } from '../sync/outbox';
+import { useConsentPrompt } from '../consents/ConsentProvider';
 import { useAuth } from '../auth/AuthProvider';
 import { Icon, styles } from './Screen';
 const labels={pending:'Bekliyor',sending:'Gönderiliyor',retry:'Yeniden denenecek',sent:'Gönderildi',conflict:'Çakışma',blocked:'Yetki gerekiyor',failed:'Gönderilemedi',cancelled:'İptal edildi'};
 export function SyncPanel() {
-  const auth=useAuth();
+  const auth=useAuth(),prompt=useConsentPrompt();
   if(auth.selected?.role==='ACCOUNTANT' || !auth.selected)return null;
   const visible=auth.syncJobs.filter(j=>!['sent','cancelled'].includes(j.status)).slice(0,10);
   return <View style={styles.card}><View style={styles.locationRow}><Icon name={auth.offline?'cloud-offline-outline':'sync-outline'} /><Text accessibilityRole="header" style={styles.cardTitle}>Veri eşitleme</Text></View>
@@ -15,11 +18,12 @@ export function SyncPanel() {
       {!auth.syncSummary && !auth.syncMessage && <Text style={styles.muted}>İşlem kuyruğu okunuyor…</Text>}
       {!!auth.syncMessage && <Text accessibilityRole="alert" style={s.error}>{auth.syncMessage}</Text>}
       <Pressable accessibilityRole="button" accessibilityState={{disabled:auth.offline || auth.syncBusy}} disabled={auth.offline || auth.syncBusy} style={[styles.button,(auth.offline || auth.syncBusy)&&s.disabled]} onPress={()=>void auth.synchronizeNow()}><Text style={styles.buttonText}>{auth.syncBusy?'Kontrol ediliyor…':'Şimdi eşitle'}</Text></Pressable>
-      {visible.map(job=><View key={job.operation_id} style={s.job}><Text style={styles.text}>Talep işlemi · {labels[job.status]}</Text><Text style={styles.muted}>{job.status==='conflict'?'Kayıt sunucuda değişmiş. Güncel bilgi kontrol edilmeden üzerine yazılmaz.':job.status==='blocked'?'Bu işlem için erişimin yeniden doğrulanmalı.':job.attempts ? job.attempts+' gönderim denemesi':'Henüz gönderilmedi.'}</Text><View style={s.buttons}>
+      {visible.map(job=><View key={job.operation_id} style={s.job}><Text style={styles.text}>Talep işlemi · {isConsentHeld(job)?'Fotoğraf rızası bekliyor':labels[job.status]}</Text><Text style={styles.muted}>{isConsentHeld(job)?'Merkez fotoğrafı açık rıza olmadan kabul etmedi. Rıza verirseniz talep yeniden gönderilir; isterseniz iptal edebilirsiniz.':job.status==='conflict'?'Kayıt sunucuda değişmiş. Güncel bilgi kontrol edilmeden üzerine yazılmaz.':job.status==='blocked'?'Bu işlem için erişimin yeniden doğrulanmalı.':job.attempts ? job.attempts+' gönderim denemesi':'Henüz gönderilmedi.'}</Text><QueuedRequestPreview job={job}/><View style={s.buttons}>
+        {isConsentHeld(job)&&<Pressable accessibilityRole="button" disabled={auth.syncBusy} style={s.secondary} onPress={()=>void prompt.ask('REQUEST_PHOTO').then(ok=>{if(ok)void auth.synchronizeNow();}).catch(()=>{})}><Text style={s.secondaryText}>Rıza metnini aç</Text></Pressable>}
         {canRetryJob(job)&&<Pressable accessibilityRole="button" disabled={auth.syncBusy || auth.offline} style={s.secondary} onPress={()=>void auth.retryJob(job.operation_id)}><Text style={s.secondaryText}>Tekrar dene</Text></Pressable>}
-        {job.status==='pending' && job.attempts===0 && <Pressable accessibilityRole="button" disabled={auth.syncBusy} style={s.secondary} onPress={()=>Alert.alert('Bekleyen işlem iptal edilsin mi?','Henüz gönderilmemiş bu işlem sunucuya iletilmeyecek.',[{text:'Vazgeç',style:'cancel'},{text:'İşlemi iptal et',style:'destructive',onPress:()=>void auth.cancelJob(job.operation_id)}])}><Text style={s.secondaryText}>İptal et</Text></Pressable>}
+        {canCancelJob(job) && <Pressable accessibilityRole="button" disabled={auth.syncBusy} style={s.secondary} onPress={()=>Alert.alert('Bekleyen işlem iptal edilsin mi?','Henüz gönderilmemiş bu işlem sunucuya iletilmeyecek.',[{text:'Vazgeç',style:'cancel'},{text:'İşlemi iptal et',style:'destructive',onPress:()=>void auth.cancelJob(job.operation_id)}])}><Text style={s.secondaryText}>İptal et</Text></Pressable>}
       </View></View>)}
-    </>}
+    </>}{prompt.element}
   </View>;
 }
-const s=StyleSheet.create({stats:{flexDirection:'row',gap:8},stat:{flex:1,padding:10,borderRadius:12,backgroundColor:'#f3f6fa',alignItems:'center'},number:{fontSize:24,fontWeight:'700',color:'#082b49'},disabled:{opacity:0.5},error:{color:'#9e333a',fontSize:13,lineHeight:21},job:{borderTopWidth:1,borderTopColor:'#e5ebf2',paddingTop:14,gap:5},buttons:{flexDirection:'row',gap:10},secondary:{padding:12,minHeight:48,justifyContent:'center',borderRadius:12,backgroundColor:'#edf3fc'},secondaryText:{color:'#2056bc',fontSize:14,fontWeight:'600'}});
+const s=StyleSheet.create({stats:{flexDirection:'row',flexWrap:'wrap',gap:8},stat:{flex:1,minWidth:90,padding:10,borderRadius:12,backgroundColor:'#f3f6fa',alignItems:'center'},number:{fontSize:24,fontWeight:'700',color:'#082b49'},disabled:{opacity:0.5},error:{color:'#9e333a',fontSize:13,lineHeight:21},job:{borderTopWidth:1,borderTopColor:'#e5ebf2',paddingTop:14,gap:5},buttons:{flexDirection:'row',flexWrap:'wrap',gap:10},secondary:{padding:12,minHeight:48,justifyContent:'center',borderRadius:12,backgroundColor:'#edf3fc'},secondaryText:{color:'#2056bc',fontSize:14,fontWeight:'600'}});

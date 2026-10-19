@@ -16,4 +16,7 @@ var smtp = SmtpOptions.FromConfiguration(builder.Configuration);
 if (smtp.Enabled) builder.Services.AddSingleton<IMessageHandler>(new SmtpEmailHandler(smtp));
 builder.Services.AddHostedService<OutboxRelayWorker>();
 builder.Services.AddHostedService<MessageConsumerWorker>();
+builder.Services.AddHostedService<SmsDispatchWorker>();
+builder.Services.AddHostedService<WebsiteRetentionWorker>();
+builder.Services.AddHostedService<WebsiteDomainWorker>();
 await builder.Build().RunAsync();

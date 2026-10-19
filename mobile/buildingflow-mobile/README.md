@@ -61,3 +61,7 @@ npm run project:verify  # Uzak içerik/durum ve kapsamdışı kayıt koruması
 ```
 
 Sır eklemeyin; mevcut gh kimliği kullanılır. Plan/doğrulama raporu gitignored `artifacts/github-project/` altındadır. Yönetim bloğu dışındaki insan notları korunur; aynı başlıklı ama yönetilmeyen veya yinelenen kayıt varsa işlem durur. Bu komutlar mağaza yayını, commit/push veya zamanlanmış otomasyon oluşturmaz.
+
+## Faz15 — Yayın hazırlığı
+
+Dinamikdev/prodconfig veEASprofil/önkontrol eklendi. [Derleme/yayın yönergesi](release/README.md), [mağaza/gizlilik kabul listesi](release/STORE_CHECKLIST.md). Üretim bilgileri boş; `npm run release:check` şu an beklenen biçimde başarısızdır. `npm run build` yalnızJS/assetexporttur. Native splash için yeni binary ve gerçekrelease kabulü gerekir; cloud/mağaza yayını yapılmadı.

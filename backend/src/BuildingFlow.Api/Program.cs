@@ -6,7 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
-builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.AddSimpleConsole(o =>
+    {
+        o.SingleLine = true;
+        o.TimestampFormat = "HH:mm:ss ";
+        o.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+    });
+}
+else
+{
+    builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
+}
 builder.Services.AddBuildingFlowTelemetry(builder.Logging,builder.Configuration,"buildingflow-api");
 builder.Services.AddReleaseSecurity(builder.Configuration, builder.Environment);
 builder.Services.AddHttpContextAccessor();
@@ -21,19 +33,32 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CanReadProperties", policy => policy.RequireAuthenticatedUser().RequireClaim("sub"));
     options.AddPolicy("CanManageProperties", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN"));
     options.AddPolicy("CanManageHierarchy", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
+    options.AddPolicy("CanManageUsers", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
     options.AddPolicy("CanManagePeople", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
     options.AddPolicy("CanManageDues", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT"));
+    options.AddPolicy("CanManageWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
+    options.AddPolicy("CanPublishWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
 });
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<HierarchyService>();
 builder.Services.AddScoped<PeopleService>();
+builder.Services.AddScoped<CentralPeopleService>();
 builder.Services.AddScoped<PersonMessageService>();
 builder.Services.AddScoped<DuesService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<MeterService>();
+builder.Services.AddScoped<SmsService>();
+builder.Services.AddScoped<ConsentService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<MobileOnboardingService>();
 builder.Services.AddScoped<ReportService>();
+builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CommunicationService>();
+builder.Services.AddScoped<ListingService>();
+builder.Services.AddScoped<WebsiteDomainService>();
+builder.Services.AddScoped<WebsiteService>();
+builder.Services.AddScoped<WebsiteMediaService>();
 builder.Services.AddHostedService<ProfilePhotoMaintenance>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
@@ -56,6 +81,7 @@ if (migrateOnly || app.Configuration.GetValue("Database:AutoMigrate", app.Enviro
         migrationLogger.LogCritical("BuildingFlow.Migrations: schema migration failed ({ExceptionType}); the API will not start", exception.GetType().Name);
         throw;
     }
+    await PersonCodeBackfill.RunAsync(app.Services, migrationLogger);
     if (migrateOnly) return;
 }
 
@@ -74,6 +100,7 @@ app.UseStatusCodePages(async statusContext =>
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
+app.UseSessionContextAccess();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
@@ -90,19 +117,41 @@ app.MapGet("/api/v1/status", () => Results.Ok(new { application = "BuildingFlow"
 app.MapMobileSessionEndpoints();
 app.MapMobileSyncEndpoints();
 app.MapMobileProfileEndpoints();
+app.MapAccountEndpoints();
 app.MapMobileOwnerEndpoints();
 app.MapMobileManagerEndpoints();
 app.MapMobileFinanceEndpoints();
+app.MapMobileNoticeEndpoints();
 app.MapPropertyEndpoints();
 app.MapHierarchyEndpoints();
 app.MapDirectUnitEndpoints();
 app.MapPeopleEndpoints();
+app.MapCentralPeopleEndpoints();
+app.MapPersonTransitionEndpoints();
+app.MapManagementAssignmentEndpoints();
+app.MapPersonCenterEndpoints();
+app.MapSessionContextEndpoints();
+app.MapSmsEndpoints();
+app.MapConsentEndpoints();
+app.MapMobileConsentEndpoints();
+app.MapRequestManagementEndpoints();
+app.MapUserEndpoints();
+app.MapMobileOnboardingEndpoints();
 app.MapDuesEndpoints();
 app.MapPaymentEndpoints();
 app.MapExpenseEndpoints();
 app.MapMeterEndpoints();
 app.MapReportEndpoints();
+app.MapDashboardEndpoints();
 app.MapCommunicationEndpoints();
+app.MapWebsiteInquiryEndpoints();
+app.MapListingEndpoints();
+app.MapPublicListingEndpoints();
+app.MapWebsiteDomainEndpoints();
+app.MapWebsiteEndpoints();
+app.MapWebsiteMediaEndpoints();
+app.MapPublicWebsiteMediaEndpoints();
+app.MapPublicWebsiteEndpoints();
 app.Run();
 
 public partial class Program { }

@@ -21,6 +21,12 @@ backend_env() {
   export ObjectStorage__AccessKey="${OBJECT_STORAGE_ACCESS_KEY}"
   export ObjectStorage__SecretKey="${OBJECT_STORAGE_SECRET_KEY}"
   export ObjectStorage__Bucket="buildingflow-documents"
+  export PersonCode__HmacKey="${PERSON_CODE_HMAC_KEY:-}"
+  export Website__PreviewHmacKey="${WEBSITE_PREVIEW_HMAC_KEY:-}"
+  export Website__InquiryHmacKey="${WEBSITE_INQUIRY_HMAC_KEY:-}"
+  export Website__PlatformDomain="${WEBSITE_PLATFORM_DOMAIN:-}"
+  export KeycloakAdmin__BaseUrl="http://localhost:${KEYCLOAK_PORT}"
+  export KeycloakAdmin__ClientSecret="${BUILDINGFLOW_KEYCLOAK_ADMIN_CLIENT_SECRET:-}"
   export ASPNETCORE_ENVIRONMENT=Development
   export ASPNETCORE_URLS="http://localhost:${API_PORT}"
   export Telemetry__Enabled="${BUILDINGFLOW_TELEMETRY_ENABLED:-true}"

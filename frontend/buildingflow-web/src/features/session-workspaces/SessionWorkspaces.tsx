@@ -1,0 +1,27 @@
+"use client";
+import Link from "next/link";
+import {useRouter} from "next/navigation";
+import {useCallback,useEffect,useState} from "react";
+import {useTranslations} from "next-intl";
+import {Building2} from "lucide-react";
+import {useIdentity} from "@/auth/AuthGate";
+import {Button} from "@/components/ui/button";
+import {MessageBanner} from "@/components/feedback/MessageBanner";
+import {WorkspaceHeading,DetailField} from "@/components/management/WorkspacePresentation";
+import {useCenterRecord} from "@/features/person-center/hooks";
+import {contextPage,contextDetail,soleWorkspace,workspacePath} from "./model";
+const root="/api/v2/session/contexts";
+export function SessionWorkspaces({automatic=false}:{automatic?:boolean}){const identity=useIdentity();return <Selection key={identity.subject??""} automatic={automatic}/>;}
+function Selection({automatic}:{automatic:boolean}){
+ const t=useTranslations("sessionWorkspaces"),ui=useTranslations("ui"),router=useRouter();const [page,setPage]=useState(1),[revision,setRevision]=useState(0);const data=useCenterRecord(`${root}?page=${page}&pageSize=20`,contextPage,revision);const value=data.value;
+ useEffect(()=>{if(value&&value.page!==page)setPage(1);},[value,page]);
+ useEffect(()=>{if(automatic&&value){const single=soleWorkspace(value);if(single)router.replace(workspacePath(single));else router.replace("/workspaces");}},[automatic,value,router]);
+ return <section className="mx-auto max-w-5xl py-8"><WorkspaceHeading scope={t("scope")} title={t("title")} description={t("description")} icon={Building2}/><div className="mb-4 flex gap-3"><Button variant="view" onClick={()=>setRevision(n=>n+1)}>{t("refresh")}</Button><Button asChild variant="outline"><Link href="/account">{ui("navAccount")}</Link></Button></div>{data.loading?<p role="status">{ui("loading")}</p>:data.error?<MessageBanner action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{data.error}</MessageBanner>:value?.totalCount===0?<MessageBanner kind="info">{t("empty")}</MessageBanner>:<><ul aria-label={t("title")} className="grid gap-4 sm:grid-cols-2">{value?.items.map(c=><li key={c.kind+":"+c.id} className="rounded-xl border bg-card p-5"><h2 className="font-semibold">{c.propertyName}</h2><p className="mt-2 text-sm text-muted-foreground">{c.tenantName} · {t(c.role)}{c.unitNumber?` · ${c.unitNumber}`:""}</p><Button asChild className="mt-4 min-h-11"><Link href={workspacePath(c)}>{t("open")}</Link></Button></li>)}</ul><div className="mt-5 flex items-center gap-3"><Button variant="outline" disabled={data.loading||page<=1} onClick={()=>setPage(n=>n-1)}>{ui("previousPage")}</Button><span>{page}</span><Button variant="outline" disabled={data.loading||!value||page*20>=value.totalCount} onClick={()=>setPage(n=>n+1)}>{ui("nextPage")}</Button></div></>}</section>;
+}
+export function SessionWorkspace({kind,id}:{kind:string;id:string}){const identity=useIdentity();return <Detail key={(identity.subject??"")+":"+kind+":"+id} kind={kind} id={id}/>;}
+function Detail({kind,id}:{kind:string;id:string}){
+ const t=useTranslations("sessionWorkspaces"),ui=useTranslations("ui");const [revision,setRevision]=useState(0);const decode=useCallback((v:unknown)=>contextDetail(v,kind,id),[kind,id]);const data=useCenterRecord(`${root}/${kind}/${id}`,decode,revision);const value=data.value;
+ // Recheck when returning to a tab. The API also authorizes every action independently.
+ useEffect(()=>{const refresh=()=>setRevision(n=>n+1);window.addEventListener("focus",refresh);return()=>window.removeEventListener("focus",refresh);},[]);
+ return <section className="mx-auto max-w-5xl py-8"><Button asChild variant="link"><Link href="/workspaces">{t("switch")}</Link></Button>{data.error?<MessageBanner action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{data.error}</MessageBanner>:!value?<p role="status">{ui("loading")}</p>:<><WorkspaceHeading scope={value.context.tenantName} title={value.context.propertyName} description={t(value.context.role)} icon={Building2}/><div className="rounded-xl border bg-card p-5"><dl className="grid gap-5 sm:grid-cols-2"><DetailField label={t("role")}>{t(value.context.role)}</DetailField>{value.context.unitNumber&&<DetailField label={t("unit")}>{value.context.unitNumber}</DetailField>}{value.self&&<><DetailField label={t("self")}>{value.self.displayName}</DetailField><DetailField label={t("identity")}>{value.self.maskedIdentity}</DetailField></>}</dl>{!value.context.canManageFinance?<p className="mt-5 text-sm text-muted-foreground">{t("readonly")}</p>:<div className="mt-6 flex flex-wrap gap-3"><Button asChild><Link href={`/properties/${value.context.propertyId}`}>{t("manage")}</Link></Button>{value.context.canManagePeople&&<Button asChild variant="outline"><Link href={`/people/${value.context.tenantId}`}>{t("people")}</Link></Button>}<Button asChild variant="outline"><Link href={`/properties/${value.context.propertyId}/dues`}>{t("finance")}</Link></Button></div>}</div></>}</section>;
+}

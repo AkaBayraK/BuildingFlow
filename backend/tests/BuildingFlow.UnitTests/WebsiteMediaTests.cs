@@ -1,0 +1,14 @@
+using System.Buffers.Binary;
+using System.IO.Compression;
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using Xunit;
+namespace BuildingFlow.UnitTests;
+public sealed class WebsiteMediaTests{
+ public static byte[] Png(bool metadata=false){using var m=new MemoryStream();m.Write(new byte[]{137,80,78,71,13,10,26,10});var header=new byte[13];BinaryPrimitives.WriteInt32BigEndian(header.AsSpan(),1);BinaryPrimitives.WriteInt32BigEndian(header.AsSpan(4),1);header[8]=8;header[9]=2;Chunk(m,"IHDR",header);if(metadata)Chunk(m,"tEXt",System.Text.Encoding.ASCII.GetBytes("Comment\0private GPS"));using var pixels=new MemoryStream();using(var z=new ZLibStream(pixels,CompressionLevel.Optimal,true))z.Write(new byte[]{0,255,255,255});Chunk(m,"IDAT",pixels.ToArray());Chunk(m,"IEND",[]);return m.ToArray();}
+ private static void Chunk(Stream stream,string type,byte[] data){var raw=System.Text.Encoding.ASCII.GetBytes(type).Concat(data).ToArray();uint crc=0xffffffff;foreach(var b in raw){crc^=b;for(int j=0;j<8;j++)crc=(crc&1)!=0?(crc>>1)^0xedb88320:crc>>1;}var len=new byte[4];BinaryPrimitives.WriteInt32BigEndian(len,data.Length);stream.Write(len);stream.Write(raw);BinaryPrimitives.WriteUInt32BigEndian(len,crc^0xffffffff);stream.Write(len);}
+ [Fact]public void PngMetadataIsRemovedAndPixelsAreChecked(){var original=Png(true);var(clean,w,h)=WebsiteImage.Normalize(original,"image/png","x.png");Assert.Equal(1,w);Assert.Equal(1,h);Assert.True(clean.Length<original.Length);Assert.DoesNotContain("private",System.Text.Encoding.ASCII.GetString(clean));Assert.Equal(clean,WebsiteImage.Normalize(clean,"image/png","x.png").Bytes);}
+ [Fact]public void CorruptAndMislabeledImagesAreRejected(){var bad=Png();bad[bad.Length-1]^=1;Assert.Throws<ArgumentException>(()=>WebsiteImage.Normalize(bad,"image/png","x.png"));Assert.Throws<ArgumentException>(()=>WebsiteImage.Normalize(Png(),"image/jpeg","x.jpg"));Assert.Throws<ArgumentException>(()=>WebsiteImage.Normalize(Png(),"image/png","x.svg"));Assert.Throws<ArgumentException>(()=>WebsiteImage.Normalize(new byte[5242881],"image/png","x.png"));}
+ [Theory][InlineData("OWN_WORK",null,false,false,true)][InlineData("LICENSED",null,false,false,false)][InlineData("PERMISSION","Written permission",true,false,false)][InlineData("PERMISSION","Written permission",true,true,true)]public void RightsAndPeopleDeclarationAreMandatory(string rights,string? note,bool people,bool consent,bool valid){void Create()=>_=new WebsiteMedia(Guid.NewGuid(),Guid.NewGuid(),Guid.NewGuid(),new string('a',64),"image/png",100,1,1,new string('b',64),"Alt",rights,note,people,consent);if(valid)Create();else Assert.Throws<ArgumentException>(Create);}
+ [Fact]public void ReferencesOnlyMatchMediaFields(){var id=Guid.NewGuid();Assert.True(WebsiteMediaReferences.Contains($"{{\"items\":[{{\"mediaId\":\"{id}\"}}]}}",id));Assert.False(WebsiteMediaReferences.Contains($"{{\"body\":\"{id}\"}}",id));}
+}

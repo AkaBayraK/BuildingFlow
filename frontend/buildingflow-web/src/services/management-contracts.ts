@@ -32,6 +32,10 @@ export function parsePerson(value:unknown,propertyId:string,personId?:string):Pe
     if(row.citizenship==="DOMESTIC"?!(row.personKind==="LEGAL"?/^[0-9]{10}$/:/^[1-9][0-9]{10}$/).test(String(row.identityNumber)):row.personKind==="NATURAL"&&!/^[A-Za-z0-9-]{6,30}$/.test(String(row.identityNumber)))throw new Error("Invalid person identifier");
   }
   for(const key of ["address","linkedUserId","propertyName"])if(row[key]!=null&&typeof row[key]!=="string")throw new Error("Invalid person field");
+  // İŞ19: a photo id only together with a linked account.
+  if(row.linkedPhotoId!=null&&(!uuid(row.linkedPhotoId)||typeof row.linkedUserId!=="string"))throw new Error("Invalid person photo");
+  if(row.personCodeHint!=null&&(typeof row.personCodeHint!=="string"||!/^[0-9]{2}$/.test(row.personCodeHint))||row.personCodeIssuedAt!=null&&(typeof row.personCodeIssuedAt!=="string"||Number.isNaN(Date.parse(row.personCodeIssuedAt)))||row.issuedPersonCode!=null&&(typeof row.issuedPersonCode!=="string"||!/^[1-9][0-9]{5}$/.test(row.issuedPersonCode)))throw new Error("Invalid person code");
+  if(row.registrationSms!=null){const sms=object(row.registrationSms);if(!["QUEUED","FAILED","SKIPPED"].includes(String(sms.status))||!(sms.messageId===null||uuid(sms.messageId))||!(sms.errorCode===null||typeof sms.errorCode==="string"))throw new Error("Invalid registration SMS");}
   if(row.units!=null){if(!Array.isArray(row.units))throw new Error("Invalid person units");for(const unit of row.units){const u=object(unit);if(!uuid(u.unitId)||typeof u.number!=="string"||!['OWNER','TENANT','RESIDENT'].includes(String(u.role))||!(u.buildingId===null||uuid(u.buildingId))||!(u.buildingName===null||typeof u.buildingName==='string'))throw new Error("Invalid person unit");}}
   return row as Person;
 }

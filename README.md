@@ -202,12 +202,12 @@ Portu `WEB_PORT` veya `npm run dev -- --port 3010` ile değiştirebilirsiniz. Ta
 
 ## 01 — Giriş ve şifre yenileme
 
-Geliştirme hesabı **buildingflow-dev**, e-posta **dev@buildingflow.local**. Rastgele şifre proje kökündeki Git dışında tutulan `.env` dosyasının **BUILDINGFLOW_DEV_PASSWORD** alanındadır. Keycloak yönetici parolası uygulama kullanıcısının parolası değildir. Mevcut kullanıcı şifresi yeniden hazırlıkta korunur; kullanıcı reset ile şifreyi değiştirirse `.env` artık eski başlangıç şifresini içerir.
+Kurulum betikleri uygulama kullanıcısı oluşturmaz, kullanıcı parolası üretmez ve otomatik uygulama rolü atamaz. Yetkili kullanıcı hesapları Keycloak veya mevcut kullanıcı yönetimi akışında yönetilir; kullanıcı parolaları proje `.env` dosyasına yazılmaz. Keycloak yönetici parolası uygulama kullanıcısının parolası değildir.
 
 1. Docker Desktop'ı açın; proje kökünde `bash scripts/dev.sh infrastructure` çalıştırın.
 2. İki ayrı terminalde `bash scripts/dev.sh api` ve `bash scripts/dev.sh web` çalıştırın. Frontend için `cd frontend/buildingflow-web` ardından `npm run dev` de kullanılabilir.
 3. [BuildingFlow](http://localhost:3003/) girişe yönlendirir. Hesap bilgileriyle giriş yapın.
-4. **Şifremi unuttum** → `dev@buildingflow.local` → Gönder. [Mailpit](http://localhost:8025/) içinde gelen maili açıp sıfırlama bağlantısına tıklayın. Yeni şifre ve tekrarını girin. En az 12 karakter, büyük/küçük harf ve rakam gerekir.
+4. **Şifremi unuttum** → hesabınıza kayıtlı e-posta adresi → Gönder. [Mailpit](http://localhost:8025/) içinde gelen maili açıp sıfırlama bağlantısına tıklayın. Yeni şifre ve tekrarını girin. En az 12 karakter, büyük/küçük harf ve rakam gerekir.
 
 **Yerel mail gerçek Gmail/Outlook posta kutusuna gönderilmez; Mailpit'e düşer.** Gerçek teslim için Keycloak → Realm settings → Email altında gerçek SMTP hesabı ve TLS ayarları yapılandırılır; mevcut local SMTP ayarı yayın için kullanılmaz.
 

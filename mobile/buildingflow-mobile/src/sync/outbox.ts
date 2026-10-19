@@ -1,6 +1,7 @@
-import { contextKey, type Session } from '../auth/contracts.ts';
+import { contextKey,sameContextModel, type Session } from '../auth/contracts.ts';
 import { validateCommand, type Command, type RecordValue } from './contracts.ts';
 import type { Database } from '../offline/database.ts';
+import { CONSENT_HOLD } from '../consents/contracts.ts';
 export type JobStatus = 'pending'|'sending'|'retry'|'sent'|'conflict'|'blocked'|'failed'|'cancelled';
 export type Job = {operation_id:string; user_id:string; context_key:string; payload:string; status:JobStatus; attempts:number; next_attempt_at:number; created_at:number; error_code:number|null};
 export interface SyncDb extends Database { getAllAsync<T>(sql:string,...values:(string|number|null)[]):Promise<T[]>; }
@@ -21,9 +22,12 @@ export async function finish(db:SyncDb, job:Job,status:JobStatus, now:number, er
 }
 export async function cancel(db:SyncDb,session:Session,key:string,id:string,now:number) {
   const row=await db.getFirstAsync<Job>('SELECT * FROM sync_outbox WHERE operation_id=? AND user_id=? AND context_key=?',id,session.userId,key);
-  if(!row || row.status!=='pending' || row.attempts!==0) throw Error('Gönderimi başlamış işlemin sonucu önce doğrulanmalı.');
-  await db.runAsync("UPDATE sync_outbox SET status='cancelled',updated_at=? WHERE operation_id=? AND user_id=? AND context_key=? AND status='pending' AND attempts=0",now,id,session.userId,key);
+  // A job held for missing consent was refused before the server stored anything, so it can be cancelled like an unsent one.
+  if(!row || !canCancelJob(row)) throw Error('Gönderimi başlamış işlemin sonucu önce doğrulanmalı.');
+  await db.runAsync("UPDATE sync_outbox SET status='cancelled',updated_at=? WHERE operation_id=? AND user_id=? AND context_key=? AND (status='pending' AND attempts=0 OR status='blocked' AND error_code=?)",now,id,session.userId,key,CONSENT_HOLD);
 }
+export function canCancelJob(row:Job) { return row.status==='pending' && row.attempts===0 || row.status==='blocked' && row.error_code===CONSENT_HOLD; }
+export const isConsentHeld=(row:Job)=>row.status==='blocked' && row.error_code===CONSENT_HOLD;
 export function canRetryJob(row:Job) { return row.status==='retry' || (row.status==='failed' && (row.error_code===0 || row.error_code===429 || (row.error_code!==null && row.error_code>=500))); }
 export async function retry(db:SyncDb,session:Session,key:string,id:string,now:number) {
   const row=await db.getFirstAsync<Job>('SELECT * FROM sync_outbox WHERE operation_id=? AND user_id=? AND context_key=?',id,session.userId,key);
@@ -48,8 +52,11 @@ export async function applyPull(db:SyncDb,userId:string,key:string,records:Recor
 export async function purgeUnauthorized(db:SyncDb,session:Session) {
   const keys=new Set(session.contexts.map(contextKey));
   const scopes=await db.getAllAsync<{context_key:string}>('SELECT context_key FROM sync_requests WHERE user_id=? UNION SELECT context_key FROM sync_outbox WHERE user_id=?',session.userId,session.userId);
-  for(const scope of scopes) if(!keys.has(scope.context_key)) {
+  for(const scope of scopes) if(sameContextModel(session,scope.context_key)&&!keys.has(scope.context_key)) {
     await db.runAsync('DELETE FROM sync_requests WHERE user_id=? AND context_key=?',session.userId,scope.context_key);
-    await db.runAsync("UPDATE sync_outbox SET status='blocked',payload='',error_code=403 WHERE user_id=? AND context_key=? ",session.userId,scope.context_key);
+    await db.runAsync(session.authorization?"UPDATE sync_outbox SET status='blocked',error_code=403 WHERE user_id=? AND context_key=?":"UPDATE sync_outbox SET status='blocked',payload='',error_code=403 WHERE user_id=? AND context_key=?",session.userId,scope.context_key);
   }
 }
+
+// UI reads only active work; completed history and its payload never need to be materialized.
+export async function visibleJobs(db:SyncDb,userId:string,key:string){return db.getAllAsync<Job>("SELECT * FROM sync_outbox WHERE user_id=? AND context_key=? AND status NOT IN ('sent','cancelled') ORDER BY created_at,operation_id LIMIT 10",userId,key);}

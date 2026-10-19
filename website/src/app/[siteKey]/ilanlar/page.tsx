@@ -1,0 +1,7 @@
+import {websiteMetadata,Structured} from '../../../lib/seo';
+import {notFound} from 'next/navigation';
+import {getSite} from '../../../lib/site';
+import {fetchListings} from '../../../lib/listings';
+import {ListingCards} from '../../../components/ListingCards';
+export async function generateMetadata({params}:{params:Promise<{siteKey:string}>}){return websiteMetadata(await getSite((await params).siteKey),undefined,'/ilanlar');}
+export default async function Listings({params,searchParams}:{params:Promise<{siteKey:string}>;searchParams:Promise<{kind?:string;page?:string}>}){const {siteKey}=await params;const site=await getSite(siteKey);const q=await searchParams;const page=Number(q.page??1);const rows=await fetchListings(siteKey,undefined,q.kind,page);if(!rows)notFound();return <main className="text-panel wide-section" id="content"><a href={`/${siteKey}`}>← {site.displayName}</a><Structured site={site} path="/ilanlar"/><h1>Satılık / Kiralık İlanlar</h1><form><label>İlan türü <select name="kind" defaultValue={q.kind??''}><option value="">Tümü</option><option value="SALE">Satılık</option><option value="RENT">Kiralık</option></select></label><button className="button" type="submit">Filtrele</button></form><ListingCards siteKey={siteKey} listings={rows}/><nav aria-label="İlan sayfaları">{page>1&&<a href={`?page=${page-1}${q.kind?'&kind='+q.kind:''}`}>← Önceki</a>} {rows.length===12&&page<1000&&<a href={`?page=${page+1}${q.kind?'&kind='+q.kind:''}`}>Sonraki →</a>}</nav></main>}

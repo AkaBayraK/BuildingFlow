@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BuildingFlow.Infrastructure;
 
-public sealed class PropertyStore(BuildingFlowDbContext db) : IPropertyStore
+public sealed class PropertyStore(BuildingFlowDbContext db,SessionContextStore? contexts=null) : IPropertyStore
 {
     private static readonly Expression<Func<Property, PropertyResponse>> Projection = site => new PropertyResponse(
         site.Id, site.Name, site.City, site.District, site.Address, site.Version, site.CreatedAt, site.IsEnabled, site.Type.ToString(), site.FloorCount, site.Buildings.Count, site.Units.Count, false,
@@ -19,6 +19,7 @@ public sealed class PropertyStore(BuildingFlowDbContext db) : IPropertyStore
     private IQueryable<Property> Accessible(string userId, bool readAll)
     {
         var query = db.Properties.AsNoTracking(); // Existing soft-delete filter is always retained.
+        if(contexts?.Enabled==true){var allowed=contexts.ManagementProperties();query=query.Where(p=>allowed.Any(s=>s.PropertyId==p.Id));}
         return readAll ? query : query.Where(site => db.PropertyMemberships.Any(member =>
             member.PropertyId == site.Id && member.UserId == userId && member.IsEnabled));
     }

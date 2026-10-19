@@ -44,6 +44,8 @@ def rules(env):
  yield 'HTTPS object storage endpoint',https(env.get('ObjectStorage__Endpoint'))
  yield 'Object storage access key set',bool(env.get('ObjectStorage__AccessKey'))
  yield 'Broker and object storage secrets set',secret(env.get('RabbitMQ__Password')) and secret(env.get('ObjectStorage__SecretKey'))
+ yield 'Person code HMAC key set',re.fullmatch(r'(?:[0-9a-fA-F]{2}){32,}',env.get('PersonCode__HmacKey','')) is not None
+ yield 'Keycloak admin client over HTTPS with secret',not env.get('KeycloakAdmin__BaseUrl') or (env['KeycloakAdmin__BaseUrl'].startswith('https://') and secret(env.get('KeycloakAdmin__ClientSecret')))
  yield 'SMTP uses an external host with STARTTLS',not smtp or (env.get('Smtp__Host','').lower() not in LOCAL|{''} and env.get('Smtp__UseStartTls','true').lower()!='false' and env.get('Smtp__AllowInsecureLocal','false').lower()!='true')
  yield 'SMTP sender and credentials',not smtp or (re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s.]+',env.get('Smtp__From','')) is not None and not env.get('Smtp__From','').endswith('.local') and (not env.get('Smtp__Username') or secret(env.get('Smtp__Password'))))
 def main(path):

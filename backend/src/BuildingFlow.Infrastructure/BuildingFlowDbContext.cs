@@ -32,10 +32,20 @@ public sealed class BuildingFlowDbContext : DbContext
     public DbSet<StoredDocument> StoredDocuments => Set<StoredDocument>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<ProcessedMessage> ProcessedMessages => Set<ProcessedMessage>();
+    public DbSet<SmsAccount> SmsAccounts => Set<SmsAccount>();
+    public DbSet<SmsCreditTransaction> SmsCreditTransactions => Set<SmsCreditTransaction>();
+    public DbSet<SmsTemplate> SmsTemplates => Set<SmsTemplate>();
+    public DbSet<SmsMessage> SmsMessages => Set<SmsMessage>();
+    public DbSet<MobileRegistration> MobileRegistrations => Set<MobileRegistration>();
+    public DbSet<PersonLinkAttempt> PersonLinkAttempts => Set<PersonLinkAttempt>();
 
     public DbSet<Meter> Meters => Set<Meter>();
     public DbSet<MeterReading> MeterReadings => Set<MeterReading>();
     public DbSet<MeterReadingRevision> MeterReadingRevisions => Set<MeterReadingRevision>();
+
+    public DbSet<ConsentType> ConsentTypes => Set<ConsentType>();
+    public DbSet<ConsentText> ConsentTexts => Set<ConsentText>();
+    public DbSet<UserConsent> UserConsents => Set<UserConsent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

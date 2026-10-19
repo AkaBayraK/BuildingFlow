@@ -1,0 +1,2 @@
+// Browser preview never offers a persistent offline authorization gate.
+export const deviceAccess={clear:async()=>{},recordOnline:async(..._args:unknown[])=>{},status:async(..._args:unknown[])=>false,enroll:async(..._args:unknown[])=>{throw Error('Çevrimdışı erişim yalnız güvenli mobil build içinde kullanılabilir.');},unlock:async(..._args:unknown[])=>{throw Error('Tarayıcıda çevrimdışı giriş yoktur.');}};

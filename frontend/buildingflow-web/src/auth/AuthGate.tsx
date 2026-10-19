@@ -6,7 +6,11 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Keycloak from "keycloak-js";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck, ChevronDown } from "lucide-react";
+import { LogOut, ShieldCheck, ChevronDown, UserRound } from "lucide-react";
+import Link from "next/link";
+import {AccountAvatar} from "@/components/AccountAvatar";
+import {useAccount} from "@/features/account/useAccount";
+import {accountName} from "@/features/account/model";
 import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuLabel,DropdownMenuSeparator,DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {NotificationInbox} from "@/features/people/NotificationInbox";
 import {LanguageSwitcher} from "@/components/LanguageSwitcher";
@@ -78,8 +82,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 export function SessionControls() {
  const t=useTranslations("ui");const locale=useLocale();const kc=useIdentity();const api=useAuthorizedApi();const notification=useNotification();const [checking,setChecking]=useState(false);
  async function checkApi(){if(checking)return;setChecking(true);try{await api("/api/v1/status");notification.success(t("authenticatedAPIConnectionSuccessful"));}catch(error){notification.error(errorMessage(error,locale));}finally{setChecking(false);}}
- const name=kc.tokenParsed?.name || kc.tokenParsed?.preferred_username || t("user");
+ const {account}=useAccount();const profile=account?.profile??null;
+ // İŞ19: the header shows the account's own "Ad SOYAD" and photo once the account loads; the token name until then.
+ const name=accountName(profile,kc.tokenParsed?.name || kc.tokenParsed?.preferred_username || t("user"));
  const role=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(value=>kc.hasRealmRole(value))?t("shellManager"):kc.hasRealmRole("ACCOUNTANT")?t("shellAccountant"):t("shellMember");
- const initials=String(name).split(/\s+/).filter(Boolean).slice(0,2).map(value=>value[0]).join("").toLocaleUpperCase(locale);
- return <div className="session-controls"><LanguageSwitcher/><NotificationInbox/><DropdownMenu><DropdownMenuTrigger asChild><button className="workspace-profile" aria-label={t("shellProfile")}><span className="profile-avatar" aria-hidden="true">{initials}</span><span className="profile-copy"><strong>{name}</strong><small>{role}</small></span><ChevronDown size={17} aria-hidden="true"/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-64"><DropdownMenuLabel><span className="block truncate">{name}</span><span className="text-xs font-normal text-muted-foreground">{role}</span></DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem disabled={checking} onSelect={()=>void checkApi()}><ShieldCheck/>{t("checkAPIConnection")}</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem variant="destructive" onSelect={()=>void kc.logout({redirectUri:window.location.origin+"/login"})}><LogOut/>{t("signOut")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>;
+ return <div className="session-controls"><LanguageSwitcher/><NotificationInbox/><DropdownMenu><DropdownMenuTrigger asChild><button className="workspace-profile" aria-label={t("shellProfile")}><AccountAvatar key={profile?.photoId??"none"} path={profile?.photoId?`/api/v1/account/profile/photo/${profile.photoId}`:null} name={String(name)} className="profile-avatar"/><span className="profile-copy"><strong>{name}</strong><small>{role}</small></span><ChevronDown size={17} aria-hidden="true"/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-64"><DropdownMenuLabel><span className="block truncate">{name}</span><span className="text-xs font-normal text-muted-foreground">{role}</span></DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem asChild><Link href="/account"><UserRound/>{t("navAccount")}</Link></DropdownMenuItem><DropdownMenuItem disabled={checking} onSelect={()=>void checkApi()}><ShieldCheck/>{t("checkAPIConnection")}</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem variant="destructive" onSelect={()=>void kc.logout({redirectUri:window.location.origin+"/login"})}><LogOut/>{t("signOut")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>;
 }

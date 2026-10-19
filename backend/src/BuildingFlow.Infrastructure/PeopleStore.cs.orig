@@ -1,0 +1,281 @@
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+namespace BuildingFlow.Infrastructure;
+
+public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock, PersonCodeIssuer codes, ISmsQueue sms) : IPeopleStore
+{
+    private const int CodeAttempts = 20;
+    private const string CodeIndex = "uidx_people_person_code_hash";
+    private DateOnly Today => BusinessDate.Today(clock);
+    // Explicit filters also apply in the historical join, whose IgnoreQueryFilters
+    // annotation affects every entity in the composed EF query.
+    private IQueryable<Property> Properties(AccessScope access) => db.Properties.Where(value => !value.IsDeleted && (access.ReadAll ||
+        db.PropertyMemberships.Any(member => !member.IsDeleted && member.PropertyId == value.Id && member.UserId == access.UserId && member.IsEnabled)));
+    private IQueryable<Person> People(Guid property, AccessScope access) => db.People.Where(value => value.PropertyId == property && Properties(access).Any(parent => parent.Id == property));
+    private void Touch(BaseEntity entity) => db.Entry(entity).Property(value => value.IsEnabled).IsModified = true;
+    private async Task<Property?> LockProperty(Guid property,AccessScope access,CancellationToken token)
+    {
+        if (!await Properties(access).AnyAsync(value => value.Id == property,token)) return null;
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM properties WHERE id = {property} FOR UPDATE",token);
+        if(await PersonCenterStore.NativeHistory(db,property,token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+        return await Properties(access).SingleOrDefaultAsync(value => value.Id == property,token);
+    }
+    private static void Expected(BaseEntity entity, long version)
+    { if (entity.Version != version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create()); }
+    private static void Active(BaseEntity entity)
+    { if (!entity.IsEnabled) throw new HierarchyConflictException(ErrorCatalog.OccupancyParentInactive.Create()); }
+    private async Task Save(CancellationToken token)
+    {
+        try { await db.SaveChangesAsync(token); }
+        catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: CodeIndex })
+        { throw new HierarchyConflictException(ErrorCatalog.PersonCodeUnavailable.Create()); }
+        catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        { throw new HierarchyConflictException(ErrorCatalog.OccupancyOverlap.Create()); }
+    }
+    private IQueryable<PersonResponse> Project(IQueryable<Person> query)
+    {
+        var today = Today;
+        return query.Select(value => new PersonResponse(value.Id, value.PropertyId, value.FirstName, value.LastName, value.PhoneNumber,
+            value.Email, value.IsEnabled, value.Version, value.CreatedAt, db.UnitOccupancies.Count(link => link.PersonId == value.Id && link.StartDate <= today && (link.EndDate == null || link.EndDate >= today)), value.PersonKind,value.Citizenship,value.CountryCode,value.IdentityNumber,value.BirthDate,value.Gender,value.Address,value.LinkedUserId,db.Properties.Where(p=>p.Id==value.PropertyId).Select(p=>p.Name).First(),
+            (from link in db.UnitOccupancies join unit in db.Units on new {link.PropertyId,Id=link.UnitId} equals new {unit.PropertyId,unit.Id}
+             join building in db.Buildings on unit.BuildingId equals (Guid?)building.Id into buildings from building in buildings.DefaultIfEmpty()
+             where link.PropertyId==value.PropertyId && link.PersonId==value.Id && link.StartDate<=today && (link.EndDate==null || link.EndDate>=today) && (unit.BuildingId==null || building!=null)
+             select new PersonUnitSummary(unit.Id,unit.Number,unit.BuildingId,building==null?null:building.Name,link.Type.ToString())).ToList(),
+            value.PersonCodeHint, value.PersonCodeIssuedAt));
+    }
+    private static string Pattern(string text) => "%" + text.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
+    public async Task<PagedRows<string>?> AccountChoicesAsync(Guid property,PeopleQuery request,AccessScope access,CancellationToken token)
+    {
+        if(!await Properties(access).AnyAsync(p=>p.Id==property,token))return null;
+        var q=db.PropertyMemberships.Where(m=>m.PropertyId==property&&m.IsEnabled);
+        if(!string.IsNullOrWhiteSpace(request.Search)){var pattern=Pattern(request.Search);q=q.Where(m=>EF.Functions.ILike(m.UserId,pattern,"\\"));}
+        var users=q.Select(m=>m.UserId).Distinct();return new(await users.OrderBy(id=>id).Skip((request.Page-1)*request.PageSize).Take(request.PageSize).ToListAsync(token),request.Page,request.PageSize,await users.CountAsync(token));
+    }
+    public async Task<PagedRows<PersonResponse>?> ListAsync(Guid property, PeopleQuery request, AccessScope access, CancellationToken token)
+    {
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        var query = People(property, access).AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(request.Search)) { var pattern = Pattern(request.Search); query = query.Where(value => (EF.Functions.ILike(value.FirstName + " " + value.LastName, pattern, "\\") || EF.Functions.ILike(value.PhoneNumber ?? "",pattern,"\\") || EF.Functions.ILike(value.Email ?? "",pattern,"\\"))); }
+        var count = await query.CountAsync(token);
+        var sorted = request.SortBy == "createdAt" ? (request.SortDirection == "desc" ? query.OrderByDescending(value => value.CreatedAt) : query.OrderBy(value => value.CreatedAt))
+            : (request.SortDirection == "desc" ? query.OrderByDescending(value => value.LastName).ThenByDescending(value => value.FirstName) : query.OrderBy(value => value.LastName).ThenBy(value => value.FirstName));
+        return new(await Project(sorted.ThenBy(value => value.Id).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)).ToListAsync(token), request.Page, request.PageSize, count);
+    }
+    public Task<PersonResponse?> GetAsync(Guid property, Guid person, AccessScope access, CancellationToken token) => Project(People(property, access).AsNoTracking().Where(value => value.Id == person)).SingleOrDefaultAsync(token);
+    public async Task<PersonResponse?> CreateAsync(Guid property, CreatePersonRequest request, AccessScope access, CancellationToken token)
+    {
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token); if (parent is null) return null;
+        Active(parent); await CheckLinked(property,request.LinkedUserId,token);
+        var person = new Person(property, request.FirstName!, request.PersonKind=="LEGAL" ? "—" : request.LastName!, request.PhoneNumber, request.Email);
+        person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
+        person.Update(request.FirstName!,request.LastName ?? "",request.PhoneNumber,request.Email,true);
+        var code = await AssignCode(person, token);
+        db.People.Add(person); Touch(parent);
+        var registration = await RegistrationSms(parent, person, code, token);
+        await Save(token);
+        return await GetAsync(property, person.Id, access, token) is { } created ? created with { IssuedPersonCode = code, RegistrationSms = registration } : null;
+    }
+    public async Task<PersonResponse?> RegenerateCodeAsync(Guid property, Guid personId, long version, bool sendSms, AccessScope access, CancellationToken token)
+    {
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
+        var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return null;
+        Active(parent); Expected(person, version);
+        var code = await AssignCode(person, token);
+        Touch(person);
+        var registration = sendSms ? await RegistrationSms(parent, person, code, token) : null;
+        await Save(token);
+        return await GetAsync(property, personId, access, token) is { } updated ? updated with { IssuedPersonCode = code, RegistrationSms = registration } : null;
+    }
+    private Task<SmsQueueResult> RegistrationSms(Property parent, Person person, string code, CancellationToken token) =>
+        sms.EnqueueAsync(parent.Id, SmsTypes.PersonRegistered, person.PhoneNumber, new Dictionary<string, string> {
+            ["code"] = code, ["fullName"] = (person.FirstName + " " + person.LastName).Trim(), ["propertyName"] = parent.Name }, person.Id, null, token);
+    public async Task<int> AssignMissingCodesAsync(int batchSize, CancellationToken token)
+    {
+        var people = await db.People.Where(value => value.PersonCodeHash == null && value.LinkedUserId == null).OrderBy(value => value.Id).Take(batchSize).ToListAsync(token);
+        foreach (var person in people) await AssignCode(person, token, people);
+        if (people.Count > 0) await db.SaveChangesAsync(token);
+        return people.Count;
+    }
+    private async Task<string> AssignCode(Person person, CancellationToken token, IReadOnlyCollection<Person>? pending = null)
+    {
+        for (var attempt = 0; attempt < CodeAttempts; attempt++)
+        {
+            var issued = codes.Issue();
+            if (pending?.Any(other => other.PersonCodeHash == issued.Hash) == true) continue;
+            if (await db.People.IgnoreQueryFilters().AnyAsync(value => value.PersonCodeHash == issued.Hash, token)) continue;
+            var now = clock.GetUtcNow(); person.AssignCode(issued.Hash, issued.Hint, now.AddTicks(-(now.Ticks % 10)));
+            return issued.Code;
+        }
+        throw new HierarchyConflictException(ErrorCatalog.PersonCodeUnavailable.Create());
+    }
+    public async Task<PersonResponse?> UpdateAsync(Guid property, Guid personId, UpdatePersonRequest request, AccessScope access, CancellationToken token)
+    {
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
+        var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return null;
+        Active(parent); Expected(person, request.Version);
+        if (request.IsEnabled == false && await HasUnfinished(personId, null, token)) throw new HierarchyConflictException(ErrorCatalog.PersonHasOccupancy.Create());
+        await CheckLinked(property,request.LinkedUserId,token);
+        person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
+        person.Update(request.FirstName!, request.LastName!, request.PhoneNumber, request.Email, request.IsEnabled!.Value);
+        Touch(person); Touch(parent); await Save(token); return await GetAsync(property, personId, access, token);
+    }
+    private async Task CheckLinked(Guid property,string? subject,CancellationToken token)
+    {
+        if (!string.IsNullOrWhiteSpace(subject) && !await db.PropertyMemberships.AnyAsync(m=>m.PropertyId==property && m.UserId==subject.Trim() && m.IsEnabled,token))
+            throw new RequestValidationException(new(){["linkedUserId"]=[ErrorCatalog.PersonAccountInvalid.Create()]});
+    }
+    private Task<bool> HasUnfinished(Guid? person, Guid? unit, CancellationToken token)
+    { var today = Today; return db.UnitOccupancies.AnyAsync(value => (person == null || value.PersonId == person) && (unit == null || value.UnitId == unit) && (value.EndDate == null || value.EndDate >= today), token); }
+    public async Task<bool> DeleteAsync(Guid property, Guid personId, long version, AccessScope access, CancellationToken token)
+    {
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
+        var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return false;
+        Active(parent); Expected(person, version);
+        if (await HasUnfinished(personId, null, token)) throw new HierarchyConflictException(ErrorCatalog.PersonDeleteHasOccupancy.Create());
+        db.Remove(person); Touch(parent); await Save(token); return true;
+    }
+    public async Task<PagedRows<UnitChoice>?> UnitChoicesAsync(Guid property, PeopleQuery request, AccessScope access, CancellationToken token)
+    {
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        var query = from unit in db.Units.Where(value => value.PropertyId == property)
+                    join building in db.Buildings on unit.BuildingId equals (Guid?)building.Id into buildings
+                    from building in buildings.DefaultIfEmpty()
+                    where unit.BuildingId == null || building != null
+                    select new { Unit = unit, Building = building };
+        if (!string.IsNullOrWhiteSpace(request.Search)) { var pattern = Pattern(request.Search); query = query.Where(value => EF.Functions.ILike((value.Building == null ? "" : value.Building.Name) + " " + value.Unit.Number, pattern, "\\")); }
+        var count = await query.CountAsync(token);
+        var sorted = request.SortDirection == "desc" ? query.OrderByDescending(value => value.Building == null ? null : value.Building.Name).ThenByDescending(value => value.Unit.Number) : query.OrderBy(value => value.Building == null ? null : value.Building.Name).ThenBy(value => value.Unit.Number);
+        return new(await sorted.ThenBy(value => value.Unit.Id).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
+            .Select(value => new UnitChoice(value.Unit.Id, value.Unit.BuildingId, value.Unit.Number, value.Building == null ? null : value.Building.Name, value.Unit.IsEnabled && (value.Building == null || value.Building.IsEnabled))).ToListAsync(token), request.Page, request.PageSize, count);
+    }
+    public async Task<UnitCurrentPartiesResponse?> CurrentUnitPartiesAsync(Guid property, IReadOnlyList<Guid> unitIds, AccessScope access, CancellationToken token)
+    {
+        // One consistent batch for the visible page; no historical IgnoreQueryFilters here.
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, token);
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        var units = await db.Units.AsNoTracking().Where(unit => unit.PropertyId == property && unitIds.Contains(unit.Id) &&
+            (unit.BuildingId == null || db.Buildings.Any(building => building.Id == unit.BuildingId && building.PropertyId == property)))
+            .Select(unit => new { unit.Id, unit.BuildingId }).ToListAsync(token);
+        if (units.Count != unitIds.Count) return null; // Entire selection must belong to the authorized property.
+        var today = Today;
+        var links = await (from link in db.UnitOccupancies.AsNoTracking()
+            join person in db.People.AsNoTracking() on new { link.PropertyId, Id = link.PersonId } equals new { person.PropertyId, person.Id }
+            where link.PropertyId == property && unitIds.Contains(link.UnitId) && link.StartDate <= today && (link.EndDate == null || link.EndDate >= today) &&
+                (link.Type == OccupancyType.OWNER || link.Type == OccupancyType.TENANT)
+            orderby person.LastName, person.FirstName, person.Id
+            select new { link.UnitId, link.Type, person.Id, Name = person.FirstName + " " + person.LastName }).ToListAsync(token);
+        var groups = links.ToLookup(link => link.UnitId);
+        var byId = units.ToDictionary(unit => unit.Id);
+        var items = unitIds.Select(id => new UnitCurrentParties(id, byId[id].BuildingId,
+            groups[id].Where(link => link.Type == OccupancyType.OWNER).Select(link => new UnitPersonLink(link.Id, link.Name)).DistinctBy(link => link.PersonId).ToArray(),
+            groups[id].Where(link => link.Type == OccupancyType.TENANT).Select(link => new UnitPersonLink(link.Id, link.Name)).DistinctBy(link => link.PersonId).ToArray())).ToArray();
+        await transaction.CommitAsync(token);
+        return new(property, today, items);
+    }
+
+    private sealed class HistoryRow
+    {
+        public UnitOccupancy Link { get; init; } = null!;
+        public Person Person { get; init; } = null!;
+        public Unit Unit { get; init; } = null!;
+        public Building? Building { get; init; }
+    }
+    private IQueryable<HistoryRow> OccupancyRows(Guid property, AccessScope access)
+    {
+        // Deleted people/units are retained for authorized historical display.
+        return from link in db.UnitOccupancies.AsNoTracking().Where(value => !value.IsDeleted && value.PropertyId == property && Properties(access).Any(parent => parent.Id == property))
+               join person in db.People.IgnoreQueryFilters() on new { link.PropertyId, Id = link.PersonId } equals new { person.PropertyId, person.Id }
+               join unit in db.Units.IgnoreQueryFilters() on new { link.PropertyId, Id = link.UnitId } equals new { unit.PropertyId, unit.Id }
+               join building in db.Buildings.IgnoreQueryFilters() on unit.BuildingId equals (Guid?)building.Id into buildings
+               from building in buildings.DefaultIfEmpty()
+               select new HistoryRow { Link = link, Person = person, Unit = unit, Building = building };
+    }
+    private IQueryable<OccupancyResponse> ProjectHistory(IQueryable<HistoryRow> query)
+    {
+        var today = Today;
+        return query.Select(value => new OccupancyResponse(value.Link.Id, value.Link.PropertyId, value.Link.PersonId, value.Link.UnitId, value.Unit.BuildingId,
+            value.Person.FirstName + " " + value.Person.LastName, value.Unit.Number, value.Building == null ? null : value.Building.Name, value.Link.Type.ToString(),
+            value.Link.StartDate, value.Link.EndDate, value.Link.IsPrimaryContact, value.Link.StartDate > today ? "UPCOMING" : value.Link.EndDate != null && value.Link.EndDate < today ? "ENDED" : "ACTIVE", value.Link.Version));
+    }
+    public async Task<PagedRows<OccupancyResponse>?> OccupanciesAsync(Guid property, Guid? person, Guid? unit, PeopleQuery request, AccessScope access, CancellationToken token)
+    {
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        if (person is not null && !await db.People.IgnoreQueryFilters().AnyAsync(value => value.PropertyId == property && value.Id == person, token)) return null;
+        if (unit is not null && !await db.Units.IgnoreQueryFilters().AnyAsync(value => value.PropertyId == property && value.Id == unit, token)) return null;
+        var query = OccupancyRows(property, access).Where(value => (person == null || value.Link.PersonId == person) && (unit == null || value.Link.UnitId == unit));
+        if (!string.IsNullOrWhiteSpace(request.Search)) { var pattern = Pattern(request.Search); query = query.Where(value => EF.Functions.ILike(value.Person.FirstName + " " + value.Person.LastName, pattern, "\\") || EF.Functions.ILike(value.Unit.Number, pattern, "\\")); }
+        var count = await query.CountAsync(token);
+        return new(await ProjectHistory(query.OrderByDescending(value => value.Link.StartDate).ThenBy(value => value.Link.Id).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)).ToListAsync(token), request.Page, request.PageSize, count);
+    }
+    public Task<OccupancyResponse?> GetOccupancyAsync(Guid property, Guid occupancy, AccessScope access, CancellationToken token) => ProjectHistory(OccupancyRows(property, access).Where(value => value.Link.Id == occupancy)).SingleOrDefaultAsync(token);
+    public async Task<OccupancyResponse?> CreateOccupancyAsync(Guid property, CreateOccupancyRequest request, AccessScope access, CancellationToken token)
+    {
+        await using var transaction=await db.Database.BeginTransactionAsync(token);
+        var parent = await LockProperty(property,access,token);
+        var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == request.PersonId, token);
+        var unit = await db.Units.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == request.UnitId, token);
+        if (parent is null || person is null || unit is null) return null;
+        var building = unit.BuildingId is null ? null : await db.Buildings.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == unit.BuildingId, token);
+        if (unit.BuildingId is not null && building is null) return null;
+        Active(parent); Active(person); Active(unit); if (building is not null) Active(building);
+        var type = Enum.Parse<OccupancyType>(request.Type); var start = request.StartDate!.Value; var end = request.EndDate;
+        var overlapping = db.UnitOccupancies.Where(value => value.UnitId == unit.Id && (end == null || value.StartDate <= end) && (value.EndDate == null || value.EndDate >= start));
+        if (await overlapping.AnyAsync(value => value.PersonId == person.Id && value.Type == type, token)) throw new HierarchyConflictException(ErrorCatalog.PersonOccupancyOverlap.Create());
+        if (request.IsPrimaryContact && await overlapping.AnyAsync(value => value.IsPrimaryContact, token)) throw new HierarchyConflictException(ErrorCatalog.PrimaryContactOverlap.Create());
+        var link = new UnitOccupancy(property, unit.Id, person.Id, type, start, end, request.IsPrimaryContact);
+        db.UnitOccupancies.Add(link); Touch(parent); Touch(person); Touch(unit); if (building is not null) Touch(building);
+        await Save(token); await transaction.CommitAsync(token); return await GetOccupancyAsync(property, link.Id, access, token);
+    }
+    private IQueryable<DuesCharge> FutureTenantCharges(UnitOccupancy link,DateOnly end) => db.DuesCharges.Where(value =>
+        link.Type == OccupancyType.TENANT && value.PropertyId == link.PropertyId && value.UnitId == link.UnitId && !value.IsCancelled && value.Period > end &&
+        db.DuesChargeParties.Any(party => party.PropertyId == link.PropertyId && party.ChargeId == value.Id && party.OccupancyId == link.Id && party.IsDebtor && party.Type == OccupancyType.TENANT));
+    private IQueryable<DuesCharge> UnpaidTenantCharges(UnitOccupancy link,DateOnly end) => FutureTenantCharges(link,end).Where(value => value.PaidAmount == 0 &&
+        !db.PaymentAllocations.Any(part => part.PropertyId == link.PropertyId && part.ChargeId == value.Id));
+    public async Task<TenantMoveOutPreview?> EndPreviewAsync(Guid property,Guid occupancy,DateOnly endDate,long version,AccessScope access,CancellationToken token)
+    {
+        await using var transaction=await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token);
+        if (!await Properties(access).AnyAsync(value => value.Id == property,token)) return null;
+        var link=await db.UnitOccupancies.AsNoTracking().SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == occupancy,token);
+        if (link is null) return null; Expected(link,version);
+        if (link.EndDate is not null) throw new HierarchyConflictException(ErrorCatalog.OccupancyAlreadyEnded.Create());
+        if (endDate < link.StartDate) throw new RequestValidationException(new() { ["endDate"] = [ErrorCatalog.UiTheEndDateCannotPrecedeTheStartDate.Create()] });
+        var query=UnpaidTenantCharges(link,endDate);var count=await query.CountAsync(token);
+        var total=await query.SumAsync(value => (decimal?)value.Amount,token) ?? 0;
+        var skipped=await FutureTenantCharges(link,endDate).CountAsync(token)-count;
+        var records=count<=500 ? await query.OrderBy(value => value.Period).ThenBy(value => value.Id).ToListAsync(token) : [];
+        await transaction.CommitAsync(token);
+        return new(link.Id,link.Version,endDate,count,DuesService.Money(total),skipped,records.Select(value => new TenantChargeReview(value.Id,value.Version,value.Period.ToString("yyyy-MM"),DuesService.Money(value.Amount),value.DueDate)).ToArray(),count<=500);
+    }
+    public async Task<OccupancyResponse?> EndOccupancyAsync(Guid property, Guid occupancy, EndOccupancyRequest request, AccessScope access, CancellationToken token)
+    {
+        await using var transaction=await db.Database.BeginTransactionAsync(token);
+        var parent = await LockProperty(property,access,token);
+        if (parent is null) return null;
+        var link = await db.UnitOccupancies.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == occupancy, token); if (link is null) return null;
+        Active(parent); Expected(link, request.Version);
+        if (link.EndDate is not null) throw new HierarchyConflictException(ErrorCatalog.OccupancyAlreadyEnded.Create());
+        if (request.EndDate < link.StartDate) throw new RequestValidationException(new() { ["endDate"] = [ErrorCatalog.UiTheEndDateCannotPrecedeTheStartDate.Create()] });
+        var end=request.EndDate!.Value;
+        var eligible=await UnpaidTenantCharges(link,end).ToListAsync(token);
+        var futureCount=await FutureTenantCharges(link,end).CountAsync(token);
+        var approvals=request.CancellationApprovals ?? [];
+        if (approvals.Any(approval => !eligible.Any(charge => charge.Id == approval.ChargeId && charge.Version == approval.Version)))
+            throw new HierarchyConflictException(ErrorCatalog.DuesErrorStaleApproval.Create());
+        if (approvals.Count > 0)
+        {
+            var reason=await db.DuesCancellationReasons.SingleOrDefaultAsync(value => value.Id == DuesCancellationReason.TenantMovedOutId && value.IsEnabled,token);
+            if(reason is null) throw new HierarchyConflictException(ErrorCatalog.DuesErrorMoveOutReason.Create());
+            foreach (var approval in approvals)
+                eligible.Single(charge => charge.Id == approval.ChargeId).Cancel($"İlişki bitiş tarihi: {end:yyyy-MM-dd}.",clock.GetUtcNow(),reason.Id,reason.Code,reason.Name,link.Id);
+        }
+        // No silent extension: an open interval already owns all later dates.
+        link.End(request.EndDate!.Value); Touch(link); Touch(parent);
+        var person = await db.People.SingleAsync(value => value.Id == link.PersonId, token); Touch(person);
+        var unit = await db.Units.SingleAsync(value => value.Id == link.UnitId, token); Touch(unit);
+        await Save(token); await transaction.CommitAsync(token);
+        var response=await GetOccupancyAsync(property, link.Id, access, token);
+        return response is null ? null : response with {TenantDebtResult=new(approvals.Count,eligible.Count-approvals.Count,futureCount-eligible.Count)};
+    }
+}

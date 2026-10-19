@@ -45,3 +45,11 @@ yarn-error.*
 
 # Local GitHub project plans / verification reports
 /artifacts/
+
+# Release/signing material; public example stays tracked
+/release/*.env
+credentials.json
+*.keystore
+*.ipa
+*.aab
+*.apk

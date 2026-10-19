@@ -1,0 +1,14 @@
+# ZORUNLU UYGULAMA KURALLARI
+- Önce repoyu tara, mevcut kod ve dokümantasyonu oku; teknoloji, gerçek yollar, şema ve testleri keşfet. Varsayım yapma.
+- Yalnızca istenen fazı uygula. Her faz sonunda DUR ve kullanıcı onayı bekle. Fazlar arasında otomatik geçiş YASAK.
+- Konsola Türkçe `[FAZ NN][ADIM x/y] ...` ilerleme, değişen dosyalar, test ve kalan riskleri yaz.
+- Token tasarrufu: hedefli dosya taraması, kısa özet, gereksiz tekrar ve geniş çıktı yok; doğruluğu feda etme.
+- SOLID, DRY, KISS, YAGNI; mükerrer method/service, gereksiz soyutlama, N+1, yetki açığı oluşturma.
+- Mevcut API, DB, mobil offline, Keycloak ve frontend sözleşmelerini mümkün olduğunca koru. Kırıcı değişiklikte önce etki analizi ve onay.
+- Hiçbir gerçek veriyi silme; yıkıcı migration, otomatik drop/rename ve veri düzeltmesini onaysız çalıştırma. Önce yedek/rollback planı, dry-run ve doğrulama sorguları.
+- Güvenlik: OWASP ASVS/MASVS, Fortify SAST odaklı kod kalitesi, SCA/CVE, secret scanning, erişim/tenant izolasyonu, IDOR/BOLA, KVKK veri minimizasyonu ve audit.
+- Yeni doğrudan ve transitif bağımlılıklar için SPDX lisans, ticari kullanım, SaaS, dağıtım ve notice yükümlülüklerini kontrol et. Belirsiz veya copyleft etkili bağımlılığı onaysız ekleme.
+- Güvenlik taramasından geçtiğini ancak gerçekten tarama çalıştırıp rapor aldıysan söyle; aksi halde 'çalıştırılmadı' belirt.
+- Testler: birim, entegrasyon, migration, yetkilendirme, regresyon; başarısız testleri saklama.
+- Bütün domain tablolarında mevcut standartları koru: UUID/Guid, version, created_at/by, modified_at/by, is_deleted, is_enabled (mevcut şemaya göre).
+- Her fazda `docs/refactor/person/phase-NN-report.md` oluştur; bulgular, kararlar, değişen dosyalar, testler, riskler, rollback ve sonraki faz önkoşulları.

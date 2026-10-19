@@ -1,0 +1,38 @@
+[
+  { "name": "heading paragraph and soft break", "input": "# Aydınlatma\n\nVeri sorumlusu\nBuildingFlow Yönetimi", "error": null,
+    "blocks": [
+      { "type": "heading", "level": 1, "content": [{ "type": "text", "text": "Aydınlatma" }] },
+      { "type": "paragraph", "content": [{ "type": "text", "text": "Veri sorumlusu\nBuildingFlow Yönetimi" }] } ] },
+  { "name": "windows line endings and tabs are normalized", "input": "## Başlık\r\n\r\nSatır\tbir", "error": null,
+    "blocks": [
+      { "type": "heading", "level": 2, "content": [{ "type": "text", "text": "Başlık" }] },
+      { "type": "paragraph", "content": [{ "type": "text", "text": "Satır bir" }] } ] },
+  { "name": "bold and links", "input": "**Önemli:** ayrıntı için [site](https://example.com/kvkk) veya [e-posta](mailto:kvkk@example.com).", "error": null,
+    "blocks": [ { "type": "paragraph", "content": [
+      { "type": "bold", "text": "Önemli:" }, { "type": "text", "text": " ayrıntı için " },
+      { "type": "link", "text": "site", "href": "https://example.com/kvkk" }, { "type": "text", "text": " veya " },
+      { "type": "link", "text": "e-posta", "href": "mailto:kvkk@example.com" }, { "type": "text", "text": "." } ] } ] },
+  { "name": "bullet then ordered lists split by kind", "input": "- Ad\n- Telefon\n3. Birinci\n4. İkinci", "error": null,
+    "blocks": [
+      { "type": "list", "ordered": false, "start": 1, "items": [[{ "type": "text", "text": "Ad" }], [{ "type": "text", "text": "Telefon" }]] },
+      { "type": "list", "ordered": true, "start": 3, "items": [[{ "type": "text", "text": "Birinci" }], [{ "type": "text", "text": "İkinci" }]] } ] },
+  { "name": "html stays plain text", "input": "<script>alert(1)</script> <b>x</b>", "error": null,
+    "blocks": [ { "type": "paragraph", "content": [{ "type": "text", "text": "<script>alert(1)</script> <b>x</b>" }] } ] },
+  { "name": "unclosed bold and empty heading are literal", "input": "**yarım\n#\n####  dört", "error": null,
+    "blocks": [ { "type": "paragraph", "content": [{ "type": "text", "text": "**yarım\n#\n####  dört" }] } ] },
+  { "name": "paragraph line after list item starts a paragraph", "input": "- madde\ndevam", "error": null,
+    "blocks": [
+      { "type": "list", "ordered": false, "start": 1, "items": [[{ "type": "text", "text": "madde" }]] },
+      { "type": "paragraph", "content": [{ "type": "text", "text": "devam" }] } ] },
+  { "name": "link with spaces in target is plain text", "input": "[a](https://x.com/a b)", "error": null,
+    "blocks": [ { "type": "paragraph", "content": [{ "type": "text", "text": "[a](https://x.com/a b)" }] } ] },
+  { "name": "javascript link is rejected", "input": "[tıkla](javascript:alert(1))", "error": "LINK", "blocks": [] },
+  { "name": "http link is rejected", "input": "[site](http://example.com)", "error": "LINK", "blocks": [] },
+  { "name": "userinfo link is rejected", "input": "[site](https://user:pass@example.com)", "error": "LINK", "blocks": [] },
+  { "name": "bad mailto is rejected", "input": "[mail](mailto:not-an-email)", "error": "LINK", "blocks": [] },
+  { "name": "blank text is empty", "input": " \n\n  ", "error": "EMPTY", "blocks": [] },
+  { "name": "bidi override is rejected", "input": "Metin \u202egizli", "error": "CONTROL_CHAR", "blocks": [] },
+  { "name": "null character is rejected", "input": "a\u0000b", "error": "CONTROL_CHAR", "blocks": [] },
+  { "name": "zero width joiner is allowed", "input": "a\u200db", "error": null,
+    "blocks": [ { "type": "paragraph", "content": [{ "type": "text", "text": "a\u200db" }] } ] }
+]

@@ -6,9 +6,9 @@
 
 Tek faz kaynağı `buildingflow-mobile-prompts/PHASES.md` (15 faz). `mobile/scripts/github-project/deliveries.mjs` yeni iş planı değildir; bu kaynağın teslim/kanıt/durum eşlemesidir. Faz02–09 raporları, BRAND ve merkez SeaweedFS raporu kullanılır. Faz01 için bağımsız rapor dosyası bulunmadığı açıkça kaydedilir; kullanıcı onayı/veri kararı Faz02 belgesinde mevcuttur.
 
-22yönetilen kart:15faz+3bakım+4kabul/güvenlik. Faz01–04 Done; Faz05–11 kod/otomatik kanıt mevcut ama cihaz/ürün kabulü açık olduğu için In review; Faz12–15 Backlog. Marka/SeaweedFS/adlandırma bakımları Done. Offline ve fotoğraf kabulü Ready; yetkili OWNER/TENANT cihaz kabulü ve audit/release takibi Backlog. Bu status kararı önceki “kod tamamlandı” teslimini tüm cihaz/release kabulü gibi göstermemek içindir. Pano kaydı yeni faza kodlama onayı veya mağaza yayını değildir.
+22yönetilen kart:15faz+3bakım+4kabul/güvenlik. Faz01–04 Done; Faz05–15 kod/otomatik kanıt mevcut ama cihaz/ürün kabulü açık olduğu için In review; Faz15Inreview. Marka/SeaweedFS/adlandırma bakımları Done. Offline ve fotoğraf kabulü Ready; yetkili OWNER/TENANT cihaz kabulü ve audit/release takibi Backlog. Bu status kararı önceki “kod tamamlandı” teslimini tüm cihaz/release kabulü gibi göstermemek içindir. Pano kaydı yeni faza kodlama onayı veya mağaza yayını değildir.
 
-Önceden panoda bulunan4TraceFlow Issue kaydı değiştirilmez/silinmez. Mobil git remote olmadığından taslak proje kayıtları oluşturulur; Issue/PR/uzakCI varmış gibi gösterilmez. Depo bağlama, commit/push, assignee/estimate/hedef tarih veya görünürlük değişikliği yapılmaz.
+Önceden panoda bulunan4TraceFlow Issue kaydı değiştirilmez/silinmez. BuildingFlow deposunun mobil modülü izlenir; mevcut taslak proje kayıtları korunur. Issue/PR/uzakCI varmış gibi gösterilmez. Depo bağlama, commit/push, assignee/estimate/hedef tarih veya görünürlük değişikliği yapılmaz.
 
 ## Komutlar
 
@@ -44,3 +44,9 @@ Hedefli7test, scriptESLint ve node syntax geçti; mobileTypeScript geçti. Tam u
 
 
 Pano görünüm kontrolü: Backlog/Priority board/Team items/Roadmap filtreleri boş. My items görünümü `assignee:@me` filtrelidir; otomatik atama yapılmadığı için yeni taslaklar orada görünmeyebilir. Backlog görünümünden tüm mobil kayıtlar izlenebilir.
+
+15.10.2026 Faz13 eşitlemesi:22yönetilen kayıt doğrulandı;7Done,9Inreview,4Backlog,2Ready. Faz13 duyuru/okundu/tercih kodu ve67mobil/102PG+S3 test kanıtı, push/cihaz kabulü açık maddeleri karta eklendi.7/7script testi geçti; yabancı4TraceFlow kaydı korundu.
+
+15.10.2026 Faz14:22yönetilen kayıt hedefi7Done/11Inreview/2Backlog/2Ready. Faz14 ve güvenlik-bağımlılık kartı Inreview; güncel28auditbulgusu,75mobil/142backend kanıtı ve gerçek cihaz/yayın eksikleri ayrı yazıldı.7/7script testi geçti; codepush yapılmaz.
+
+15.10.2026Faz15:22yönetilenkayıt,7Done/12Inreview/2Ready/1Backlog. Faz15yayınhazırlığı kodu,86mobil/Node22kanıtı,871mobil/329merkezlisans ve üretim/audit/kabul eksikleri kaydedildi.7/7script testi geçti;4TraceFlow kaydı korundu. İmzalıbuild veya mağaza yayını yok.

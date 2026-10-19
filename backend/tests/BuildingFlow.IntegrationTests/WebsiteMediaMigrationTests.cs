@@ -1,0 +1,19 @@
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using BuildingFlow.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql;
+using Xunit;
+namespace BuildingFlow.IntegrationTests;
+public sealed class WebsiteMediaMigrationTests{
+ [PostgresFact]public async Task AdditiveUpgradeCompositeScopeAndPopulatedDownGuard(){
+  var original=Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE")!;var schema="webmedia_"+Guid.NewGuid().ToString("N");await using var admin=new NpgsqlConnection(original);await admin.OpenAsync();await using(var command=new NpgsqlCommand($"CREATE SCHEMA \"{schema}\"",admin))await command.ExecuteNonQueryAsync();
+  try{var cs=new NpgsqlConnectionStringBuilder(original){SearchPath=schema+",public"}.ConnectionString;var options=new DbContextOptionsBuilder<BuildingFlowDbContext>().UseNpgsql(cs,o=>o.MigrationsHistoryTable("__EFMigrationsHistory",schema)).AddInterceptors(new AuditInterceptor(new Actor(),TimeProvider.System)).Options;await using var db=new BuildingFlowDbContext(options);var migrations=db.Database.GetMigrations().ToArray();var index=Array.FindIndex(migrations,x=>x.EndsWith("_WebsiteMedia",StringComparison.Ordinal));var prior=migrations[index-1];var migrator=db.GetService<IMigrator>();await migrator.MigrateAsync(prior);var property=new Property("Fixture","City","District","Address",PropertyType.SITE);var site=new WebsiteSite(property.Id,Guid.NewGuid(),"media-fixture","Fixture");db.Add(property);await db.SaveChangesAsync();await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO website_sites (id,property_id,request_id,site_key,display_name,status,is_demo,template,primary_color,accent_color,version,created_at,created_by,modified_at,modified_by,is_deleted,is_enabled) VALUES ({site.Id},{property.Id},{site.RequestId},{site.SiteKey},{site.DisplayName},{"DRAFT"},{true},{site.Template},{site.PrimaryColor},{site.AccentColor},{1L},{DateTimeOffset.UtcNow},{"fixture"},{DateTimeOffset.UtcNow},{"fixture"},{false},{true})");var before=await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={property.Id}").SingleAsync();await db.Database.MigrateAsync();await db.Database.MigrateAsync();LegacySchema.AssertCurrentModelMatchesMigrations();Assert.Equal(before,await db.Database.SqlQuery<string>($"SELECT row_to_json(p)::text AS \"Value\" FROM properties p WHERE id={property.Id}").SingleAsync());await migrator.MigrateAsync(prior);await db.Database.MigrateAsync();
+   var m=new WebsiteMedia(property.Id,site.Id,Guid.NewGuid(),new string('a',64),"image/png",10,1,1,new string('b',64),"Alt","OWN_WORK",null,false,false);db.Add(m);await db.SaveChangesAsync();Assert.Equal(1,await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE website_sites SET hero_media_id={m.Id} WHERE id={site.Id}"));
+   var other=new Property("Other","City","District","Address",PropertyType.SITE);var otherSite=new WebsiteSite(other.Id,Guid.NewGuid(),"other-fixture","Other");db.AddRange(other,otherSite);await db.SaveChangesAsync();await Assert.ThrowsAsync<PostgresException>(()=>db.Database.ExecuteSqlInterpolatedAsync($"UPDATE website_sites SET hero_media_id={m.Id} WHERE id={otherSite.Id}"));await Assert.ThrowsAsync<PostgresException>(()=>migrator.MigrateAsync(prior));Assert.Equal(migrations.Take(index+1),await db.Database.GetAppliedMigrationsAsync());Assert.True(await db.Set<WebsiteMedia>().AnyAsync(x=>x.Id==m.Id));
+  }finally{await using var command=new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE",admin);await command.ExecuteNonQueryAsync();}
+ }
+ private sealed class Actor:ICurrentUserService{public string? UserId=>"fixture";public string? Username=>"fixture";public bool IsAuthenticated=>true;public bool IsInRole(string role)=>false;}
+}

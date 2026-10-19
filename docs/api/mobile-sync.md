@@ -22,3 +22,6 @@ Migration20261014062447_MobileRequestSync: mobile_requests + mobile_operation_re
 Tüketici ayrı buildingflow-mobile: SQLCipher schema3 outbox/request cache/sync state; stable UUID, bounded backoff,401/403/409, partial snapshot reddi, onaysız otomatik overwrite yok. Çıkışta Faz05 anahtar/kopya temizliği kuyruğu da siler. Henüz talep formu/fotoğraf/kategori UI yok (Faz12).
 
 Doğrulama:52/52 seçili MobileSync/MobileSession/Authentication/ReleaseSecurity integration test (atlama0), ayrı geçici PostgreSQL DB/role/schema temizlendi. Backend build0hata/0uyarı. Mobil26/26 gerçek SQLite+kontrollü HTTP test, TypeScript/lint, üç platform export geçti. iPhone SQLCipher fixture nativeQueueReplaytrue; kontrollü HTTP simülasyonu ve ayrı API entegrasyon testlerinin kanıtları ayrıdır. Gerçek kullanıcı uçak modu/soğuk açılış ve Android native kabulü açık; sahte canlı talep/başarı kaydı üretilmedi.
+
+## PERSON FAZ09 —18.10.2026
+Canonical contextKind/contextId, scope anahtarı, güncel görev/ilişki denetimi, korunmuş legacy kuyruk ve fingerprint biçimleri için [yeni sözleşme](mobile-canonical-sync.md). Bayraklar kapalıyken mevcut legacy akış korunur; canlı geçiş yapılmadı.

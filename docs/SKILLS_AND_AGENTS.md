@@ -95,3 +95,47 @@ Sonraki her turda görevi, kullanılan skill/agent'ı, değişen dosyaları ve g
 **319 .NET /76 FE, son typecheck/build; ayrı PostgreSQL ve özel geçici MinIO testleri geçti.** CUA TR512px/EN390px panel/boş form bildirimi kaydetmeden doğrulandı; Türkçe/viewport geri yüklendi ve geçici sekme kapandı. Yerel migration ve API güncellendi; ilk canlı before-hash eksikliği ile sonraki tekrar-migration15 tablo eşliği ayrı kanıt olarak bildirildi. TESTING/progress/roadmap aynı dört göreve bağlandı. İş09 başlatılmadı; Docker imajı ve dış sağlayıcı smoke bu tur çalıştırılmış gibi raporlanmadı.
 
 2026-10-11 / İŞ10: **tek Codex agent; ek skill/alt agent kullanılmadı**. Kök/frontend AGENTS, Convention ve gerçek UI planı okundu; sayaçlar/raporlar + Prometheus/Grafana/Loki/OTLP geliştirildi. **397 .NET,82 FE,typecheck/build,11 canlı pipeline,331 lisans ve23 korunan dosya** doğrulandı. TR/EN/512px sağ panel/390px mobil kabulü salt-okunur Chrome'da; [ekran kanıtı](screenshots/phase10-meter-panel-tr.png). Mevcut backend/frontend ortak bileşenleri ve lisanslı resmi OpenTelemetry SDK kullanıldı; sonraki İŞ11 başlatılmadı. [Detay](TESTING.md).
+
+
+2026-10-15 / Merkez Talepler ve Arızalar: tek Codex agent; ek skill veya alt agent kullanılmadı. Kök/frontend/mobil AGENTS,Convention,planlar,Next.js kurulu use-client rehberi ve mevcut API/test kalıpları okundu. RequestManagement store/DTO/endpoint ve migration; ortak menü/RecordList/ManagementPanel/authorizedAPI/TR–EN; mobil ortak durum/yanıt.159PG+S3/112FE/92mobil,build/typecheck/lint/export/329lisans PASS; gerçek UI/cihaz kabulü yok. GitHub#5Project3,ayrıntı TESTING ve api/request-management.md.
+
+
+16.10.2026 / PERSON FAZ03: tekagent; yerel akadev-phase/contract/verify/security yönergeleri kullanıldı. Yeni üçüncü taraf paket/skill/altagent yok.215izoleintegration+150unit+112FE,typecheck/build/329lisansmetadata;gerçek rol/tenant/issuer/self/version/replay/migration kanıtı TESTING ve PersonFAZ03raporunda. Featuredefaultoff,gerçektenantseed/backfill yok;FAZ04 başlamadı.
+
+
+### PERSON FAZ04 —17.10.2026
+Yerel `.claude/skills/akadev-phase/SKILL.md`, `akadev-contract/SKILL.md`, `akadev-verify/SKILL.md`, `akadev-security/SKILL.md` okundu/kullanıldı; tek agent, yeni skill/plugin/paket yok. Faz ve test kanıtı [phase-04-report.md](refactor/person/phase-04-report.md). Kullanıcının Altunbayrak Rezidans cevabıyla D01 önkoşulu çözüldü; önceki ara raporun engeli güncel teslimde geçerli değildir.
+
+
+### PERSON FAZ05 —17.10.2026
+Yerel akadev-phase, akadev-contract, akadev-verify, akadev-security SKILL.md kaynakları okunup kullanıldı; tek agent. Görev kapsamı ve mevcut rol sınırı, negatif JWT/tenant/Property testleri, gerçek ayrı PostgreSQL migration/history/rollback ve lisans metadata doğrulaması [FAZ05 raporunda](refactor/person/phase-05-report.md). Yeni skill/plugin/paket eklenmedi.
+
+### 18.10.2026 — PERSON FAZ06
+Yerel akadev-phase/contract/verify/security yönergeleri mevcut yetkili kişi merkezi kapsamına uygulandı. Tek agent; yeni araç/skill/paket kurulumu yok. Kanıt: person phase06 raporu ve TESTING. Otomatik güvenlik taraması veya gerçek UI kabulü yapıldığı iddia edilmedi.
+
+### 18.10.2026 — PERSON FAZ07
+Mevcut yerel akadev phase/contract/security/verify yönergeleri yetkili merkez giriş/context kapsamına uygulandı; tek agent ve mevcut araçlar. Yeni skill/agent/paket kurulmadı. Yetki incelemesinde finans içi kişi görünürlüğü Property göreviyle daraltıldı; gerçek19 PG senaryosu ve geniş348 regresyon kanıtı phase07 raporunda. Otomatik scanner veya gerçek UI kabulü yapılmış sayılmadı.
+
+### 18.10.2026 — PERSON FAZ08
+Mevcut yerel akadev phase/contract/security/verify yönergeleri tek agent ile uygulandı; yeni skill/plugin/paket yok. Expo57 resmî SQLCipher/SecureStore belgeleri ve kurulu API tipleri kontrol edildi. Minimum readonly offline yetki ve native kabul sınırı [FAZ08 raporunda](refactor/person/phase-08-report.md); port testleri gerçek cihaz biyometrisi kanıtı sayılmadı.354integration+187unit+119mobil,lint/typecheck/export kanıtları TESTING kaydındadır.
+
+### 18.10.2026 — PERSON FAZ09
+Mevcut yerel akadev-phase/contract/security/verify yönergeleri canonical mobil talep/profil sync kapsamına tek agent ile uygulandı. Yeni skill/plugin/altagent/paket yok. Expo57 SQLite/ImagePicker resmî kaynakları kontrol edildi; önceki outbox/receipt/şifreli dosya yeniden kullanıldı.363integration+187unit+126mobil ve gerçek cihazda doğrulanmayanlar [FAZ09 raporunda](refactor/person/phase-09-report.md). Otomatik scanner veya native cihaz kabulü yapılmış sayılmadı.
+
+### 18.10.2026 — PERSON FAZ10
+Yerel akadev-phase/security/license/verify yönergeleri tek agent ile kullanıldı; yeni agent/plugin/skill/araç kurulmadı. SCA gerçek npm/NuGet kaynaklarında çalıştı; mobil29advisory kaydı ile kapı başarısızdır. Fortify ve tam secret scanner kurulu olmadığından kullanılmış sayılmaz. Sınırlı kaynak/env kopya kontrolü trackedgeneratedconfig buldu; disk korunarak indeks temizlendi, CI özelconfig ve mobilhighaudit kapıları eklendi. Native MASVS/SAST/history/SBOM/dağıtım eksikleri ve çalıştırılacak komutlar [FAZ10 raporunda](refactor/person/phase-10-report.md). Gerçek sır değerleri log/rapor/GitHub'a taşınmadı.
+
+## PERSON FAZ11 —18.10.2026
+
+Mevcut akadev-phase, akadev-verify ve akadev-docs prosedürleri kullanıldı. Tek agent; yeni Skill/MCP/paket kurulmadı. 366 integration,149 web,126 mobil ve fixture backup8kontrol; kapsam/sınırlar [raporda](refactor/person/phase-11-report.md).
+
+### 18.10.2026 — WEBSITE FAZ 04 kullanım kaydı
+
+Tek agent; akadev-phase/contract/verify/license/docs ve imagegen kullanıldı. Kanıt: TESTING.md WEBSITE FAZ 04; görsel prompt/kaynakları website/public/images/README.md. Yeni agent/MCP/paket kurulmadı.
+
+### 18.10.2026 — WEBSITE FAZ05
+
+Tek agent; akadev-phase/contract/security/verify/license/docs kullanıldı. Model/migration ve gerçek PG/storage fixture, ortak UI ve izole tarayıcı kanıtı TESTING.md içinde. Yeni MCP/agent/skill/paket kurulmadı.
+
+## 19.10.2026 — WEBSITE FAZ06 kullanımı
+Tek agent ile akadev-phase/contract/security/verify/license/docs mevcut skill akışı uygulandı. Kapsam T21.6/T21.10; gerçek kanıt TESTING.md, API docs/api/listings.md. Yeni agent/MCP/globalayar/bağımlılık kurulmadı. Gerçek EİDS/hukuki kabul açıkken roadmapdone işaretlenmedi.

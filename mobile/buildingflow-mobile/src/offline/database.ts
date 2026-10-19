@@ -1,3 +1,4 @@
+import {readableOffline} from '../person-authorization/model.ts';
 import { contextKey, parseSession, type Session } from '../auth/contracts.ts';
 export type SqlValue = string | number | null;
 export interface Database {
@@ -5,7 +6,7 @@ export interface Database {
   runAsync(sql: string, ...values: SqlValue[]): Promise<unknown>;
   getFirstAsync<T>(sql: string, ...values: SqlValue[]): Promise<T | null>;
 }
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 8;
 export const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
 export type Snapshot = { session: Session; verifiedAt: number; selectedKey: string | null };
 export async function migrate(db: Database) {
@@ -46,6 +47,20 @@ export async function migrate(db: Database) {
       CREATE TABLE profile_settings (user_id TEXT PRIMARY KEY NOT NULL REFERENCES account(user_id),show_photo INTEGER NOT NULL DEFAULT 1 CHECK(show_photo IN (0,1)));
     `);
     if(version<5)await db.execAsync('CREATE TABLE owner_snapshots(user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,payload TEXT NOT NULL,checked_at INTEGER NOT NULL,PRIMARY KEY(user_id,context_key));');
+    if(version<6)await db.execAsync(`
+      CREATE TABLE request_drafts(user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,body_file TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(user_id,context_key));
+      CREATE TABLE request_files(operation_id TEXT PRIMARY KEY NOT NULL REFERENCES sync_outbox(operation_id),user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,body_file TEXT NOT NULL);
+      CREATE TABLE request_photo_cache(user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,record_id TEXT NOT NULL,photo_id TEXT NOT NULL,sha256 TEXT NOT NULL,body_file TEXT NOT NULL,checked_at INTEGER NOT NULL,PRIMARY KEY(user_id,context_key,record_id));
+      CREATE INDEX request_files_scope ON request_files(user_id,context_key);
+    `);
+    if(version<7)await db.execAsync(`CREATE TABLE notice_jobs(user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('ANNOUNCEMENT','MESSAGE')),item_id TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','retry','failed')),attempts INTEGER NOT NULL,next_at INTEGER NOT NULL,error INTEGER,PRIMARY KEY(user_id,context_key,kind,item_id)); CREATE INDEX notice_jobs_due ON notice_jobs(user_id,context_key,status,next_at);`);
+    // İŞ18: consent texts/states, queued consent decisions and launch-gate reads; existing rows are untouched.
+    if(version<8)await db.execAsync(`
+      CREATE TABLE consent_cache(user_id TEXT PRIMARY KEY NOT NULL REFERENCES account(user_id),payload TEXT NOT NULL,checked_at INTEGER NOT NULL);
+      CREATE TABLE consent_jobs(operation_id TEXT PRIMARY KEY NOT NULL,user_id TEXT NOT NULL REFERENCES account(user_id),type_code TEXT NOT NULL,action TEXT NOT NULL CHECK(action IN ('APPROVE','WITHDRAW')),payload TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','sending','retry','conflict','failed')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt_at INTEGER NOT NULL,created_at INTEGER NOT NULL,error TEXT);
+      CREATE INDEX consent_jobs_due ON consent_jobs(user_id,status,next_attempt_at,created_at);
+      CREATE TABLE consent_seen(user_id TEXT NOT NULL REFERENCES account(user_id),text_id TEXT NOT NULL,seen_at INTEGER NOT NULL,PRIMARY KEY(user_id,text_id));
+    `);
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}; COMMIT;`);
   } catch (error) { await db.execAsync('ROLLBACK'); throw error; }
 }
@@ -56,7 +71,7 @@ export async function writeSnapshot(db: Database, value: Session, verifiedAt: nu
   const owner = await db.getFirstAsync<{ user_id: string }>('SELECT user_id FROM account LIMIT 1');
   if (owner && owner.user_id !== session.userId) throw new Error('Başka hesabın veritabanı.');
   // Whitelist fields: never serialize extra API fields, tokens, or credentials.
-  const payload = JSON.stringify({ userId: session.userId, username: session.username, hasMore: false, contexts: session.contexts.map(c => ({ propertyId: c.propertyId, propertyName: c.propertyName, unitId: c.unitId, unitNumber: c.unitNumber, role: c.role })) });
+  const payload = JSON.stringify({ userId: session.userId, username: session.username, hasMore: false, contexts: session.contexts.map(c => ({ propertyId: c.propertyId, propertyName: c.propertyName, unitId: c.unitId, unitNumber: c.unitNumber, role: c.role,...(c.canonical?{canonical:c.canonical}:{}) })),...(session.authorization?{authorization:session.authorization}:{}) });
   await db.execAsync('BEGIN IMMEDIATE');
   try {
     await db.runAsync('INSERT OR IGNORE INTO account(user_id) VALUES (?)', session.userId);
@@ -71,6 +86,7 @@ export async function readSnapshot(db: Database, userId: string, now: number): P
   const row = await db.getFirstAsync<{ payload: string; verified_at: number; selected_key: string | null }>(`SELECT c.payload,c.verified_at,p.selected_key FROM cache_records c LEFT JOIN preferences p ON p.user_id=c.user_id WHERE c.user_id=? AND c.context_key='account' AND c.kind='session' AND c.deleted_at IS NULL`, userId);
   if (!row || !Number.isSafeInteger(row.verified_at) || now < row.verified_at || now - row.verified_at > MAX_CACHE_AGE_MS) return null;
   const session = parseSession(JSON.parse(row.payload));
+  if(session.authorization&&!readableOffline(session.authorization,now,row.verified_at))return null;
   if (session.userId !== userId) throw new Error('Hesap eşleşmiyor.');
   const selectedKey = session.contexts.some(c => contextKey(c) === row.selected_key) ? row.selected_key : null;
   return { session, verifiedAt: row.verified_at, selectedKey };

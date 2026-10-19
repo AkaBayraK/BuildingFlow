@@ -1,0 +1,61 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+namespace BuildingFlow.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<BuildingFlow.Application.IMobileSessionStore, MobileSessionStore>();
+        services.AddScoped<BuildingFlow.Application.ICentralPeopleStore, CentralPeopleStore>();
+        services.AddScoped<BuildingFlow.Application.IPersonTransitionStore, PersonTransitionStore>();
+        services.AddScoped<ManagementAccess>();
+        services.AddScoped<BuildingFlow.Application.IManagementAccess>(p=>p.GetRequiredService<ManagementAccess>());
+        services.AddScoped<BuildingFlow.Application.IPersonCenterStore, PersonCenterStore>();
+        services.AddScoped<SessionContextStore>();
+        services.AddScoped<BuildingFlow.Application.ISessionContextStore>(p=>p.GetRequiredService<SessionContextStore>());
+        services.AddScoped<BuildingFlow.Application.IMobileAuthorizationStore>(p=>p.GetRequiredService<SessionContextStore>());
+        services.AddScoped<BuildingFlow.Application.IManagementAssignmentStore, ManagementAssignmentStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileSyncStore, MobileSyncStore>();
+        services.AddScoped<BuildingFlow.Application.IRequestManagementStore, RequestManagementStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileProfileStore, MobileProfileStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileOwnerStore, MobileOwnerStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileManagerStore, MobileManagerStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileFinanceStore, MobileFinanceStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileNoticeStore, MobileNoticeStore>();
+        services.AddSingleton(TimeProvider.System); services.AddScoped<AuditInterceptor>();
+        services.AddDbContext<BuildingFlowDbContext>((provider, options) => options.UseBuildingFlowNpgsql(configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("ConnectionStrings:Database is required.")).AddInterceptors(provider.GetRequiredService<AuditInterceptor>()));
+        services.AddScoped<BuildingFlow.Application.IPropertyStore, PropertyStore>();
+        services.AddScoped<BuildingFlow.Application.IHierarchyStore, HierarchyStore>();
+        services.AddScoped<BuildingFlow.Application.IPersonMessageStore, PersonMessageStore>();
+        services.AddScoped<BuildingFlow.Application.IPeopleStore, PeopleStore>();
+        services.AddSingleton<BuildingFlow.Application.IPersonCodeHasher, PersonCodeHasher>();
+        services.AddSingleton<BuildingFlow.Application.PersonCodeIssuer>();
+        services.AddSingleton<BuildingFlow.Application.ISmsProtector, SmsPayloadProtector>();
+        services.AddSingleton<BuildingFlow.Application.ISmsProvider, MockSmsProvider>();
+        services.AddScoped<BuildingFlow.Application.ISmsQueue, SmsQueue>();
+        services.AddScoped<BuildingFlow.Application.ISmsStore, SmsStore>();
+        services.AddScoped<BuildingFlow.Application.IConsentStore, ConsentStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileConsentStore, MobileConsentStore>();
+        services.AddScoped<SmsDispatcher>();
+        var keycloak = KeycloakAdminOptions.From(configuration);
+        services.AddSingleton(keycloak);
+        services.AddSingleton<BuildingFlow.Application.IKeycloakAdmin>(provider => new KeycloakAdminClient(keycloak, new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, provider.GetRequiredService<TimeProvider>()));
+        services.AddScoped<BuildingFlow.Application.IUserDirectoryStore, UserDirectoryStore>();
+        services.AddScoped<BuildingFlow.Application.IMobileOnboardingStore, MobileOnboardingStore>();
+        services.AddScoped<BuildingFlow.Application.IDuesStore, DuesStore>();
+        services.AddScoped<BuildingFlow.Application.IPaymentStore, PaymentStore>();
+        services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
+        services.AddScoped<BuildingFlow.Application.IMeterStore, MeterStore>();
+        services.AddScoped<BuildingFlow.Application.IExpenseStore, ExpenseStore>();
+        services.AddScoped<BuildingFlow.Application.ICommunicationStore, CommunicationStore>();
+        services.AddSingleton<BuildingFlow.Application.IFileStorage, S3FileStorage>();
+        services.AddSingleton(_ => RabbitMessagingOptions.From(configuration));
+        services.AddSingleton<BuildingFlow.Application.IMessagePublisher, RabbitMessagePublisher>();
+        services.AddScoped<BuildingFlow.Application.IMessageOutbox, EfMessageOutbox>();
+        services.AddScoped<OutboxRelay>();
+        services.AddScoped<MessageProcessor>();
+        return services;
+    }
+}

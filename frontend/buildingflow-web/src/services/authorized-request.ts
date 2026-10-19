@@ -7,7 +7,7 @@ export class ApiError extends Error {
 type Identity={token?:string;updateToken:(minimumValidity:number)=>Promise<unknown>};
 type Reporter={error:(message:NotificationMessage)=>void;warning:(message:NotificationMessage)=>void};
 // Single transport used by useAuthorizedApi; injected fetch enables real async cancellation tests.
-export async function authorizedRequest<T>(identity:Identity,locale:string,notify:Reporter,baseUrl:string,path:string,options:RequestInit={},send:typeof fetch=fetch,responseType:"json"|"blob"="json"):Promise<T>{
+export async function authorizedRequest<T>(identity:Identity,locale:string,notify:Reporter,baseUrl:string,path:string,options:RequestInit={},send:typeof fetch=fetch,responseType:"json"|"blob"="json",quiet:readonly number[]=[]):Promise<T>{
  options.signal?.throwIfAborted();
  try {await identity.updateToken(30);}
  catch {options.signal?.throwIfAborted();const problem=problemDetails(401,null,locale);notify.error(problem.message);throw new ApiError(401,problem.message,problem.errors,problem);}
@@ -20,7 +20,8 @@ export async function authorizedRequest<T>(identity:Identity,locale:string,notif
  if(!response.ok){
   const body:unknown=await response.json().catch(()=>null);options.signal?.throwIfAborted();
   const problem=problemDetails(response.status,body,locale);
-  notify[problem.severity]({text:problem.message,...(problem.code?{code:problem.code,parameters:problem.parameters}:{})});
+  // Expected statuses (such as 404 for an account without a photo) are returned to the caller without a notification.
+  if(!quiet.includes(response.status))notify[problem.severity]({text:problem.message,...(problem.code?{code:problem.code,parameters:problem.parameters}:{})});
   throw new ApiError(response.status,problem.message,problem.errors,problem);
  }
  if(response.status===204)return undefined as T;

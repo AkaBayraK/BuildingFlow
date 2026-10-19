@@ -24,10 +24,53 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition WebsiteDomainInvalid=new("BF_WEBSITE_DOMAIN_INVALID","Alan adı, tür, istek kimliği ve sürümü kontrol edin.","error");
+    public static readonly ErrorDefinition WebsiteDomainConflict=new("BF_WEBSITE_DOMAIN_CONFLICT","Alan adı başka bir site için ayrılmış.","warning");
+    public static readonly ErrorDefinition WebsiteDomainUnverified=new("BF_WEBSITE_DOMAIN_UNVERIFIED","Güncel DNS/TLS doğrulaması ve gerekli onay tamamlanmadı.","warning");
+    public static readonly ErrorDefinition WebsitePreviewUnavailable=new("BF_WEBSITE_PREVIEW_UNAVAILABLE","Güvenli önizleme anahtarı henüz yapılandırılmadı.","warning");
+
+    public static readonly ErrorDefinition InquiryRejected = new("BF_INQUIRY_REJECTED", "Başvuru bilgilerini kontrol edin; aydınlatma metnini yenileyip tekrar deneyin.", "error");
+    public static readonly ErrorDefinition InquiryUnavailable = new("BF_INQUIRY_UNAVAILABLE", "Başvuru formu henüz yapılandırılmadı.", "warning");
+    public static readonly ErrorDefinition ListingInvalid = new("BF_LISTING_INVALID", "İlan alanlarını, fotoğrafları ve aynı alandaki aktif bağımsız bölümü kontrol edin.", "error");
+    public static readonly ErrorDefinition ListingState = new("BF_LISTING_STATE_INVALID", "İlan bu işlem için uygun durumda değil; güncel kaydı kontrol edin.", "warning");
+    public static readonly ErrorDefinition ListingConsent = new("BF_LISTING_CONSENT_REQUIRED", "İlan için özel malik yetki belgesi gerekli.", "warning");
+    public static readonly ErrorDefinition ListingCompliance = new("BF_LISTING_COMPLIANCE_REQUIRED", "Mevzuat kontrolünü açıkça onaylayın ve inceleme notu girin.", "warning");
+    public static readonly ErrorDefinition ListingVerification = new("BF_LISTING_VERIFICATION_REQUIRED", "EİDS kimlik ve yetki doğrulama sağlayıcısı bağlı değil veya yetki geçerli değil; yayın kapalı.", "warning");
+
     public static readonly ErrorDefinition PersonProfileInvalid = new("BF_PERSON_PROFILE_INVALID", "Kişi türü, uyruk, ülke, kimlik ve zorunlu iletişim alanlarını kontrol edin.", "error");
     public static readonly ErrorDefinition PersonAccountInvalid = new("BF_PERSON_ACCOUNT_INVALID", "Aynı yönetim alanında aktif üyeliği olan giriş hesabını seçin.", "error");
     public static readonly ErrorDefinition PersonMessageInvalid = new("BF_PERSON_MESSAGE_INVALID", "Başlık, mesaj, istek kimliği ve desteklenen bildirim kanalı gerekli.", "error");
     public static readonly ErrorDefinition PersonMessageConflict = new("BF_PERSON_MESSAGE_CONFLICT", "Mesaj isteği veya kişi sürümü değişti. Güncel kaydı kontrol edin.", "warning");
+    public static readonly ErrorDefinition SmsInvalid = new("BF_SMS_INVALID", "SMS alanlarını kontrol edin.", "error");
+    public static readonly ErrorDefinition SmsPhoneInvalid = new("BF_SMS_PHONE_INVALID", "Geçerli bir cep telefonu numarası girin.", "error");
+    public static readonly ErrorDefinition SmsTemplateParameterInvalid = new("BF_SMS_TEMPLATE_PARAMETER_INVALID", "Şablon yalnız bu SMS tipinin parametrelerini kullanabilir.", "error");
+    public static readonly ErrorDefinition SmsAccountRequired = new("BF_SMS_ACCOUNT_REQUIRED", "Bu yönetim alanında etkin bir SMS hesabı yok.", "warning");
+    public static readonly ErrorDefinition SmsCreditInsufficient = new("BF_SMS_CREDIT_INSUFFICIENT", "SMS kontörü yetersiz.", "warning");
+    public static readonly ErrorDefinition SmsTemplateConflict = new("BF_SMS_TEMPLATE_CONFLICT", "Bu SMS tipi için zaten bir şablon var.", "warning");
+    public static readonly ErrorDefinition ConsentInvalid = new("BF_CONSENT_INVALID", "Rıza alanlarını kontrol edin.", "error");
+    public static readonly ErrorDefinition ConsentTextInvalid = new("BF_CONSENT_TEXT_INVALID", "Metin boş, çok uzun ya da gizli/kontrol karakteri içeriyor.", "error");
+    public static readonly ErrorDefinition ConsentLinkInvalid = new("BF_CONSENT_LINK_INVALID", "Metindeki bağlantılar yalnız https:// veya mailto: ile başlayabilir.", "error");
+    public static readonly ErrorDefinition ConsentTypeConflict = new("BF_CONSENT_TYPE_CONFLICT", "Bu kodla bir rıza türü zaten var.", "warning");
+    public static readonly ErrorDefinition ConsentSystemType = new("BF_CONSENT_SYSTEM_TYPE", "Sistem rıza türü silinemez veya pasife alınamaz.", "warning");
+    public static readonly ErrorDefinition ConsentTypeInUse = new("BF_CONSENT_TYPE_IN_USE", "Yayınlanmış metni olan rıza türü silinemez; pasife alabilirsiniz.", "warning");
+    public static readonly ErrorDefinition ConsentOperationConflict = new("BF_CONSENT_OPERATION_CONFLICT", "Aynı istek kimliği farklı içerikle kullanıldı. Sayfayı yenileyip yeniden deneyin.", "warning");
+    public static readonly ErrorDefinition ConsentTypeDisabled = new("BF_CONSENT_TYPE_DISABLED", "Pasif rıza türüne yeni metin yayınlanamaz.", "warning");
+    public static readonly ErrorDefinition ConsentRequired = new("BF_CONSENT_REQUIRED", "Fotoğraf eklemek için güncel açık rıza metnini onaylayın.", "warning");
+    public static readonly ErrorDefinition ConsentTextOutdated = new("BF_CONSENT_TEXT_OUTDATED", "Rıza metni güncellendi. Güncel metni okuyup yeniden onaylayın.", "warning");
+    public static readonly ErrorDefinition ConsentNotWithdrawable = new("BF_CONSENT_NOT_WITHDRAWABLE", "Aydınlatma metni okundu bilgisi geri çekilemez.", "warning");
+    public static readonly ErrorDefinition UserInvalid = new("BF_USER_INVALID", "Kullanıcı adı (küçük harf, 3–50), e-posta, ad ve soyadı kontrol edin.", "error");
+    public static readonly ErrorDefinition UserPasswordWeak = new("BF_USER_PASSWORD_WEAK", "Geçici parola en az 12 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.", "error");
+    public static readonly ErrorDefinition UserExists = new("BF_USER_EXISTS", "Bu kullanıcı adı veya e-posta zaten kayıtlı.", "warning");
+    public static readonly ErrorDefinition UserRoleForbidden = new("BF_USER_ROLE_FORBIDDEN", "Bu rolü atama yetkiniz yok.", "error");
+    public static readonly ErrorDefinition UserSelfChange = new("BF_USER_SELF_CHANGE", "Kendi hesabınızı pasifleştiremez veya yönetici rolünüzü kaldıramazsınız.", "error");
+    public static readonly ErrorDefinition UserLinkConflict = new("BF_USER_LINK_CONFLICT", "Kişi başka bir kullanıcıya bağlı ya da kullanıcı bu yönetim alanında başka bir kişiye bağlı.", "warning");
+    public static readonly ErrorDefinition IdentityUnavailable = new("BF_IDENTITY_UNAVAILABLE", "Kimlik sunucusuna şu anda erişilemiyor. Lütfen tekrar deneyin.", "error");
+    public static readonly ErrorDefinition MobileRegistrationInvalid = new("BF_MOBILE_REGISTRATION_INVALID", "Kayıt bilgilerini kontrol edin.", "error");
+    public static readonly ErrorDefinition MobileRegistrationConflict = new("BF_MOBILE_REGISTRATION_CONFLICT", "Bu bilgilerle kayıt oluşturulamadı. Farklı bir kullanıcı adı veya e-posta deneyin ya da giriş yapın.", "warning");
+    public static readonly ErrorDefinition MobileRateLimited = new("BF_MOBILE_RATE_LIMITED", "Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.", "warning");
+    public static readonly ErrorDefinition MobileLinkRejected = new("BF_MOBILE_LINK_REJECTED", "Kişi kodu veya girdiğiniz bilgiler kayıtla uyuşmuyor.", "warning");
+    public static readonly ErrorDefinition MobileLinkLocked = new("BF_MOBILE_LINK_LOCKED", "Çok fazla hatalı deneme yapıldı. 15 dakika sonra tekrar deneyin.", "warning");
+    public static readonly ErrorDefinition PersonCodeUnavailable = new("BF_PERSON_CODE_UNAVAILABLE", "Kişi kodu şu anda üretilemedi. Kaydı yenileyip tekrar deneyin.", "warning");
 
     public static readonly ErrorDefinition MeterInvalid = new("BF_METER_INVALID", "Geçerli sayaç adı, türü ve istek kimliği gerekli.", "error");
     public static readonly ErrorDefinition ReadingInvalid = new("BF_READING_INVALID", "2000 veya sonrası, gelecekte olmayan sabit tarih; sıfır veya pozitif en fazla üç ondalıklı endeks, gerekçe ve geçerli sürüm gerekli.", "error");
@@ -53,6 +96,20 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition DocumentTooLarge = new("BF_DOCUMENT_TOO_LARGE", "Dosya en fazla 10 MiB olabilir.", "error");
     public static readonly ErrorDefinition DocumentRequestConflict = new("BF_DOCUMENT_REQUEST_CONFLICT", "Bu yükleme kimliği farklı veya silinmiş bir belge için kullanılmış.", "warning");
     public static readonly ErrorDefinition DocumentLimit = new("BF_DOCUMENT_LIMIT", "Bir duyuruya en fazla 10 dosya eklenebilir.", "warning");
+    public static readonly ErrorDefinition WebsiteMediaInvalid = new("BF_WEBSITE_MEDIA_INVALID", "Website media or rights declaration is invalid.", "error");
+    public static readonly ErrorDefinition WebsiteMediaInUse = new("BF_WEBSITE_MEDIA_IN_USE", "Website media is referenced by a draft or publication.", "warning");
+    public static readonly ErrorDefinition WebsiteSiteKeyInvalid = new("BF_WEBSITE_SITE_KEY_INVALID", "Site anahtarı 3–63 karakter; küçük harf, rakam ve tire içermeli, ayrılmış bir ad olmamalı.", "error");
+    public static readonly ErrorDefinition WebsiteDetailsInvalid = new("BF_WEBSITE_DETAILS_INVALID", "Site adı, slogan ve kurumsal iletişim bilgileri düz metin ve geçerli biçimde olmalı.", "error");
+    public static readonly ErrorDefinition WebsiteThemeInvalid = new("BF_WEBSITE_THEME_INVALID", "Tema rengi #RRGGBB biçiminde ve beyaz yazıyla okunabilir olmalı.", "error");
+    public static readonly ErrorDefinition WebsitePageInvalid = new("BF_WEBSITE_PAGE_INVALID", "Sayfa türü, adres, başlık ve sıra bilgileri geçerli olmalı.", "error");
+    public static readonly ErrorDefinition WebsiteSectionInvalid = new("BF_WEBSITE_SECTION_INVALID", "İçerik bloğu bu tür için izinli alanlarla, HTML içermeden ve güvenli bağlantılarla girilmeli.", "error");
+    public static readonly ErrorDefinition WebsiteState = new("BF_WEBSITE_STATE", "Bu işlem sitenin mevcut yayın durumunda yapılamaz.", "warning");
+    public static readonly ErrorDefinition WebsiteSiteExists = new("BF_WEBSITE_SITE_EXISTS", "Bu yönetim alanının zaten bir web sitesi var.", "warning");
+    public static readonly ErrorDefinition WebsiteSiteKeyTaken = new("BF_WEBSITE_SITE_KEY_TAKEN", "Bu site anahtarı kullanılıyor; başka bir anahtar seçin.", "warning");
+    public static readonly ErrorDefinition WebsitePageSlugTaken = new("BF_WEBSITE_PAGE_SLUG_TAKEN", "Bu sayfa adresi veya ana sayfa sitede zaten var.", "warning");
+    public static readonly ErrorDefinition WebsitePageRequired = new("BF_WEBSITE_PAGE_REQUIRED", "Ana sayfa, KVKK aydınlatma metni ve çerez politikası sayfaları silinemez.", "warning");
+    public static readonly ErrorDefinition WebsitePublishIncomplete = new("BF_WEBSITE_PUBLISH_INCOMPLETE", "Yayından önce ana sayfa, KVKK aydınlatma metni ve çerez politikası doldurulmalı; [DOLDURUN] işaretleri kalmamalı.", "warning");
+    public static readonly ErrorDefinition WebsiteRequestConflict = new("BF_WEBSITE_REQUEST_CONFLICT", "Bu istek kimliği farklı içerikle kullanılmış.", "warning");
     public static readonly ErrorDefinition StorageUnavailable = new("BF_STORAGE_UNAVAILABLE", "Dosya deposuna erişilemiyor. Lütfen tekrar deneyin.", "error");
     public static readonly ErrorDefinition ContentPropertyHistory = new("BF_CONTENT_PROPERTY_HISTORY", "Duyuru veya belge geçmişi bulunan yönetim alanı silinemez.", "warning");
 
@@ -180,7 +237,11 @@ public static class ErrorCatalog
     public static string FieldKey(string label) => label == "Blok adı" ? "buildingName" : FieldLabels.First(value => value.Value == label).Key;
     public static IReadOnlyList<ErrorDefinition> All { get; } = Array.AsReadOnly(new[]
     {
-        PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict,
+        PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
+        MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
+        UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,
+        SmsInvalid, SmsPhoneInvalid, SmsTemplateParameterInvalid, SmsAccountRequired, SmsCreditInsufficient, SmsTemplateConflict,
+        ConsentInvalid, ConsentTextInvalid, ConsentLinkInvalid, ConsentTypeConflict, ConsentSystemType, ConsentTypeInUse, ConsentOperationConflict, ConsentTypeDisabled, ConsentRequired, ConsentTextOutdated, ConsentNotWithdrawable,
         ConstructionYearInvalid,
         HeatingTypeInvalid,
         ParkingTypeInvalid,
@@ -197,6 +258,33 @@ public static class ErrorCatalog
         DocumentTooLarge,
         DocumentRequestConflict,
         DocumentLimit,
+        WebsiteMediaInvalid,
+        WebsiteMediaInUse,
+        WebsiteDomainInvalid,
+        WebsiteDomainConflict,
+        WebsiteDomainUnverified,
+        WebsitePreviewUnavailable,
+
+        InquiryRejected,
+        InquiryUnavailable,
+        ListingInvalid,
+        ListingState,
+        ListingConsent,
+        ListingCompliance,
+        ListingVerification,
+
+        WebsiteSiteKeyInvalid,
+        WebsiteDetailsInvalid,
+        WebsiteThemeInvalid,
+        WebsitePageInvalid,
+        WebsiteSectionInvalid,
+        WebsiteState,
+        WebsiteSiteExists,
+        WebsiteSiteKeyTaken,
+        WebsitePageSlugTaken,
+        WebsitePageRequired,
+        WebsitePublishIncomplete,
+        WebsiteRequestConflict,
         StorageUnavailable,
         ContentPropertyHistory,
         ExpenseCategoryInvalid,

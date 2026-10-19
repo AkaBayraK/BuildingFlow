@@ -6,7 +6,8 @@ tool=root/'scripts/release-preflight.py'
 def filled():
  lines=[]
  for line in (root/'deploy/production.env.example').read_text().splitlines():
-  if line.endswith(('Password=','RabbitMQ__Password=','ObjectStorage__SecretKey=')) or line=='Smtp__Username=':
+  if line=='PersonCode__HmacKey=':line+=secrets.token_hex(32)
+  elif line.endswith(('Password=','RabbitMQ__Password=','ObjectStorage__SecretKey=','ClientSecret=')) or line=='Smtp__Username=':
    line+=('smtp-user' if line=='Smtp__Username=' else secrets.token_hex(16))
   lines.append(line)
  return dict(l.split('=',1) for l in lines if l and not l.startswith('#'))
@@ -30,6 +31,8 @@ cases={'development':('ASPNETCORE_ENVIRONMENT','Development'),'http authority':(
  'weak db password':('ConnectionStrings__Database','Host=db;Database=b;Username=u;Password=short'),'empty broker secret':('RabbitMQ__Password',''),
  'http storage':('ObjectStorage__Endpoint','http://objects.example.com'),'empty storage key':('ObjectStorage__AccessKey',''),'empty storage secret':('ObjectStorage__SecretKey',''),
  'smtp local':('Smtp__Host','mailpit'),'smtp plaintext':('Smtp__UseStartTls','false'),'smtp insecure':('Smtp__AllowInsecureLocal','true'),
+ 'empty person code key':('PersonCode__HmacKey',''),'short person code key':('PersonCode__HmacKey','ab'*16),'non-hex person code key':('PersonCode__HmacKey','zz'*32),
+ 'http keycloak admin':('KeycloakAdmin__BaseUrl','http://auth.example.com'),'empty keycloak admin secret':('KeycloakAdmin__ClientSecret',''),
  'smtp local sender':('Smtp__From','no-reply@buildingflow.local'),'smtp missing password':('Smtp__Password','')}
 accepted=[name for name,(k,v) in cases.items() if run(dict(base,**{k:v}))==0]
 if accepted:raise SystemExit(f'FAIL: unsafe production settings accepted: {accepted}')

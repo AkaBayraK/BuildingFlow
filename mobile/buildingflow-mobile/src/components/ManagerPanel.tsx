@@ -1,5 +1,8 @@
+import {RequestPhoto} from './RequestPhoto';
+import {categories,priorities,type Category,type Priority} from '../sync/contracts';
 import {useState} from 'react';
-import {ActivityIndicator,Pressable,StyleSheet,Text,View} from 'react-native';
+import {ActivityIndicator,StyleSheet,Text,View} from 'react-native';
+import {Action as Pressable} from './Action';
 import {Link} from 'expo-router';
 import {useAuth} from '../auth/AuthProvider';
 import {useManager} from '../manager/useManager';
@@ -7,11 +10,11 @@ import type {Section} from '../manager/contracts';
 import {formatMoney} from '../owner/contracts';
 import {Icon,Screen,SectionTitle,styles} from './Screen';
 const labels:Record<Section,string>={overview:'Genel bakış',buildings:'Bina / bloklar',units:'Daireler',residents:'Sakinler',finance:'Aidat özeti',announcements:'Duyurular',requests:'Talepler'};
-const states:Record<string,string>={OWNER:'Ev sahibi',TENANT:'Kiracı',RESIDENT:'Sakin',OPEN:'Açık borç',OVERDUE:'Gecikmiş',PAID:'Kapandı',CANCELLED:'İptal edildi',DRAFT:'Taslak',PUBLISHED:'Yayında',ARCHIVED:'Arşiv',RECORDED:'Merkez kaydı'};
+const states:Record<string,string>={OWNER:'Ev sahibi',TENANT:'Kiracı',RESIDENT:'Sakin',OPEN:'Açık borç',OVERDUE:'Gecikmiş',PAID:'Kapandı',CANCELLED:'İptal edildi',DRAFT:'Taslak',PUBLISHED:'Yayında',ARCHIVED:'Arşiv',RECORDED:'Kaydedildi',IN_PROGRESS:'İşlemde',RESOLVED:'Çözüldü',REJECTED:'Reddedildi'};
 export function ManagerScreen({section='overview'}:{section?:Section}){
  const auth=useAuth();return <Screen title={section==='overview'?'Yönetim':labels[section]} home={section==='overview'}><ManagerPanel key={auth.session?.userId+':'+auth.selected?.propertyId+':'+auth.selected?.role+':'+section} initialSection={section}/></Screen>;
 }
-function ManagerPanel({initialSection}:{initialSection:Section}){
+export function ManagerPanel({initialSection}:{initialSection:Section}){
  const [section,setSection]=useState<Section>(initialSection),[page,setPage]=useState(1);
  const {data:d,busy,error,refresh,offline}=useManager(section,page);
  const select=(s:Section)=>{setSection(s);setPage(1);};
@@ -33,9 +36,9 @@ function ManagerPanel({initialSection}:{initialSection:Section}){
     <Text style={styles.muted}>{d.total} {section==='residents'?'aktif kişi / daire ilişkisi':'kayıt'} · Sayfa {page}{d.total>0?' / '+Math.ceil(d.total/50):''} · En fazla 50 kayıt</Text>
     {section==='finance'&&<View style={s.balance}><Text style={s.eyebrow}>TOPLAM AÇIK AİDAT</Text><Text style={s.balanceAmount}>{formatMoney(d.summary.balance)}</Text><Text style={s.overdue}>Gecikmiş: {formatMoney(d.summary.overdue)}</Text><Text style={styles.muted}>Toplamlar yalnız bu sayfayı değil, tüm binayı kapsar.</Text></View>}
     {!d.rows.length&&<View style={styles.card}><Icon name="file-tray-outline"/><Text style={styles.text}>Bu sayfada gösterilecek kayıt yok.</Text></View>}
-    {d.rows.map(r=><View key={r.id} style={styles.card}><View style={s.row}><Text style={[styles.cardTitle,styles.flex]}>{section==='units'?'Daire '+r.title:r.title}</Text>{r.state&&<Text style={[s.badge,['OVERDUE','CANCELLED'].includes(r.state)&&s.warning]}>{states[r.state]}</Text>}</View><Text style={styles.text}>{r.detail}</Text>{r.amount!==null&&<Text style={s.amount}>Kalan: {formatMoney(r.amount)}</Text>}</View>)}
+    {d.rows.map(r=><View key={r.id} style={styles.card}><View style={s.row}><Text style={[styles.cardTitle,styles.flex]}>{section==='units'?'Daire '+r.title:r.title}</Text>{r.state&&<Text style={[s.badge,['OVERDUE','CANCELLED'].includes(r.state)&&s.warning]}>{states[r.state]}</Text>}</View><Text style={styles.text}>{r.detail}</Text>{section==='requests'&&<><Text style={styles.muted}>{categories[(r.category??'OTHER') as Category]} · {priorities[(r.priority??'NORMAL') as Priority]}</Text>{r.photoId&&r.photoSha256&&<RequestPhoto key={r.photoId} id={r.id} photoId={r.photoId} sha={r.photoSha256}/>}</>}{r.amount!==null&&<Text style={s.amount}>Kalan: {formatMoney(r.amount)}</Text>}</View>)}
     <View style={s.row}><Pressable accessibilityRole="button" disabled={busy||page===1} onPress={()=>setPage(n=>n-1)} style={[s.pageButton,(busy||page===1)&&s.disabled]}><Text style={s.activeLabel}>← Önceki</Text></Pressable><Pressable accessibilityRole="button" disabled={busy||page*50>=d.total||page>=10000} onPress={()=>setPage(n=>n+1)} style={[s.pageButton,(busy||page*50>=d.total||page>=10000)&&s.disabled]}><Text style={s.activeLabel}>Sonraki →</Text></Pressable></View>
-    <Text style={styles.muted}>{section==='requests'?'Talepler merkez kayıtlarıdır. Atama, işleme alma ve kapatma durumu henüz bu modüle bağlı değildir.':section==='announcements'?'Yönetim yetkinizle taslaklar ve yönetim duyuruları da görünür. Mobil düzenleme ve yayınlama bu fazın kapsamında değildir.':section==='residents'?'Yalnız güncel, aktif daire ilişkileri gösterilir. Kimlik ve iletişim bilgileri bu mobil özette tutulmaz.':section==='finance'?'Tahsilat, iptal ve online ödeme bu ekrandan başlatılmaz; ayrıntılı finans işlemleri sonraki fazdadır.':'Aktif bina ve daireler gösterilir.'}</Text>
+    <Text style={styles.muted}>{section==='requests'?'Taleplerin güncel yönetim durumu gösterilir. İşleme alma, yanıt ve kapatma merkez Talepler ve Arızalar ekranından yapılır.':section==='announcements'?'Yönetim yetkinizle taslaklar ve yönetim duyuruları da görünür. Mobil düzenleme ve yayınlama bu fazın kapsamında değildir.':section==='residents'?'Yalnız güncel, aktif daire ilişkileri gösterilir. Kimlik ve iletişim bilgileri bu mobil özette tutulmaz.':section==='finance'?'Tahsilat, iptal ve online ödeme bu ekrandan başlatılmaz; ayrıntılı finans işlemleri sonraki fazdadır.':'Aktif bina ve daireler gösterilir.'}</Text>
    </>}
   </>}
  </>;

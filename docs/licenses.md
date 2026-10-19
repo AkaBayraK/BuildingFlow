@@ -121,3 +121,18 @@ Test fixture'ları temizlendi. Domain/roadmap ve on-prem AkaAI değişmedi.
 ## 14.10.2026 depolama refactoru
 Aktif MinIO sunucusu ve Minio7.0.0 NuGet bağımlılığı kaldırıldı. Tarihsel İŞ08 lisans ve test kayıtları geçmiş kanıt olarak korunur; yeni runtime bunları kullanmaz.
 SeaweedFS4.48: Apache-2.0; resmi digest4e61d15... sabit. Tam metin seaweedfs-4.48-LICENSE.txt. Resmi AWSSDK.S3 4.0.104.3 ve transitif AWSSDK.Core: paket .nuspec Apache-2.0. Tam LICENSE ve NOTICE aws-sdk-Apache-2.0.txt / aws-sdk-NOTICE.txt ile API ve worker imajlarına kopyalanır. Yeni kod AWS bulutuna bağlanmaz; yalnız configured SeaweedFS gateway kullanılır. Paket metadata envanteri329, belirsiz0. Bu kayıt tüm container işletim sistemi paketlerinin aynı lisans olduğu veya hukuki uyumluluk garantisi anlamına gelmez.
+
+## Mobil Faz15 — 15.10.2026
+
+Resmi expo-splash-screen57.0.10 SDK57 expo install ile eklendi:MIT. Upstream https://github.com/expo/expo/blob/main/LICENSE ve kurulu LICENSE okundu; mobile/buildingflow-mobile/LICENSES/expo-splash-screen.txt içinde korundu. Başka paket sürümü değişmedi. Tam mobil lock envanteri871kayıt; mobile/docs/mobile/DEPENDENCIES.tsv ve release:licenses kontrolü. Tamifadeler korunur; MITAND Apache herikisi,MITORApache/MITORCC0 MITseçeneği, BSD3OR GPL BSD3seçeneğiyle incelenir. MPL/CC-BY/source/NOTICE ve container dağıtımı metadata onayından ayrıdır; paket lisansları korunur. Merkez329npm/NuGet kontrolü mobil envanteri kapsamıyordu; iki sonuç ayrıdır.29auditbulgusu ve gerçek üretim/mağaza kabulü açık.
+
+## PERSON FAZ10 —18.10.2026 doğrulama
+Yeni bağımlılık/sürüm/asset kurulmadı. Mevcut metadata checker329npm/NuGet sürüm kaydı ve mobil checker871lock kaydı için geçti. Mevcut AND/OR seçimleri ve LICENSE/NOTICE kaynakları korundu; yeni exception yok. Dockerfile lisans kopyalama kaynakları ve compose image listesi okundu; son native binary/container OS SBOM/dağıtım bildirimleri/ticari kullanım hakkı kabulü yapılmadı. Metadata sonucu tam lisans veya güvenlik onayı değildir. Mobil SCA29bulgu(18high/11moderate) ile başarısız; paket değişmeden kaldı. Kanıt ve açık dağıtım yükümlülükleri: [FAZ10 raporu](refactor/person/phase-10-report.md).
+
+## WEBSITE FAZ 04 — 18.10.2026
+
+Yeni üçüncü taraf paket/font/ikon/stok görsel eklenmedi; manifest/lock sürümleri korunur. Projeye özel SVG ikon/logo kodu ve built-in image_gen ile iki temsili görsel üretildi. WebP kaynak/prompt kaydı: [website görselleri](../website/public/images/README.md). Mevcut Next.js/React/Sharp lisans ve NOTICE kaynakları korunur; yeni npm kurulumu/restore yapılmadı, envanter yeniden yazılmadı. Bu kayıt gerçek binanın görsel kullanım hakkı veya üretim dağıtımı kabulü değildir.
+
+## WEBSITE FAZ05 —18.10.2026
+
+Yeni paket/font/ikon/stock görsel eklenmedi. JPEG mevcut ProfilePhoto kodunu parametrik sınırlarla kullanır; PNG CRC/zlib kodu .NET BCL ve projeye ait kaynakla yazıldı. FE mevcut shadcn/TanStack/Lucide kullanır. Manifest/lock/NOTICE korunur; npm ci/restore yapılmadı. Medya hak/kişisel veri izni beyanla saklanır; otomatik hukuki uygunluk garantisi değildir.

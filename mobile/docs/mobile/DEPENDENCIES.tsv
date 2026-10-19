@@ -1,711 +1,872 @@
-package	version	license
-@babel/code-frame	7.29.7	MIT
-@babel/compat-data	7.29.7	MIT
-@babel/core	7.29.7	MIT
-@babel/generator	7.29.8	MIT
-@babel/helper-annotate-as-pure	7.29.7	MIT
-@babel/helper-compilation-targets	7.29.7	MIT
-@babel/helper-create-class-features-plugin	7.29.7	MIT
-@babel/helper-create-regexp-features-plugin	7.29.10	MIT
-@babel/helper-define-polyfill-provider	0.6.8	MIT
-@babel/helper-globals	7.29.7	MIT
-@babel/helper-member-expression-to-functions	7.29.7	MIT
-@babel/helper-module-imports	7.29.7	MIT
-@babel/helper-module-transforms	7.29.7	MIT
-@babel/helper-optimise-call-expression	7.29.7	MIT
-@babel/helper-plugin-utils	7.29.7	MIT
-@babel/helper-remap-async-to-generator	7.29.7	MIT
-@babel/helper-replace-supers	7.29.7	MIT
-@babel/helper-skip-transparent-expression-wrappers	7.29.7	MIT
-@babel/helper-string-parser	7.29.7	MIT
-@babel/helper-validator-identifier	7.29.7	MIT
-@babel/helper-validator-option	7.29.7	MIT
-@babel/helper-wrap-function	7.29.7	MIT
-@babel/helpers	7.29.10	MIT
-@babel/parser	7.29.9	MIT
-@babel/plugin-proposal-decorators	7.29.7	MIT
-@babel/plugin-proposal-export-default-from	7.29.7	MIT
-@babel/plugin-syntax-decorators	7.29.7	MIT
-@babel/plugin-syntax-dynamic-import	7.8.3	MIT
-@babel/plugin-syntax-export-default-from	7.29.7	MIT
-@babel/plugin-syntax-flow	7.29.7	MIT
-@babel/plugin-syntax-jsx	7.29.7	MIT
-@babel/plugin-syntax-nullish-coalescing-operator	7.8.3	MIT
-@babel/plugin-syntax-optional-chaining	7.8.3	MIT
-@babel/plugin-syntax-typescript	7.29.7	MIT
-@babel/plugin-transform-arrow-functions	7.29.7	MIT
-@babel/plugin-transform-async-generator-functions	7.29.7	MIT
-@babel/plugin-transform-async-to-generator	7.29.7	MIT
-@babel/plugin-transform-block-scoping	7.29.7	MIT
-@babel/plugin-transform-class-properties	7.29.7	MIT
-@babel/plugin-transform-class-static-block	7.29.7	MIT
-@babel/plugin-transform-classes	7.29.7	MIT
-@babel/plugin-transform-destructuring	7.29.7	MIT
-@babel/plugin-transform-export-namespace-from	7.29.7	MIT
-@babel/plugin-transform-flow-strip-types	7.29.7	MIT
-@babel/plugin-transform-for-of	7.29.7	MIT
-@babel/plugin-transform-logical-assignment-operators	7.29.7	MIT
-@babel/plugin-transform-modules-commonjs	7.29.7	MIT
-@babel/plugin-transform-named-capturing-groups-regex	7.29.7	MIT
-@babel/plugin-transform-nullish-coalescing-operator	7.29.7	MIT
-@babel/plugin-transform-object-rest-spread	7.29.7	MIT
-@babel/plugin-transform-optional-catch-binding	7.29.7	MIT
-@babel/plugin-transform-optional-chaining	7.29.7	MIT
-@babel/plugin-transform-parameters	7.29.7	MIT
-@babel/plugin-transform-private-methods	7.29.7	MIT
-@babel/plugin-transform-private-property-in-object	7.29.7	MIT
-@babel/plugin-transform-react-display-name	7.29.7	MIT
-@babel/plugin-transform-react-jsx	7.29.7	MIT
-@babel/plugin-transform-react-jsx-development	7.29.7	MIT
-@babel/plugin-transform-react-jsx-self	7.29.7	MIT
-@babel/plugin-transform-react-jsx-source	7.29.7	MIT
-@babel/plugin-transform-react-pure-annotations	7.29.7	MIT
-@babel/plugin-transform-regenerator	7.29.8	MIT
-@babel/plugin-transform-runtime	7.29.7	MIT
-@babel/plugin-transform-shorthand-properties	7.29.7	MIT
-@babel/plugin-transform-template-literals	7.29.7	MIT
-@babel/plugin-transform-typescript	7.29.9	MIT
-@babel/plugin-transform-unicode-regex	7.29.7	MIT
-@babel/preset-typescript	7.29.7	MIT
-@babel/runtime	7.29.10	MIT
-@babel/template	7.29.7	MIT
-@babel/traverse	7.29.10	MIT
-@babel/types	7.29.8	MIT
-@eslint-community/eslint-utils	4.10.1	MIT
-@eslint-community/regexpp	4.12.2	MIT
-@eslint/config-array	0.21.2	Apache-2.0
-@eslint/config-helpers	0.4.2	Apache-2.0
-@eslint/core	0.17.0	Apache-2.0
-@eslint/eslintrc	3.3.7	MIT
-@eslint/js	9.39.5	MIT
-@eslint/object-schema	2.1.7	Apache-2.0
-@eslint/plugin-kit	0.4.1	Apache-2.0
-@expo-google-fonts/material-symbols	0.4.50	MIT AND Apache-2.0
-@expo/code-signing-certificates	0.0.6	MIT
-@expo/config	57.0.10	MIT
-@expo/config-plugins	57.0.10	MIT
-@expo/config-types	57.0.2	MIT
-@expo/devcert	1.2.2	MIT
-@expo/devtools	57.0.1	MIT
-@expo/dom-webview	57.0.1	MIT
-@expo/env	2.4.3	MIT
-@expo/expo-modules-macros-plugin	0.6.1	MIT
-@expo/fingerprint	0.20.14	MIT
-@expo/image-utils	0.11.6	MIT
-@expo/inline-modules	0.1.8	MIT
-@expo/json-file	11.0.1	MIT
-@expo/local-build-cache-provider	57.0.9	MIT
-@expo/log-box	57.0.4	MIT
-@expo/metro	56.0.2	MIT
-@expo/metro-file-map	57.0.4	MIT
-@expo/metro-runtime	57.0.16	MIT
-@expo/osascript	2.7.1	MIT
-@expo/package-manager	1.13.1	MIT
-@expo/plist	0.8.1	MIT
-@expo/prebuild-config	57.0.18	MIT
-@expo/require-utils	57.0.6	MIT
-@expo/schema-utils	57.0.2	MIT
-@expo/sdk-runtime-versions	1.0.1	MIT
-@expo/spawn-async	1.8.0	MIT
-@expo/sudo-prompt	9.3.2	MIT
-@expo/ui	57.0.23	MIT
-@expo/vector-icons	15.1.1	MIT
-@expo/xcpretty	4.4.6	MIT
-@humanfs/core	0.19.2	Apache-2.0
-@humanfs/node	0.16.8	Apache-2.0
-@humanfs/types	0.15.0	Apache-2.0
-@humanwhocodes/module-importer	1.0.1	Apache-2.0
-@humanwhocodes/retry	0.4.3	Apache-2.0
-@isaacs/ttlcache	1.4.1	ISC
-@jest/schemas	29.6.3	MIT
-@jest/types	29.6.3	MIT
-@jridgewell/gen-mapping	0.3.13	MIT
-@jridgewell/remapping	2.3.5	MIT
-@jridgewell/resolve-uri	3.1.2	MIT
-@jridgewell/source-map	0.3.11	MIT
-@jridgewell/sourcemap-codec	1.6.0	MIT
-@jridgewell/trace-mapping	0.3.31	MIT
-@nolyfill/is-core-module	1.0.39	MIT
-@radix-ui/primitive	1.2.0	MIT
-@radix-ui/react-compose-refs	1.1.5	MIT
-@radix-ui/react-context	1.3.0	MIT
-@radix-ui/react-direction	1.2.0	MIT
-@radix-ui/react-focus-guards	1.2.0	MIT
-@radix-ui/react-id	1.1.4	MIT
-@radix-ui/react-slot	1.5.0	MIT
-@radix-ui/react-use-callback-ref	1.1.5	MIT
-@radix-ui/react-use-controllable-state	1.3.0	MIT
-@radix-ui/react-use-effect-event	0.0.5	MIT
-@radix-ui/react-use-is-hydrated	0.1.3	MIT
-@radix-ui/react-use-layout-effect	1.1.4	MIT
-@react-native-masked-view/masked-view	0.3.2	MIT
-@react-native/assets-registry	0.86.3	MIT
-@react-native/babel-plugin-codegen	0.86.3	MIT
-@react-native/babel-preset	0.86.3	MIT
-@react-native/codegen	0.86.3	MIT
-@react-native/community-cli-plugin	0.86.3	MIT
-@react-native/debugger-frontend	0.86.3	BSD-3-Clause
-@react-native/debugger-shell	0.86.3	MIT
-@react-native/dev-middleware	0.86.3	MIT
-@react-native/gradle-plugin	0.86.3	MIT
-@react-native/js-polyfills	0.86.3	MIT
-@react-native/metro-babel-transformer	0.86.3	MIT
-@react-native/metro-config	0.86.3	MIT
-@react-native/normalize-colors	0.86.3	MIT
-@react-native/virtualized-lists	0.86.3	MIT
-@rtsao/scc	1.1.0	MIT
-@sinclair/typebox	0.27.12	MIT
-@types/estree	1.0.9	MIT
-@types/istanbul-lib-coverage	2.0.6	MIT
-@types/istanbul-lib-report	3.0.3	MIT
-@types/istanbul-reports	3.0.4	MIT
-@types/json-schema	7.0.15	MIT
-@types/json5	0.0.29	MIT
-@types/node	26.6.5	MIT
-@types/react	19.2.18	MIT
-@types/react-test-renderer	19.3.0	MIT
-@types/yargs	17.0.35	MIT
-@types/yargs-parser	21.0.3	MIT
-@typescript-eslint/eslint-plugin	8.71.2	MIT
-@typescript-eslint/parser	8.71.2	MIT
-@typescript-eslint/project-service	8.71.2	MIT
-@typescript-eslint/scope-manager	8.71.2	MIT
-@typescript-eslint/tsconfig-utils	8.71.2	MIT
-@typescript-eslint/type-utils	8.71.2	MIT
-@typescript-eslint/types	8.71.2	MIT
-@typescript-eslint/typescript-estree	8.71.2	MIT
-@typescript-eslint/utils	8.71.2	MIT
-@typescript-eslint/visitor-keys	8.71.2	MIT
-@ungap/structured-clone	1.4.0	ISC
-@unrs/resolver-binding-darwin-arm64	1.12.2	MIT
-@xmldom/xmldom	0.8.15	MIT
-abort-controller	3.0.0	MIT
-accepts	2.0.0	MIT
-acorn	8.19.0	MIT
-acorn-jsx	5.3.2	MIT
-agent-base	7.1.4	MIT
-agent-cli-detector	0.1.7	MIT
-ajv	6.15.0	MIT
-anser	1.4.10	MIT
-ansi-escapes	4.3.2	MIT
-ansi-regex	5.0.1	MIT
-ansi-styles	4.3.0	MIT
-arg	5.0.2	MIT
-argparse	2.0.1	Python-2.0
-aria-hidden	1.2.6	MIT
-array-buffer-byte-length	1.0.2	MIT
-array-includes	3.2.0	MIT
-array.prototype.findlast	1.2.5	MIT
-array.prototype.findlastindex	1.2.6	MIT
-array.prototype.flat	1.3.3	MIT
-array.prototype.flatmap	1.3.3	MIT
-array.prototype.tosorted	1.1.4	MIT
-arraybuffer.prototype.slice	1.0.4	MIT
-asap	2.0.6	MIT
-async-function	1.0.0	MIT
-available-typed-arrays	1.0.7	MIT
-await-lock	2.2.2	MIT
-babel-plugin-polyfill-corejs2	0.4.17	MIT
-babel-plugin-polyfill-corejs3	0.13.0	MIT
-babel-plugin-polyfill-regenerator	0.6.8	MIT
-babel-plugin-react-compiler	1.0.0	MIT
-babel-plugin-react-native-web	0.21.4	MIT
-babel-plugin-syntax-hermes-parser	0.36.0	MIT
-babel-plugin-transform-flow-enums	0.0.2	MIT
-balanced-match	4.0.4	MIT
-base64-js	1.5.1	MIT
-baseline-browser-mapping	2.11.28	Apache-2.0
-big-integer	1.6.52	Unlicense
-boolbase	1.0.0	ISC
-bplist-creator	0.1.0	MIT
-bplist-parser	0.3.1	MIT
-brace-expansion	5.0.12	MIT
-braces	3.0.3	MIT
-browserslist	4.29.3	MIT
-bser	2.1.2	MIT
-buffer-from	1.1.2	MIT
-bytes	3.1.2	MIT
-call-bind	1.0.9	MIT
-call-bind-apply-helpers	1.0.2	MIT
-call-bound	1.0.4	MIT
-callsites	3.1.0	MIT
-camelcase	6.3.0	MIT
-caniuse-lite	1.0.30001816	CC-BY-4.0
-chalk	4.1.2	MIT
-chrome-launcher	0.15.2	Apache-2.0
-chromium-edge-launcher	0.3.0	Apache-2.0
-ci-info	2.0.0	MIT
-cli-cursor	2.1.0	MIT
-cli-spinners	2.9.2	MIT
-client-only	0.0.1	MIT
-cliui	8.0.1	ISC
-clone	1.0.4	MIT
-color	4.2.3	MIT
-color-convert	2.0.1	MIT
-color-name	1.1.4	MIT
-color-string	1.9.1	MIT
-commander	7.2.0	MIT
-compressible	2.0.18	MIT
-compression	1.8.2	MIT
-concat-map	0.0.1	MIT
-connect	3.7.0	MIT
-content-type	2.1.0	MIT
-convert-source-map	2.0.0	MIT
-core-js-compat	3.50.0	MIT
-cross-fetch	3.2.0	MIT
-cross-spawn	7.0.6	MIT
-css-in-js-utils	3.1.0	MIT
-css-select	5.2.2	BSD-2-Clause
-css-tree	1.1.3	MIT
-css-what	6.2.2	BSD-2-Clause
-csstype	3.2.3	MIT
-data-view-buffer	1.0.2	MIT
-data-view-byte-length	1.0.2	MIT
-data-view-byte-offset	1.0.1	MIT
-debug	4.4.3	MIT
-decode-uri-component	0.2.2	MIT
-deep-is	0.1.4	MIT
-deepmerge	4.3.1	MIT
-defaults	1.0.4	MIT
-define-data-property	1.1.4	MIT
-define-properties	1.2.1	MIT
-depd	2.0.0	MIT
-destroy	1.2.0	MIT
-detect-libc	2.1.2	Apache-2.0
-detect-node-es	1.1.0	MIT
-dnssd-advertise	1.1.6	MIT
-doctrine	2.1.0	Apache-2.0
-dom-serializer	2.0.0	MIT
-domelementtype	2.3.0	BSD-2-Clause
-domhandler	5.0.3	BSD-2-Clause
-domutils	3.2.2	BSD-2-Clause
-dunder-proto	1.0.1	MIT
-ee-first	1.1.1	MIT
-electron-to-chromium	1.5.453	ISC
-emoji-regex	8.0.0	MIT
-encodeurl	1.0.2	MIT
-entities	4.5.0	BSD-2-Clause
-error-stack-parser	2.1.4	MIT
-es-abstract	1.24.2	MIT
-es-abstract-get	1.0.0	MIT
-es-define-property	1.0.1	MIT
-es-errors	1.3.0	MIT
-es-iterator-helpers	1.4.0	MIT
-es-object-atoms	1.1.2	MIT
-es-set-tostringtag	2.1.0	MIT
-es-shim-unscopables	1.1.0	MIT
-es-to-primitive	1.3.4	MIT
-escalade	3.2.0	MIT
-escape-html	1.0.3	MIT
-escape-string-regexp	4.0.0	MIT
-eslint	9.39.5	MIT
-eslint-config-expo	57.0.2	MIT
-eslint-import-resolver-node	0.3.10	MIT
-eslint-import-resolver-typescript	3.10.1	ISC
-eslint-module-utils	2.14.0	MIT
-eslint-plugin-expo	1.1.0	MIT
-eslint-plugin-import	2.32.0	MIT
-eslint-plugin-react	7.37.5	MIT
-eslint-plugin-react-hooks	7.1.1	MIT
-eslint-scope	8.4.0	BSD-2-Clause
-eslint-visitor-keys	5.0.1	Apache-2.0
-espree	10.4.0	BSD-2-Clause
-esquery	1.7.0	BSD-3-Clause
-esrecurse	4.3.0	BSD-2-Clause
-estraverse	5.3.0	BSD-2-Clause
-esutils	2.0.3	BSD-2-Clause
-etag	1.8.1	MIT
-event-target-shim	5.0.1	MIT
-expo	57.0.28	MIT
-expo-auth-session	57.0.15	MIT
-expo-build-properties	57.0.22	MIT
-expo-constants	57.0.21	MIT
-expo-crypto	57.0.4	MIT
-expo-dev-client	57.0.20	MIT
-expo-dev-launcher	57.0.21	MIT
-expo-dev-menu	57.0.20	MIT
-expo-dev-menu-interface	57.0.0	MIT
-expo-file-system	57.0.7	MIT
-expo-font	57.0.4	MIT
-expo-glass-effect	57.0.4	MIT
-expo-image-loader	57.0.1	MIT
-expo-image-manipulator	57.0.21	MIT
-expo-image-picker	57.0.20	MIT
-expo-json-utils	57.0.2	MIT
-expo-linking	57.0.12	MIT
-expo-manifests	57.0.2	MIT
-expo-modules-autolinking	57.0.15	MIT
-expo-modules-core	57.0.22	MIT
-expo-modules-jsi	57.1.2	MIT
-expo-network	57.0.2	MIT
-expo-router	57.0.26	MIT
-expo-secure-store	57.0.4	MIT
-expo-server	57.0.3	MIT
-expo-sqlite	57.0.4	MIT
-expo-status-bar	57.0.1	MIT
-expo-symbols	57.0.3	MIT
-expo-updates-interface	57.0.2	MIT
-expo-web-browser	57.0.3	MIT
-exponential-backoff	3.1.3	Apache-2.0
-fast-deep-equal	3.1.3	MIT
-fast-json-stable-stringify	2.1.0	MIT
-fast-levenshtein	2.0.6	MIT
-fb-dotslash	0.5.8	(MIT OR Apache-2.0)
-fb-watchman	2.0.4	MIT
-fbjs	3.0.5	MIT
-fbjs-css-vars	1.0.2	MIT
-fetch-nodeshim	0.4.10	MIT
-file-entry-cache	8.0.0	MIT
-fill-range	7.1.1	MIT
-filter-obj	1.1.0	MIT
-finalhandler	1.1.2	MIT
-find-up	5.0.0	MIT
-flat-cache	4.0.1	MIT
-flatted	3.4.4	ISC
-flow-enums-runtime	0.0.6	MIT
-fontfaceobserver	2.3.0	BSD-2-Clause
-for-each	0.3.5	MIT
-fresh	0.5.2	MIT
-function-bind	1.1.2	MIT
-function.prototype.name	1.2.0	MIT
-functions-have-names	1.2.3	MIT
-generator-function	2.0.1	MIT
-gensync	1.0.0-beta.2	MIT
-get-caller-file	2.0.5	ISC
-get-intrinsic	1.3.0	MIT
-get-nonce	1.0.1	MIT
-get-proto	1.0.1	MIT
-get-symbol-description	1.1.0	MIT
-get-tsconfig	4.14.3	MIT
-getenv	2.0.0	MIT
-glob	13.0.6	BlueOak-1.0.0
-glob-parent	6.0.2	ISC
-globals	16.5.0	MIT
-globalthis	1.0.4	MIT
-gopd	1.2.0	MIT
-graceful-fs	4.2.11	ISC
-has-bigints	1.1.0	MIT
-has-flag	4.0.0	MIT
-has-property-descriptors	1.0.2	MIT
-has-proto	1.2.0	MIT
-has-symbols	1.1.0	MIT
-has-tostringtag	1.0.2	MIT
-hasown	2.0.4	MIT
-hermes-compiler	250829098.0.17	MIT
-hermes-estree	0.35.0	MIT
-hermes-parser	0.35.0	MIT
-hosted-git-info	7.0.2	ISC
-http-errors	2.0.1	MIT
-https-proxy-agent	7.0.6	MIT
-hyphenate-style-name	1.1.0	BSD-3-Clause
-ignore	5.3.2	MIT
-import-fresh	3.3.1	MIT
-imurmurhash	0.1.4	MIT
-inherits	2.0.4	ISC
-inline-style-prefixer	7.0.1	MIT
-internal-slot	1.1.0	MIT
-invariant	2.2.4	MIT
-is-array-buffer	3.0.5	MIT
-is-arrayish	0.3.4	MIT
-is-async-function	2.1.1	MIT
-is-bigint	1.1.0	MIT
-is-boolean-object	1.2.2	MIT
-is-bun-module	2.0.0	MIT
-is-callable	1.2.7	MIT
-is-core-module	2.17.0	MIT
-is-data-view	1.0.2	MIT
-is-date-object	1.1.0	MIT
-is-docker	2.2.1	MIT
-is-document.all	1.0.0	MIT
-is-extglob	2.1.1	MIT
-is-finalizationregistry	1.1.1	MIT
-is-fullwidth-code-point	3.0.0	MIT
-is-generator-function	1.1.2	MIT
-is-glob	4.0.3	MIT
-is-map	2.0.3	MIT
-is-negative-zero	2.0.3	MIT
-is-number	7.0.0	MIT
-is-number-object	1.1.1	MIT
-is-regex	1.2.1	MIT
-is-set	2.0.3	MIT
-is-shared-array-buffer	1.0.4	MIT
-is-string	1.1.1	MIT
-is-symbol	1.1.1	MIT
-is-typed-array	1.1.15	MIT
-is-weakmap	2.0.2	MIT
-is-weakref	1.1.1	MIT
-is-weakset	2.0.4	MIT
-is-wsl	2.2.0	MIT
-isarray	2.0.5	MIT
-isexe	2.0.0	ISC
-iterator.prototype	1.1.5	MIT
-jest-get-type	29.6.3	MIT
-jest-util	29.7.0	MIT
-jest-validate	29.7.0	MIT
-jest-worker	29.7.0	MIT
-jimp-compact	0.16.1	MIT
-js-tokens	4.0.0	MIT
-js-yaml	4.3.2	MIT
-jsc-safe-url	0.2.4	0BSD
-jsesc	3.1.0	MIT
-json-buffer	3.0.1	MIT
-json-schema-traverse	0.4.1	MIT
-json-stable-stringify-without-jsonify	1.0.1	MIT
-json5	2.2.3	MIT
-jsx-ast-utils	3.3.5	MIT
-keyv	4.5.4	MIT
-kleur	3.0.3	MIT
-lan-network	0.2.1	MIT
-leven	3.1.0	MIT
-levn	0.4.1	MIT
-lighthouse-logger	1.4.2	Apache-2.0
-lightningcss	1.33.0	MPL-2.0
-lightningcss-darwin-arm64	1.33.0	MPL-2.0
-locate-path	6.0.0	MIT
-lodash.debounce	4.0.8	MIT
-lodash.merge	4.6.2	MIT
-lodash.throttle	4.1.1	MIT
-log-symbols	2.2.0	MIT
-loose-envify	1.4.0	MIT
-lru-cache	5.1.1	ISC
-makeerror	1.0.12	BSD-3-Clause
-marky	1.3.0	Apache-2.0
-math-intrinsics	1.1.0	MIT
-mdn-data	2.0.14	CC0-1.0
-memoize-one	5.2.1	MIT
-merge-stream	2.0.0	MIT
-metro	0.84.5	MIT
-metro-babel-transformer	0.84.5	MIT
-metro-cache	0.84.5	MIT
-metro-cache-key	0.84.5	MIT
-metro-config	0.84.5	MIT
-metro-core	0.84.5	MIT
-metro-file-map	0.84.5	MIT
-metro-minify-terser	0.84.5	MIT
-metro-resolver	0.84.5	MIT
-metro-runtime	0.84.5	MIT
-metro-source-map	0.84.5	MIT
-metro-symbolicate	0.84.5	MIT
-metro-transform-plugins	0.84.5	MIT
-metro-transform-worker	0.84.5	MIT
-micromatch	4.0.8	MIT
-mime	1.6.0	MIT
-mime-db	1.54.0	MIT
-mime-types	3.0.2	MIT
-mimic-fn	1.2.0	MIT
-minimatch	10.2.6	BlueOak-1.0.0
-minimist	1.2.8	MIT
-minipass	7.1.3	BlueOak-1.0.0
-mkdirp	1.0.4	MIT
-ms	2.1.3	MIT
-multitars	1.0.2	MIT
-nanoid	3.3.20	MIT
-napi-postinstall	0.3.4	MIT
-natural-compare	1.4.0	MIT
-negotiator	1.1.0	MIT
-node-exports-info	1.6.2	MIT
-node-fetch	2.7.0	MIT
-node-forge	1.4.0	(BSD-3-Clause OR GPL-2.0)
-node-int64	0.4.0	MIT
-node-releases	2.0.58	MIT
-npm-package-arg	11.0.3	ISC
-nth-check	2.1.1	BSD-2-Clause
-nullthrows	1.1.1	MIT
-ob1	0.84.5	MIT
-object-assign	4.1.1	MIT
-object-inspect	1.13.4	MIT
-object-keys	1.1.1	MIT
-object.assign	4.1.7	MIT
-object.entries	1.1.9	MIT
-object.fromentries	2.0.8	MIT
-object.groupby	1.0.3	MIT
-object.values	1.2.1	MIT
-on-finished	2.3.0	MIT
-on-headers	1.1.0	MIT
-onetime	2.0.1	MIT
-open	7.4.2	MIT
-optionator	0.9.4	MIT
-ora	3.4.0	MIT
-own-keys	1.0.2	MIT
-p-limit	3.1.0	MIT
-p-locate	5.0.0	MIT
-parent-module	1.0.1	MIT
-parse-png	2.1.0	MIT
-parseurl	1.3.3	MIT
-path-exists	4.0.0	MIT
-path-key	3.1.1	MIT
-path-parse	1.0.7	MIT
-path-scurry	2.0.2	BlueOak-1.0.0
-picocolors	1.1.1	ISC
-picomatch	2.3.2	MIT
-plist	3.1.1	MIT
-pngjs	3.4.0	MIT
-possible-typed-array-names	1.1.0	MIT
-postcss	8.5.30	MIT
-postcss-value-parser	4.2.0	MIT
-prelude-ls	1.2.1	MIT
-pretty-format	29.7.0	MIT
-proc-log	4.2.0	ISC
-progress	2.0.3	MIT
-promise	8.3.0	MIT
-prompts	2.4.2	MIT
-prop-types	15.8.1	MIT
-punycode	2.3.1	MIT
-query-string	7.1.3	MIT
-range-parser	1.2.1	MIT
-react	19.2.3	MIT
-react-devtools-core	6.1.5	MIT
-react-dom	19.2.3	MIT
-react-fast-compare	3.2.2	MIT
-react-freeze	1.0.4	MIT
-react-is	18.3.1	MIT
-react-native	0.86.3	MIT
-react-native-drawer-layout	4.2.11	MIT
-react-native-gesture-handler	3.3.0	MIT
-react-native-is-edge-to-edge	1.3.1	MIT
-react-native-reanimated	4.5.1	MIT
-react-native-safe-area-context	5.7.0	MIT
-react-native-screens	4.26.2	MIT
-react-native-svg	15.15.4	MIT
-react-native-web	0.21.4	MIT
-react-native-worklets	0.10.1	MIT
-react-refresh	0.14.2	MIT
-react-remove-scroll	2.7.2	MIT
-react-remove-scroll-bar	2.3.8	MIT
-react-style-singleton	2.2.3	MIT
-reflect.getprototypeof	1.0.10	MIT
-regenerate	1.5.0	MIT
-regenerate-unicode-properties	10.3.0	MIT
-regenerator-runtime	0.13.11	MIT
-regexp.prototype.flags	1.5.4	MIT
-regexpu-core	6.5.3	MIT
-regjsgen	0.8.0	MIT
-regjsparser	0.13.4	BSD-2-Clause
-require-directory	2.1.1	MIT
-resolve	1.22.13	MIT
-resolve-from	5.0.0	MIT
-resolve-pkg-maps	1.0.0	MIT
-resolve-workspace-root	2.0.1	MIT
-restore-cursor	2.0.0	MIT
-safe-array-concat	1.1.4	MIT
-safe-buffer	5.2.1	MIT
-safe-push-apply	1.0.0	MIT
-safe-regex-test	1.1.0	MIT
-sandbox-cli-detector	0.2.0	MIT
-sax	1.6.1	BlueOak-1.0.0
-scheduler	0.27.0	MIT
-semver	7.8.5	ISC
-send	0.19.2	MIT
-serialize-error	2.1.0	MIT
-serve-static	1.16.3	MIT
-server-only	0.0.1	MIT
-set-function-length	1.2.2	MIT
-set-function-name	2.0.2	MIT
-set-proto	1.0.0	MIT
-setimmediate	1.0.5	MIT
-setprototypeof	1.2.0	ISC
-sf-symbols-typescript	2.2.0	MIT
-shallowequal	1.1.0	MIT
-shebang-command	2.0.0	MIT
-shebang-regex	3.0.0	MIT
-shell-quote	1.12.0	MIT
-side-channel	1.1.1	MIT
-side-channel-list	1.0.1	MIT
-side-channel-map	1.0.1	MIT
-side-channel-weakmap	1.0.2	MIT
-signal-exit	3.0.7	ISC
-simple-plist	1.3.1	MIT
-simple-swizzle	0.2.4	MIT
-sisteransi	1.0.5	MIT
-slugify	1.6.9	MIT
-source-map	0.5.7	BSD-3-Clause
-source-map-js	1.2.2	BSD-3-Clause
-source-map-support	0.5.21	MIT
-split-on-first	1.1.0	MIT
-stable-hash	0.0.5	MIT
-stackframe	1.3.4	MIT
-stacktrace-parser	0.1.11	MIT
-standard-navigation	0.0.5	MIT
-statuses	1.5.0	MIT
-stop-iteration-iterator	1.1.0	MIT
-stream-buffers	2.2.0	Unlicense
-strict-uri-encode	2.0.0	MIT
-string-width	4.2.3	MIT
-string.prototype.matchall	4.1.0	MIT
-string.prototype.repeat	1.0.0	MIT
-string.prototype.trim	1.2.11	MIT
-string.prototype.trimend	1.0.10	MIT
-string.prototype.trimstart	1.0.8	MIT
-strip-ansi	6.0.1	MIT
-strip-bom	3.0.0	MIT
-strip-json-comments	3.1.1	MIT
-structured-headers	0.4.1	MIT
-styleq	0.1.3	MIT
-supports-color	7.2.0	MIT
-supports-hyperlinks	2.3.0	MIT
-supports-preserve-symlinks-flag	1.0.0	MIT
-terminal-link	2.1.1	MIT
-terser	5.51.2	BSD-2-Clause
-throat	5.0.0	MIT
-tinyglobby	0.2.17	MIT
-tmpl	1.0.5	BSD-3-Clause
-to-regex-range	5.0.1	MIT
-toidentifier	1.0.1	MIT
-toqr	0.1.1	MIT
-tr46	0.0.3	MIT
-ts-api-utils	2.5.0	MIT
-tsconfig-paths	3.15.0	MIT
-tslib	2.8.1	0BSD
-type-check	0.4.0	MIT
-type-fest	0.7.1	(MIT OR CC0-1.0)
-typed-array-buffer	1.0.3	MIT
-typed-array-byte-length	1.0.3	MIT
-typed-array-byte-offset	1.0.5	MIT
-typed-array-length	1.0.8	MIT
-typescript	6.0.3	Apache-2.0
-ua-parser-js	1.0.41	MIT
-unbox-primitive	1.1.0	MIT
-undici-types	8.9.0	MIT
-unicode-canonical-property-names-ecmascript	2.0.1	MIT
-unicode-match-property-ecmascript	2.0.0	MIT
-unicode-match-property-value-ecmascript	2.2.1	MIT
-unicode-property-aliases-ecmascript	2.2.0	MIT
-unpipe	1.0.0	MIT
-unrs-resolver	1.12.2	MIT
-update-browserslist-db	1.3.4	MIT
-uri-js	4.4.1	BSD-2-Clause
-use-callback-ref	1.3.3	MIT
-use-latest-callback	0.2.6	MIT
-use-sidecar	1.1.3	MIT
-utils-merge	1.0.1	MIT
-uuid	7.0.3	MIT
-validate-npm-package-name	5.0.1	ISC
-vary	1.1.2	MIT
-vaul	1.1.2	MIT
-vlq	1.0.1	MIT
-walker	1.0.8	Apache-2.0
-warn-once	0.1.1	MIT
-wcwidth	1.0.1	MIT
-webidl-conversions	3.0.1	BSD-2-Clause
-whatwg-fetch	3.6.20	MIT
-whatwg-url	5.0.0	MIT
-whatwg-url-minimum	0.1.2	MIT
-which	2.0.2	ISC
-which-boxed-primitive	1.1.1	MIT
-which-builtin-type	1.2.1	MIT
-which-collection	1.0.2	MIT
-which-typed-array	1.1.24	MIT
-word-wrap	1.2.5	MIT
-wrap-ansi	7.0.0	MIT
-ws	7.5.13	MIT
-xcode	3.0.1	Apache-2.0
-xml2js	0.6.0	MIT
-xmlbuilder	15.1.1	MIT
-y18n	5.0.8	ISC
-yallist	3.1.1	ISC
-yaml	2.9.1	ISC
-yargs	17.7.3	MIT
-yargs-parser	21.1.1	ISC
-yocto-queue	0.1.0	MIT
-zod	3.25.76	MIT
-zod-validation-error	4.0.2	MIT
+package	version	license	lock_path
+@babel/code-frame	7.29.7	MIT	node_modules/@babel/code-frame
+@babel/compat-data	7.29.7	MIT	node_modules/@babel/compat-data
+@babel/core	7.29.7	MIT	node_modules/@babel/core
+semver	6.3.1	ISC	node_modules/@babel/core/node_modules/semver
+@babel/generator	7.29.8	MIT	node_modules/@babel/generator
+@babel/helper-annotate-as-pure	7.29.7	MIT	node_modules/@babel/helper-annotate-as-pure
+@babel/helper-compilation-targets	7.29.7	MIT	node_modules/@babel/helper-compilation-targets
+semver	6.3.1	ISC	node_modules/@babel/helper-compilation-targets/node_modules/semver
+@babel/helper-create-class-features-plugin	7.29.7	MIT	node_modules/@babel/helper-create-class-features-plugin
+semver	6.3.1	ISC	node_modules/@babel/helper-create-class-features-plugin/node_modules/semver
+@babel/helper-create-regexp-features-plugin	7.29.10	MIT	node_modules/@babel/helper-create-regexp-features-plugin
+semver	6.3.1	ISC	node_modules/@babel/helper-create-regexp-features-plugin/node_modules/semver
+@babel/helper-define-polyfill-provider	0.6.8	MIT	node_modules/@babel/helper-define-polyfill-provider
+@babel/helper-globals	7.29.7	MIT	node_modules/@babel/helper-globals
+@babel/helper-member-expression-to-functions	7.29.7	MIT	node_modules/@babel/helper-member-expression-to-functions
+@babel/helper-module-imports	7.29.7	MIT	node_modules/@babel/helper-module-imports
+@babel/helper-module-transforms	7.29.7	MIT	node_modules/@babel/helper-module-transforms
+@babel/helper-optimise-call-expression	7.29.7	MIT	node_modules/@babel/helper-optimise-call-expression
+@babel/helper-plugin-utils	7.29.7	MIT	node_modules/@babel/helper-plugin-utils
+@babel/helper-remap-async-to-generator	7.29.7	MIT	node_modules/@babel/helper-remap-async-to-generator
+@babel/helper-replace-supers	7.29.7	MIT	node_modules/@babel/helper-replace-supers
+@babel/helper-skip-transparent-expression-wrappers	7.29.7	MIT	node_modules/@babel/helper-skip-transparent-expression-wrappers
+@babel/helper-string-parser	7.29.7	MIT	node_modules/@babel/helper-string-parser
+@babel/helper-validator-identifier	7.29.7	MIT	node_modules/@babel/helper-validator-identifier
+@babel/helper-validator-option	7.29.7	MIT	node_modules/@babel/helper-validator-option
+@babel/helper-wrap-function	7.29.7	MIT	node_modules/@babel/helper-wrap-function
+@babel/helpers	7.29.10	MIT	node_modules/@babel/helpers
+@babel/parser	7.29.9	MIT	node_modules/@babel/parser
+@babel/plugin-proposal-decorators	7.29.7	MIT	node_modules/@babel/plugin-proposal-decorators
+@babel/plugin-proposal-export-default-from	7.29.7	MIT	node_modules/@babel/plugin-proposal-export-default-from
+@babel/plugin-syntax-decorators	7.29.7	MIT	node_modules/@babel/plugin-syntax-decorators
+@babel/plugin-syntax-dynamic-import	7.8.3	MIT	node_modules/@babel/plugin-syntax-dynamic-import
+@babel/plugin-syntax-export-default-from	7.29.7	MIT	node_modules/@babel/plugin-syntax-export-default-from
+@babel/plugin-syntax-flow	7.29.7	MIT	node_modules/@babel/plugin-syntax-flow
+@babel/plugin-syntax-jsx	7.29.7	MIT	node_modules/@babel/plugin-syntax-jsx
+@babel/plugin-syntax-nullish-coalescing-operator	7.8.3	MIT	node_modules/@babel/plugin-syntax-nullish-coalescing-operator
+@babel/plugin-syntax-optional-chaining	7.8.3	MIT	node_modules/@babel/plugin-syntax-optional-chaining
+@babel/plugin-syntax-typescript	7.29.7	MIT	node_modules/@babel/plugin-syntax-typescript
+@babel/plugin-transform-arrow-functions	7.29.7	MIT	node_modules/@babel/plugin-transform-arrow-functions
+@babel/plugin-transform-async-generator-functions	7.29.7	MIT	node_modules/@babel/plugin-transform-async-generator-functions
+@babel/plugin-transform-async-to-generator	7.29.7	MIT	node_modules/@babel/plugin-transform-async-to-generator
+@babel/plugin-transform-block-scoping	7.29.7	MIT	node_modules/@babel/plugin-transform-block-scoping
+@babel/plugin-transform-class-properties	7.29.7	MIT	node_modules/@babel/plugin-transform-class-properties
+@babel/plugin-transform-class-static-block	7.29.7	MIT	node_modules/@babel/plugin-transform-class-static-block
+@babel/plugin-transform-classes	7.29.7	MIT	node_modules/@babel/plugin-transform-classes
+@babel/plugin-transform-destructuring	7.29.7	MIT	node_modules/@babel/plugin-transform-destructuring
+@babel/plugin-transform-export-namespace-from	7.29.7	MIT	node_modules/@babel/plugin-transform-export-namespace-from
+@babel/plugin-transform-flow-strip-types	7.29.7	MIT	node_modules/@babel/plugin-transform-flow-strip-types
+@babel/plugin-transform-for-of	7.29.7	MIT	node_modules/@babel/plugin-transform-for-of
+@babel/plugin-transform-logical-assignment-operators	7.29.7	MIT	node_modules/@babel/plugin-transform-logical-assignment-operators
+@babel/plugin-transform-modules-commonjs	7.29.7	MIT	node_modules/@babel/plugin-transform-modules-commonjs
+@babel/plugin-transform-named-capturing-groups-regex	7.29.7	MIT	node_modules/@babel/plugin-transform-named-capturing-groups-regex
+@babel/plugin-transform-nullish-coalescing-operator	7.29.7	MIT	node_modules/@babel/plugin-transform-nullish-coalescing-operator
+@babel/plugin-transform-object-rest-spread	7.29.7	MIT	node_modules/@babel/plugin-transform-object-rest-spread
+@babel/plugin-transform-optional-catch-binding	7.29.7	MIT	node_modules/@babel/plugin-transform-optional-catch-binding
+@babel/plugin-transform-optional-chaining	7.29.7	MIT	node_modules/@babel/plugin-transform-optional-chaining
+@babel/plugin-transform-parameters	7.29.7	MIT	node_modules/@babel/plugin-transform-parameters
+@babel/plugin-transform-private-methods	7.29.7	MIT	node_modules/@babel/plugin-transform-private-methods
+@babel/plugin-transform-private-property-in-object	7.29.7	MIT	node_modules/@babel/plugin-transform-private-property-in-object
+@babel/plugin-transform-react-display-name	7.29.7	MIT	node_modules/@babel/plugin-transform-react-display-name
+@babel/plugin-transform-react-jsx	7.29.7	MIT	node_modules/@babel/plugin-transform-react-jsx
+@babel/plugin-transform-react-jsx-development	7.29.7	MIT	node_modules/@babel/plugin-transform-react-jsx-development
+@babel/plugin-transform-react-jsx-self	7.29.7	MIT	node_modules/@babel/plugin-transform-react-jsx-self
+@babel/plugin-transform-react-jsx-source	7.29.7	MIT	node_modules/@babel/plugin-transform-react-jsx-source
+@babel/plugin-transform-react-pure-annotations	7.29.7	MIT	node_modules/@babel/plugin-transform-react-pure-annotations
+@babel/plugin-transform-regenerator	7.29.8	MIT	node_modules/@babel/plugin-transform-regenerator
+@babel/plugin-transform-runtime	7.29.7	MIT	node_modules/@babel/plugin-transform-runtime
+semver	6.3.1	ISC	node_modules/@babel/plugin-transform-runtime/node_modules/semver
+@babel/plugin-transform-shorthand-properties	7.29.7	MIT	node_modules/@babel/plugin-transform-shorthand-properties
+@babel/plugin-transform-template-literals	7.29.7	MIT	node_modules/@babel/plugin-transform-template-literals
+@babel/plugin-transform-typescript	7.29.9	MIT	node_modules/@babel/plugin-transform-typescript
+@babel/plugin-transform-unicode-regex	7.29.7	MIT	node_modules/@babel/plugin-transform-unicode-regex
+@babel/preset-typescript	7.29.7	MIT	node_modules/@babel/preset-typescript
+@babel/runtime	7.29.10	MIT	node_modules/@babel/runtime
+@babel/template	7.29.7	MIT	node_modules/@babel/template
+@babel/traverse	7.29.10	MIT	node_modules/@babel/traverse
+@babel/types	7.29.8	MIT	node_modules/@babel/types
+@emnapi/core	1.10.0	MIT	node_modules/@emnapi/core
+@emnapi/runtime	1.10.0	MIT	node_modules/@emnapi/runtime
+@emnapi/wasi-threads	1.2.1	MIT	node_modules/@emnapi/wasi-threads
+@eslint-community/eslint-utils	4.10.1	MIT	node_modules/@eslint-community/eslint-utils
+eslint-visitor-keys	3.4.3	Apache-2.0	node_modules/@eslint-community/eslint-utils/node_modules/eslint-visitor-keys
+@eslint-community/regexpp	4.12.2	MIT	node_modules/@eslint-community/regexpp
+@eslint/config-array	0.21.2	Apache-2.0	node_modules/@eslint/config-array
+balanced-match	1.0.2	MIT	node_modules/@eslint/config-array/node_modules/balanced-match
+brace-expansion	1.1.21	MIT	node_modules/@eslint/config-array/node_modules/brace-expansion
+minimatch	3.1.5	ISC	node_modules/@eslint/config-array/node_modules/minimatch
+@eslint/config-helpers	0.4.2	Apache-2.0	node_modules/@eslint/config-helpers
+@eslint/core	0.17.0	Apache-2.0	node_modules/@eslint/core
+@eslint/eslintrc	3.3.7	MIT	node_modules/@eslint/eslintrc
+balanced-match	1.0.2	MIT	node_modules/@eslint/eslintrc/node_modules/balanced-match
+brace-expansion	1.1.21	MIT	node_modules/@eslint/eslintrc/node_modules/brace-expansion
+globals	14.0.0	MIT	node_modules/@eslint/eslintrc/node_modules/globals
+minimatch	3.1.5	ISC	node_modules/@eslint/eslintrc/node_modules/minimatch
+@eslint/js	9.39.5	MIT	node_modules/@eslint/js
+@eslint/object-schema	2.1.7	Apache-2.0	node_modules/@eslint/object-schema
+@eslint/plugin-kit	0.4.1	Apache-2.0	node_modules/@eslint/plugin-kit
+@expo-google-fonts/material-symbols	0.4.50	MIT AND Apache-2.0	node_modules/@expo-google-fonts/material-symbols
+@expo/code-signing-certificates	0.0.6	MIT	node_modules/@expo/code-signing-certificates
+@expo/config	57.0.10	MIT	node_modules/@expo/config
+@expo/config-plugins	57.0.10	MIT	node_modules/@expo/config-plugins
+@expo/config-types	57.0.2	MIT	node_modules/@expo/config-types
+@expo/devcert	1.2.2	MIT	node_modules/@expo/devcert
+debug	3.2.7	MIT	node_modules/@expo/devcert/node_modules/debug
+@expo/devtools	57.0.1	MIT	node_modules/@expo/devtools
+@expo/dom-webview	57.0.1	MIT	node_modules/@expo/dom-webview
+@expo/env	2.4.3	MIT	node_modules/@expo/env
+@expo/expo-modules-macros-plugin	0.6.1	MIT	node_modules/@expo/expo-modules-macros-plugin
+@expo/fingerprint	0.20.14	MIT	node_modules/@expo/fingerprint
+@expo/image-utils	0.11.6	MIT	node_modules/@expo/image-utils
+@expo/inline-modules	0.1.8	MIT	node_modules/@expo/inline-modules
+@expo/json-file	11.0.1	MIT	node_modules/@expo/json-file
+@expo/local-build-cache-provider	57.0.9	MIT	node_modules/@expo/local-build-cache-provider
+@expo/log-box	57.0.4	MIT	node_modules/@expo/log-box
+@expo/metro	56.0.2	MIT	node_modules/@expo/metro
+@expo/metro-file-map	57.0.4	MIT	node_modules/@expo/metro-file-map
+@expo/metro-runtime	57.0.16	MIT	node_modules/@expo/metro-runtime
+@expo/osascript	2.7.1	MIT	node_modules/@expo/osascript
+@expo/package-manager	1.13.1	MIT	node_modules/@expo/package-manager
+@expo/plist	0.8.1	MIT	node_modules/@expo/plist
+@expo/prebuild-config	57.0.18	MIT	node_modules/@expo/prebuild-config
+@expo/require-utils	57.0.6	MIT	node_modules/@expo/require-utils
+@expo/schema-utils	57.0.2	MIT	node_modules/@expo/schema-utils
+@expo/sdk-runtime-versions	1.0.1	MIT	node_modules/@expo/sdk-runtime-versions
+@expo/spawn-async	1.8.0	MIT	node_modules/@expo/spawn-async
+@expo/sudo-prompt	9.3.2	MIT	node_modules/@expo/sudo-prompt
+@expo/ui	57.0.23	MIT	node_modules/@expo/ui
+@expo/vector-icons	15.1.1	MIT	node_modules/@expo/vector-icons
+@expo/xcpretty	4.4.6	MIT	node_modules/@expo/xcpretty
+@humanfs/core	0.19.2	Apache-2.0	node_modules/@humanfs/core
+@humanfs/node	0.16.8	Apache-2.0	node_modules/@humanfs/node
+@humanfs/types	0.15.0	Apache-2.0	node_modules/@humanfs/types
+@humanwhocodes/module-importer	1.0.1	Apache-2.0	node_modules/@humanwhocodes/module-importer
+@humanwhocodes/retry	0.4.3	Apache-2.0	node_modules/@humanwhocodes/retry
+@isaacs/ttlcache	1.4.1	ISC	node_modules/@isaacs/ttlcache
+@jest/schemas	29.6.3	MIT	node_modules/@jest/schemas
+@jest/types	29.6.3	MIT	node_modules/@jest/types
+@jridgewell/gen-mapping	0.3.13	MIT	node_modules/@jridgewell/gen-mapping
+@jridgewell/remapping	2.3.5	MIT	node_modules/@jridgewell/remapping
+@jridgewell/resolve-uri	3.1.2	MIT	node_modules/@jridgewell/resolve-uri
+@jridgewell/source-map	0.3.11	MIT	node_modules/@jridgewell/source-map
+@jridgewell/sourcemap-codec	1.6.0	MIT	node_modules/@jridgewell/sourcemap-codec
+@jridgewell/trace-mapping	0.3.31	MIT	node_modules/@jridgewell/trace-mapping
+@napi-rs/wasm-runtime	1.2.5	MIT	node_modules/@napi-rs/wasm-runtime
+@nolyfill/is-core-module	1.0.39	MIT	node_modules/@nolyfill/is-core-module
+@radix-ui/primitive	1.2.0	MIT	node_modules/@radix-ui/primitive
+@radix-ui/react-compose-refs	1.1.5	MIT	node_modules/@radix-ui/react-compose-refs
+@radix-ui/react-context	1.3.0	MIT	node_modules/@radix-ui/react-context
+@radix-ui/react-direction	1.2.0	MIT	node_modules/@radix-ui/react-direction
+@radix-ui/react-focus-guards	1.2.0	MIT	node_modules/@radix-ui/react-focus-guards
+@radix-ui/react-id	1.1.4	MIT	node_modules/@radix-ui/react-id
+@radix-ui/react-slot	1.5.0	MIT	node_modules/@radix-ui/react-slot
+@radix-ui/react-use-callback-ref	1.1.5	MIT	node_modules/@radix-ui/react-use-callback-ref
+@radix-ui/react-use-controllable-state	1.3.0	MIT	node_modules/@radix-ui/react-use-controllable-state
+@radix-ui/react-use-effect-event	0.0.5	MIT	node_modules/@radix-ui/react-use-effect-event
+@radix-ui/react-use-is-hydrated	0.1.3	MIT	node_modules/@radix-ui/react-use-is-hydrated
+@radix-ui/react-use-layout-effect	1.1.4	MIT	node_modules/@radix-ui/react-use-layout-effect
+@react-native-masked-view/masked-view	0.3.2	MIT	node_modules/@react-native-masked-view/masked-view
+@react-native/assets-registry	0.86.3	MIT	node_modules/@react-native/assets-registry
+@react-native/babel-plugin-codegen	0.86.3	MIT	node_modules/@react-native/babel-plugin-codegen
+@react-native/babel-preset	0.86.3	MIT	node_modules/@react-native/babel-preset
+@react-native/codegen	0.86.3	MIT	node_modules/@react-native/codegen
+hermes-estree	0.36.0	MIT	node_modules/@react-native/codegen/node_modules/hermes-estree
+hermes-parser	0.36.0	MIT	node_modules/@react-native/codegen/node_modules/hermes-parser
+@react-native/community-cli-plugin	0.86.3	MIT	node_modules/@react-native/community-cli-plugin
+@react-native/debugger-frontend	0.86.3	BSD-3-Clause	node_modules/@react-native/debugger-frontend
+@react-native/debugger-shell	0.86.3	MIT	node_modules/@react-native/debugger-shell
+@react-native/dev-middleware	0.86.3	MIT	node_modules/@react-native/dev-middleware
+@react-native/gradle-plugin	0.86.3	MIT	node_modules/@react-native/gradle-plugin
+@react-native/js-polyfills	0.86.3	MIT	node_modules/@react-native/js-polyfills
+@react-native/metro-babel-transformer	0.86.3	MIT	node_modules/@react-native/metro-babel-transformer
+hermes-estree	0.36.0	MIT	node_modules/@react-native/metro-babel-transformer/node_modules/hermes-estree
+hermes-parser	0.36.0	MIT	node_modules/@react-native/metro-babel-transformer/node_modules/hermes-parser
+@react-native/metro-config	0.86.3	MIT	node_modules/@react-native/metro-config
+@react-native/normalize-colors	0.86.3	MIT	node_modules/@react-native/normalize-colors
+@react-native/virtualized-lists	0.86.3	MIT	node_modules/@react-native/virtualized-lists
+@rtsao/scc	1.1.0	MIT	node_modules/@rtsao/scc
+@sinclair/typebox	0.27.12	MIT	node_modules/@sinclair/typebox
+@tybys/wasm-util	0.10.4	MIT	node_modules/@tybys/wasm-util
+@types/estree	1.0.9	MIT	node_modules/@types/estree
+@types/istanbul-lib-coverage	2.0.6	MIT	node_modules/@types/istanbul-lib-coverage
+@types/istanbul-lib-report	3.0.3	MIT	node_modules/@types/istanbul-lib-report
+@types/istanbul-reports	3.0.4	MIT	node_modules/@types/istanbul-reports
+@types/json-schema	7.0.15	MIT	node_modules/@types/json-schema
+@types/json5	0.0.29	MIT	node_modules/@types/json5
+@types/node	26.6.5	MIT	node_modules/@types/node
+@types/react	19.2.18	MIT	node_modules/@types/react
+@types/react-test-renderer	19.3.0	MIT	node_modules/@types/react-test-renderer
+@types/yargs	17.0.35	MIT	node_modules/@types/yargs
+@types/yargs-parser	21.0.3	MIT	node_modules/@types/yargs-parser
+@typescript-eslint/eslint-plugin	8.71.2	MIT	node_modules/@typescript-eslint/eslint-plugin
+ignore	7.0.12	MIT	node_modules/@typescript-eslint/eslint-plugin/node_modules/ignore
+@typescript-eslint/parser	8.71.2	MIT	node_modules/@typescript-eslint/parser
+@typescript-eslint/project-service	8.71.2	MIT	node_modules/@typescript-eslint/project-service
+@typescript-eslint/scope-manager	8.71.2	MIT	node_modules/@typescript-eslint/scope-manager
+@typescript-eslint/tsconfig-utils	8.71.2	MIT	node_modules/@typescript-eslint/tsconfig-utils
+@typescript-eslint/type-utils	8.71.2	MIT	node_modules/@typescript-eslint/type-utils
+@typescript-eslint/types	8.71.2	MIT	node_modules/@typescript-eslint/types
+@typescript-eslint/typescript-estree	8.71.2	MIT	node_modules/@typescript-eslint/typescript-estree
+@typescript-eslint/utils	8.71.2	MIT	node_modules/@typescript-eslint/utils
+@typescript-eslint/visitor-keys	8.71.2	MIT	node_modules/@typescript-eslint/visitor-keys
+@ungap/structured-clone	1.4.0	ISC	node_modules/@ungap/structured-clone
+@unrs/resolver-binding-android-arm-eabi	1.12.2	MIT	node_modules/@unrs/resolver-binding-android-arm-eabi
+@unrs/resolver-binding-android-arm64	1.12.2	MIT	node_modules/@unrs/resolver-binding-android-arm64
+@unrs/resolver-binding-darwin-arm64	1.12.2	MIT	node_modules/@unrs/resolver-binding-darwin-arm64
+@unrs/resolver-binding-darwin-x64	1.12.2	MIT	node_modules/@unrs/resolver-binding-darwin-x64
+@unrs/resolver-binding-freebsd-x64	1.12.2	MIT	node_modules/@unrs/resolver-binding-freebsd-x64
+@unrs/resolver-binding-linux-arm-gnueabihf	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-arm-gnueabihf
+@unrs/resolver-binding-linux-arm-musleabihf	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-arm-musleabihf
+@unrs/resolver-binding-linux-arm64-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-arm64-gnu
+@unrs/resolver-binding-linux-arm64-musl	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-arm64-musl
+@unrs/resolver-binding-linux-loong64-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-loong64-gnu
+@unrs/resolver-binding-linux-loong64-musl	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-loong64-musl
+@unrs/resolver-binding-linux-ppc64-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-ppc64-gnu
+@unrs/resolver-binding-linux-riscv64-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-riscv64-gnu
+@unrs/resolver-binding-linux-riscv64-musl	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-riscv64-musl
+@unrs/resolver-binding-linux-s390x-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-s390x-gnu
+@unrs/resolver-binding-linux-x64-gnu	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-x64-gnu
+@unrs/resolver-binding-linux-x64-musl	1.12.2	MIT	node_modules/@unrs/resolver-binding-linux-x64-musl
+@unrs/resolver-binding-openharmony-arm64	1.12.2	MIT	node_modules/@unrs/resolver-binding-openharmony-arm64
+@unrs/resolver-binding-wasm32-wasi	1.12.2	MIT	node_modules/@unrs/resolver-binding-wasm32-wasi
+@unrs/resolver-binding-win32-arm64-msvc	1.12.2	MIT	node_modules/@unrs/resolver-binding-win32-arm64-msvc
+@unrs/resolver-binding-win32-ia32-msvc	1.12.2	MIT	node_modules/@unrs/resolver-binding-win32-ia32-msvc
+@unrs/resolver-binding-win32-x64-msvc	1.12.2	MIT	node_modules/@unrs/resolver-binding-win32-x64-msvc
+@xmldom/xmldom	0.8.15	MIT	node_modules/@xmldom/xmldom
+abort-controller	3.0.0	MIT	node_modules/abort-controller
+accepts	2.0.0	MIT	node_modules/accepts
+acorn	8.19.0	MIT	node_modules/acorn
+acorn-jsx	5.3.2	MIT	node_modules/acorn-jsx
+agent-base	7.1.4	MIT	node_modules/agent-base
+agent-cli-detector	0.1.7	MIT	node_modules/agent-cli-detector
+ajv	6.15.0	MIT	node_modules/ajv
+anser	1.4.10	MIT	node_modules/anser
+ansi-escapes	4.3.2	MIT	node_modules/ansi-escapes
+type-fest	0.21.3	(MIT OR CC0-1.0)	node_modules/ansi-escapes/node_modules/type-fest
+ansi-regex	5.0.1	MIT	node_modules/ansi-regex
+ansi-styles	4.3.0	MIT	node_modules/ansi-styles
+arg	5.0.2	MIT	node_modules/arg
+argparse	2.0.1	Python-2.0	node_modules/argparse
+aria-hidden	1.2.6	MIT	node_modules/aria-hidden
+array-buffer-byte-length	1.0.2	MIT	node_modules/array-buffer-byte-length
+array-includes	3.2.0	MIT	node_modules/array-includes
+array.prototype.findlast	1.2.5	MIT	node_modules/array.prototype.findlast
+array.prototype.findlastindex	1.2.6	MIT	node_modules/array.prototype.findlastindex
+array.prototype.flat	1.3.3	MIT	node_modules/array.prototype.flat
+array.prototype.flatmap	1.3.3	MIT	node_modules/array.prototype.flatmap
+array.prototype.tosorted	1.1.4	MIT	node_modules/array.prototype.tosorted
+arraybuffer.prototype.slice	1.0.4	MIT	node_modules/arraybuffer.prototype.slice
+asap	2.0.6	MIT	node_modules/asap
+async-function	1.0.0	MIT	node_modules/async-function
+available-typed-arrays	1.0.7	MIT	node_modules/available-typed-arrays
+await-lock	2.2.2	MIT	node_modules/await-lock
+babel-plugin-polyfill-corejs2	0.4.17	MIT	node_modules/babel-plugin-polyfill-corejs2
+semver	6.3.1	ISC	node_modules/babel-plugin-polyfill-corejs2/node_modules/semver
+babel-plugin-polyfill-corejs3	0.13.0	MIT	node_modules/babel-plugin-polyfill-corejs3
+babel-plugin-polyfill-regenerator	0.6.8	MIT	node_modules/babel-plugin-polyfill-regenerator
+babel-plugin-react-compiler	1.0.0	MIT	node_modules/babel-plugin-react-compiler
+babel-plugin-react-native-web	0.21.4	MIT	node_modules/babel-plugin-react-native-web
+babel-plugin-syntax-hermes-parser	0.36.0	MIT	node_modules/babel-plugin-syntax-hermes-parser
+hermes-estree	0.36.0	MIT	node_modules/babel-plugin-syntax-hermes-parser/node_modules/hermes-estree
+hermes-parser	0.36.0	MIT	node_modules/babel-plugin-syntax-hermes-parser/node_modules/hermes-parser
+babel-plugin-transform-flow-enums	0.0.2	MIT	node_modules/babel-plugin-transform-flow-enums
+balanced-match	4.0.4	MIT	node_modules/balanced-match
+base64-js	1.5.1	MIT	node_modules/base64-js
+baseline-browser-mapping	2.11.28	Apache-2.0	node_modules/baseline-browser-mapping
+big-integer	1.6.52	Unlicense	node_modules/big-integer
+boolbase	1.0.0	ISC	node_modules/boolbase
+bplist-creator	0.1.0	MIT	node_modules/bplist-creator
+bplist-parser	0.3.1	MIT	node_modules/bplist-parser
+brace-expansion	5.0.12	MIT	node_modules/brace-expansion
+braces	3.0.3	MIT	node_modules/braces
+browserslist	4.29.3	MIT	node_modules/browserslist
+bser	2.1.2	MIT	node_modules/bser
+buffer-from	1.1.2	MIT	node_modules/buffer-from
+bytes	3.1.2	MIT	node_modules/bytes
+call-bind	1.0.9	MIT	node_modules/call-bind
+call-bind-apply-helpers	1.0.2	MIT	node_modules/call-bind-apply-helpers
+call-bound	1.0.4	MIT	node_modules/call-bound
+callsites	3.1.0	MIT	node_modules/callsites
+camelcase	6.3.0	MIT	node_modules/camelcase
+caniuse-lite	1.0.30001816	CC-BY-4.0	node_modules/caniuse-lite
+chalk	4.1.2	MIT	node_modules/chalk
+chrome-launcher	0.15.2	Apache-2.0	node_modules/chrome-launcher
+chromium-edge-launcher	0.3.0	Apache-2.0	node_modules/chromium-edge-launcher
+ci-info	2.0.0	MIT	node_modules/ci-info
+cli-cursor	2.1.0	MIT	node_modules/cli-cursor
+cli-spinners	2.9.2	MIT	node_modules/cli-spinners
+client-only	0.0.1	MIT	node_modules/client-only
+cliui	8.0.1	ISC	node_modules/cliui
+clone	1.0.4	MIT	node_modules/clone
+color	4.2.3	MIT	node_modules/color
+color-convert	2.0.1	MIT	node_modules/color-convert
+color-name	1.1.4	MIT	node_modules/color-name
+color-string	1.9.1	MIT	node_modules/color-string
+commander	7.2.0	MIT	node_modules/commander
+compressible	2.0.18	MIT	node_modules/compressible
+compression	1.8.2	MIT	node_modules/compression
+debug	2.6.9	MIT	node_modules/compression/node_modules/debug
+ms	2.0.0	MIT	node_modules/compression/node_modules/ms
+negotiator	0.6.4	MIT	node_modules/compression/node_modules/negotiator
+concat-map	0.0.1	MIT	node_modules/concat-map
+connect	3.7.0	MIT	node_modules/connect
+debug	2.6.9	MIT	node_modules/connect/node_modules/debug
+ms	2.0.0	MIT	node_modules/connect/node_modules/ms
+content-type	2.1.0	MIT	node_modules/content-type
+convert-source-map	2.0.0	MIT	node_modules/convert-source-map
+core-js-compat	3.50.0	MIT	node_modules/core-js-compat
+cross-fetch	3.2.0	MIT	node_modules/cross-fetch
+cross-spawn	7.0.6	MIT	node_modules/cross-spawn
+css-in-js-utils	3.1.0	MIT	node_modules/css-in-js-utils
+css-select	5.2.2	BSD-2-Clause	node_modules/css-select
+css-tree	1.1.3	MIT	node_modules/css-tree
+source-map	0.6.1	BSD-3-Clause	node_modules/css-tree/node_modules/source-map
+css-what	6.2.2	BSD-2-Clause	node_modules/css-what
+csstype	3.2.3	MIT	node_modules/csstype
+data-view-buffer	1.0.2	MIT	node_modules/data-view-buffer
+data-view-byte-length	1.0.2	MIT	node_modules/data-view-byte-length
+data-view-byte-offset	1.0.1	MIT	node_modules/data-view-byte-offset
+debug	4.4.3	MIT	node_modules/debug
+decode-uri-component	0.2.2	MIT	node_modules/decode-uri-component
+deep-is	0.1.4	MIT	node_modules/deep-is
+deepmerge	4.3.1	MIT	node_modules/deepmerge
+defaults	1.0.4	MIT	node_modules/defaults
+define-data-property	1.1.4	MIT	node_modules/define-data-property
+define-properties	1.2.1	MIT	node_modules/define-properties
+depd	2.0.0	MIT	node_modules/depd
+destroy	1.2.0	MIT	node_modules/destroy
+detect-libc	2.1.2	Apache-2.0	node_modules/detect-libc
+detect-node-es	1.1.0	MIT	node_modules/detect-node-es
+dnssd-advertise	1.1.6	MIT	node_modules/dnssd-advertise
+doctrine	2.1.0	Apache-2.0	node_modules/doctrine
+dom-serializer	2.0.0	MIT	node_modules/dom-serializer
+domelementtype	2.3.0	BSD-2-Clause	node_modules/domelementtype
+domhandler	5.0.3	BSD-2-Clause	node_modules/domhandler
+domutils	3.2.2	BSD-2-Clause	node_modules/domutils
+dunder-proto	1.0.1	MIT	node_modules/dunder-proto
+ee-first	1.1.1	MIT	node_modules/ee-first
+electron-to-chromium	1.5.453	ISC	node_modules/electron-to-chromium
+emoji-regex	8.0.0	MIT	node_modules/emoji-regex
+encodeurl	1.0.2	MIT	node_modules/encodeurl
+entities	4.5.0	BSD-2-Clause	node_modules/entities
+error-stack-parser	2.1.4	MIT	node_modules/error-stack-parser
+es-abstract	1.24.2	MIT	node_modules/es-abstract
+es-abstract-get	1.0.0	MIT	node_modules/es-abstract-get
+es-define-property	1.0.1	MIT	node_modules/es-define-property
+es-errors	1.3.0	MIT	node_modules/es-errors
+es-iterator-helpers	1.4.0	MIT	node_modules/es-iterator-helpers
+es-object-atoms	1.1.2	MIT	node_modules/es-object-atoms
+es-set-tostringtag	2.1.0	MIT	node_modules/es-set-tostringtag
+es-shim-unscopables	1.1.0	MIT	node_modules/es-shim-unscopables
+es-to-primitive	1.3.4	MIT	node_modules/es-to-primitive
+escalade	3.2.0	MIT	node_modules/escalade
+escape-html	1.0.3	MIT	node_modules/escape-html
+escape-string-regexp	4.0.0	MIT	node_modules/escape-string-regexp
+eslint	9.39.5	MIT	node_modules/eslint
+eslint-config-expo	57.0.2	MIT	node_modules/eslint-config-expo
+eslint-import-resolver-node	0.3.10	MIT	node_modules/eslint-import-resolver-node
+debug	3.2.7	MIT	node_modules/eslint-import-resolver-node/node_modules/debug
+resolve	2.0.0-next.7	MIT	node_modules/eslint-import-resolver-node/node_modules/resolve
+eslint-import-resolver-typescript	3.10.1	ISC	node_modules/eslint-import-resolver-typescript
+eslint-module-utils	2.14.0	MIT	node_modules/eslint-module-utils
+debug	3.2.7	MIT	node_modules/eslint-module-utils/node_modules/debug
+eslint-plugin-expo	1.1.0	MIT	node_modules/eslint-plugin-expo
+eslint-plugin-import	2.32.0	MIT	node_modules/eslint-plugin-import
+balanced-match	1.0.2	MIT	node_modules/eslint-plugin-import/node_modules/balanced-match
+brace-expansion	1.1.21	MIT	node_modules/eslint-plugin-import/node_modules/brace-expansion
+debug	3.2.7	MIT	node_modules/eslint-plugin-import/node_modules/debug
+minimatch	3.1.5	ISC	node_modules/eslint-plugin-import/node_modules/minimatch
+semver	6.3.1	ISC	node_modules/eslint-plugin-import/node_modules/semver
+eslint-plugin-react	7.37.5	MIT	node_modules/eslint-plugin-react
+eslint-plugin-react-hooks	7.1.1	MIT	node_modules/eslint-plugin-react-hooks
+hermes-estree	0.25.1	MIT	node_modules/eslint-plugin-react-hooks/node_modules/hermes-estree
+hermes-parser	0.25.1	MIT	node_modules/eslint-plugin-react-hooks/node_modules/hermes-parser
+balanced-match	1.0.2	MIT	node_modules/eslint-plugin-react/node_modules/balanced-match
+brace-expansion	1.1.21	MIT	node_modules/eslint-plugin-react/node_modules/brace-expansion
+minimatch	3.1.5	ISC	node_modules/eslint-plugin-react/node_modules/minimatch
+resolve	2.0.0-next.7	MIT	node_modules/eslint-plugin-react/node_modules/resolve
+semver	6.3.1	ISC	node_modules/eslint-plugin-react/node_modules/semver
+eslint-scope	8.4.0	BSD-2-Clause	node_modules/eslint-scope
+eslint-visitor-keys	5.0.1	Apache-2.0	node_modules/eslint-visitor-keys
+balanced-match	1.0.2	MIT	node_modules/eslint/node_modules/balanced-match
+brace-expansion	1.1.21	MIT	node_modules/eslint/node_modules/brace-expansion
+eslint-visitor-keys	4.2.1	Apache-2.0	node_modules/eslint/node_modules/eslint-visitor-keys
+minimatch	3.1.5	ISC	node_modules/eslint/node_modules/minimatch
+espree	10.4.0	BSD-2-Clause	node_modules/espree
+eslint-visitor-keys	4.2.1	Apache-2.0	node_modules/espree/node_modules/eslint-visitor-keys
+esquery	1.7.0	BSD-3-Clause	node_modules/esquery
+esrecurse	4.3.0	BSD-2-Clause	node_modules/esrecurse
+estraverse	5.3.0	BSD-2-Clause	node_modules/estraverse
+esutils	2.0.3	BSD-2-Clause	node_modules/esutils
+etag	1.8.1	MIT	node_modules/etag
+event-target-shim	5.0.1	MIT	node_modules/event-target-shim
+expo	57.0.28	MIT	node_modules/expo
+expo-auth-session	57.0.15	MIT	node_modules/expo-auth-session
+expo-application	57.0.3	MIT	node_modules/expo-auth-session/node_modules/expo-application
+expo-build-properties	57.0.22	MIT	node_modules/expo-build-properties
+expo-constants	57.0.21	MIT	node_modules/expo-constants
+expo-crypto	57.0.4	MIT	node_modules/expo-crypto
+expo-dev-client	57.0.20	MIT	node_modules/expo-dev-client
+expo-dev-launcher	57.0.21	MIT	node_modules/expo-dev-launcher
+expo-dev-menu	57.0.20	MIT	node_modules/expo-dev-menu
+expo-dev-menu-interface	57.0.0	MIT	node_modules/expo-dev-menu-interface
+expo-file-system	57.0.7	MIT	node_modules/expo-file-system
+expo-font	57.0.4	MIT	node_modules/expo-font
+expo-glass-effect	57.0.4	MIT	node_modules/expo-glass-effect
+expo-image-loader	57.0.1	MIT	node_modules/expo-image-loader
+expo-image-manipulator	57.0.21	MIT	node_modules/expo-image-manipulator
+expo-image-picker	57.0.20	MIT	node_modules/expo-image-picker
+expo-json-utils	57.0.2	MIT	node_modules/expo-json-utils
+expo-linking	57.0.12	MIT	node_modules/expo-linking
+expo-manifests	57.0.2	MIT	node_modules/expo-manifests
+expo-modules-autolinking	57.0.15	MIT	node_modules/expo-modules-autolinking
+expo-modules-core	57.0.22	MIT	node_modules/expo-modules-core
+expo-modules-jsi	57.1.2	MIT	node_modules/expo-modules-jsi
+expo-network	57.0.2	MIT	node_modules/expo-network
+expo-router	57.0.26	MIT	node_modules/expo-router
+@radix-ui/react-collection	1.2.0	MIT	node_modules/expo-router/node_modules/@radix-ui/react-collection
+@radix-ui/react-presence	1.1.11	MIT	node_modules/expo-router/node_modules/@radix-ui/react-presence
+@radix-ui/react-primitive	2.2.0	MIT	node_modules/expo-router/node_modules/@radix-ui/react-primitive
+@radix-ui/react-roving-focus	1.2.1	MIT	node_modules/expo-router/node_modules/@radix-ui/react-roving-focus
+@radix-ui/react-tabs	1.2.1	MIT	node_modules/expo-router/node_modules/@radix-ui/react-tabs
+react-is	19.3.0	MIT	node_modules/expo-router/node_modules/react-is
+expo-secure-store	57.0.4	MIT	node_modules/expo-secure-store
+expo-server	57.0.3	MIT	node_modules/expo-server
+expo-splash-screen	57.0.10	MIT	node_modules/expo-splash-screen
+expo-sqlite	57.0.4	MIT	node_modules/expo-sqlite
+expo-status-bar	57.0.1	MIT	node_modules/expo-status-bar
+expo-symbols	57.0.3	MIT	node_modules/expo-symbols
+expo-updates-interface	57.0.2	MIT	node_modules/expo-updates-interface
+expo-web-browser	57.0.3	MIT	node_modules/expo-web-browser
+@expo/cli	57.0.29	MIT	node_modules/expo/node_modules/@expo/cli
+@expo/router-server	57.0.12	MIT	node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server
+@expo/metro-config	57.0.13	MIT	node_modules/expo/node_modules/@expo/metro-config
+@expo/ws-tunnel	2.0.1	MIT	node_modules/expo/node_modules/@expo/ws-tunnel
+accepts	1.3.8	MIT	node_modules/expo/node_modules/accepts
+babel-preset-expo	57.0.15	MIT	node_modules/expo/node_modules/babel-preset-expo
+ci-info	3.9.0	MIT	node_modules/expo/node_modules/ci-info
+expo-asset	57.0.19	MIT	node_modules/expo/node_modules/expo-asset
+expo-keep-awake	57.0.2	MIT	node_modules/expo/node_modules/expo-keep-awake
+hermes-estree	0.36.1	MIT	node_modules/expo/node_modules/hermes-estree
+hermes-parser	0.36.1	MIT	node_modules/expo/node_modules/hermes-parser
+mime-db	1.52.0	MIT	node_modules/expo/node_modules/mime-db
+mime-types	2.1.35	MIT	node_modules/expo/node_modules/mime-types
+negotiator	0.6.3	MIT	node_modules/expo/node_modules/negotiator
+picomatch	4.0.7	MIT	node_modules/expo/node_modules/picomatch
+ws	8.22.0	MIT	node_modules/expo/node_modules/ws
+exponential-backoff	3.1.3	Apache-2.0	node_modules/exponential-backoff
+fast-deep-equal	3.1.3	MIT	node_modules/fast-deep-equal
+fast-json-stable-stringify	2.1.0	MIT	node_modules/fast-json-stable-stringify
+fast-levenshtein	2.0.6	MIT	node_modules/fast-levenshtein
+fb-dotslash	0.5.8	(MIT OR Apache-2.0)	node_modules/fb-dotslash
+fb-watchman	2.0.4	MIT	node_modules/fb-watchman
+fbjs	3.0.5	MIT	node_modules/fbjs
+fbjs-css-vars	1.0.2	MIT	node_modules/fbjs-css-vars
+promise	7.3.1	MIT	node_modules/fbjs/node_modules/promise
+fetch-nodeshim	0.4.10	MIT	node_modules/fetch-nodeshim
+file-entry-cache	8.0.0	MIT	node_modules/file-entry-cache
+fill-range	7.1.1	MIT	node_modules/fill-range
+filter-obj	1.1.0	MIT	node_modules/filter-obj
+finalhandler	1.1.2	MIT	node_modules/finalhandler
+debug	2.6.9	MIT	node_modules/finalhandler/node_modules/debug
+ms	2.0.0	MIT	node_modules/finalhandler/node_modules/ms
+find-up	5.0.0	MIT	node_modules/find-up
+flat-cache	4.0.1	MIT	node_modules/flat-cache
+flatted	3.4.4	ISC	node_modules/flatted
+flow-enums-runtime	0.0.6	MIT	node_modules/flow-enums-runtime
+fontfaceobserver	2.3.0	BSD-2-Clause	node_modules/fontfaceobserver
+for-each	0.3.5	MIT	node_modules/for-each
+fresh	0.5.2	MIT	node_modules/fresh
+function-bind	1.1.2	MIT	node_modules/function-bind
+function.prototype.name	1.2.0	MIT	node_modules/function.prototype.name
+functions-have-names	1.2.3	MIT	node_modules/functions-have-names
+generator-function	2.0.1	MIT	node_modules/generator-function
+gensync	1.0.0-beta.2	MIT	node_modules/gensync
+get-caller-file	2.0.5	ISC	node_modules/get-caller-file
+get-intrinsic	1.3.0	MIT	node_modules/get-intrinsic
+get-nonce	1.0.1	MIT	node_modules/get-nonce
+get-proto	1.0.1	MIT	node_modules/get-proto
+get-symbol-description	1.1.0	MIT	node_modules/get-symbol-description
+get-tsconfig	4.14.3	MIT	node_modules/get-tsconfig
+getenv	2.0.0	MIT	node_modules/getenv
+glob	13.0.6	BlueOak-1.0.0	node_modules/glob
+glob-parent	6.0.2	ISC	node_modules/glob-parent
+globals	16.5.0	MIT	node_modules/globals
+globalthis	1.0.4	MIT	node_modules/globalthis
+gopd	1.2.0	MIT	node_modules/gopd
+graceful-fs	4.2.11	ISC	node_modules/graceful-fs
+has-bigints	1.1.0	MIT	node_modules/has-bigints
+has-flag	4.0.0	MIT	node_modules/has-flag
+has-property-descriptors	1.0.2	MIT	node_modules/has-property-descriptors
+has-proto	1.2.0	MIT	node_modules/has-proto
+has-symbols	1.1.0	MIT	node_modules/has-symbols
+has-tostringtag	1.0.2	MIT	node_modules/has-tostringtag
+hasown	2.0.4	MIT	node_modules/hasown
+hermes-compiler	250829098.0.17	MIT	node_modules/hermes-compiler
+hermes-estree	0.35.0	MIT	node_modules/hermes-estree
+hermes-parser	0.35.0	MIT	node_modules/hermes-parser
+hosted-git-info	7.0.2	ISC	node_modules/hosted-git-info
+lru-cache	10.4.3	ISC	node_modules/hosted-git-info/node_modules/lru-cache
+http-errors	2.0.1	MIT	node_modules/http-errors
+statuses	2.0.2	MIT	node_modules/http-errors/node_modules/statuses
+https-proxy-agent	7.0.6	MIT	node_modules/https-proxy-agent
+hyphenate-style-name	1.1.0	BSD-3-Clause	node_modules/hyphenate-style-name
+ignore	5.3.2	MIT	node_modules/ignore
+import-fresh	3.3.1	MIT	node_modules/import-fresh
+resolve-from	4.0.0	MIT	node_modules/import-fresh/node_modules/resolve-from
+imurmurhash	0.1.4	MIT	node_modules/imurmurhash
+inherits	2.0.4	ISC	node_modules/inherits
+inline-style-prefixer	7.0.1	MIT	node_modules/inline-style-prefixer
+internal-slot	1.1.0	MIT	node_modules/internal-slot
+invariant	2.2.4	MIT	node_modules/invariant
+is-array-buffer	3.0.5	MIT	node_modules/is-array-buffer
+is-arrayish	0.3.4	MIT	node_modules/is-arrayish
+is-async-function	2.1.1	MIT	node_modules/is-async-function
+is-bigint	1.1.0	MIT	node_modules/is-bigint
+is-boolean-object	1.2.2	MIT	node_modules/is-boolean-object
+is-bun-module	2.0.0	MIT	node_modules/is-bun-module
+is-callable	1.2.7	MIT	node_modules/is-callable
+is-core-module	2.17.0	MIT	node_modules/is-core-module
+is-data-view	1.0.2	MIT	node_modules/is-data-view
+is-date-object	1.1.0	MIT	node_modules/is-date-object
+is-docker	2.2.1	MIT	node_modules/is-docker
+is-document.all	1.0.0	MIT	node_modules/is-document.all
+is-extglob	2.1.1	MIT	node_modules/is-extglob
+is-finalizationregistry	1.1.1	MIT	node_modules/is-finalizationregistry
+is-fullwidth-code-point	3.0.0	MIT	node_modules/is-fullwidth-code-point
+is-generator-function	1.1.2	MIT	node_modules/is-generator-function
+is-glob	4.0.3	MIT	node_modules/is-glob
+is-map	2.0.3	MIT	node_modules/is-map
+is-negative-zero	2.0.3	MIT	node_modules/is-negative-zero
+is-number	7.0.0	MIT	node_modules/is-number
+is-number-object	1.1.1	MIT	node_modules/is-number-object
+is-regex	1.2.1	MIT	node_modules/is-regex
+is-set	2.0.3	MIT	node_modules/is-set
+is-shared-array-buffer	1.0.4	MIT	node_modules/is-shared-array-buffer
+is-string	1.1.1	MIT	node_modules/is-string
+is-symbol	1.1.1	MIT	node_modules/is-symbol
+is-typed-array	1.1.15	MIT	node_modules/is-typed-array
+is-weakmap	2.0.2	MIT	node_modules/is-weakmap
+is-weakref	1.1.1	MIT	node_modules/is-weakref
+is-weakset	2.0.4	MIT	node_modules/is-weakset
+is-wsl	2.2.0	MIT	node_modules/is-wsl
+isarray	2.0.5	MIT	node_modules/isarray
+isexe	2.0.0	ISC	node_modules/isexe
+iterator.prototype	1.1.5	MIT	node_modules/iterator.prototype
+jest-get-type	29.6.3	MIT	node_modules/jest-get-type
+jest-util	29.7.0	MIT	node_modules/jest-util
+ci-info	3.9.0	MIT	node_modules/jest-util/node_modules/ci-info
+jest-validate	29.7.0	MIT	node_modules/jest-validate
+jest-worker	29.7.0	MIT	node_modules/jest-worker
+supports-color	8.1.1	MIT	node_modules/jest-worker/node_modules/supports-color
+jimp-compact	0.16.1	MIT	node_modules/jimp-compact
+js-tokens	4.0.0	MIT	node_modules/js-tokens
+js-yaml	4.3.2	MIT	node_modules/js-yaml
+jsc-safe-url	0.2.4	0BSD	node_modules/jsc-safe-url
+jsesc	3.1.0	MIT	node_modules/jsesc
+json-buffer	3.0.1	MIT	node_modules/json-buffer
+json-schema-traverse	0.4.1	MIT	node_modules/json-schema-traverse
+json-stable-stringify-without-jsonify	1.0.1	MIT	node_modules/json-stable-stringify-without-jsonify
+json5	2.2.3	MIT	node_modules/json5
+jsx-ast-utils	3.3.5	MIT	node_modules/jsx-ast-utils
+keyv	4.5.4	MIT	node_modules/keyv
+kleur	3.0.3	MIT	node_modules/kleur
+lan-network	0.2.1	MIT	node_modules/lan-network
+leven	3.1.0	MIT	node_modules/leven
+levn	0.4.1	MIT	node_modules/levn
+lighthouse-logger	1.4.2	Apache-2.0	node_modules/lighthouse-logger
+debug	2.6.9	MIT	node_modules/lighthouse-logger/node_modules/debug
+ms	2.0.0	MIT	node_modules/lighthouse-logger/node_modules/ms
+lightningcss	1.33.0	MPL-2.0	node_modules/lightningcss
+lightningcss-android-arm64	1.33.0	MPL-2.0	node_modules/lightningcss-android-arm64
+lightningcss-darwin-arm64	1.33.0	MPL-2.0	node_modules/lightningcss-darwin-arm64
+lightningcss-darwin-x64	1.33.0	MPL-2.0	node_modules/lightningcss-darwin-x64
+lightningcss-freebsd-x64	1.33.0	MPL-2.0	node_modules/lightningcss-freebsd-x64
+lightningcss-linux-arm-gnueabihf	1.33.0	MPL-2.0	node_modules/lightningcss-linux-arm-gnueabihf
+lightningcss-linux-arm64-gnu	1.33.0	MPL-2.0	node_modules/lightningcss-linux-arm64-gnu
+lightningcss-linux-arm64-musl	1.33.0	MPL-2.0	node_modules/lightningcss-linux-arm64-musl
+lightningcss-linux-x64-gnu	1.33.0	MPL-2.0	node_modules/lightningcss-linux-x64-gnu
+lightningcss-linux-x64-musl	1.33.0	MPL-2.0	node_modules/lightningcss-linux-x64-musl
+lightningcss-win32-arm64-msvc	1.33.0	MPL-2.0	node_modules/lightningcss-win32-arm64-msvc
+lightningcss-win32-x64-msvc	1.33.0	MPL-2.0	node_modules/lightningcss-win32-x64-msvc
+locate-path	6.0.0	MIT	node_modules/locate-path
+lodash.debounce	4.0.8	MIT	node_modules/lodash.debounce
+lodash.merge	4.6.2	MIT	node_modules/lodash.merge
+lodash.throttle	4.1.1	MIT	node_modules/lodash.throttle
+log-symbols	2.2.0	MIT	node_modules/log-symbols
+ansi-styles	3.2.1	MIT	node_modules/log-symbols/node_modules/ansi-styles
+chalk	2.4.2	MIT	node_modules/log-symbols/node_modules/chalk
+color-convert	1.9.3	MIT	node_modules/log-symbols/node_modules/color-convert
+color-name	1.1.3	MIT	node_modules/log-symbols/node_modules/color-name
+escape-string-regexp	1.0.5	MIT	node_modules/log-symbols/node_modules/escape-string-regexp
+has-flag	3.0.0	MIT	node_modules/log-symbols/node_modules/has-flag
+supports-color	5.5.0	MIT	node_modules/log-symbols/node_modules/supports-color
+loose-envify	1.4.0	MIT	node_modules/loose-envify
+lru-cache	5.1.1	ISC	node_modules/lru-cache
+makeerror	1.0.12	BSD-3-Clause	node_modules/makeerror
+marky	1.3.0	Apache-2.0	node_modules/marky
+math-intrinsics	1.1.0	MIT	node_modules/math-intrinsics
+mdn-data	2.0.14	CC0-1.0	node_modules/mdn-data
+memoize-one	5.2.1	MIT	node_modules/memoize-one
+merge-stream	2.0.0	MIT	node_modules/merge-stream
+metro	0.84.5	MIT	node_modules/metro
+metro-babel-transformer	0.84.5	MIT	node_modules/metro-babel-transformer
+metro-cache	0.84.5	MIT	node_modules/metro-cache
+metro-cache-key	0.84.5	MIT	node_modules/metro-cache-key
+metro-config	0.84.5	MIT	node_modules/metro-config
+metro-core	0.84.5	MIT	node_modules/metro-core
+metro-file-map	0.84.5	MIT	node_modules/metro-file-map
+metro-minify-terser	0.84.5	MIT	node_modules/metro-minify-terser
+metro-resolver	0.84.5	MIT	node_modules/metro-resolver
+metro-runtime	0.84.5	MIT	node_modules/metro-runtime
+metro-source-map	0.84.5	MIT	node_modules/metro-source-map
+metro-symbolicate	0.84.5	MIT	node_modules/metro-symbolicate
+metro-transform-plugins	0.84.5	MIT	node_modules/metro-transform-plugins
+metro-transform-worker	0.84.5	MIT	node_modules/metro-transform-worker
+micromatch	4.0.8	MIT	node_modules/micromatch
+mime	1.6.0	MIT	node_modules/mime
+mime-db	1.54.0	MIT	node_modules/mime-db
+mime-types	3.0.2	MIT	node_modules/mime-types
+mimic-fn	1.2.0	MIT	node_modules/mimic-fn
+minimatch	10.2.6	BlueOak-1.0.0	node_modules/minimatch
+minimist	1.2.8	MIT	node_modules/minimist
+minipass	7.1.3	BlueOak-1.0.0	node_modules/minipass
+mkdirp	1.0.4	MIT	node_modules/mkdirp
+ms	2.1.3	MIT	node_modules/ms
+multitars	1.0.2	MIT	node_modules/multitars
+nanoid	3.3.20	MIT	node_modules/nanoid
+napi-postinstall	0.3.4	MIT	node_modules/napi-postinstall
+natural-compare	1.4.0	MIT	node_modules/natural-compare
+negotiator	1.1.0	MIT	node_modules/negotiator
+node-exports-info	1.6.2	MIT	node_modules/node-exports-info
+semver	6.3.1	ISC	node_modules/node-exports-info/node_modules/semver
+node-fetch	2.7.0	MIT	node_modules/node-fetch
+node-forge	1.4.0	(BSD-3-Clause OR GPL-2.0)	node_modules/node-forge
+node-int64	0.4.0	MIT	node_modules/node-int64
+node-releases	2.0.58	MIT	node_modules/node-releases
+npm-package-arg	11.0.3	ISC	node_modules/npm-package-arg
+nth-check	2.1.1	BSD-2-Clause	node_modules/nth-check
+nullthrows	1.1.1	MIT	node_modules/nullthrows
+ob1	0.84.5	MIT	node_modules/ob1
+object-assign	4.1.1	MIT	node_modules/object-assign
+object-inspect	1.13.4	MIT	node_modules/object-inspect
+object-keys	1.1.1	MIT	node_modules/object-keys
+object.assign	4.1.7	MIT	node_modules/object.assign
+object.entries	1.1.9	MIT	node_modules/object.entries
+object.fromentries	2.0.8	MIT	node_modules/object.fromentries
+object.groupby	1.0.3	MIT	node_modules/object.groupby
+object.values	1.2.1	MIT	node_modules/object.values
+on-finished	2.3.0	MIT	node_modules/on-finished
+on-headers	1.1.0	MIT	node_modules/on-headers
+onetime	2.0.1	MIT	node_modules/onetime
+open	7.4.2	MIT	node_modules/open
+optionator	0.9.4	MIT	node_modules/optionator
+ora	3.4.0	MIT	node_modules/ora
+ansi-regex	4.1.1	MIT	node_modules/ora/node_modules/ansi-regex
+ansi-styles	3.2.1	MIT	node_modules/ora/node_modules/ansi-styles
+chalk	2.4.2	MIT	node_modules/ora/node_modules/chalk
+color-convert	1.9.3	MIT	node_modules/ora/node_modules/color-convert
+color-name	1.1.3	MIT	node_modules/ora/node_modules/color-name
+escape-string-regexp	1.0.5	MIT	node_modules/ora/node_modules/escape-string-regexp
+has-flag	3.0.0	MIT	node_modules/ora/node_modules/has-flag
+strip-ansi	5.2.0	MIT	node_modules/ora/node_modules/strip-ansi
+supports-color	5.5.0	MIT	node_modules/ora/node_modules/supports-color
+own-keys	1.0.2	MIT	node_modules/own-keys
+p-limit	3.1.0	MIT	node_modules/p-limit
+p-locate	5.0.0	MIT	node_modules/p-locate
+parent-module	1.0.1	MIT	node_modules/parent-module
+parse-png	2.1.0	MIT	node_modules/parse-png
+parseurl	1.3.3	MIT	node_modules/parseurl
+path-exists	4.0.0	MIT	node_modules/path-exists
+path-key	3.1.1	MIT	node_modules/path-key
+path-parse	1.0.7	MIT	node_modules/path-parse
+path-scurry	2.0.2	BlueOak-1.0.0	node_modules/path-scurry
+lru-cache	11.5.3	BlueOak-1.0.0	node_modules/path-scurry/node_modules/lru-cache
+picocolors	1.1.1	ISC	node_modules/picocolors
+picomatch	2.3.2	MIT	node_modules/picomatch
+plist	3.1.1	MIT	node_modules/plist
+@xmldom/xmldom	0.9.12	MIT	node_modules/plist/node_modules/@xmldom/xmldom
+pngjs	3.4.0	MIT	node_modules/pngjs
+possible-typed-array-names	1.1.0	MIT	node_modules/possible-typed-array-names
+postcss	8.5.30	MIT	node_modules/postcss
+postcss-value-parser	4.2.0	MIT	node_modules/postcss-value-parser
+prelude-ls	1.2.1	MIT	node_modules/prelude-ls
+pretty-format	29.7.0	MIT	node_modules/pretty-format
+ansi-styles	5.2.0	MIT	node_modules/pretty-format/node_modules/ansi-styles
+proc-log	4.2.0	ISC	node_modules/proc-log
+progress	2.0.3	MIT	node_modules/progress
+promise	8.3.0	MIT	node_modules/promise
+prompts	2.4.2	MIT	node_modules/prompts
+prop-types	15.8.1	MIT	node_modules/prop-types
+react-is	16.13.1	MIT	node_modules/prop-types/node_modules/react-is
+punycode	2.3.1	MIT	node_modules/punycode
+query-string	7.1.3	MIT	node_modules/query-string
+range-parser	1.2.1	MIT	node_modules/range-parser
+react	19.2.3	MIT	node_modules/react
+react-devtools-core	6.1.5	MIT	node_modules/react-devtools-core
+react-dom	19.2.3	MIT	node_modules/react-dom
+react-fast-compare	3.2.2	MIT	node_modules/react-fast-compare
+react-freeze	1.0.4	MIT	node_modules/react-freeze
+react-is	18.3.1	MIT	node_modules/react-is
+react-native	0.86.3	MIT	node_modules/react-native
+react-native-drawer-layout	4.2.11	MIT	node_modules/react-native-drawer-layout
+react-native-gesture-handler	3.3.0	MIT	node_modules/react-native-gesture-handler
+react-native-is-edge-to-edge	1.3.1	MIT	node_modules/react-native-is-edge-to-edge
+react-native-reanimated	4.5.1	MIT	node_modules/react-native-reanimated
+react-native-safe-area-context	5.7.0	MIT	node_modules/react-native-safe-area-context
+react-native-screens	4.26.2	MIT	node_modules/react-native-screens
+react-native-svg	15.15.4	MIT	node_modules/react-native-svg
+react-native-web	0.21.4	MIT	node_modules/react-native-web
+@react-native/normalize-colors	0.74.89	MIT	node_modules/react-native-web/node_modules/@react-native/normalize-colors
+memoize-one	6.0.0	MIT	node_modules/react-native-web/node_modules/memoize-one
+react-native-worklets	0.10.1	MIT	node_modules/react-native-worklets
+commander	12.1.0	MIT	node_modules/react-native/node_modules/commander
+react-refresh	0.14.2	MIT	node_modules/react-refresh
+react-remove-scroll	2.7.2	MIT	node_modules/react-remove-scroll
+react-remove-scroll-bar	2.3.8	MIT	node_modules/react-remove-scroll-bar
+react-style-singleton	2.2.3	MIT	node_modules/react-style-singleton
+reflect.getprototypeof	1.0.10	MIT	node_modules/reflect.getprototypeof
+regenerate	1.5.0	MIT	node_modules/regenerate
+regenerate-unicode-properties	10.3.0	MIT	node_modules/regenerate-unicode-properties
+regenerator-runtime	0.13.11	MIT	node_modules/regenerator-runtime
+regexp.prototype.flags	1.5.4	MIT	node_modules/regexp.prototype.flags
+regexpu-core	6.5.3	MIT	node_modules/regexpu-core
+regjsgen	0.8.0	MIT	node_modules/regjsgen
+regjsparser	0.13.4	BSD-2-Clause	node_modules/regjsparser
+require-directory	2.1.1	MIT	node_modules/require-directory
+resolve	1.22.13	MIT	node_modules/resolve
+resolve-from	5.0.0	MIT	node_modules/resolve-from
+resolve-pkg-maps	1.0.0	MIT	node_modules/resolve-pkg-maps
+resolve-workspace-root	2.0.1	MIT	node_modules/resolve-workspace-root
+restore-cursor	2.0.0	MIT	node_modules/restore-cursor
+safe-array-concat	1.1.4	MIT	node_modules/safe-array-concat
+safe-buffer	5.2.1	MIT	node_modules/safe-buffer
+safe-push-apply	1.0.0	MIT	node_modules/safe-push-apply
+safe-regex-test	1.1.0	MIT	node_modules/safe-regex-test
+sandbox-cli-detector	0.2.0	MIT	node_modules/sandbox-cli-detector
+sax	1.6.1	BlueOak-1.0.0	node_modules/sax
+scheduler	0.27.0	MIT	node_modules/scheduler
+semver	7.8.5	ISC	node_modules/semver
+send	0.19.2	MIT	node_modules/send
+debug	2.6.9	MIT	node_modules/send/node_modules/debug
+ms	2.0.0	MIT	node_modules/send/node_modules/debug/node_modules/ms
+encodeurl	2.0.0	MIT	node_modules/send/node_modules/encodeurl
+on-finished	2.4.1	MIT	node_modules/send/node_modules/on-finished
+statuses	2.0.2	MIT	node_modules/send/node_modules/statuses
+serialize-error	2.1.0	MIT	node_modules/serialize-error
+serve-static	1.16.3	MIT	node_modules/serve-static
+encodeurl	2.0.0	MIT	node_modules/serve-static/node_modules/encodeurl
+server-only	0.0.1	MIT	node_modules/server-only
+set-function-length	1.2.2	MIT	node_modules/set-function-length
+set-function-name	2.0.2	MIT	node_modules/set-function-name
+set-proto	1.0.0	MIT	node_modules/set-proto
+setimmediate	1.0.5	MIT	node_modules/setimmediate
+setprototypeof	1.2.0	ISC	node_modules/setprototypeof
+sf-symbols-typescript	2.2.0	MIT	node_modules/sf-symbols-typescript
+shallowequal	1.1.0	MIT	node_modules/shallowequal
+shebang-command	2.0.0	MIT	node_modules/shebang-command
+shebang-regex	3.0.0	MIT	node_modules/shebang-regex
+shell-quote	1.12.0	MIT	node_modules/shell-quote
+side-channel	1.1.1	MIT	node_modules/side-channel
+side-channel-list	1.0.1	MIT	node_modules/side-channel-list
+side-channel-map	1.0.1	MIT	node_modules/side-channel-map
+side-channel-weakmap	1.0.2	MIT	node_modules/side-channel-weakmap
+signal-exit	3.0.7	ISC	node_modules/signal-exit
+simple-plist	1.3.1	MIT	node_modules/simple-plist
+simple-swizzle	0.2.4	MIT	node_modules/simple-swizzle
+sisteransi	1.0.5	MIT	node_modules/sisteransi
+slugify	1.6.9	MIT	node_modules/slugify
+source-map	0.5.7	BSD-3-Clause	node_modules/source-map
+source-map-js	1.2.2	BSD-3-Clause	node_modules/source-map-js
+source-map-support	0.5.21	MIT	node_modules/source-map-support
+source-map	0.6.1	BSD-3-Clause	node_modules/source-map-support/node_modules/source-map
+split-on-first	1.1.0	MIT	node_modules/split-on-first
+stable-hash	0.0.5	MIT	node_modules/stable-hash
+stackframe	1.3.4	MIT	node_modules/stackframe
+stacktrace-parser	0.1.11	MIT	node_modules/stacktrace-parser
+standard-navigation	0.0.5	MIT	node_modules/standard-navigation
+statuses	1.5.0	MIT	node_modules/statuses
+stop-iteration-iterator	1.1.0	MIT	node_modules/stop-iteration-iterator
+stream-buffers	2.2.0	Unlicense	node_modules/stream-buffers
+strict-uri-encode	2.0.0	MIT	node_modules/strict-uri-encode
+string-width	4.2.3	MIT	node_modules/string-width
+string.prototype.matchall	4.1.0	MIT	node_modules/string.prototype.matchall
+string.prototype.repeat	1.0.0	MIT	node_modules/string.prototype.repeat
+string.prototype.trim	1.2.11	MIT	node_modules/string.prototype.trim
+string.prototype.trimend	1.0.10	MIT	node_modules/string.prototype.trimend
+string.prototype.trimstart	1.0.8	MIT	node_modules/string.prototype.trimstart
+strip-ansi	6.0.1	MIT	node_modules/strip-ansi
+strip-bom	3.0.0	MIT	node_modules/strip-bom
+strip-json-comments	3.1.1	MIT	node_modules/strip-json-comments
+structured-headers	0.4.1	MIT	node_modules/structured-headers
+styleq	0.1.3	MIT	node_modules/styleq
+supports-color	7.2.0	MIT	node_modules/supports-color
+supports-hyperlinks	2.3.0	MIT	node_modules/supports-hyperlinks
+supports-preserve-symlinks-flag	1.0.0	MIT	node_modules/supports-preserve-symlinks-flag
+terminal-link	2.1.1	MIT	node_modules/terminal-link
+terser	5.51.2	BSD-2-Clause	node_modules/terser
+commander	2.20.3	MIT	node_modules/terser/node_modules/commander
+throat	5.0.0	MIT	node_modules/throat
+tinyglobby	0.2.17	MIT	node_modules/tinyglobby
+fdir	6.5.0	MIT	node_modules/tinyglobby/node_modules/fdir
+picomatch	4.0.7	MIT	node_modules/tinyglobby/node_modules/picomatch
+tmpl	1.0.5	BSD-3-Clause	node_modules/tmpl
+to-regex-range	5.0.1	MIT	node_modules/to-regex-range
+toidentifier	1.0.1	MIT	node_modules/toidentifier
+toqr	0.1.1	MIT	node_modules/toqr
+tr46	0.0.3	MIT	node_modules/tr46
+ts-api-utils	2.5.0	MIT	node_modules/ts-api-utils
+tsconfig-paths	3.15.0	MIT	node_modules/tsconfig-paths
+json5	1.0.2	MIT	node_modules/tsconfig-paths/node_modules/json5
+tslib	2.8.1	0BSD	node_modules/tslib
+type-check	0.4.0	MIT	node_modules/type-check
+type-fest	0.7.1	(MIT OR CC0-1.0)	node_modules/type-fest
+typed-array-buffer	1.0.3	MIT	node_modules/typed-array-buffer
+typed-array-byte-length	1.0.3	MIT	node_modules/typed-array-byte-length
+typed-array-byte-offset	1.0.5	MIT	node_modules/typed-array-byte-offset
+typed-array-length	1.0.8	MIT	node_modules/typed-array-length
+typescript	6.0.3	Apache-2.0	node_modules/typescript
+ua-parser-js	1.0.41	MIT	node_modules/ua-parser-js
+unbox-primitive	1.1.0	MIT	node_modules/unbox-primitive
+undici-types	8.9.0	MIT	node_modules/undici-types
+unicode-canonical-property-names-ecmascript	2.0.1	MIT	node_modules/unicode-canonical-property-names-ecmascript
+unicode-match-property-ecmascript	2.0.0	MIT	node_modules/unicode-match-property-ecmascript
+unicode-match-property-value-ecmascript	2.2.1	MIT	node_modules/unicode-match-property-value-ecmascript
+unicode-property-aliases-ecmascript	2.2.0	MIT	node_modules/unicode-property-aliases-ecmascript
+unpipe	1.0.0	MIT	node_modules/unpipe
+unrs-resolver	1.12.2	MIT	node_modules/unrs-resolver
+update-browserslist-db	1.3.4	MIT	node_modules/update-browserslist-db
+uri-js	4.4.1	BSD-2-Clause	node_modules/uri-js
+use-callback-ref	1.3.3	MIT	node_modules/use-callback-ref
+use-latest-callback	0.2.6	MIT	node_modules/use-latest-callback
+use-sidecar	1.1.3	MIT	node_modules/use-sidecar
+utils-merge	1.0.1	MIT	node_modules/utils-merge
+uuid	7.0.3	MIT	node_modules/uuid
+validate-npm-package-name	5.0.1	ISC	node_modules/validate-npm-package-name
+vary	1.1.2	MIT	node_modules/vary
+vaul	1.1.2	MIT	node_modules/vaul
+@radix-ui/react-dialog	1.3.1	MIT	node_modules/vaul/node_modules/@radix-ui/react-dialog
+@radix-ui/react-dismissable-layer	1.2.1	MIT	node_modules/vaul/node_modules/@radix-ui/react-dismissable-layer
+@radix-ui/react-focus-scope	1.3.1	MIT	node_modules/vaul/node_modules/@radix-ui/react-focus-scope
+@radix-ui/react-portal	1.2.0	MIT	node_modules/vaul/node_modules/@radix-ui/react-portal
+@radix-ui/react-presence	1.1.11	MIT	node_modules/vaul/node_modules/@radix-ui/react-presence
+@radix-ui/react-primitive	2.2.0	MIT	node_modules/vaul/node_modules/@radix-ui/react-primitive
+vlq	1.0.1	MIT	node_modules/vlq
+walker	1.0.8	Apache-2.0	node_modules/walker
+warn-once	0.1.1	MIT	node_modules/warn-once
+wcwidth	1.0.1	MIT	node_modules/wcwidth
+webidl-conversions	3.0.1	BSD-2-Clause	node_modules/webidl-conversions
+whatwg-fetch	3.6.20	MIT	node_modules/whatwg-fetch
+whatwg-url	5.0.0	MIT	node_modules/whatwg-url
+whatwg-url-minimum	0.1.2	MIT	node_modules/whatwg-url-minimum
+which	2.0.2	ISC	node_modules/which
+which-boxed-primitive	1.1.1	MIT	node_modules/which-boxed-primitive
+which-builtin-type	1.2.1	MIT	node_modules/which-builtin-type
+which-collection	1.0.2	MIT	node_modules/which-collection
+which-typed-array	1.1.24	MIT	node_modules/which-typed-array
+word-wrap	1.2.5	MIT	node_modules/word-wrap
+wrap-ansi	7.0.0	MIT	node_modules/wrap-ansi
+ws	7.5.13	MIT	node_modules/ws
+xcode	3.0.1	Apache-2.0	node_modules/xcode
+xml2js	0.6.0	MIT	node_modules/xml2js
+xmlbuilder	11.0.1	MIT	node_modules/xml2js/node_modules/xmlbuilder
+xmlbuilder	15.1.1	MIT	node_modules/xmlbuilder
+y18n	5.0.8	ISC	node_modules/y18n
+yallist	3.1.1	ISC	node_modules/yallist
+yaml	2.9.1	ISC	node_modules/yaml
+yargs	17.7.3	MIT	node_modules/yargs
+yargs-parser	21.1.1	ISC	node_modules/yargs-parser
+yocto-queue	0.1.0	MIT	node_modules/yocto-queue
+zod	3.25.76	MIT	node_modules/zod
+zod-validation-error	4.0.2	MIT	node_modules/zod-validation-error

@@ -11,8 +11,22 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+        // İŞ19 soft button standard: outline is the grey tonal neutral action (cancel/clear/link/pagination); no white buttons.
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border border-(--action-neutral-border) bg-(--action-neutral-bg) text-(--action-neutral-text) hover:bg-(--action-neutral-hover)",
+        // Input-like choices (combobox trigger, pick-one cards/lists) keep the white field look so they read as form fields, not actions.
+        field:
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+        neutral:
+          "border border-(--action-neutral-border) bg-(--action-neutral-bg) text-(--action-neutral-text) hover:bg-(--action-neutral-hover)",
+        view:
+          "border border-(--action-view-border) bg-(--action-view-bg) text-(--action-view-text) hover:bg-(--action-view-hover)",
+        edit:
+          "border border-(--action-edit-border) bg-(--action-edit-bg) text-(--action-edit-text) hover:bg-(--action-edit-hover)",
+        warn:
+          "border border-(--action-warn-border) bg-(--action-warn-bg) text-(--action-warn-text) hover:bg-(--action-warn-hover)",
+        danger:
+          "border border-(--action-danger-border) bg-(--action-danger-bg) text-(--action-danger-text) hover:bg-(--action-danger-hover) focus-visible:ring-destructive/20",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost:

@@ -16,7 +16,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         await factory.WithDb(async db=>{
             var person=new BuildingFlow.Domain.Person(x.Property.Id,"Ada","Kaya");db.Add(person);
             var link=new UnitOccupancy(x.Property.Id,x.Unit.Id,person.Id,OccupancyType.OWNER,Today);db.Add(link);await db.SaveChangesAsync();
-            var store=new PeopleStore(db,TimeProvider.System);
+            var config=new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build();var store=new PeopleStore(db,TimeProvider.System,new PersonCodeIssuer(new PersonCodeHasher(config)),new SmsQueue(db,new SmsPayloadProtector(config),TimeProvider.System));
             Assert.NotNull(await store.GetOccupancyAsync(x.Property.Id,link.Id,new(x.Actor,false),default));
             Assert.NotNull(await store.UnitChoicesAsync(x.Property.Id,new(),new(x.Actor,false),default));
         });
@@ -59,9 +59,9 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
     public async Task ManagersCanCrudPeopleWithTrustedAuditAndVersion(string role)
     {
         var x = await Seed(); using var client = TestToken.Client(factory, x.Actor, role); var root = Root(x.Property.Id);
-        var response = await client.PostAsJsonAsync(root + "/people", new { firstName = " Ada ", lastName = " Kaya ", phoneNumber="+905551234567", email="ada@example.test",personKind="NATURAL",citizenship="DOMESTIC",countryCode="TR",identityNumber="12345678901", createdBy = "forged", propertyId = Guid.NewGuid(), isDeleted = true });
+        var response = await client.PostAsJsonAsync(root + "/people", new { firstName = " ada  NUR ", lastName = " kaya ", phoneNumber="+905551234567", email="ada@example.test",personKind="NATURAL",citizenship="DOMESTIC",countryCode="TR",identityNumber="12345678901", createdBy = "forged", propertyId = Guid.NewGuid(), isDeleted = true });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode); var person = (await response.Content.ReadFromJsonAsync<PersonResponse>())!;
-        Assert.Equal("Ada", person.FirstName); Assert.Equal(x.Property.Id, person.PropertyId); Assert.Equal(1, person.Version);
+        Assert.Equal("Ada Nur", person.FirstName); Assert.Equal("KAYA", person.LastName); Assert.Equal(x.Property.Id, person.PropertyId); Assert.Equal(1, person.Version);
         Assert.Equal(root + "/people/" + person.Id, response.Headers.Location!.ToString());
         var edit = await client.PutAsJsonAsync(response.Headers.Location, Edit(person)); Assert.Equal(HttpStatusCode.OK, edit.StatusCode);
         var updated = (await edit.Content.ReadFromJsonAsync<PersonResponse>())!; Assert.Equal(2, updated.Version);
@@ -105,7 +105,7 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         p = (await client.GetFromJsonAsync<PersonResponse>(root + "/people/" + p.Id))!;
         Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync(root + "/people/" + p.Id + "?version=" + p.Version)).StatusCode);
         var historyRows = (await client.GetFromJsonAsync<PagedRows<OccupancyResponse>>(root + "/occupancies?personId=" + p.Id))!;
-        Assert.Equal("Ada Kaya", Assert.Single(historyRows.Items).PersonName);
+        Assert.Equal("Ada KAYA", Assert.Single(historyRows.Items).PersonName);
     }
     [PostgresFact] public async Task InclusiveOverlapPrimaryContactAndSharedOwnershipRules()
     {

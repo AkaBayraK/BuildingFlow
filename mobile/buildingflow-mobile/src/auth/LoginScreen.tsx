@@ -1,12 +1,17 @@
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {Action as Pressable} from '../components/Action';
 import { BuildingFlowMark } from '../components/BuildingFlowMark';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
 import { useAuth } from './AuthProvider';
+import { RegisterScreen } from './RegisterScreen';
 
 export function LoginScreen() {
   const auth = useAuth();
   const working = auth.state === 'loading' || auth.state === 'working';
+  const [registering, setRegistering] = useState(false);
+  if (registering) return <RegisterScreen onBack={() => setRegistering(false)} />;
   return <SafeAreaView style={s.safe}>
     <ScrollView contentContainerStyle={s.page}>
       <View style={s.hero}>
@@ -25,7 +30,9 @@ export function LoginScreen() {
           <Feature icon="construct-outline" label="Talepler" color="#855015" background="#fff0dc" />
         </View>
         {working ? <><ActivityIndicator color="#102342" accessibilityLabel="Oturum kontrol ediliyor" /><Pressable accessibilityRole="button" style={s.secondary} onPress={auth.cancel}><Text style={s.secondaryText}>Vazgeç</Text></Pressable></> : <Pressable accessibilityRole="button" disabled={!auth.ready} style={[s.primary, !auth.ready && { opacity: 0.55 }]} onPress={() => void auth.login()}><Text style={s.primaryText}>Giriş yap</Text><Ionicons name="arrow-forward" size={20} color="#fff" accessible={false} aria-hidden={true} /></Pressable>}
+        {auth.canUnlockOffline&&!working&&<Pressable accessibilityRole="button" style={s.primary} onPress={()=>void auth.unlockOffline()}><Text style={s.primaryText}>Biyometriyle çevrimdışı aç</Text></Pressable>}
         {!!auth.message && <View style={s.message}><Ionicons name="information-circle-outline" size={22} color="#23466a" accessible={false} aria-hidden={true} /><Text accessibilityLiveRegion="polite" style={s.messageText}>{auth.message}</Text></View>}
+        {!working && auth.ready && process.env.EXPO_PUBLIC_PERSON_AUTHORIZATION_ENABLED!=='true' && <Pressable accessibilityRole="button" style={s.secondary} onPress={() => setRegistering(true)}><Text style={s.secondaryText}>Hesabın yok mu? Hesap oluştur</Text></Pressable>}
         {auth.canRetry && <Pressable accessibilityRole="button" style={s.secondary} onPress={auth.retrySetup}><Text style={s.secondaryText}>Bağlantıyı yeniden dene</Text></Pressable>}
         <View style={s.security}><Ionicons name="shield-checkmark-outline" size={18} color="#52647a" accessible={false} aria-hidden={true} /><Text style={s.securityText}>Giriş bilgilerin güvenli BuildingFlow giriş sayfasında kullanılır.</Text></View>
         <Text style={s.footer}>İlk giriş için internet bağlantısı gerekir.</Text>

@@ -18,16 +18,17 @@ public sealed class MobileProfileTests(SiteApiTests.SiteApiFactory factory):ICla
   var s=await Setup();using var c=s.Client;Assert.Equal(0,(await c.GetFromJsonAsync<MobileProfileDto>("/api/v1/mobile/profile"))!.Version);
   var cmd=Command();var responses=await Task.WhenAll(Push(c,cmd),Push(c,cmd));Assert.All(responses,r=>Assert.Equal(HttpStatusCode.OK,r.StatusCode));
   var results=await Task.WhenAll(responses.Select(r=>r.Content.ReadFromJsonAsync<MobileProfileResult>()));Assert.Contains(results,r=>r!.Replayed);Assert.All(results,r=>Assert.Equal(1,r!.Profile.Version));
+  Assert.All(results,r=>{Assert.Equal("Fixture",r!.Profile.FirstName);Assert.Equal("PROFİLE",r.Profile.LastName);});
   Assert.Equal(HttpStatusCode.Conflict,(await Push(c,cmd with{FirstName="Other"})).StatusCode);
   Assert.Equal(HttpStatusCode.Conflict,(await Push(c,cmd with{OperationId=Guid.NewGuid()})).StatusCode);
   Assert.Equal(1,(await c.GetFromJsonAsync<MobileProfileDto>("/api/v1/mobile/profile"))!.Version);
  }
- [PostgresFact] public async Task AccountIsolationRevokedMembershipAndAnonymousFailClosed(){
+ [PostgresFact] public async Task AccountIsolationUnlinkedAccountsAndAnonymousFailClosed(){
   var s=await Setup();using var c=s.Client;Assert.Equal(HttpStatusCode.OK,(await Push(c,Command())).StatusCode);
   var other=await Setup();using var foreign=other.Client;Assert.Equal(0,(await foreign.GetFromJsonAsync<MobileProfileDto>("/api/v1/mobile/profile"))!.Version);
-  using var forged=TestToken.Client(factory,Guid.NewGuid().ToString(),"MANAGER");Assert.Equal(HttpStatusCode.Forbidden,(await forged.GetAsync("/api/v1/mobile/profile")).StatusCode);
+  using var unlinked=TestToken.Client(factory,Guid.NewGuid().ToString(),"MANAGER");Assert.Equal(0,(await unlinked.GetFromJsonAsync<MobileProfileDto>("/api/v1/mobile/profile"))!.Version);Assert.Equal(HttpStatusCode.OK,(await Push(unlinked,Command())).StatusCode);
   using var anon=TestToken.Client(factory,null,"");Assert.Equal(HttpStatusCode.Unauthorized,(await anon.GetAsync("/api/v1/mobile/profile")).StatusCode);
-  await factory.WithDb(async db=>{var m=await db.PropertyMemberships.FindAsync(s.Membership);m!.SetEnabled(false);await db.SaveChangesAsync();});Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync("/api/v1/mobile/profile")).StatusCode);
+  await factory.WithDb(async db=>{var m=await db.PropertyMemberships.FindAsync(s.Membership);m!.SetEnabled(false);await db.SaveChangesAsync();});Assert.Equal(1,(await c.GetFromJsonAsync<MobileProfileDto>("/api/v1/mobile/profile"))!.Version);
  }
  [PostgresFact] public async Task ValidationAndAccountingOwnProfileAreSupported(){
   var s=await Setup("ACCOUNTANT");using var c=s.Client;var cmd=Command();Assert.Equal(HttpStatusCode.OK,(await Push(c,cmd)).StatusCode);
@@ -36,7 +37,7 @@ public sealed class MobileProfileTests(SiteApiTests.SiteApiFactory factory):ICla
   Assert.Equal(HttpStatusCode.RequestEntityTooLarge,(await c.PostAsync("/api/v1/mobile/profile/commands",new StringContent(new string('x',400000),System.Text.Encoding.UTF8,"application/json"))).StatusCode);
  }
  [StorageFact] public async Task PhotoReplaceRemoveRejectsOldAndForeignAccessThenPurgesObjects(){
-  var s=await Setup();using var c=s.Client;var bytes=await File.ReadAllBytesAsync(Path.Combine(AppContext.BaseDirectory,"Fixtures","avatar.jpg"));var cmd=Command() with{PhotoAction="REPLACE",PhotoBase64=Convert.ToBase64String(bytes)};
+  var s=await Setup();using var c=s.Client;await ConsentTestHelper.GrantAsync(factory,c,"PROFILE_PHOTO");var bytes=await File.ReadAllBytesAsync(Path.Combine(AppContext.BaseDirectory,"Fixtures","avatar.jpg"));var cmd=Command() with{PhotoAction="REPLACE",PhotoBase64=Convert.ToBase64String(bytes)};
   var response=await Push(c,cmd);Assert.Equal(HttpStatusCode.OK,response.StatusCode);var first=(await response.Content.ReadFromJsonAsync<MobileProfileResult>())!;Assert.NotNull(first.Profile.PhotoId);
   var image=await c.GetByteArrayAsync("/api/v1/mobile/profile/photo/"+first.Profile.PhotoId);Assert.Equal(ProfilePhoto.Normalize(bytes),image);
   Assert.True((await (await Push(c,cmd)).Content.ReadFromJsonAsync<MobileProfileResult>())!.Replayed);

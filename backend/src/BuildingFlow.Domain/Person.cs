@@ -22,6 +22,17 @@ public sealed class Person : BaseEntity
     public string? Gender { get; private set; }
     public string? Address { get; private set; }
     public string? LinkedUserId { get; private set; }
+    public void LinkUser(string? userId) => LinkedUserId = string.IsNullOrWhiteSpace(userId) ? null : Required(userId, nameof(userId), 200);
+    public string? PersonCodeHash { get; private set; }
+    public string? PersonCodeHint { get; private set; }
+    public DateTimeOffset? PersonCodeIssuedAt { get; private set; }
+    public void AssignCode(string hash, string hint, DateTimeOffset issuedAt)
+    {
+        if (hash is not { Length: 64 } || hash.Any(c => !char.IsAsciiHexDigitLower(c))) throw new ArgumentException("Invalid person code hash.");
+        if (hint is not { Length: 2 } || !hint.All(char.IsAsciiDigit)) throw new ArgumentException("Invalid person code hint.");
+        PersonCodeHash = hash; PersonCodeHint = hint; PersonCodeIssuedAt = issuedAt;
+    }
+    public void ClearCode() { PersonCodeHash = null; PersonCodeHint = null; PersonCodeIssuedAt = null; }
     public void SetProfile(string kind, string citizenship, string country, string identity, DateOnly? birth, string? gender, string? address, string? linkedUserId)
     {
         kind = Required(kind, nameof(kind), 10); citizenship = Required(citizenship, nameof(citizenship), 10);

@@ -10,11 +10,11 @@ function fixture() {
 const context={propertyId:'11111111-1111-1111-1111-111111111111',propertyName:'Test mülkü',unitId:'22222222-2222-2222-2222-222222222222',unitNumber:'1',role:'OWNER'};
 const key=`${context.propertyId}:${context.unitId}:OWNER`;
 const session={userId:'user-a',username:'Test',contexts:[context],hasMore:false};
-test('migration creates version5, preserves rows when repeated, indexes account context',async()=>{
- const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);await migrate(db);assert.equal(sql.prepare('PRAGMA user_version').get().user_version,5);assert.equal((await readSnapshot(db,'user-a',1001)).session.contexts[0].propertyName,'Test mülkü');assert.ok(sql.prepare("SELECT name FROM sqlite_master WHERE name='cache_scope'").get());}finally{sql.close();}
+test('migration creates version8, preserves rows when repeated, indexes account context',async()=>{
+ const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);await migrate(db);assert.equal(sql.prepare('PRAGMA user_version').get().user_version,8);assert.equal((await readSnapshot(db,'user-a',1001)).session.contexts[0].propertyName,'Test mülkü');assert.ok(sql.prepare("SELECT name FROM sqlite_master WHERE name='cache_scope'").get());}finally{sql.close();}
 });
 test('version1 upgrades without erasing snapshot; future schema is refused',async()=>{
- const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);sql.exec('DROP TABLE owner_snapshots; DROP TABLE profile_cache; DROP TABLE profile_jobs; DROP TABLE profile_settings; DROP INDEX cache_scope; DROP TABLE sync_outbox; DROP TABLE sync_requests; DROP TABLE sync_state; PRAGMA user_version=1');await migrate(db);assert.ok(await readSnapshot(db,'user-a',1001));sql.exec('PRAGMA user_version=6');await assert.rejects(migrate(db));assert.equal(sql.prepare('SELECT count(*) AS n FROM cache_records').get().n,1);}finally{sql.close();}
+ const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);sql.exec('DROP TABLE owner_snapshots; DROP TABLE profile_cache; DROP TABLE profile_jobs; DROP TABLE profile_settings; DROP INDEX cache_scope; DROP TABLE sync_outbox; DROP TABLE sync_requests; DROP TABLE sync_state; DROP TABLE notice_jobs; DROP TABLE request_files; DROP TABLE request_drafts; DROP TABLE request_photo_cache; DROP TABLE consent_cache; DROP TABLE consent_jobs; DROP TABLE consent_seen; PRAGMA user_version=1');await migrate(db);assert.ok(await readSnapshot(db,'user-a',1001));sql.exec('PRAGMA user_version=9');await assert.rejects(migrate(db));assert.equal(sql.prepare('SELECT count(*) AS n FROM cache_records').get().n,1);}finally{sql.close();}
 });
 test('another account cannot read or overwrite cache; malformed context is refused',async()=>{
  const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);assert.equal(await readSnapshot(db,'user-b',1001),null);await assert.rejects(writeSnapshot(db,{...session,userId:'user-b'},1001,'id-2',null));await assert.rejects(writeSnapshot(db,session,1001,'id-2','foreign'));assert.equal((await readSnapshot(db,'user-a',1001)).session.userId,'user-a');}finally{sql.close();}
@@ -39,4 +39,19 @@ test('logout invalidates queued cache writes; next account waits for deletion',a
 });
 test('failed cache operation does not block subsequent cleanup',async()=>{
  const q=new CacheQueue();await assert.rejects(q.run(async()=>{throw Error('fixture');}));let cleaned=false;await q.clear(async()=>{cleaned=true;});assert.equal(cleaned,true);
+});
+test('account-only session without person link survives offline and upgrades in place once linked', async () => {
+ const {sql,db}=fixture();
+ try {
+  await migrate(db);
+  const accountOnly={userId:'user-b',username:'yeni',contexts:[],hasMore:false};
+  await writeSnapshot(db,accountOnly,1000,'id-2',null);
+  const offline=await readSnapshot(db,'user-b',1001);
+  assert.deepEqual(offline.session.contexts,[]);assert.equal(offline.selectedKey,null);
+  const text=JSON.stringify(sql.prepare('SELECT * FROM cache_records').all());
+  assert.doesNotMatch(text,/password|parola/i);
+  const linked={...accountOnly,contexts:[{...context,role:'TENANT'}]};
+  await writeSnapshot(db,linked,2000,'id-2',`${context.propertyId}:${context.unitId}:TENANT`);
+  assert.equal((await readSnapshot(db,'user-b',2001)).session.contexts[0].role,'TENANT');
+ } finally { sql.close(); }
 });

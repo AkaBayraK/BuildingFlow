@@ -55,6 +55,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         if(type!=site.Type && !canChangeType)throw new HierarchyConflictException(ErrorCatalog.PropertyTypeLocked.Create());
         if(type!=PropertyType.APARTMENT && request.FloorCount is not null)throw new HierarchyConflictException(ErrorCatalog.BuildingFloorMetadata.Create());
         if(type!=PropertyType.APARTMENT && !request.Features.IsEmpty)throw new RequestValidationException(new(){["buildingFeatures"]=[ErrorCatalog.BuildingFeaturesApartmentOnly.Create()]});
+        if(request.IsEnabled==false && await PersonCenterStore.HasCurrentNative(db,siteId,null,null,BusinessDate.Today(clock??TimeProvider.System),token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         site.UpdateDetails(request.Name!,request.City!,request.District!,request.Address!,request.IsEnabled!.Value,request.FloorCount,type,request.Features.ToFeatures());site.SetNeighborhood(request.Neighborhood);
         Touch(site); await Save(token); return SiteResult(site,canChangeType);
     }
@@ -62,9 +63,11 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
     {
         var site=await Properties(access).SingleOrDefaultAsync(value=>value.Id==siteId,token); if(site is null)return false;
         Expected(site,version);
+        if(await PersonCenterStore.HasCurrentNative(db,siteId,null,null,BusinessDate.Today(clock??TimeProvider.System),token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if(await db.Announcements.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token) || await db.StoredDocuments.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.ContentPropertyHistory.Create());
         if(await db.Meters.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.MeterConflict.Create());
         if(await db.DuesAssessments.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Expenses.AnyAsync(value=>value.PropertyId==siteId,token) || await db.PropertyBudgets.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.DuesErrorPropertyHistory.Create());
+        if(await db.Set<MobileRequest>().IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.PropertyHasChildren.Create());
         if(await db.Buildings.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Units.AnyAsync(value=>value.PropertyId==siteId,token) || await db.People.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.PropertyHasChildren.Create());
         db.Remove(site); await Save(token); return true;
     }
@@ -138,6 +141,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var units=block is null?site.Units.Where(value=>value.BuildingId is null):block.Units;var unit=units.SingleOrDefault(value=>value.Id==apartmentId);if(unit is null)return null;
         var type=Enum.Parse<UnitType>(request.Type);UnitParent(site,block,blockId,type);Expected(unit,request.Version);
         var today=BusinessDate.Today(clock ?? TimeProvider.System);
+        if(request.IsEnabled==false && await PersonCenterStore.HasCurrentNative(db,siteId,unit.Id,null,today,token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if(request.IsEnabled==false && await db.UnitOccupancies.AnyAsync(value=>value.UnitId==unit.Id && (value.EndDate==null || value.EndDate>=today),token))throw new HierarchyConflictException(ErrorCatalog.UnitHasOccupancy.Create());
         if(units.Any(value=>value.Id!=apartmentId && string.Equals(value.Number,request.Number!.Trim(),StringComparison.OrdinalIgnoreCase)))throw new HierarchyConflictException(ErrorCatalog.UnitNumberExists.Create());
         PropertyDetails.ValidateFloorWithinBuilding(request.Floor!.Value,block is null?site.FloorCount:block.FloorCount);var details=request.Features.ToFeatures();
@@ -151,6 +155,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var units=block is null?site.Units.Where(value=>value.BuildingId is null):block.Units;var unit=units.SingleOrDefault(value=>value.Id==apartmentId);if(unit is null)return false;
         UnitParent(site,block,blockId,unit.Type);Expected(unit,version);
         var today=BusinessDate.Today(clock ?? TimeProvider.System);
+        if(await PersonCenterStore.HasCurrentNative(db,siteId,unit.Id,null,today,token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if(await db.UnitOccupancies.AnyAsync(value=>value.UnitId==unit.Id && (value.EndDate==null || value.EndDate>=today),token))throw new HierarchyConflictException(ErrorCatalog.UnitDeleteHasOccupancy.Create());
         db.Remove(unit);Touch(site);if(block is not null)Touch(block);await Save(token);return true;
     }

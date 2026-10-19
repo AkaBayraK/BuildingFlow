@@ -1,0 +1,1 @@
+export default function NotFound(){return <main id="content" className="welcome"><span className="eyebrow">404</span><h1>Sayfa bulunamadı.</h1><p>Bu adres kullanılamıyor veya henüz yayınlanmamış olabilir.</p><a href="/">Başlangıca dön</a></main>}

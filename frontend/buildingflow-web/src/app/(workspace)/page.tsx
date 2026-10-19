@@ -1,9 +1,11 @@
+import {SessionWorkspaces} from "@/features/session-workspaces/SessionWorkspaces";
 import {getTranslations} from "next-intl/server";
 import { Roadmap } from "../../features/roadmap/Roadmap";
 import Link from "next/link";
 import { getApiHealth } from "../../services/health";
 export const dynamic = "force-dynamic";
 export default async function Home() {
+  if(process.env.BUILDINGFLOW_SESSION_CONTEXTS_ENABLED==="true")return <SessionWorkspaces automatic/>;
   const t=await getTranslations("ui");
 
   const health = await getApiHealth();

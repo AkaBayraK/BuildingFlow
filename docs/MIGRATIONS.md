@@ -155,3 +155,36 @@ Ayrı gerçek PostgreSQL kurulum/yükseltme/tekrar/boş Down/re-Up ve veri/audit
 ## PersonProfilesAndMessages —12.10.2026
 
 20261011223446 yeni migration/snapshot: people üzerine8 nullable profil/hesap kolonu, legacyNULL koruması ve profilecheck; yeni person_messages BaseEntity ve Property/Person compositeFK+UUID tekilliği. İlk kurulum/yükseltme/tekrar/boş Down/dolu Down reddi/model/ortak8kolon ayrı PostgreSQL testlerinde geçti. Uygulanmış eski migration değiştirilmedi. Yerel update sonrası22 eski tablonun tüm mevcut alan/audit/version sayım/hashleri eşleşti. Önceki Person Address yok; compare yalnız people yeni8kolonunu çıkarır, diğer tabloların Address dahil alanları korunur. Yeni kişisel veri/mesaj geçmişi varsa Down ilk drop öncesi reddeder.
+
+
+## RequestManagementWorkflow —15–16.10.2026
+
+20261015203750 eklemeli migration, mobile_requests yönetimstatus/response/historyflag ve RequestManagementEvent. Sekiz BaseEntity NOTNULL alanı, Property+Request compositeFK, actor+operationunique, immutableUPDATE/DELETEtrigger ve doluDownkoruması. Legacy talep JSON/audit/versionupgrade,repeat,boşDown/reUp,doluDownreddi,yanlışscopeFK ve tüm tablo8kolon/model eşliği gerçek izolePGtestlerinde doğrulandı. Yerel upgrade öncesi/sonrası36eski tablonun sayım/veri/audit/versionhashleri aynı; eski uygulanmış migrationlar korunur. Ayrıntı api/request-management.md ve TESTING.md.
+
+
+## CentralPersonBackend — PERSON FAZ03 /16.10.2026
+
+20261016122659 eklemeli migration yalnız6yeni tablo kurar: person_tenants/person_user_accounts/person_tenant_memberships/persons/person_account_links/person_operation_receipts.8zorunluNOTNULLaudit/version alanı,tenant/person ve tenant/member scopeFK,issuer+subject veaktifbağtekilliği;immutable receipt SQL trigger. Eski migrationlar/değerler korunur;backfill/otomatiktenantassignment yok. DoluDownilkdropöncesi reddeder;emptyDown/reUp velegacyPersonJSON/audit/version eşliği gerçek izolePGtestinde geçti. Ana DB'ye uygulanmadı. FeatureflagAPIkapısıdır,AutoMigrate ayrı;sonraki devstartup boştabloları oluşturabilir. Ayrıntı central-people API ve PersonFAZ03raporu.
+
+
+## PERSON FAZ04 —17.10.2026
+
+Ortak checkout'taki mevcut `20261016124132_AutoSchema_20261016154130` altı ilişki/geçiş tablosunu oluşturmuştu; bu dosya değiştirilmedi. Sonraki mevcut Consents/DefaultConsentTexts migrationları da korundu. Yeni `20261017144809_PersonUnitRelations` migration'ı güncel modelle üretilen Designer/snapshot yanında üç tabloyu birleştiren kontrol view'i, Unit parent kilitli tarih/primary/pay/history trigger'ı ve dolu Down koruması ekler. Yeni CreateTable veya eski veri UPDATE/DROP yoktur. View uygulama tablosu değildir; altı tablonun BaseEntity8NOTNULL sözleşmesi gerçek PG'de kontrol edildi.
+
+Down, altı tabloda soft-delete dahil herhangi veri varsa ilk DROP öncesi reddeder. Boşsa yalnız kendi view/function/trigger'larını kaldırır; tablolar önceki otomatik migration'a aittir. İleri düzeltme tercih edilir; eski migration'ı doğrudan atlayan manuel DDL bu korumayı sağlamaz. Yedek/izole restore ve quiesce gerekir. Gölge import sonrası legacy değişikliği otomatik overwrite edilmez.
+
+Bu tur yalnız ayrı PostgreSQL fixture'larında migration/Down/reapply çalıştırıldı; canlı DB update/backfill veya servis restart yapılmadı. Ortak checkout'taki önceki migrationların canlıda uygulanıp uygulanmadığı bu tur denetlenmedi. API feature bayrakları migration kapısı değildir; varsayılan AutoMigrate ile sonraki API açılışı bekleyen SQL migration'ını uygulayabilir. Ayrıntı [person-transition.md](api/person-transition.md).
+
+
+## PERSON FAZ05 —17.10.2026
+`20261017150715_ManagementAssignments` üç eklemeli BaseEntity tablo (management_assignments/events/operations), Designer ve snapshot ekler. Composite scope FK, tarih/rol/closure ve açık görev tekilliği; sonlu overlap/immutable history ve değişmez audit/receipt SQL trigger'ları vardır. Gerekçesiz iptal DB kısıtında da reddedilir. Önceki migration veya eski veri değiştirilmez.
+
+Dolu Down, soft-delete dahil veri varsa ilk drop'tan önce reddeder. Boş Down/Up ve repeated migrate, canonical kişi JSON'unun korunması ve8ortakNOTNULL alanı ayrı PG şemasında doğrulandı. Üretim rollback'i veriyi silerek yapılmaz; feature kapatma, quiesce ve ileri düzeltme/izole restore gerekir. ENFORCED ayarını otomatik LEGACY'ye indirmek yetki gevşetmesi olabilir. Bu tur ana DB migrate/servis restart yok; AutoMigrate açık sonraki açılış pendingmigration uygulayabilir. [Sözleşme](api/management-assignments.md).
+
+## PERSON FAZ06 — PersonCenterUnitOperations (18.10.2026)
+
+20261017153156 additive migration üç ilişki alternate composite key ve person_unit_operations makbuz tablosu ekler. Sekiz ortak alan NOT NULL; tenant/property/person ve türe özgü hedef composite FK, aktör+tenant+UUID unique, immutable UPDATE/DELETE trigger. Makbuz varsa Down reddedilir. Ayrı geçici PG şemasında önceki sürümden upgrade/veri korunması, ikinci apply, boş Down/reapply, model eşliği ve dolu Down koruması geçti. Canlıya uygulanmadı; AutoMigrate açık sonraki API açılışında uygulanabilir. [Sözleşme](api/person-center.md), [rapor](refactor/person/phase-06-report.md).
+
+## WEBSITE FAZ 05 — 18.10.2026
+
+20261018172114_WebsiteMedia yeni website_media tablosunu ve website_sites logo_media_id/hero_media_id kolonlarını ekler; eski migration'lar değiştirilmedi. Aynı Property/site composite FK, BaseEntity8NOT NULL kolonları, hak/kişi izni/check ve UUID index vardır. Dolu medya Down veri kaybını reddeder. İlk kurulum/yükseltme/tekrar/boş Down ve dolu Down reddi ayrı fixture'da doğrulandı (TESTING.md). Bu tur canlı DB'ye uygulanmadı; mevcut API AutoMigrate prosedürü geçerlidir.

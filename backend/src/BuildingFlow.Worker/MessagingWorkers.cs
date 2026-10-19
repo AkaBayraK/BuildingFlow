@@ -69,3 +69,26 @@ internal sealed class MessageConsumerWorker(RabbitMessagingOptions options, ISer
         }
     }
 }
+
+internal sealed class SmsDispatchWorker(IServiceScopeFactory scopes, ILogger<SmsDispatchWorker> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested) {
+            var processed = 0;
+            try {
+                await using var scope = scopes.CreateAsyncScope();
+                processed = await scope.ServiceProvider.GetRequiredService<SmsDispatcher>().DispatchPendingAsync(stoppingToken);
+                if (processed > 0) logger.LogInformation("SMS dispatcher processed {Count} messages.", processed);
+            } catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) {
+                return;
+            } catch (Exception exception) {
+                BuildingFlowTelemetry.WorkerFailures.Add(1,new KeyValuePair<string,object?>("operation","sms"));
+                logger.LogWarning("SMS dispatch cycle failed: {ErrorType}.", exception.GetType().Name);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                continue;
+            }
+            if (processed < SmsDispatcher.BatchSize) await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+        }
+    }
+}

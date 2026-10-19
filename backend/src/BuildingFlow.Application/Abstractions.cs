@@ -1,6 +1,6 @@
 namespace BuildingFlow.Application;
 
-public interface ICurrentUserService { string? UserId { get; } string? Username { get; } bool IsAuthenticated { get; } bool IsInRole(string role); }
+public interface ICurrentUserService { string? Issuer => null; string? UserId { get; } string? Username { get; } bool IsAuthenticated { get; } bool IsInRole(string role); }
 public interface IFileStorage
 {
     Task UploadAsync(string objectKey, Stream content, string contentType, CancellationToken cancellationToken);

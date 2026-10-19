@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "checks": {
+    "deviceAcceptance": {
+      "status": "pending",
+      "evidence": null
+    },
+    "privacyAndStoreDeclarations": {
+      "status": "pending",
+      "evidence": null
+    },
+    "storeAccountsAndSigning": {
+      "status": "pending",
+      "evidence": null
+    },
+    "productionOidc": {
+      "status": "pending",
+      "evidence": null
+    },
+    "screenshotsAndBrand": {
+      "status": "pending",
+      "evidence": null
+    },
+    "qualityAndLicenses": {
+      "status": "pending",
+      "evidence": null
+    }
+  }
+}

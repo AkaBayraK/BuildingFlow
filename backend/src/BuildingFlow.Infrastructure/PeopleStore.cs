@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : IPeopleStore
+public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock, PersonCodeIssuer codes, ISmsQueue sms) : IPeopleStore
 {
+    private const int CodeAttempts = 20;
+    private const string CodeIndex = "uidx_people_person_code_hash";
     private DateOnly Today => BusinessDate.Today(clock);
     // Explicit filters also apply in the historical join, whose IgnoreQueryFilters
     // annotation affects every entity in the composed EF query.
@@ -17,6 +19,7 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
     {
         if (!await Properties(access).AnyAsync(value => value.Id == property,token)) return null;
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM properties WHERE id = {property} FOR UPDATE",token);
+        if(await PersonCenterStore.NativeHistory(db,property,token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         return await Properties(access).SingleOrDefaultAsync(value => value.Id == property,token);
     }
     private static void Expected(BaseEntity entity, long version)
@@ -26,6 +29,8 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
     private async Task Save(CancellationToken token)
     {
         try { await db.SaveChangesAsync(token); }
+        catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: CodeIndex })
+        { throw new HierarchyConflictException(ErrorCatalog.PersonCodeUnavailable.Create()); }
         catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         { throw new HierarchyConflictException(ErrorCatalog.OccupancyOverlap.Create()); }
     }
@@ -37,7 +42,12 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
             (from link in db.UnitOccupancies join unit in db.Units on new {link.PropertyId,Id=link.UnitId} equals new {unit.PropertyId,unit.Id}
              join building in db.Buildings on unit.BuildingId equals (Guid?)building.Id into buildings from building in buildings.DefaultIfEmpty()
              where link.PropertyId==value.PropertyId && link.PersonId==value.Id && link.StartDate<=today && (link.EndDate==null || link.EndDate>=today) && (unit.BuildingId==null || building!=null)
-             select new PersonUnitSummary(unit.Id,unit.Number,unit.BuildingId,building==null?null:building.Name,link.Type.ToString())).ToList()));
+             select new PersonUnitSummary(unit.Id,unit.Number,unit.BuildingId,building==null?null:building.Name,link.Type.ToString())).ToList(),
+            value.PersonCodeHint, value.PersonCodeIssuedAt, null, null,
+            // İŞ19: current photo of the linked account (added by its owner with consent), so lists ask only for photos that exist.
+            db.Set<MobileProfile>().Where(profile => value.LinkedUserId != null && profile.OwnerUserId == value.LinkedUserId && profile.IsEnabled && profile.PhotoId != null
+                && db.Set<MobileProfilePhoto>().Any(photo => photo.Id == profile.PhotoId && photo.OwnerUserId == profile.OwnerUserId && photo.State == "CURRENT" && photo.IsEnabled))
+                .Select(profile => profile.PhotoId).FirstOrDefault()));
     }
     private static string Pattern(string text) => "%" + text.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
     public async Task<PagedRows<string>?> AccountChoicesAsync(Guid property,PeopleQuery request,AccessScope access,CancellationToken token)
@@ -60,12 +70,51 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock) : 
     public Task<PersonResponse?> GetAsync(Guid property, Guid person, AccessScope access, CancellationToken token) => Project(People(property, access).AsNoTracking().Where(value => value.Id == person)).SingleOrDefaultAsync(token);
     public async Task<PersonResponse?> CreateAsync(Guid property, CreatePersonRequest request, AccessScope access, CancellationToken token)
     {
-        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token); if (parent is null) return null;
+        await using var transaction=await db.Database.BeginTransactionAsync(token);
+        var parent = await LockProperty(property,access,token); if (parent is null) return null;
         Active(parent); await CheckLinked(property,request.LinkedUserId,token);
         var person = new Person(property, request.FirstName!, request.PersonKind=="LEGAL" ? "—" : request.LastName!, request.PhoneNumber, request.Email);
         person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
         person.Update(request.FirstName!,request.LastName ?? "",request.PhoneNumber,request.Email,true);
-        db.People.Add(person); Touch(parent); await Save(token); return await GetAsync(property, person.Id, access, token);
+        var code = await AssignCode(person, token);
+        db.People.Add(person); Touch(parent);
+        var registration = await RegistrationSms(parent, person, code, token);
+        await Save(token);
+        await transaction.CommitAsync(token);
+        return await GetAsync(property, person.Id, access, token) is { } created ? created with { IssuedPersonCode = code, RegistrationSms = registration } : null;
+    }
+    public async Task<PersonResponse?> RegenerateCodeAsync(Guid property, Guid personId, long version, bool sendSms, AccessScope access, CancellationToken token)
+    {
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
+        var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return null;
+        Active(parent); Expected(person, version);
+        var code = await AssignCode(person, token);
+        Touch(person);
+        var registration = sendSms ? await RegistrationSms(parent, person, code, token) : null;
+        await Save(token);
+        return await GetAsync(property, personId, access, token) is { } updated ? updated with { IssuedPersonCode = code, RegistrationSms = registration } : null;
+    }
+    private Task<SmsQueueResult> RegistrationSms(Property parent, Person person, string code, CancellationToken token) =>
+        sms.EnqueueAsync(parent.Id, SmsTypes.PersonRegistered, person.PhoneNumber, new Dictionary<string, string> {
+            ["code"] = code, ["fullName"] = (person.FirstName + " " + person.LastName).Trim(), ["propertyName"] = parent.Name }, person.Id, null, token);
+    public async Task<int> AssignMissingCodesAsync(int batchSize, CancellationToken token)
+    {
+        var people = await db.People.Where(value => value.PersonCodeHash == null && value.LinkedUserId == null).OrderBy(value => value.Id).Take(batchSize).ToListAsync(token);
+        foreach (var person in people) await AssignCode(person, token, people);
+        if (people.Count > 0) await db.SaveChangesAsync(token);
+        return people.Count;
+    }
+    private async Task<string> AssignCode(Person person, CancellationToken token, IReadOnlyCollection<Person>? pending = null)
+    {
+        for (var attempt = 0; attempt < CodeAttempts; attempt++)
+        {
+            var issued = codes.Issue();
+            if (pending?.Any(other => other.PersonCodeHash == issued.Hash) == true) continue;
+            if (await db.People.IgnoreQueryFilters().AnyAsync(value => value.PersonCodeHash == issued.Hash, token)) continue;
+            var now = clock.GetUtcNow(); person.AssignCode(issued.Hash, issued.Hint, now.AddTicks(-(now.Ticks % 10)));
+            return issued.Code;
+        }
+        throw new HierarchyConflictException(ErrorCatalog.PersonCodeUnavailable.Create());
     }
     public async Task<PersonResponse?> UpdateAsync(Guid property, Guid personId, UpdatePersonRequest request, AccessScope access, CancellationToken token)
     {

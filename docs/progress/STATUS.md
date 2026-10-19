@@ -1,8 +1,103 @@
+## WEBSITE FAZ07 —19.10.2026 — DEVAM EDIYOR
+
+Kullanıcı FAZ07'yi açıkça onayladı; FAZ06 EİDS engeli korunarak ilerlenir. Kaynak BuildingFlow-WebsiteManagement-Prompt-Paketi/{MASTER_PROMPT,PHASES}.md; kayıt08/10,2resmi madde,0/2=%0,00. Domain DNS/TLS/superadmin onayı, güvenlihostçözümleme/SEO ve preview/yayın/rollback izolasyon testleri. Yeni bağımlılık yok; mevcut no-store stratejisi anlık iptal için korunur. Gerçekdomain/DNS/TLSyapılandırması verilmedi; fixture kabulü ile canlı kabul ayrı raporlanacak. Tekagent; phase/contract/security/verify/license/docs. FAZ08 başlamaz.
+
+## WEBSITE FAZ 06 —19.10.2026 — Teknik teslim / gerçek yayın kabulü açık
+
+**Resmi maddeler2/3=%66,67.** İlk madde (isteğe bağlı Unit ve mevcut sahiplik/kiracılığı değiştirmeme) ve ikinci maddenin uygulama/test akışları tamamlandı; üçüncü maddenin EİDS/hukuki kabulü BLOKE. Varsayılan doğrulayıcı kapalıdır: gerçek sağlayıcı/test erişimi ve hukuki kabul olmadan yayın yoktur; yönetici beyanı doğrulama sayılmaz. WEBSITE tamamlanan6/10=%60,00; İŞ21 önceki7/13=%53,85 korunur. T21.6 ve T21.10 done:false, yapılan doğrulamalar aynı yol haritası görevlerine bağlandı. FAZ07 başlamadı.
+
+İlan model/API/UI, özel malik belgesi, max20fotoğraf/sıra, inceleme/red/geriçekme/version/UUID, değişmez olaylar, süre sonu public filtresi+Worker; public liste/detay ve başvuru ekranları eklendi. Başvuruda aktif privacy publication SHA, site/IP/sunucu zamanı bağlı3s–30dk challenge, ham IP'siz HMAC günlük hash,5/saat+100/gün DBkilitli kota, honeypot,180gün anonimleştirme. Admin/public depoları ayrıdır. Server HMAC anahtarı yapılandırılmadığında form kapalı; secret mevcut .env'ye yazılmadı. Proxy gerçek ziyaretçi IP'si aktarmadığı için kotanın paylaşılması ve işletmeye uygun metin/gerçek proxy kabulü T21.10 için açıktır.
+
+**Son kanıt:26/26 seçili PG/storage integration,75/75 seçili unit; ayrıca tüm262/262 unit,157/157 yönetim,13/13 website.**0atlama/0hata. İkiFEtypecheck/productionbuild ve publicHTTPsmoke PASS. Gerçek React bileşenleriyle izole tarayıcı taslakoluşturma/düzenle/ESCodak/390px taşma0 PASS. Yeni migration20261018201251_PropertyListings ve snapshot/designer; ilk kurulum+yükseltme+replay+boş Down+dolu Down guard/audit/compositeFK ve event immutable testleri geçti. Migration yalnız fixture'da; gerçek API/Worker yeniden başlatılmadı. API kullanım için mevcut dev/migration prosedürüyle yeni koddan başlatılmalıdır.
+
+[API/işletim](../api/listings.md), [kanıt](../TESTING.md). Canlı Keycloak/gerçek EİDS/hukuki UAT/gerçek cihaz/Lighthouse/tam backend suite yapılmadı. Test DB/rol/bucket ve13003UI sunucusu temizlendi. Önceki geniş AutoMigration ortam cleanup sorunu bu dar koşunun başarısı sayılmaz. Yeni paket/harici görsel/font/ikon yok; mevcut dirty çalışma korunur, .env/hesap/rol/parola/gerçek DB/servis değişmedi; commit/push yok. Skillphase/contract/security/verify/license/docs; tek agent.
+
+Token giriş: BİLGİ MEVCUT DEĞİL; çıkış: BİLGİ MEVCUT DEĞİL; toplam: BİLGİ MEVCUT DEĞİL; kalancontext: BİLGİ MEVCUT DEĞİL. Sonusage19.10.2026 Codex:300dk%41kullanılan/%59kalan,reset19.10.2026 14:06:03;10080dk%70/%30,reset25.10.2026 00:15:34 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir. Sonraki: EİDS sağlayıcı ve hukuki/işletim kabulü; sonraki faza otomatik geçilmez.
+
+## WEBSITE FAZ 06 —18.10.2026 — DEVAM EDIYOR
+
+Kullanıcı sonraki fazı onayladı. WEBSITE kayıt07/10, üç resmi madde; 0/3=%0,00. T21.6 ve bağlı T21.10 kapsamı: opsiyonel Unit ilanı, medya/özel malik belgesi, version/onay/yayın geçmişi, iletişim gizliliği ve KVKK başvuru. Önceki FAZ05 korunur. Gerçek EİDS sağlayıcısı yok: yayın fail-closed; yönetici beyanı doğrulama yerine geçmez. Yeni paket/hesap/gerçek veri değişikliği yok. Testler henüz çalıştırılmadı. Phase/contract/security/verify/license/docs; tek agent. Token giriş/çıkış/toplam/context BİLGİ MEVCUT DEĞİL. Usage300dk%65kullanılan/%35kalan,10080dk%58/%42; hesap kotası sohbet tüketimi değildir.
+
+## WEBSITE FAZ 05 —18.10.2026 — TAMAMLANDI (teknik teslim)
+
+**3/3 resmi madde=%100,00; WEBSITE6/10=%60,00; İŞ21 T21.0–T21.5 ve T21.11:7/13=%53,85.** Yönetim menüsü/alan seçimi; sayfa/blok CRUD/sıra/tema/ayarlar, yetkili içerik/görsel önizlemesi, yayın/geçmiş/restore/askı. Ortak shadcn/TanStack/ManagementPanel/bildirim/TR–EN kullanılır. Medya hak/kişi izni, JPEG/PNG temizliği, UUID/version, same-site FK, aktif yayın referansıyla public indirme ve SHA doğrulayan no-store website proxy eklendi. Migration20261018172114_WebsiteMedia yalnız fixture'da uygulandı; kullanım için API yeniden başlatılmalı.
+
+Kanıt TESTING.md: **155/155 yönetim,10/10 website,253/253 unit,17/17 son seçili PG/storage; typecheck/build/HTTP smoke PASS.** İzole gerçek bileşen tarayıcı testi sayfa/blok/409/ESC/odak/rıza390/1440 PASS. Canlı Keycloak/gerçek cihaz kabulü yapılmadı. Önizleme içerik dökümüdür, birebir premium render değildir. Orphan nesne otomatik temizliği henüz yok. Geniş erken koşunun mevcut AutoMigration cleanup yetki sorunu kayıtlı; tüm suite geçti denmedi. Geçici DB/rol/UI sunucusu temizlendi. Gerçek .env/hesap/veri/çalışan API korunur. Yeni paket yok; phase/contract/security/verify/license/docs, tek agent. Sonraki: FAZ06 ilan yönetimi onayı; başlanmadı.
+
+## WEBSITE FAZ 04 — 18.10.2026 — TAMAMLANDI
+
+**3/3 resmi madde = %100,00; WEBSITE 5/10 = %50,00; İŞ21 T21.0–T21.4: 5/13 = %38,46.** website/ kökünde mockup temelli premium Altunbayrak demo; ortak Residence yayınlı tenantın public içeriklerini sunar. Hero/giriş bağlantısı/özellik şeridi/ilan örnekleri/duyuru/sosyal alan/galeri/iletişim, tenant bazlı yerel logo/görsel ve API tema tokenları. Demo noindex/bant, temsilî fiyat yerine yayın bekliyor; gerçek tenantta demo içerik/görsel yok. İki özgün image_gen görseli WebP; kaynak/prompt website/public/images/README.md. 10/10 test, typecheck/build ve izole HTTP smoke PASS;390/768/1440 taşma0/kırık görsel0, mobil Enter menü/kart PASS. Lighthouse/saha CWV/gerçek cihaz/Keycloak akışı ölçülmedi. Yeni paket/migration/gerçek veri yok. Skill phase/contract/verify/license/docs/imagegen; tek agent. Sonraki: FAZ 05 yönetim ekranları için kullanıcı onayı; uygulanmadı.
+
+## WEBSITE FAZ 03 — 18.10.2026 — TAMAMLANDI
+
+**İki resmi madde 2/2 = %100,00; WEBSITE planı 4/10 = %40,00; İŞ21 T21.0–T21.3: 4/13 = %30,77.** website/ ayrı Next.js uygulaması 3004; güvenli public DTO/siteKey, sunucuda no-store/timeout/redirect reddi, metadata, tema, 404/500 ve temel responsive erişilebilir iskelet. 6/6 test, typecheck/build ve izole HTTP smoke PASS (TESTING.md). Tarayıcı başlangıç ekranı görüldü; gerçek cihaz/klavye/Lighthouse kabulü yapılmadı. Yeni paket/migration/gerçek veri değişimi yok. Mevcut frontend kilitli node_modules setup bağlantısıyla kullanılır. FAZ 04 premium mockup henüz uygulanmadı; sonraki adım kullanıcı FAZ 04 onayı. Skill: phase/contract/verify/license/docs; tek agent. Token/context BİLGİ MEVCUT DEĞİL.
+
 # BuildingFlow güncel çalışma durumu
 
-Güncelleme: 2026-10-12 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının tarihli özetidir; görevlerin ve test kanıtlarının ikinci kaynağı değildir. Çalışma kuralı: [AGENTS.md](../../AGENTS.md).
+## PERSON FAZ11 —18.10.2026 — Son teknik teslim / yayın kapıları açık
+
+FAZ10 kullanıcı kabulüyle #15 Done; #16 In review. İki yeni kiracı+sakin/uzaktan malik-çoklu blok HTTP regresyonu ve üç web dosyasında tekrar dene/yenile düğme standardı düzeltmesi tamamlandı. **366/366 seçili izole backend integration,149/149 web,126/126 mobil; web typecheck/izole production build ve mobil üç platform export başarılı.** 30 migration idempotent SQL iki kez geçti; sahte veride yedek/restore8kontrol geçti, fixture kaynakları temizlendi ve canlı servisler korunuyor. Privateconfig3fixture ve releasepreflight29unsafe reddi başarılı. Unit/telemetri/audit/lisans FAZ10 sonuçları yeniden çalıştırılmış sayılmaz.
+
+[Son rapor ve rollout/rollback/UAT listesi](../refactor/person/phase-11-report.md). Teknik6/6=%100; kullanıcı kabulü10/11=%90,91. Mobil29audit kaydı(18high/11moderate), kontrollü anahtar yenileme/geçmiş incelemesi, eksik tam güvenlik/native/lisans kabulü açık: **yayın engelli**. Fixture PostgreSQL17.6 restore başarısı ortak18.6 üretim DR kabulü değildir. Gerçek .env/DB/hesap/rol/servis, bağımlılık ve migration değiştirilmedi; WEBSITE çalışması korunur. Sonraki faz yok; final kullanıcı kabulü beklenir.
+
+
+## PERSON FAZ10 —18.10.2026 — Doğrulama teslimi / güvenlik kapısı GEÇMEDİ
+
+FAZ09 kullanıcı kabulüyle #14 Done; mevcut #15 In review. **Mobil npm audit29kayıt(18high/11moderate),4kökadvisory ile başarısız.** Web audit0; NuGet7projede bildirilmiş0açık. Mevcut lisans metadata329npm/NuGet ve871mobil lock kaydında geçti; tam binary/container dağıtım/NOTICE kabulü değildir. Fortify/Semgrep/Gitleaks/TruffleHog/OSV/Trivy/Syft erişimi yok; tam SAST/history/native/container taraması DOĞRULANAMADI.
+
+Gerçek runtime özel konfigürasyonu ignore olmasına rağmen HEAD/indexte takipliydi. Disk dosyası ve .env byte'ları korunarak yalnız Git indeksinden çıkarıldı (bilinçli staged deletion). Eski erişim bilgilerini yenileme, geçmiş/klon incelemesi ve düzeltmenin commit'e alınması açık; commit/push/geçmiş değişimi/rotasyon yapılmadı. Dört private runtime yolunun ignored+untracked gate'i ve3regresyon fixture CI'ye eklendi. Mobil high audit gate'i de CI'ye eklendi; bugün exit1 ile kapatır, bulgu bastırılmaz.
+
+**364/364 seçili izole PG/storage integration,244/244unit,126/126mobil,6/6telemetri,23/23seçiliweb;0fail/skip.** Typecheck/lint/mobil export, .NET0hata0uyarı, yeni3fixture, mevcut6CIgate/29unsafe release reddi, shell/diff PASS. Testlerin geçmesi güvenli yayın sonucu değildir. Native MASVS, biyometrinin gerçek anahtara kriptografik bağı, OS/picker/modal/background/screenshot ve artifact lisans doğrulaması açık. Bu faz uygulama/migration/paket sürümü değiştirmedi; shared checkout'taki eşzamanlı WEBSITE kod/model değişimleri korunur. Teknik6/6=%100 çalışma teslimi; kabul edilmiş önceki9/11=%81,82. FAZ11 başlamadı; diğer İŞ/UI/MOBİL sayaçları değişmedi. [Rapor](../refactor/person/phase-10-report.md), [redacted kanıt](../refactor/person/phase-10-evidence.json).
+
+## PERSON FAZ09 —18.10.2026 — Teknik teslim/kabul bekliyor
+
+FAZ08 kullanıcı kabulüyle #13 Done; mevcut #14 In review. Canonical contextKind/contextId ile talep/arıza/fotoğraf CRUD ve ayrı hesap profili mevcut SQLCipher schema8/outbox'a bağlandı. Sunucu güncel kişi/görev/ilişki kapsamını push/replay/pull/photo sırasında ve parent kilitli transaction içinde tekrar doğrular. Legacy kuyruğu/fingerprint uyumu korundu; canonical revoke pending taslağı şifreli/blocked tutar, başka alana göndermez. Merkezi kişi kartı readonly; ödeme/kesin tahakkuk/rol değişimi offline kuyruğunda yoktur. Fotoğraf seçici dönüşünde tekrar doğrulama ve modal gizlilik örtüsü uygulandı.
+
+**363/363 seçili izole PG/storage integration,187/187 unit,126/126 mobil; typecheck/lint, açık+kapalı bayrakla üç platform export, .NET0hata0uyarı, compose config ve329 lisans metadata PASS.** Yeni9 HTTP+7 mobil senaryosu bu toplamlardadır; dar50/50 ayrıca geçti.70 mevcut manifest/proje/migration hash'i aynı; yeni paket/migration yok. Gerçek native SQLCipher/SecureStore/picker/biyometri/background/UI ve Keycloak/production kabulü DOĞRULANAMADI; scanner çalıştırılmadı. Yeni sync bayrakları defaultfalse, gerçek .env/DB/tenant/Keycloak/rol/servis değiştirilmedi. Teknik6/6=%100,00; kabul edilmiş önceki8/11=%72,73. FAZ10 başlamadı; diğer İŞ/UI/MOBİL sayaçları değişmedi. [Rapor](../refactor/person/phase-09-report.md), [API](../api/mobile-canonical-sync.md).
+
+## PERSON FAZ08 —18.10.2026 — Teknik teslim/kabul bekliyor
+
+FAZ07 kullanıcı kabulüyle #12 Done. FAZ08 mevcut #13 In review: minimum canonical kendi kişi/context/capability kopyası, SQLCipher schema8 payload, SecureStore biyometrik cihaz bağı, yönetim1h/sakin24h ve ilişki bitişiyle kısalan süre, saat geri alma/arka plan/çıkış koruması uygulandı. Yeni mod yalnız readonly ekran açar; eski cache/CRUD/sync yolları kapalıdır, mod geçişinde eski taslak/kuyruk korunur. Bayraklar defaultfalse; canlı DB/.env/Keycloak/servis değiştirilmedi. Yeni paket/migration yok.
+
+**354/354 seçili izole PG/storage integration,187/187 unit,119/119 mobil; typecheck/lint, kapalı+açık bayrakla Expo iOS/Android/web export, .NET0hata0uyarı, compose config ve329 lisans metadata başarılı.** Gerçek native SQLCipher/SecureStore/biyometri/background kabulü DOĞRULANAMADI; FaceID yapılandırması yeni binary ister. Offline iptal anında öğrenilemez; readonly lease sonuna kadar bilgi erişimi riski açıkça raporlandı. SAST/CVE/scanner/production kabulü yapılmadı. Teknik6/6=%100,00; kabul edilmiş önceki7/11=%63,64. FAZ09 başlamadı; diğer İŞ/UI/MOBİL sayaçları değişmedi. [Rapor](../refactor/person/phase-08-report.md), [API](../api/mobile-person-authorization.md).
+
+## İŞ21 WEBSITE FAZ 02 — 18.10.2026 — Backend CMS temel API tamamlandı, FAZ 03 onayı bekliyor
+
+FAZ 01 kullanıcı tarafından kabul edildi. Dört yeni tablo (`website_sites`, `website_pages`, `website_sections`, `website_publications`) tek migration `20261018063745_WebsiteCms` ile eklendi; mevcut tablolara dokunulmadı, Down dolu veride reddeder. Yönetim API'si, değişmez yayın snapshot'ı ve anonim salt okunur public API: [docs/api/website.md](../api/website.md). **.NET 0 hata 0 uyarı; 244/244 unit; ayrı test DB'de 587 integration geçti, 0 hata, 37 atlandı (RabbitMQ/S3/SMTP gerektiren mevcut testler); web 148/149 (bilinen `buttons.test.mjs`).** Testler yerel PostgreSQL 16 ile koştu (CI 18.6). Canlı DB/.env/Keycloak/servis değişmedi; yeni paket yok. Tasarımdan sapma: tema ayrı tablo yerine site satırında; medya, alan adı ve public duyuru tabloları ilgili fazlara kaldı; `/api` no-store korunuyor (önbellek kararı FAZ 07). İŞ21 3/13 = %23.08; iş yol haritası 134/151 = %88.74. GitHub #21 Done, #22 In review.
+
+## İŞ21 WEBSITE FAZ 01 — 18.10.2026 — Tasarım tamamlandı (kabul edildi)
+
+FAZ 00 kullanıcı tarafından kabul edildi (GitHub #20 kapatıldı). Domain/DB tasarımı, API kontratı, yetki matrisi, güvenlik/KVKK/tenant kuralları, 11 ADR ve test senaryoları: [design](../website-management/design.md), [api](../website-management/api.md), [security](../website-management/security.md), [adr](../website-management/adr.md), [test-plan](../website-management/test-plan.md). İŞ21 2/13 = %15.38; iş yol haritası 133/151 = %88.08. Kod, DB, servis değişmedi; yeni paket yok. GitHub #21 In review.
+
+## İŞ21 WEBSITE FAZ 00 — 18.10.2026 — Analiz tamamlandı, WEBSITE FAZ 01 onayı bekliyor
+
+WebsiteManagement prompt paketi (`BuildingFlow-WebsiteManagement-Prompt-Paketi/`) ve mockup incelendi; yalnız analiz yapıldı. Rapor: [analysis.md](../website-management/analysis.md). Yol haritasına İŞ21 (T21.0–T21.12; WEBSITE FAZ 00–09 + 3 ek görev) eklendi; T21.0 tamamlandı. İŞ21 1/13 = %7.69; iş yol haritası 132/151 = %87.42 (13 yeni görev nedeniyle düştü). Backend, veritabanı, Keycloak, .env ve servisler değişmedi; yeni paket yok. Web testi 148/149: tek hata `buttons.test.mjs` (PERSON FAZ07 dosyalarında `tryAgain` düğmeleri), bu turdan önce de vardı. Karar bekleyen 5 soru raporun 5. bölümünde.
+
+## PERSON FAZ07 —18.10.2026 — Teknik teslim/kabul bekliyor
+
+FAZ06 kullanıcı onayıyla #11 Done. FAZ07 #12 In review: sunucu kaynaklı görev/daire context'leri, tek alan otomatik açılış/çoklu seçim, salt okunur self, güncel merkez Property/tenant kapısı ve finans içindeki kişi görünürlüğünün göreve daralması tamamlandı. **348/348 seçili izole PG/storage integration,187/187 unit,143/143 frontend; typecheck, açık/kapalı bayrakla production build, .NET0hata0uyarı, compose config ve329 lisans metadata başarılı.** Model/migration/manifest/lock korundu; canlı DB/.env/rol/servis değişmedi. Yeni bayraklar defaultfalse; global merkez ENFORCED kapısını açmak önceden hazırlanmış hesap/görev/scope ister. Eski mobil ve finans projeksiyon geçişi sonraki fazlarda; global users/consents tenant yöneticilerine yeni akışta kapalıdır. Gerçek UI/Keycloak/cihaz ve SAST/CVE/scanner kabulü yapılmadı. Teknik6/6=%100; kabul edilmiş6/11=%54,55. FAZ08 başlamadı; diğer İŞ/UI/mobil sayaçlar değişmedi. [Rapor](../refactor/person/phase-07-report.md), [API](../api/session-workspaces.md).
+
+## PERSON FAZ06 — 18.10.2026
+
+Merkezi kişi listesi/dört detay sekmesi, izinli native ilişki ve görev akışları, minimum hesap DTO, TR/EN ve role/scope kontrolleri tamamlandı. **329/329 seçili izole PG/storage integration,187/187 unit,135/135 frontend; typecheck/production build, .NET0hata0uyarı ve329 lisans metadata geçti.** İki yazıcı koruması ve immutable receipt migration testli. Canlı DB/.env/rol/servis değiştirilmedi; bayraklar defaultfalse. Native ilişkiler eski finans/mobile projekte edilmez; eski kayıtlar kaynak ekranda yönetilir. Gerçek UI/klavye/telefon, SAST/CVE/scanner kabulü yapılmadı. Teknik6/6=%100; mevcut #11 In review/kullanıcı kabulü bekliyor; kabul edilmiş5/11=%45,45. FAZ07 başlamadı; diğer İŞ/UI/mobil sayaçlar değişmedi. [Rapor](../refactor/person/phase-06-report.md), [API](../api/person-center.md).
+
+Güncelleme: 2026-10-18 (Europe/Istanbul). Bu dosya mevcut takip kaynaklarının tarihli özetidir; görevlerin ve test kanıtlarının ikinci kaynağı değildir. Çalışma kuralı: [AGENTS.md](../../AGENTS.md).
 
 ## Aktif tur
+
+**İŞ20 Dashboard ve menü düzeni — T20.1–T20.5 TAMAMLANDI, T20.6 Planlı bakım modülü ve T20.7 kabul açık (18.10.2026).** İŞ20 5/7 = %71.43; iş yol haritası 131/138 = %94.93. Sol menü Dashboard ile başlar, Genel bakış en altta; üst çubukta dönen slogan; Dashboard özet API'si, kutucuklar, trend, dağılım ve yaklaşan işlemler. Backend 184/184 birim ve 526/526 entegrasyon, web 132/132, typecheck/build; yeni paket yok. Kanıt: [TESTING.md](../TESTING.md), [PHASE_20_DASHBOARD.md](../analysis/PHASE_20_DASHBOARD.md).
+
+**İŞ19 Hesap bilgilerim ve kullanıcı fotoğrafı — T19.1–T19.5 TAMAMLANDI, T19.6 gerçek giriş kabulü açık (17.10.2026).** İŞ19 5/6 = %83.33; iş yol haritası 126/131 = %96.18. Merkezde Hesap bilgilerim sayfası (fotoğraf, ad/telefon, hesap, alanlar, parola, Rızalarım), üst menüde fotoğraf ve "Ad SOYAD", Kullanıcılar ve kişi ekranında fotoğraf; fotoğraf mobil ile ortak, rıza WEB kanalıyla. Backend 184/184 birim ve 520/520 entegrasyon, web 123/123, typecheck/build; yeni paket yok. Ek 3: yumuşak renkli düğme standardı (A) bütün ekranlarda; web 129/129. Kanıt: [TESTING.md](../TESTING.md), [PHASE_19_ACCOUNT.md](../analysis/PHASE_19_ACCOUNT.md).
+
+**BAKIM ad/soyad kuralı ve bildirim testi — TAMAMLANDI (17.10.2026).** Soyad büyük, ad ilk harfi büyük kuralı API, merkez ve mobilde; mobil ana sayfada "Ad SOYAD"; MobileNoticeTests düzeltildi, tüm backend entegrasyon 504/504. Yol haritası sayacı değişmedi (faz dışı bakım). Kanıt: TESTING.md BAKIM 17.10.2026.
+
+**İŞ18 mobil rıza ekranları — T18.1–T18.5 TAMAMLANDI, T18.6 cihaz kabulü açık (16.10.2026).** İŞ18 5/6 = %83.33; iş yol haritası 121/125 = %96.80. Mobilde rıza ekranı (WebView yok, projeye ait çizici), fotoğraf eklemeden önce rıza, şifreli çevrimdışı rıza kuyruğu (fotoğraftan önce gider), 403'te fotoğraflı işin bekletilmesi, açılış kapısı ve Profil → Rızalarım. Yeni paket yok. İŞ17 ile İŞ18 birlikte yayınlanabilir. Kanıt: TESTING.md İŞ18.
+
+**İŞ17 fotoğrafta rıza zorunluluğu ve kullanıcı rıza API'si — T17.1–T17.5 TAMAMLANDI, T17.6 açık (16.10.2026).** İŞ17 5/6 = %83.33; iş yol haritası 116/125 = %92.80. Mobil rıza uçları, profil/talep fotoğrafında ACTIVE rıza zorunluluğu (403 `BF_CONSENT_REQUIRED`), geri çekmede profil fotoğrafının silinmesi ve talep fotoğrafının yalnız sahibinden gizlenmesi, kişi ve talep ekranında rıza bilgisi. Üç sistem türü özgün taslak v1 metinlerle gelir (`DefaultConsentTexts` migration'ı). Mobil uygulama İŞ18'e kadar değişmedi: o zamana kadar mobilden fotoğraf yüklemesi 403 alır. İŞ18 kullanıcı onayı bekliyor. Kanıt: TESTING.md İŞ17.
+
+**İŞ16 rıza altyapısı ve merkez Açık Rıza menüsü — T16.1–T16.5 TAMAMLANDI, T16.6 açık (16.10.2026).** İŞ16 5/6 = %83.33; iş yol haritası 111/125 = %88.80 (İŞ16–18 ile 18 yeni görev eklendi, yüzde kapsam nedeniyle düştü). İŞ17 ve İŞ18 kullanıcı onayı bekliyor. Kanıt: TESTING.md İŞ16.
+
+**İŞ15 mobil kayıt ve kodla eşleşme — T15.1–T15.5 TAMAMLANDI, T15.6 cihaz kabulü açık (15.10.2026).** İŞ12–14 tamamlandı (kullanıcı onayı). İş yol haritası 105/106 = %99.06. Kanıt: TESTING.md İŞ12–15.
 
 **PROTOKOL: AkaDev AI FAZ 03 — TAMAMLANDI.** 4/4=%100.00; 7 ortak Skill, Codex keşif bağlantıları ve Claude girişleri. Yalnız statik kabul; uygulama ve runtime testleri çalıştırılmadı. Ürün/UI roadmap değişmedi. Kanıt TESTING.md AI FAZ03 kaydı; sonraki faz başlatılmadı.
 
@@ -341,3 +436,121 @@ MobileFinance DTO/query/store/endpoint; OWNER/TENANT gerçek ilişki+aktif üyel
 Mobil ortak finans ekranı,detay/geçmiş geçişi,paraBigInt/ortakparseCharge,24saat/sonsayfa/detailcache,403purge,geçyanıtguard. Yönetici+finans ortak useScopedRead. Yeni dependency/migration/nativebinary yok; canlı finans/rol/kişisel veri yazımı ve commit/push/yayın yok.
 
 Bu tur54/54mobil;42/42gerçekizolePGintegration(MobileFinance6+MobileManager/Owner/Tenant/Session+PaymentApi),8/8PaymentDomain0skip; geçiciDB/roletemizlendi. TypeScript,lint0hata1öncekiuyarı,3platformexport,merkezbuild0hata0uyarı;7GitHubscript testi. Görsel/gerçektelefonofflinekabulü yapılmadı. Kanıt docs/api/mobile-finance.md ve kardeş mobil docs/mobile/PHASE11.md. Token/context/tur tüketimi:BİLGİ MEVCUT DEĞİL.
+
+
+## Mobil Faz12 — Talep, fotoğraf ve offline — 15.10.2026
+
+Yerel main başlangıcı ea13e59; kullanıcı Faz12’yi onayladı. Beş iş paketi: önkoşul/sözleşme, API/metadata, mobil taslak/kuyruk, hedefli doğrulama, belge/runtime. Kod ve otomatik kontroller teslim edildi; gerçek cihaz/UI kabulü açık (In review). Faz13 başlamadı; merkezin ayrı İŞ/UI/AI sayacı değişmedi.
+
+Kategori, öncelik, isteğe bağlı tek fotoğraf, şifreli otomatik taslak, sabit UUID outbox ve çevrimdışı önizleme; sürümlü own-request kaldırma. Mevcut JPEG/S3/PrivateFiles kullanıldı. Legacy fingerprint ve makbuzlar korundu; composite FK, STAGED/CURRENT/RETIRED/PURGED ve yetkili fotoğraf GET eklendi. SQLite6 fotoğraf BLOB tutmaz; scope, hash, TTL, geç yanıt, yetki iptali ve logout temizliği korunur.
+
+60/60 mobil, 83/83 PG+SeaweedFS ve 3/3 PersistenceTests; sıfır atlama. TypeScript, üç platform export, merkez build ve 329 lisans metadata kontrolü geçti. Mobil lint bir önceki uyarıyı korur; native iPhone build bir Expo script uyarısıyla başarılı ve telefona kuruldu. Migration yerelde uygulandı; kontrol edilen dört tablonun eski veri hash’leri aynı. API5006/Metro8081 main mobil modülünden çalışıyor. Canlı iş/rol/fotoğraf mutation’ı, commit/push veya mağaza yayını yok. Gerçek kamera/galeri/offline UI kabulü yapılmadı. Kanıt: docs/api/mobile-requests.md ve mobile/docs/mobile/PHASE12.md. Token/context/tur tüketimi: BİLGİ MEVCUT DEĞİL.
+
+
+## Mobil Faz13 — Duyurular ve bildirimler — 15.10.2026
+
+Yerel main üzerinde onaylı Faz13: yayınlanmış audience kontrollü duyuru ve yalnız alıcı kişisel mesaj kutusu; merkezde idempotent okundu, hesap bazında version kontrollü içerik vurgusu tercihi. SQLite7 okundu kuyruğu ve mevcut şifreli snapshotlar;24saatTTL,scope/receipt/revocation/çıkış guard. Derin bağlantı seçili doğrulanmış bağlam ve API yetkisinden geçer. APNs/FCM/Expo sağlayıcısı yok: pushAvailable=false; OS izni/token/push teslimi eklenmedi, açık bağımlılık.
+
+67/67 mobil ve102/102 gerçek izole PostgreSQL/SeaweedFS testleri,0skip; TypeScript ve3platform export başarılı, lint1öncekiuyarı. Yeni bağımlılık yok. Mobil API5006 health200,anonimnotices401,Metro8081running. Uygulanmış otomatik ve boş takip migration’ı korunur; son update öncesi/sonrası4tablohashaynı. Down okundu/tercih verisini siler; rollback yapılmadı. Cihaz/UI/OSizin-kabulü yapılmadı; Faz13Inreview,Faz14başlamadı. Commit/push/yayın yok. Ayrıntı mobile/docs/mobile/PHASE13.md ve docs/api/mobile-notices.md.
+
+
+### Faz13 teslim ve main aktarımı — 15.10.2026
+
+Çalışma sırasında başka bir işlem ortak checkout’ı feature/dev-readable-console-logs dalına geçirip yalnız konsol değişikliğini commit etmişti. Kullanıcı “Main’e aktar; mevcut değişiklikleri koru” onayı verdi. main tabanına göre binary diff ve geçici stash yedeği alındı; main’e geçilip tüm mevcut tracked değişiklikler ve konsol değişikliği uygulandı.66dosyanın önce/sonra SHA256 değeri birebir aynı; untracked Faz12–13 dosyaları korundu. Feature commit ve aktarım stash yedeği silinmedi. Bu işlem yeni commit/merge/push yapmadı; aktif dalmain, kaynakAPI/Metro sağlıklı,gitdiffchecktemiz. Stash bir yedektir; main’de aynı değişiklikler zaten bulunduğundan tekrar uygulanmamalıdır.
+
+Son teslim:67/67mobil,102/102PG+S3,7/7GitHubscript; TypeScript/üçplatformexport geçti;22GitHubkaydı problems=[] ile doğrulandı. Faz13Inreview,push/cihazkabulü açık;Faz14başlamadı. Paket lisans metadata kontrolü başarılı; yeni bağımlılık yok. Kanıtlar /tmp/bf13/ altında; kalıcı ürün/teknik özet mobile/docs/mobile/PHASE13.md.
+
+
+## Mobil Faz14 — Güvenlik, erişilebilirlik ve performans — 15.10.2026
+
+Kullanıcı Faz14’ü onayladı; yerelmain.4işpaketi:inceleme/audit,darfix,otomatikdoğrulama,belge/takip. Eski mobil/merkez değişiklikleri korundu. Cache/serverkaynağı ve401/403purge,ortakAction48×48/disabledsemantiği,klavye/sarma/kontrast,SQLaggregate veUI LIMIT10,nativeURL4096/UTF8guard,foregroundpoll,AndroidallowBackupfalse uygulandı. Owner okuma ortakuseScopedRead kullanır; eski lint uyarısı giderildi.
+
+75/75mobil,142/142gerçekizolePG+SeaweedFS,0skip;TypeScript/lint0/3platformexport ve329lisansmetadata geçti. Android manifest introspectfalse; yeniAPKkurulmadı. Audit28(18high/10moderate),4kökadvisory; uyumsuzExpo44/Router58otomatikfix uygulanmadı. NativeURLkısmiönlem webdecoder riskini kapatmaz. Gerçek cihaz/OSizin/ekranokuyucu/metinbüyütme/düşükcihaz/backup kabulü açık. Kod teslimiInreview,üretime hazır/Done değil. Faz15başlamadı; commit/push/yayın veya canlıişverisi/rolmutasyonu yok. Kanıt mobile/docs/mobile/PHASE14.md. Giriş/çıkış/toplamtoken,kalancontext/turtüketimi:BİLGİ MEVCUT DEĞİL.
+
+
+## Mobil Faz15 — Yayın hazırlığı — 15.10.2026
+
+Kullanıcı Faz15’i onayladı; üretim bilgileri için “Henüz hazır değil; eksikleri engel olarak bırak” seçti. Yerelmain’dedev/prodconfig,EAS24.14.0/Node22.23.3 profilleri,mandatorykimlik/sürüm/HTTPS/publiccallback,releasecheck/audit/lisans/kabulgates,splashveTürkçemağazayönergeleri eklendi. GeliştirmeID/callback korunur;proddevTeamIDkoplanmaz. NativeATS/cleartext/backup veoverlay/microphone remove kuralları;varsayımsalüretimhesabı/yayınverisi yok.
+
+86/86mobil,Node22’de86/86,TypeScript/lint0,3platformexport ve izoleprodconfigintrospect geçti. Mobil871lockkayıt/merkez329lisansmetadata;resmiMITsplash57.0.10. Releasecheck gerçekeksikalan/6kabulpending/29audit(18high11moderate) ile exit1:beklenenengelleme. BEtestleri/gerçeknativebinary/cihazkabulü bu tur çalışmadı. Cloud/mağaza/OTA/hesapbağlantısı,commit/push veya canlıişverisimutationı yok. Faz15Inreview,planınhazırlıksonufazı;öncekiaçıkkabuller ve üretimgereksinimleri kapanmadan yayınyok. Kanıt mobile/docs/mobile/PHASE15.md ve mobile/buildingflow-mobile/release/.
+
+
+## Merkez Talepler ve Arızalar —15.10.2026
+
+GitHub #5 / Project3, kullanıcı onaylı merkez tamamlaması.4işpaketi:kapsam/sözleşme,API+UI+mobilokuma,otomatiktest,belge/runtime. Teknik kod/test tamam; son runtime kaydı bekleniyor. Tek MobileRequest deposu, manager-only canonical/alanseçimi, filtre/paging/sağdetay/özelfotoğraf; RECORDED→IN_PROGRESS→RESOLVED/REJECTED ve gerekçeli yenidenaçma. UUID/version/kilit/immutablehistory; yönetim geçmişi sonrası mobil içerik/fotoğraf/silme kilidi. Yeni mobil faz yok.159/159PG+S3,112/112FE,92/92mobil;typecheck/lint/build/export,329lisansmetadata PASS. Görsel/cihaz/üretim kabulü açık; Inreview. Token/context/turtüketimi:BİLGİ MEVCUT DEĞİL. Ayrıntı TESTING ve api/request-management.md.
+
+
+## Merkez Talepler son teslim —16.10.2026
+
+**4/4 işpaketi, %100 teknik teslim.** Son159/159 izole backend (alan silme geçmiş koruması dahil),112/112 frontend,92/92mobil;0fail/skip. Merkez son production build/typecheck, mobil check/lint ve3platform export;329lisansmetadata PASS. Migration20261015203750 yerelde uygulandı;36eski tablonun count/veri/audit/version hashleri birebir aynı. Migration JSON compare testleri de eski talebi korudu. Son migration yeni workflow; uygulanmış eski migration değiştirilmedi.
+
+Merkez API5005 ve mobilAPI5006 health200; yeni merkez liste/detay anonim401, mobile sync anonim401;web3003/requests200,Metro8081running. Ağ değişiminde mobil launcher kapanmıştı; güncelLAN ile yeniden açıldı. Standard dev.sh api başlatıcısı mevcut dotnet-ef resolver hatasında durdu; aynı backend_env ayarlarıyla no-build API doğrudan başlatıldı (`/tmp/bf-requests/local-api.sh`). Model/migration zaten doğrulanıp uygulandığından runtimeAutoMigratefalse. Genel dev.sh resolver düzeltmesi bu merkez işine eklenmedi; yeni yerel başlatmada bu mevcut sınırlama dikkate alınmalıdır.
+
+GitHub https://github.com/AkaBayraK/BuildingFlow/issues/5,Project3Inreview; yalnız bu yeni kayıt düzenlendi. Kanonik ek kabul docs/api/request-management.md ve TESTING.md; mevcut İŞ08iletişim milestone'una bir doğrulanmış görev bağlandı, yeni mobil faz yok. Güncel kaynakta106/107işgörevi=%99,07; bu turun4işpaketi sayacı ayrı tutulur. Görsel/gerçekcihaz/nativebinary/production kabulü açık; tam backend suite yeniden çalıştırılmadı. Commit/push/merge/reset/stash yapılmadı; dalmain ve önceki ortak değişiklikler korundu.
+
+Giriş/çıkış/toplamtoken,kalancontext ve bu turun token tüketimi:BİLGİ MEVCUT DEĞİL. Son16.10.2026Codexusage:300dk kullanılan%0/kalan%100;10080dk kullanılan%47/kalan%53. Hesap pencereleri bu sohbetin token tüketimi değildir.
+
+
+## BAKIM — yerel uygulama hesabı bilgilerinin kaldırılması —16.10.2026
+
+Kullanıcı talebiyle yerel ve örnek ortam dosyasından sabit geliştirme kullanıcısı/e-postası/parolası kaldırıldı. configure-identity.sh artık uygulama kullanıcısı oluşturmaz, kullanıcı parolası üretmez/saklamaz veya kullanıcıya otomatik SUPER_ADMIN atamaz. Realm/tema/SMTP/web client ve dar yetkili API servis hesabı yapılandırması korunur. README ile IDE shelf içindeki eski hesap dokümantasyonu temizlendi; shelf satır sayıları/prefixleri ve diğer kullanıcı değişiklikleri korundu. Mobil OAuth geliştirme dönüş şeması hesap bilgisi olmadığından değişmedi.
+
+Doğrulama: ilgili beş shell başlatıcısında bash -n ve git diff --check PASS. Geçici fixture içinde mock curl/docker ile kimlik yapılandırması çalıştırıldı; ortam içeriği aynı kaldı, kullanıcı/parola/uygulama-yönetici rolü provision edilmedi ve mevcut altyapı komutları korundu. Ignore edilmiş dosyalar dahil hedefli taramada eski hesap ayar/referansı kalmadı; kaldırılmadan önce okunan tam parolanın depo dosyalarındaki kopya kontrolü de geçti. Sır değeri çıktı/belge/teste yazılmadı. Canlı Keycloak betiği çalıştırılmadı; mevcut kullanıcı hesabı/parolası/rolü değiştirilmedi. Bu konuşmada paylaşılan parolanın hesap tarafında ayrıca değiştirilmesi gerekir; dosyadan silme mevcut parolayı geçersiz kılmaz.
+
+Bakım2/2=%100. Uygulama/frontend/backend tam testleri bu shell/env temizliği için yeniden çalıştırılmadı; yeni bağımlılık/şema/yolharitası fazı/skill/altagent yok. Commit/push/reset/stash yok; yerelmain ve diğer değişiklikler korundu. Token tüketimi ve kalancontext:BİLGİ MEVCUT DEĞİL.
+
+
+## PERSON FAZ03 —16.10.2026 teknik teslim
+
+Default kapalı PersonRefactor:Enabled altında Property'den bağımsız tenant-scoped CentralPerson CRUD/arama/detay ve salt okunur self-read uygulandı. Issuer+subject/aktif tenant üyeliği/gerçek yönetici rolü; sakin genelkişiler403,kendi maskelikartıreadonly. Ortak validator v1required-contact davranışını korur. UUID/version/replay/parentlock,receiptimmutatability;6yeniBaseEntitytablo ve eklemeli20261016122659migration/Designer/snapshot. Legacy kişiler/finans/mobilmakbuz/veri sınıflandırması değişmedi; gerçektenantseed/backfill yok.
+
+**215/215seçili gerçekPG+fixturestorage integration,150/150unit,112/112FE,0skip;build0hata0uyarı,typecheck/FEbuild ve329lisansmetadata PASS.** Yeni paket yok; önceki migration ve bağımlılık hashleri aynı. Yalnız izole DB migration'ı çalıştı; anaDBupdate/servisrestart/production/görsel/nativekabul yok. Aktif hesapbağı tür/disable koruması,pasif/silinmişscope/futurelink,sharedcontacts/idempotency/concurrency/legacyupgrade doğrulandı.
+
+Teknik6/6=%100;#8Inreview. FAZ04 başlatılmadı; tenant→Property haritası,legacyalias/adapter/backfill,ilişki/görev ve ekran geçişleri sonraki onaylı fazlardır. Ayrıntı docs/api/central-people.md ve docs/refactor/person/phase-03-report.md. Kullanılan yerel phase/contract/verify/security yönergeleri;tekagent. Token/context:BİLGİ MEVCUT DEĞİL. Commit/push/merge/reset/stash yok.
+
+
+## PERSON FAZ04 —16.10.2026 önkoşul incelemesi
+
+Kullanıcı FAZ03 teslimini kabul edip FAZ04 başlangıcını onayladı. #8 kabul/Done; #9 devam ediyor, müşteri–Property haritası eksik. PHASE-04 adım2 ve FAZ02 D01 gereği önkoşul çözülmeden uygulama başlatılmadı. Hangi alanların aynı müşteriye ait olduğu soruldu; varsayılan tenant veya otomatik alan gruplaması yapılmaz. Kod/DB/migration/bağımlılık/runtime değişmedi; bu tur uygulama testi ve güvenlik taraması çalıştırılmadı. Yeni faz tamamlanmadı:1/6=%16,67; önceki kabul3/11=%27,27. Ayrıntı docs/refactor/person/phase-04-report.md. Kaynak/manifest hash ve belge bağlantısı kontrolü bu belge turunun doğrulamasıdır. Sonraki faz yok; yeni görev açılmadı, mevcut #8/#9 kullanılır. Token/context:BİLGİ MEVCUT DEĞİL.
+
+
+## PERSON FAZ04 — 17.10.2026 teknik teslim
+
+Kullanıcı, mevcut kişilerin tek Altunbayrak Rezidans'a ait olduğunu belirtti; önceki eşleştirme engeli çözüldü. Ownership/Tenancy/Residency, kesin kesirli pay hesabı, tarih/primary/history kuralları; açık tenant–Property eşlemesi, legacy alias/yerel profil ve dry-run/hash/atomik apply/karşılaştırma uygulandı. V1 tek yazım kaynağı kalır. Kaynak değişimi ve import canonical güncellemesi409 ile reddedilir; canlı cutover yapılmadı.
+
+Ortak checkout'taki otomatik ilişki tablosu ve Consents migrationları korundu. Yeni20261017144809 migration'ı view/trigger/dolu Down koruması ekler. Bu tur ana DB update/backfill, gerçek tenant kurulumu veya servis restart yapılmadı; iki feature bayrağı varsayılan kapalı.
+
+**288/288 seçili gerçek PG entegrasyonu,174/174 birim,117/117 frontend testi;0 başarısız/atlanan.** Son .NET derlemesi0hata/0uyarı;329 paket lisans metadata, önceki migration/paket/lock hashleri ve diff kontrolü başarılı. Bir önceki koşuda mevcut otomatik migration testinin geçici DB temizliği yetki hatası verdi; yalnız manifestteki test kaynakları temizlenip aynı kapsam tekrar başarılı çalıştırıldı. Ayrıntılı hata ve yeniden doğrulama raporda korunur.
+
+Teknik6/6=%100; #8 Done, #9 In review, kullanıcı kabulü bekleniyor. FAZ05 başlamadı; İŞ/UI/mobil yol haritası sayacı değişmedi. Kanıt: docs/refactor/person/phase-04-report.md ve docs/api/person-transition.md. Başka oturumların değişiklikleri korundu; toplam checkout diff'i bu faza ait değildir. Yeni bağımlılık, commit/push/merge/reset/stash yok. SAST/SCA/CVE/secret scanner, görsel/native ve production kabulü çalıştırılmadı.
+
+Token tüketimi ve kalan context: BİLGİ MEVCUT DEĞİL. Son Codexusage:300dk kullanılan%19/kalan%81, reset17.10.2026 22:37:38;10080dk kullanılan%66/kalan%34, reset22.10.2026 10:57:02 Europe/Istanbul. Hesap pencereleri sohbet tüketimi değildir.
+
+
+## PERSON FAZ05 —17.10.2026 devam ediyor
+Kullanıcı FAZ04'ü kabul ederek FAZ05'i başlattı. #9 Done, #10 In progress; aynı görevler kullanılıyor. Tarihli ManagementAssignment, atama/bitiş/iptal/audit/UUID-version-replay; tenant/Property/issuer/üyelik/rol kapsamı, tenant bazlı LEGACY/SHADOW/ENFORCED v2 kontrolü ve son yönetici koruması uygulanıyor. Yeni eklemeli migration3 tablo ekler; eski migrationlar korunur. Son koşu310/310 seçili integration geçti; nihai SQL closure koruması/negatif durum testleri sürüyor. Ana DB/Keycloak/servis restart yok. FAZ06 başlamadı.
+
+
+## PERSON FAZ05 —17.10.2026 teknik teslim
+
+Kullanıcı FAZ04'ü kabul ederek FAZ05'i başlattı; #9 Done. Tarihli ManagementAssignment, atama/bitiş/iptal, rol ve tenant/Property kapsamı, UUID/version/replay ve değişmez audit/makbuz uygulandı. SITE_ADMIN yalnız MANAGER/ACCOUNTANT görevlerini yönetir; MANAGER kendine yetki veremez. Görevler daire malikliği/sakinlik veya Keycloak rolü üretmez.
+
+Tenant bazlı LEGACY/SHADOW/ENFORCED v2 kontrolü, exact issuer/account-link/üyelik/doğal kişi/tarih koşulları ve stale legacy shadow reddi vardır. ENFORCED son yönetici kapatmasında kesintisiz yedek görev ve gerçek Keycloak enabled/rolü salt okunur doğrulanır; başarısız doğrulama erişimi kapalı tutar. Eski v1/mobil legacy geçişi bu fazda yapılmadı; tüm uygulamada production enforcement iddiası yoktur.
+
+**314/314 seçili PG/fixture storage integration,187/187 unit,119/119 frontend;0fail/skip.** Son çözüm derlemesi0hata/0uyarı;329 paket lisans metadata, eski migration/paket/lock hashleri, bağlantı ve diff kontrolleri başarılı. Yeni26integration senaryosu ve3unit eklendi. Keycloak devri FakeIdentity ile doğrulandı; gerçek kimlik sunucusu kabulü yapılmadı. Ara predicate derleme hatası ortak EligiblePeople sorgusuyla düzeltildi; son testler geçti. Tüm geçici test kaynakları temizlendi.
+
+Yeni20261017150715ManagementAssignments üç BaseEntity tablo, Designer/snapshot, scope/closure/overlap/history ve audit trigger'ları, dolu Down koruması ekler. Eski migrationlar korundu. Ana DB/görev/tenant seed veya gerçek Keycloak rol/hesap yazımı, servis restart yok. AssignmentsEnabled defaultfalse, tenantmode defaultLEGACY; gerçek .env korunur. AutoMigrate açık sonraki açılış pendingmigration uygulayabilir.
+
+Teknik6/6=%100,00; #10 In review, kullanıcı kabulü bekleniyor. Kabul edilmiş önceki fazlar4/11=%36,36. FAZ06 başlamadı; İŞ/UI/mobil yol haritası sayacı değişmedi. Ayrıntı docs/refactor/person/phase-05-report.md ve docs/api/management-assignments.md. Yeni paket/extension/agent ve commit/push/merge/reset/stash yok. SAST/SCA/CVE/secret scanner, görsel/cihaz/native/production ve frontend typecheck/build bu fazda çalıştırılmadı.
+
+Token tüketimi/kalan context:BİLGİ MEVCUT DEĞİL. Son17.10Codexusage300dk kullanılan%63/kalan%37, reset17.10.2026 22:37:38;10080dk kullanılan%73/kalan%27, reset22.10.2026 10:57:02 Europe/Istanbul. Hesap pencereleri sohbet tüketimi değildir.
+
+## BAKIM — Yol haritası ICU rota metni — 18.10.2026
+
+`phase19Task2Detail` TR/EN metinlerindeki `/users/{id}/photo` ve `/people/{id}/photo` örnekleri ICU literal quoting ile düzeltildi; `{id}` ekranda aynen görünür, formatter parametresi istenmez. Mevcut standards testi bütün roadmap dinamik anahtarlarını iki dilde parametresiz gerçek translator ile çalıştırır ve iki rota örneğinin korunmasını doğrular. **135/135 frontend testi, typecheck ve üretim build başarılı; diff kontrolü geçti.** Backend/DB/.env/bağımlılık ve faz sayaçları değişmedi; gerçek tarayıcı kontrolü yapılmadı. FAZ07 başlatılmadı. Bakım2/2=%100.
+
+## PERSON FAZ09 —18.10.2026 — Devam ediyor
+FAZ08 kabul edildi; #13 Done, mevcut #14 In progress. Canonical talep/arıza/fotoğraf ve ayrı hesap profili taslakları mevcut şifreli SQLite/outbox/idempotency altyapısına bağlanıyor. Yetki sunucuda tarihli context kimliğiyle tekrar kontrol edilir. Merkezi kişi salt okunur kalır; ödeme/kesin tahakkuk/rol değişimi offline kuyruğunda yoktur. Yeni paket/migration ve canlı .env/DB/Keycloak/servis değişimi yok. FAZ10 başlamadı. İnceleme/önkoşul/plan3/6=%50,00; uygulama ve test devam ediyor. Geçmiş FAZ08 testleri bu fazın sonucu sayılmaz.
+
+## PERSON FAZ10 —18.10.2026 — Devam ediyor
+FAZ09 kullanıcı kabulüyle #14 Done; mevcut #15 In progress. Güvenlik/lisans doğrulaması: web audit0, NuGet7projede bildirilmiş açık yok; mobil audit29kayıt(18high/11moderate),4kökadvisory — güvenlik kapısı GEÇMEDİ. Fortify/Semgrep/Gitleaks/TruffleHog/OSV/Trivy/Syft erişimi yok, kurulum yapılmadı. Gerçek runtime private-s3.json ignore olmasına rağmen HEAD/indexte takipliydi; disk içeriği ve .env korunarak yalnız git rm--cached yapıldı. Bu dosyanın staged deletion'ı bilinçlidir; commit/push/geçmiş değiştirme/anahtar rotasyonu yapılmadı. Geçmişteki erişim bilgileri ve rotasyon açık risk olarak kalır. Dört private runtime yolunun ignored/untracked kontrolü ve3negatif/pozitif fixture CI'ye eklendi. Native cihaz/MASVS ve dağıtım uyumu garanti edilmez. FAZ11 başlamadı. Shared checkout'taki website kaynak/migration değişimleri bu faza ait değildir.

@@ -8,7 +8,7 @@ if [ -f .env ]; then
 fi
 umask 077
 cp .env.example .env
-for key in POSTGRES_PASSWORD KEYCLOAK_ADMIN_PASSWORD KEYCLOAK_DB_PASSWORD RABBITMQ_PASSWORD OBJECT_STORAGE_SECRET_KEY GRAFANA_ADMIN_PASSWORD; do
+for key in POSTGRES_PASSWORD KEYCLOAK_ADMIN_PASSWORD KEYCLOAK_DB_PASSWORD RABBITMQ_PASSWORD OBJECT_STORAGE_SECRET_KEY GRAFANA_ADMIN_PASSWORD PERSON_CODE_HMAC_KEY; do
   secret="$(openssl rand -hex 24)"
   # Hex secrets contain no shell or sed metacharacters.
   sed -i.bak "s/^${key}=.*/${key}=${secret}/" .env

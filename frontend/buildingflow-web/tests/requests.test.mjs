@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readRow,readPage,readDetail,transitions} from '../src/features/requests/model.ts';
+import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
+const p='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-222222222222';
+const row={id,propertyId:p,unitId:null,unitNumber:null,description:'Fixture',category:'FAULT',priority:'HIGH',status:'RECORDED',response:null,hasHistory:false,version:1,createdAt:'2026-10-15T12:00:00Z',modifiedAt:'2026-10-15T12:00:00Z',photoId:null,photoSha256:null};
+test('request return paths accept canonical scope and reject external, query and nested paths',()=>{for(const v of ['/requests',`/properties/${p}/requests`])assert.equal(isWorkspaceReturnPath(v),true);for(const v of ['//example.com/requests','/requests?token=x',`/properties/${p}/requests/${id}`,'/requests/../people'])assert.equal(isWorkspaceReturnPath(v),false);});
+test('request runtime decoder rejects foreign or inconsistent management and photos',()=>{assert.equal(readRow(row,p).id,id);for(const change of [{propertyId:id},{version:0},{status:'UNKNOWN'},{status:'RESOLVED'},{response:'Invalid'},{hasHistory:true},{photoId:id},{photoSha256:'a'.repeat(64)}])assert.throws(()=>readRow({...row,...change},p));});
+test('request pages reject truncated duplicate or foreign page metadata',()=>{assert.equal(readPage({items:[row],page:1,pageSize:10,totalCount:1},p,1).items.length,1);for(const page of [{items:[row,row],page:1,pageSize:10,totalCount:2},{items:[row],page:2,pageSize:10,totalCount:1},{items:[row],page:1,pageSize:10,totalCount:0}])assert.throws(()=>readPage(page,p,1));});
+test('management history must follow valid transitions and match current response',()=>{assert.deepEqual(transitions('RESOLVED'),['RECORDED']);const h={id,fromStatus:'RECORDED',toStatus:'IN_PROGRESS',response:'Investigating',createdAt:row.createdAt};const d={record:{...row,status:'IN_PROGRESS',response:h.response,hasHistory:true,version:2},history:[h],replayed:true};assert.equal(readDetail(d,p,id).replayed,true);assert.throws(()=>readDetail({...d,history:[]},p,id));assert.throws(()=>readDetail({...d,history:[{...h,toStatus:'RESOLVED'}]},p,id));assert.throws(()=>readDetail(d,p,p));});
+test('photo consent note is validated against the photo and its state (İŞ17)',()=>{const photo={...row,photoId:id,photoSha256:'a'.repeat(64)};const granted={state:'GRANTED',recordId:p,textVersion:2,approvedAt:'2026-10-16T10:00:00Z',withdrawnAt:null};const d={record:photo,history:[],replayed:false};
+ assert.equal(readDetail({...d,photoConsent:granted},p,id).photoConsent.textVersion,2);
+ assert.equal(readDetail({...d,photoConsent:{...granted,state:'WITHDRAWN',withdrawnAt:'2026-10-20T10:00:00Z'}},p,id).photoConsent.state,'WITHDRAWN');
+ assert.equal(readDetail({...d,photoConsent:{state:'NONE',recordId:null,textVersion:null,approvedAt:null,withdrawnAt:null}},p,id).photoConsent.state,'NONE');
+ assert.equal(readDetail(d,p,id).photoConsent,null);assert.equal(readDetail({...d,photoConsent:null},p,id).photoConsent,null);
+ for(const bad of [{...granted,state:'ACTIVE'},{...granted,recordId:null},{...granted,withdrawnAt:'2026-10-20T10:00:00Z'},{...granted,state:'WITHDRAWN'},{...granted,state:'NONE'},{...granted,textVersion:0},{...granted,approvedAt:'x'}])assert.throws(()=>readDetail({...d,photoConsent:bad},p,id));
+ assert.throws(()=>readDetail({record:row,history:[],replayed:false,photoConsent:granted},p,id));});

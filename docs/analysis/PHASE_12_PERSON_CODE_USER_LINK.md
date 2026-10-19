@@ -98,3 +98,7 @@ Mobilde kayıt, kodsuz hesap modu, kod ve kişisel bilgiyle eşleşme, çevrimd�
 
 - Gerçek SMS sağlayıcısı ve gönderici başlığı (MOCK ile ilerlenir).
 - Yöneticinin kodu tekrar görmesi gerekirse HMAC yerine şifreli saklama.
+
+## Uygulama notu — İŞ13 (15.10.2026)
+
+Planda SMS'in Faz09 outbox/RabbitMQ üzerinden gitmesi öngörülmüştü. Outbox payload'ı yayından sonra da DB'de kaldığı için kişi kodu ve telefon oraya yazılmadı; SMS kendi şifreli tablo kuyruğunu (`sms_messages`, worker `SmsDispatchWorker`) kullanır. Ayrıntı: [api/sms.md](../api/sms.md).

@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readListing,readInquiries} from '../src/features/website/listing-model.ts';
+const id='11111111-1111-4111-8111-111111111111';const listing={id,unitId:null,kind:'SALE',title:'Title',description:'Body',price:100,roomLayout:'2+1',grossArea:100,netArea:80,floorLabel:null,buildingLabel:null,features:[],status:'DRAFT',publishUntil:null,consentKind:null,agentLicenseNo:null,complianceNote:null,version:1,mediaIds:[]};
+test('management listing contract rejects unknown states and foreign media values',()=>{assert.equal(readListing(listing).version,1);assert.throws(()=>readListing({...listing,status:'AUTO_VERIFIED'}));assert.throws(()=>readListing({...listing,version:0}));assert.throws(()=>readListing({...listing,mediaIds:['foreign']}));assert.throws(()=>readListing({...listing,features:['PRIVATE']}))});
+test('inquiry contract never accepts an unknown workflow or missing retention metadata',()=>{const inquiry={id,listingId:null,fullName:'Fixture',phone:null,email:'fixture@example.test',message:'Question',privacyNoticeVersion:'a'.repeat(64),status:'NEW',retainUntil:'2027-01-01',version:1};assert.equal(readInquiries([inquiry]).length,1);assert.throws(()=>readInquiries([{...inquiry,status:'PUBLIC'}]));assert.throws(()=>readInquiries([{...inquiry,version:0}]))});

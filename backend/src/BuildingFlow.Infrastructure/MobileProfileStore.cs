@@ -8,13 +8,15 @@ namespace BuildingFlow.Infrastructure;
 public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionStore sessions,ICurrentUserService actor,IFileStorage storage,TimeProvider clock):IMobileProfileStore {
  private string User()=>actor.IsAuthenticated && !string.IsNullOrWhiteSpace(actor.UserId)?actor.UserId:throw new UnauthorizedAccessException();
  private async Task Authorize(CancellationToken token) {
+  // The profile is the caller's own account data, so accounts without a person link (İŞ15) may read and edit it too.
   var s=await sessions.ReadAsync(User(),actor.Username,new[]{"SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"}.Where(actor.IsInRole).ToArray(),token);
-  if(s.HasMore || s.Contexts.Count==0)throw new UnauthorizedAccessException();
+  if(s.HasMore)throw new UnauthorizedAccessException();
  }
  private static HierarchyConflictException Conflict()=>new(ErrorCatalog.MobileSyncConflict.Create());
  private async Task<MobileProfileDto> Dto(MobileProfile? p,string user,CancellationToken token) {
   var photo=p?.PhotoId is Guid id?await db.Set<MobileProfilePhoto>().AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id && x.OwnerUserId==user && x.State=="CURRENT" && x.IsEnabled,token):null;
-  return new(user,p?.FirstName??"",p?.LastName??"",p?.Phone,photo?.Id,photo?.Sha256,p?.Version??0,p?.ModifiedAt);
+  // Profiles saved before the name rule are shown in the same form; the next save stores it.
+  return new(user,PersonNames.Given(p?.FirstName)??"",PersonNames.Family(p?.LastName)??"",p?.Phone,photo?.Id,photo?.Sha256,p?.Version??0,p?.ModifiedAt);
  }
  public async Task<MobileProfileDto> ReadAsync(CancellationToken token) {
   await Authorize(token);var user=User();var p=await db.Set<MobileProfile>().IgnoreQueryFilters().AsNoTracking().SingleOrDefaultAsync(x=>x.OwnerUserId==user,token);
@@ -35,10 +37,12 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
    try {bytes=ProfilePhoto.Normalize(Convert.FromBase64String(c.PhotoBase64));}catch(FormatException){throw new ArgumentException("Invalid image encoding.");}
   }
   var hash=bytes==null?null:Convert.ToHexString(SHA256.HashData(bytes));
-  var canonical=c with{FirstName=c.FirstName.Trim(),LastName=c.LastName.Trim(),Phone=phone,PhotoBase64=hash};
+  var canonical=c with{FirstName=PersonNames.Given(c.FirstName)!,LastName=PersonNames.Family(c.LastName)!,Phone=phone,PhotoBase64=hash};
   var fingerprint=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("profile:"+JsonSerializer.Serialize(canonical))));
   // Durable reservation before upload: failed/uncertain storage writes can be reclaimed later.
   MobileProfilePhoto? staged=null;
+  // T17.2: a new photo needs an ACTIVE PROFILE_PHOTO consent; KEEP and REMOVE never do, so a person can always delete.
+  if(bytes!=null && !await db.Set<MobileOperationReceipt>().AnyAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token))await ConsentGate.RequireAsync(db,user,ConsentFeature.PROFILE_PHOTO,token);
   if(bytes!=null) {
    staged=await db.Set<MobileProfilePhoto>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token);
    if(staged==null) {
@@ -62,6 +66,7 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
   }
   var p=await db.Set<MobileProfile>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user,token);
   if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
+  if(bytes!=null){await ConsentGate.LockAsync(db,user,token);await ConsentGate.RequireAsync(db,user,ConsentFeature.PROFILE_PHOTO,token);}
   if((p?.Version??0)!=c.ExpectedVersion)throw Conflict();
   if(p==null){p=new(user);db.Add(p);}
   var photoId=p.PhotoId;
@@ -87,7 +92,16 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
  }
  public async Task<byte[]?> PhotoAsync(Guid id,CancellationToken token) {
   await Authorize(token);var user=User();
-  var photo=await db.Set<MobileProfilePhoto>().AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id && x.OwnerUserId==user && x.State=="CURRENT" && x.IsEnabled && db.Set<MobileProfile>().Any(p=>p.OwnerUserId==user && p.PhotoId==id && p.IsEnabled),token);
+  return await Download(await Current(user).SingleOrDefaultAsync(x=>x.Id==id,token),token);
+ }
+ private IQueryable<MobileProfilePhoto> Current(string user)=>db.Set<MobileProfilePhoto>().AsNoTracking().Where(x=>x.OwnerUserId==user && x.State=="CURRENT" && x.IsEnabled && db.Set<MobileProfile>().Any(p=>p.OwnerUserId==user && p.PhotoId==x.Id && p.IsEnabled));
+ public async Task<IReadOnlyDictionary<string,Guid>> CurrentPhotosAsync(IReadOnlyCollection<string> users,CancellationToken token) {
+  if(users.Count==0)return new Dictionary<string,Guid>();
+  return await db.Set<MobileProfile>().AsNoTracking().Where(p=>users.Contains(p.OwnerUserId) && p.IsEnabled && p.PhotoId!=null && db.Set<MobileProfilePhoto>().Any(x=>x.Id==p.PhotoId && x.OwnerUserId==p.OwnerUserId && x.State=="CURRENT" && x.IsEnabled))
+   .ToDictionaryAsync(p=>p.OwnerUserId,p=>p.PhotoId!.Value,StringComparer.Ordinal,token);
+ }
+ public async Task<byte[]?> AccountPhotoAsync(string user,CancellationToken token)=>string.IsNullOrWhiteSpace(user)?null:await Download(await Current(user).SingleOrDefaultAsync(token),token);
+ private async Task<byte[]?> Download(MobileProfilePhoto? photo,CancellationToken token) {
   if(photo==null)return null;
   await using var stream=await storage.DownloadAsync(photo.ObjectKey,token);
   using var output=new MemoryStream();var buffer=new byte[8192];int read;

@@ -22,6 +22,12 @@ test("person details retain optional contacts and reject foreign scope or malfor
   assert.deepEqual(parsePerson(person,propertyId),person);
   assert.equal(parsePerson({...person,email:'test@example.invalid',phoneNumber:'+90 555 000 00 00'},propertyId).email,'test@example.invalid');
   for(const patch of [{propertyId:buildingId},{firstName:''},{lastName:null},{email:{}},{phoneNumber:42},{activeOccupancyCount:-1},{activeOccupancyCount:1.5}])assert.throws(()=>parsePerson({...person,...patch},propertyId));
+  // İŞ19: the linked account's photo id is accepted only as a GUID next to a linked account.
+  const photo='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';assert.equal(parsePerson({...person,linkedUserId:'user-1',linkedPhotoId:photo},propertyId).linkedPhotoId,photo);
+  for(const patch of [{linkedPhotoId:photo},{linkedUserId:'user-1',linkedPhotoId:'../x'}])assert.throws(()=>parsePerson({...person,...patch},propertyId));
+  const coded={...person,personCodeHint:'17',personCodeIssuedAt:'2026-10-15T18:00:00Z',issuedPersonCode:'482917'};
+  assert.deepEqual(parsePerson(coded,propertyId),coded);
+  for(const patch of [{personCodeHint:'7'},{personCodeHint:'ab'},{personCodeIssuedAt:'not-a-date'},{issuedPersonCode:'012345'},{issuedPersonCode:'48291'},{issuedPersonCode:482917}])assert.throws(()=>parsePerson({...coded,...patch},propertyId));
 });
 test("relationship preview preserves coexisting roles, dates and historical statuses",()=>{
   const items=[relation,{...relation,type:'TENANT',isPrimaryContact:false},{...relation,type:'RESIDENT',status:'ENDED',endDate:'2026-10-07'}];

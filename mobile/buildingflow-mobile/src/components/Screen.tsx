@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,18 +7,32 @@ import { BuildingFlowMark } from './BuildingFlowMark';
 import { theme } from '../theme';
 import { useOptionalAuth } from '../auth/AuthProvider';
 import { roleLabels } from '../auth/contracts';
+import { useAvatar } from '../profile/avatar';
+import { useUnreadCount } from '../notices/unread';
 export function Icon({ name, color = theme.colors.primary, size = 22 }: { name: keyof typeof Ionicons.glyphMap; color?: string; size?: number }) { return <Ionicons name={name} color={color} size={size} accessible={false} aria-hidden={true} />; }
 export function Screen({ title, subtitle, home = false, children }: { title: string; subtitle?: string; home?: boolean; children: ReactNode }) {
   const auth = useOptionalAuth(); const username = auth?.session?.username ?? 'BuildingFlow';
-  return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}><ScrollView contentContainerStyle={styles.scroll}>
+  const { uri: avatar, name } = useAvatar(); const unread = useUnreadCount(); const displayName = name ?? username;
+  const initial = displayName.slice(0, 1).toLocaleUpperCase('tr-TR');
+  // The navy header stays fixed on every tab; only the rounded content sheet scrolls.
+  return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
     <View style={styles.hero}>
-      <View style={styles.brandRow}><View style={styles.brandLockup}><BuildingFlowMark size={32} variant="light" /><Text style={styles.brand}>Building<Text style={styles.brandFlow}>Flow</Text></Text></View><Link href="/profile" accessibilityLabel="Hesabım" style={styles.accountLink}><Icon name="person-outline" size={21} color="#fff" /></Link></View>
-      {home ? <View style={styles.welcome}><View style={styles.avatar}><Text style={styles.avatarText}>{username.slice(0, 1).toLocaleUpperCase('tr-TR')}</Text></View><View style={styles.flex}><Text style={styles.heroEyebrow}>Merhaba,</Text><Text accessibilityRole="header" style={styles.homeTitle}>{username}</Text><Text style={styles.heroSubtitle}>{auth?.selected ? roleLabels[auth.selected.role] : 'BuildingFlow hesabın'}</Text></View></View> : <View style={styles.pageHeading}><Text accessibilityRole="header" style={styles.title}>{title}</Text>{subtitle && <Text style={styles.heroSubtitle}>{subtitle}</Text>}</View>}
-    </View><View style={styles.content}>
-      {auth?.offline && <View style={styles.offlineBanner}><Icon name="cloud-offline-outline" color="#805719" size={22} /><View style={styles.flex}><Text style={styles.offlineTitle}>Çevrimdışı · Salt okunur</Text><Text style={styles.offlineText}>Son doğrulama: {auth.verifiedAt ? new Date(auth.verifiedAt).toLocaleString('tr-TR') : 'Bilinmiyor'}. Yetkiler ve bilgiler değişmiş olabilir.</Text></View></View>}
-      {!!auth?.cacheNote && <Text accessibilityRole="alert" style={styles.muted}>{auth.cacheNote}</Text>}
-      {children}</View>
-  </ScrollView></SafeAreaView>;
+      <View style={styles.brandRow}>
+        <View style={styles.brandLockup}><BuildingFlowMark size={32} variant="light" /><Text style={styles.brand}>Building<Text style={styles.brandFlow}>Flow</Text></Text></View>
+        <View style={styles.headerActions}>
+          {auth?.selected && <Link href="/announcements" asChild><Pressable accessibilityRole="button" accessibilityLabel={unread ? `Bildirimler, ${unread} okunmamış` : 'Bildirimler'} style={styles.headerButton}><Icon name="notifications-outline" size={22} color="#fff" />{!!unread && <View style={styles.badge}><Text style={styles.badgeText}>{unread > 99 ? '99+' : unread}</Text></View>}</Pressable></Link>}
+        </View>
+      </View>
+      <View style={styles.heroBody}>{home ? <View style={styles.welcome}><View style={styles.avatar}>{avatar ? <Image source={{ uri: avatar }} style={styles.avatarImage} accessibilityIgnoresInvertColors /> : <Text style={styles.avatarText}>{initial}</Text>}</View><View style={styles.flex}><Text style={styles.heroEyebrow}>Merhaba,</Text><Text accessibilityRole="header" numberOfLines={1} style={styles.homeTitle}>{displayName}</Text><Text numberOfLines={1} style={styles.heroSubtitle}>{auth?.selected ? roleLabels[auth.selected.role] : 'BuildingFlow hesabın'}</Text></View></View> : <View style={styles.pageHeading}><Text accessibilityRole="header" numberOfLines={1} style={styles.title}>{title}</Text>{subtitle && <Text numberOfLines={1} style={styles.heroSubtitle}>{subtitle}</Text>}</View>}</View>
+    </View>
+    <View style={styles.sheet}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets><View style={styles.content}>
+        {auth?.offline && <View style={styles.offlineBanner}><Icon name="cloud-offline-outline" color="#805719" size={22} /><View style={styles.flex}><Text style={styles.offlineTitle}>Çevrimdışı · Cihazdaki kopya</Text><Text style={styles.offlineText}>Son doğrulama: {auth.verifiedAt ? new Date(auth.verifiedAt).toLocaleString('tr-TR') : 'Bilinmiyor'}. Yetkiler ve bilgiler değişmiş olabilir.</Text></View></View>}
+        {!!auth?.cacheNote && <Text accessibilityRole="alert" style={styles.muted}>{auth.cacheNote}</Text>}
+        {children}</View>
+      </ScrollView>
+    </View>
+  </SafeAreaView>;
 }
 export function Card({ title, children }: { title: string; children: ReactNode }) { return <View style={styles.card}><Text accessibilityRole="header" style={styles.cardTitle}>{title}</Text>{children}</View>; }
 export function SectionTitle({ title, note }: { title: string; note?: string }) { return <View style={styles.sectionHeading}><Text accessibilityRole="header" style={styles.cardTitle}>{title}</Text>{note && <Text style={styles.muted}>{note}</Text>}</View>; }
@@ -31,15 +45,20 @@ export function ModuleScreen({ title, subtitle, icon, description, items, tint =
 }
 export const styles = StyleSheet.create({
   offlineBanner: { backgroundColor: '#fff3db', borderWidth: 1, borderColor: '#efd4a0', borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 11 }, offlineTitle: { color: '#6b4916', fontSize: 14, fontWeight: '700', lineHeight: 22 }, offlineText: { color: '#79551e', fontSize: 12, lineHeight: 19 },
-  safe: { flex: 1, backgroundColor: '#062641' }, scroll: { flexGrow: 1, backgroundColor: theme.colors.background },
-  hero: { backgroundColor: '#062641', paddingHorizontal: 22, paddingTop: 13, paddingBottom: 29, gap: 24 },
-  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: 520, alignSelf: 'center' }, brandLockup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  brand: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: -0.4 }, brandFlow: { color: '#00cafa' }, accountLink: { padding: 13, borderRadius: 24, backgroundColor: '#153c58', minWidth: 48, minHeight: 48 },
+  safe: { flex: 1, backgroundColor: '#062641' }, scroll: { flexGrow: 1 },
+  sheet: { flex: 1, backgroundColor: theme.colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden', marginTop: -16 },
+  hero: { backgroundColor: '#062641', paddingHorizontal: 22, paddingTop: 13, paddingBottom: 38, gap: 22 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: 520, alignSelf: 'center' }, brandLockup: { flexShrink: 1, flexWrap: 'wrap', flexDirection: 'row', alignItems: 'center', gap: 8 },
+  brand: { flexShrink: 1, color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: -0.4 }, brandFlow: { color: '#00cafa' }, accountLink: { padding: 13, borderRadius: 24, backgroundColor: '#153c58', minWidth: 48, minHeight: 48 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 10 }, headerButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#153c58', alignItems: 'center', justifyContent: 'center' },
+  badge: { position: 'absolute', top: 4, right: 2, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, backgroundColor: '#e5484d', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#153c58' }, badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   welcome: { flexDirection: 'row', alignItems: 'center', gap: 14, width: '100%', maxWidth: 520, alignSelf: 'center' },
-  avatar: { width: 54, height: 54, backgroundColor: '#d7eaf4', borderRadius: 27, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#335b76' }, avatarText: { color: '#082b49', fontSize: 23, fontWeight: '700' }, flex: { flex: 1, minWidth: 0 },
+  avatar: { width: 54, height: 54, backgroundColor: '#d7eaf4', borderRadius: 27, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#335b76' }, avatarText: { color: '#082b49', fontSize: 23, fontWeight: '700' }, avatarImage: { width: 48, height: 48, borderRadius: 24 }, flex: { flex: 1, minWidth: 0 },
   heroEyebrow: { color: '#c0d4e2', fontSize: 14, lineHeight: 21 }, homeTitle: { color: '#fff', fontSize: 23, fontWeight: '700', lineHeight: 31, letterSpacing: -0.5 }, heroSubtitle: { color: '#c0d4e2', fontSize: 14, lineHeight: 22, marginTop: 4 },
-  pageHeading: { width: '100%', maxWidth: 520, alignSelf: 'center' }, title: { color: '#fff', fontSize: 28, fontWeight: '700', letterSpacing: -0.7 },
-  content: { padding: 20, gap: 18, width: '100%', maxWidth: 560, alignSelf: 'center', paddingBottom: 32 },
+  pageHeading: { width: '100%', maxWidth: 520, alignSelf: 'center' },
+  // Same header height on every tab, whether it shows the greeting or a page title.
+  heroBody: { height: 80, justifyContent: 'center' }, title: { color: '#fff', fontSize: 28, fontWeight: '700', letterSpacing: -0.7 },
+  content: { padding: 20, paddingTop: 24, gap: 18, width: '100%', maxWidth: 560, alignSelf: 'center', paddingBottom: 32 },
   card: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 18, gap: 12, borderWidth: 1, borderColor: theme.colors.border }, cardTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '700', letterSpacing: -0.3 }, sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' },
   text: { color: theme.colors.text, fontSize: 15, lineHeight: 23 }, muted: { color: theme.colors.muted, fontSize: 13, lineHeight: 21 },
   button: { backgroundColor: theme.colors.primary, borderRadius: 14, minHeight: 52, padding: 15, alignItems: 'center', justifyContent: 'center' }, buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' }, locationRow: { flexDirection: 'row', gap: 9, alignItems: 'center' },

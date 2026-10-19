@@ -6,7 +6,7 @@ export function proxy(request:NextRequest) {
  const nonce=Buffer.from(crypto.randomUUID()).toString('base64');
  // Read at request time so one image can be deployed behind TLS without a rebuild.
  const https=process.env.BUILDINGFLOW_PUBLIC_HTTPS==='true';
- const csp=contentSecurityPolicy(nonce,process.env.NEXT_PUBLIC_API_URL??'http://localhost:5005',process.env.NEXT_PUBLIC_OIDC_AUTHORITY??'http://localhost:8080/realms/buildingflow',https);
+ const csp=contentSecurityPolicy(nonce,process.env.NEXT_PUBLIC_API_URL??'http://localhost:5005',process.env.NEXT_PUBLIC_OIDC_AUTHORITY??'http://localhost:8080/realms/buildingflow',https,process.env.NEXT_PUBLIC_WEBSITE_ORIGIN);
  const headers=new Headers(request.headers);headers.set('x-nonce',nonce);headers.set('Content-Security-Policy',csp);
  const response=NextResponse.next({request:{headers}});response.headers.set('Content-Security-Policy',csp);response.headers.set('Cache-Control','private, no-store');
  if(https)response.headers.set('Strict-Transport-Security','max-age=15552000');

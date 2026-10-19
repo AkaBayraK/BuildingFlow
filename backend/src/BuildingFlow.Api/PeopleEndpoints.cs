@@ -12,9 +12,17 @@ internal static class PeopleEndpoints
         app.MapPut("/api/v1/notifications/{id:guid}/read",async(Guid id,PersonMessageService service,CancellationToken token)=>await service.ReadAsync(id,token)?Results.NoContent():Results.NotFound()).RequireAuthorization();
         root.MapGet("/people/account-choices",async(Guid propertyId,PeopleService service,CancellationToken token,int page=1,int pageSize=20,string? search=null)=>Found(await service.AccountChoicesAsync(propertyId,new(page,pageSize,search),token)));
         root.MapGet("/people", async (Guid propertyId, PeopleService service, CancellationToken token, int page = 1, int pageSize = 10, string? search = null, string sortBy = "name", string sortDirection = "asc") => Found(await service.ListAsync(propertyId, new(page, pageSize, search, sortBy, sortDirection), token)));
+        // İŞ19: the photo of the account linked to this person, for managers who may read the person (same scope as GET person).
+        root.MapGet("/people/{personId:guid}/photo", async (Guid propertyId, Guid personId, PeopleService service, IMobileProfileStore photos, CancellationToken token) =>
+            await service.GetAsync(propertyId, personId, token) is { LinkedUserId: { Length: > 0 } user } && await photos.AccountPhotoAsync(user, token) is { } bytes ? AccountEndpoints.Photo(bytes) : Results.NotFound());
         root.MapGet("/people/{personId:guid}", async (Guid propertyId, Guid personId, PeopleService service, CancellationToken token) => Found(await service.GetAsync(propertyId, personId, token)));
-        root.MapPost("/people", async (Guid propertyId, CreatePersonRequest request, PeopleService service, CancellationToken token) => {
-            var person = await service.CreateAsync(propertyId, request, token); return person is null ? Results.NotFound() : Results.Created($"/api/v1/properties/{propertyId}/people/{person.Id}", person);
+        root.MapPost("/people", async (Guid propertyId, CreatePersonRequest request, PeopleService service, HttpContext context, CancellationToken token) => {
+            var person = await service.CreateAsync(propertyId, request, token); if (person is null) return Results.NotFound();
+            NoStore(context); return Results.Created($"/api/v1/properties/{propertyId}/people/{person.Id}", person);
+        });
+        root.MapPost("/people/{personId:guid}/code", async (Guid propertyId, Guid personId, RegeneratePersonCodeRequest request, PeopleService service, HttpContext context, CancellationToken token) => {
+            var person = await service.RegenerateCodeAsync(propertyId, personId, request, token); if (person is null) return Results.NotFound();
+            NoStore(context); return Results.Ok(person);
         });
         root.MapPut("/people/{personId:guid}", async (Guid propertyId, Guid personId, UpdatePersonRequest request, PeopleService service, CancellationToken token) => Found(await service.UpdateAsync(propertyId, personId, request, token)));
         root.MapDelete("/people/{personId:guid}", async (Guid propertyId, Guid personId, long version, PeopleService service, CancellationToken token) => await service.DeleteAsync(propertyId, personId, version, token) ? Results.NoContent() : Results.NotFound());
@@ -28,5 +36,7 @@ internal static class PeopleEndpoints
         root.MapPut("/occupancies/{occupancyId:guid}/end", async (Guid propertyId, Guid occupancyId, EndOccupancyRequest request, PeopleService service, CancellationToken token) => Found(await service.EndOccupancyAsync(propertyId, occupancyId, request, token)));
         root.MapGet("/occupancies/{occupancyId:guid}/end-preview", async (Guid propertyId,Guid occupancyId,DateOnly endDate,long version,PeopleService service,CancellationToken token) => Found(await service.EndPreviewAsync(propertyId,occupancyId,endDate,version,token)));
     }
+    // The issued plain code appears only in this response; it must not be cached by browsers or proxies.
+    private static void NoStore(HttpContext context) => context.Response.Headers.CacheControl = "no-store";
     private static IResult Found<T>(T? value) where T : class => value is null ? Results.NotFound() : Results.Ok(value);
 }

@@ -46,6 +46,8 @@ public static class ReleaseSecurity
     {
         static bool Https(string? value,bool origin=false) => Uri.TryCreate(value,UriKind.Absolute,out var u) && u.Scheme=="https" && string.IsNullOrEmpty(u.UserInfo) && string.IsNullOrEmpty(u.Query) && string.IsNullOrEmpty(u.Fragment) && (!origin || u.AbsolutePath=="/");
         if(!Https(config["Authentication:Authority"]))throw new InvalidOperationException("Production Authentication:Authority must use HTTPS.");
+        if(!BuildingFlow.Infrastructure.PersonCodeHasher.IsValidKey(config[BuildingFlow.Infrastructure.PersonCodeHasher.KeySetting]))throw new InvalidOperationException("Production PersonCode:HmacKey requires a hex key of at least 32 bytes.");
+        if(config["KeycloakAdmin:BaseUrl"] is {Length:>0} keycloakAdmin && (!Https(keycloakAdmin) || (config["KeycloakAdmin:ClientSecret"]?.Length ?? 0) < 16))throw new InvalidOperationException("Production KeycloakAdmin requires an HTTPS base URL and a client secret.");
         if(config["Authentication:MetadataAddress"] is {Length:>0} metadata && !Https(metadata))throw new InvalidOperationException("Production discovery metadata must use HTTPS.");
         var origins=config.GetSection("Cors:Origins").Get<string[]>()??[];
         if(origins.Length==0 || origins.Any(o=>!Https(o,true)))throw new InvalidOperationException("Production Cors:Origins requires explicit HTTPS origins.");

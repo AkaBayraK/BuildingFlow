@@ -18,7 +18,7 @@ export function DownloadButton({record}:{record:DocumentRecord}){
   if(!await verifyDownload(blob,record)){notice.error(t("downloadInvalid"));return;}
   const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download=record.fileName;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);notice.success(t("downloaded"));
  }catch(error){if(!(error instanceof ApiError))notice.error(errorMessage(error,locale));}finally{lock.current=false;setBusy(false);}}
- return <Button variant="outline" size="sm" disabled={busy} aria-label={`${t("download")} · ${record.fileName}`} onClick={download}>{busy?<LoaderCircle className="animate-spin"/>:<Download/>}{t("download")}</Button>;
+ return <Button variant="view" size="sm" disabled={busy} aria-label={`${t("download")} · ${record.fileName}`} onClick={download}>{busy?<LoaderCircle className="animate-spin"/>:<Download/>}{t("download")}</Button>;
 }
 export function DocumentUploader({propertyId,announcement,onSaved,onBusy}:{propertyId:string;announcement?:Announcement;onSaved:()=>void;onBusy?:(busy:boolean)=>void}){
  const t=useTranslations("communication");const ui=useTranslations("ui");const api=useAuthorizedApi();const notice=useNotification();const locale=useLocale();const [file,setFile]=useState<File|null>(null);const [audience,setAudience]=useState<Audience>("ALL_MEMBERS");const [busy,setBusy]=useState(false);const [invalid,setInvalid]=useState("");const [ambiguous,setAmbiguous]=useState(false);const lock=useRef(false);const request=useRef("");const input=useRef<HTMLInputElement>(null);

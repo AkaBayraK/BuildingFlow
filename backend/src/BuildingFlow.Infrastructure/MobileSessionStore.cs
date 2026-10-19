@@ -1,11 +1,19 @@
 using BuildingFlow.Application;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using BuildingFlow.Domain;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class MobileSessionStore(BuildingFlowDbContext db, TimeProvider clock) : IMobileSessionStore
+public sealed class MobileSessionStore(BuildingFlowDbContext db, TimeProvider clock,IMobileAuthorizationStore authorization,ICurrentUserService actor,IConfiguration config) : IMobileSessionStore
 {
     public async Task<MobileSession> ReadAsync(string userId, string? username, IReadOnlyList<string> roles, CancellationToken token)
     {
+        if(config.GetValue<bool>("PersonRefactor:SessionContextsEnabled")){
+            if(!config.GetValue<bool>("PersonRefactor:Enabled") || !config.GetValue<bool>("PersonRefactor:MobileAuthorizationEnabled") || !config.GetValue<bool>("PersonRefactor:MobileSyncEnabled") || userId!=actor.UserId || string.IsNullOrWhiteSpace(actor.Issuer) ||
+                !actor.IsInRole("SUPER_ADMIN") && !await db.Set<PersonUserAccount>().AnyAsync(a=>a.Subject==userId && a.Issuer==actor.Issuer && a.IsEnabled,token))throw new UnauthorizedAccessException();
+            var current=await authorization.ReadAsync(token);
+            return new(userId,username,current.Contexts.Select(c=>new MobileContext(c.PropertyId,c.PropertyName,c.UnitId,c.UnitNumber,c.Role)).Distinct().ToArray(),false);
+        }
         var super = roles.Contains("SUPER_ADMIN");
         var properties = db.Properties.AsNoTracking().Where(p => p.IsEnabled &&
             (super || db.PropertyMemberships.Any(m => m.PropertyId == p.Id && m.UserId == userId && m.IsEnabled)));

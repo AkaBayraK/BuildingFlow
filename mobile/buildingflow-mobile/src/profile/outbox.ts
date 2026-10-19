@@ -1,6 +1,7 @@
 import type {SyncDb} from '../sync/outbox';
 import type {PrivateFiles} from './files';
 import {parseCommand,parseProfile,type Command,type Profile} from './contracts.ts';
+import {CONSENT_HOLD} from '../consents/contracts.ts';
 export type Job={operation_id:string;user_id:string;body_file:string;status:'pending'|'sending'|'retry'|'conflict'|'failed';attempts:number;next_attempt_at:number;error_code:number|null};
 export async function currentJob(db:SyncDb,user:string){return db.getFirstAsync<Job>('SELECT * FROM profile_jobs WHERE user_id=? LIMIT 1',user);}
 export async function enqueue(db:SyncDb,files:PrivateFiles,user:string,value:Command,now:number) {
@@ -23,8 +24,10 @@ export async function cacheProfile(db:SyncDb,p:Profile,now:number,photoFile?:str
  await db.runAsync('INSERT INTO profile_cache(user_id,payload,checked_at,photo_file) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET payload=excluded.payload,checked_at=excluded.checked_at,photo_file=excluded.photo_file',p.userId,JSON.stringify(p),now,photoFile===undefined?(old?.profile.photoId===p.photoId?old.photoFile:null):photoFile);
 }
 export async function cachedProfile(db:SyncDb,user:string){const r=await db.getFirstAsync<{payload:string;checked_at:number;photo_file:string|null}>('SELECT * FROM profile_cache WHERE user_id=?',user);return r?{profile:parseProfile(JSON.parse(r.payload),user),checkedAt:r.checked_at,photoFile:r.photo_file}:null;}
-export function canRetry(job:Job){return job.status==='retry' || job.status==='failed'&&(job.error_code===0 || job.error_code===429 || job.error_code===-1 || (job.error_code??0)>=500);}
-export function canDiscard(job:Job){return job.status==='pending'&&job.attempts===0 || job.status==='conflict' || job.status==='failed'&&[400,413,415,422].includes(job.error_code??0);}
+export const isConsentHeld=(job:Job)=>job.status==='failed'&&job.error_code===CONSENT_HOLD;
+export function canRetry(job:Job){return job.status==='retry' || job.status==='failed'&&!isConsentHeld(job)&&(job.error_code===0 || job.error_code===429 || job.error_code===-1 || (job.error_code??0)>=500);}
+// A consent-held draft was refused before storage, so dropping it loses nothing on the server.
+export function canDiscard(job:Job){return job.status==='pending'&&job.attempts===0 || job.status==='conflict' || job.status==='failed'&&([400,413,415,422].includes(job.error_code??0)||isConsentHeld(job));}
 export async function retry(db:SyncDb,user:string,now:number){const j=await currentJob(db,user);if(!j || !canRetry(j))throw Error('Bu işlem yeniden gönderilemez.');await db.runAsync("UPDATE profile_jobs SET status='retry',next_attempt_at=? WHERE user_id=? AND operation_id=?",now,user,j.operation_id);}
 export async function discard(db:SyncDb,files:PrivateFiles,user:string){const j=await currentJob(db,user);if(!j || !canDiscard(j))throw Error('Gönderimi belirsiz işlem iptal edilemez.');await db.runAsync('DELETE FROM profile_jobs WHERE user_id=? AND operation_id=?',user,j.operation_id);await files.drop(j.body_file);}
 export async function purge(db:SyncDb,files:PrivateFiles,user:string){const c=await cachedProfile(db,user),j=await currentJob(db,user);await db.runAsync('DELETE FROM profile_cache WHERE user_id=?',user);await db.runAsync('DELETE FROM profile_jobs WHERE user_id=?',user);if(c?.photoFile)await files.drop(c.photoFile);if(j)await files.drop(j.body_file);}

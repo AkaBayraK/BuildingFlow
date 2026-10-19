@@ -9,7 +9,7 @@ import {ApiError,authorizedRequest} from "./authorized-request";
 export {ApiError} from "./authorized-request";
 export function useAuthorizedApi() {
  const identity=useIdentity();const locale=useLocale();const notify=useNotification();
- return useCallback(<T,>(path:string,options:RequestInit={},responseType:"json"|"blob"="json"):Promise<T>=>authorizedRequest<T>(identity,locale,notify,process.env.NEXT_PUBLIC_API_URL??"http://localhost:5005",path,options,fetch,responseType),[identity,locale,notify]);
+ return useCallback(<T,>(path:string,options:RequestInit={},responseType:"json"|"blob"="json",quiet:readonly number[]=[]):Promise<T>=>authorizedRequest<T>(identity,locale,notify,process.env.NEXT_PUBLIC_API_URL??"http://localhost:5005",path,options,fetch,responseType,quiet),[identity,locale,notify]);
 }
 export type Property = BuildingDetails & {neighborhood?:string|null;id:string;name:string;city:string;district:string;address:string;version:number;createdAt:string;isEnabled:boolean;type:PropertyType;floorCount:number|null;buildingCount:number;unitCount:number;canChangeType:boolean};
 export type PropertyPage = {items:Property[];page:number;pageSize:number;totalCount:number};

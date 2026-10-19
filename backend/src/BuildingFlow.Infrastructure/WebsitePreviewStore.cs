@@ -1,0 +1,21 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using BuildingFlow.Application;
+using BuildingFlow.Domain;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+namespace BuildingFlow.Infrastructure;
+public sealed class WebsitePreviewProtection(IConfiguration config,TimeProvider clock){
+ private byte[] Key(){try{var key=Convert.FromBase64String(config["Website:PreviewHmacKey"]??"");if(key.Length>=32)return key;}catch(FormatException){}throw new HierarchyConflictException(ErrorCatalog.WebsitePreviewUnavailable.Create());}
+ private string Sign(string data)=>Convert.ToHexString(HMACSHA256.HashData(Key(),Encoding.UTF8.GetBytes(data))).ToLowerInvariant();
+ public WebsitePreviewIssue Issue(Guid site,long version){var expires=clock.GetUtcNow().AddMinutes(10);var data=$"{site:N}:{version}:{expires.ToUnixTimeSeconds()}:{Guid.NewGuid():N}";var token=Convert.ToBase64String(Encoding.UTF8.GetBytes(data))+"."+Sign(data);return new(token,expires);}
+ public (Guid Site,long Version)? Check(string token){if(string.IsNullOrEmpty(token)||token.Length>512)return null;try{var p=token.Split('.');if(p.Length!=2)return null;var data=Encoding.UTF8.GetString(Convert.FromBase64String(p[0]));if(!CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(Sign(data)),Encoding.ASCII.GetBytes(p[1])))return null;var parts=data.Split(':');if(parts.Length!=4||!Guid.TryParseExact(parts[0],"N",out var id)||!long.TryParse(parts[1],out var v)||!long.TryParse(parts[2],out var expiry)||expiry<=clock.GetUtcNow().ToUnixTimeSeconds()||expiry>clock.GetUtcNow().AddMinutes(10).ToUnixTimeSeconds())return null;return(id,v);}catch(FormatException){return null;}}
+}
+public sealed class WebsitePreviewStore(BuildingFlowDbContext db,WebsitePreviewProtection protection,SessionContextStore contexts,IFileStorage storage):IWebsitePreviewStore{
+ private IQueryable<WebsiteSite> Sites()=>db.Set<WebsiteSite>().Where(s=>s.IsEnabled&&db.Properties.Any(p=>p.Id==s.PropertyId&&p.IsEnabled));
+ public async Task<WebsitePreviewIssue?> Issue(Guid p,long v,AccessScope a,CancellationToken t){if(contexts.Enabled&&!await contexts.PropertyAllowedAsync(p,"MANAGER",t))return null;var s=await Sites().SingleOrDefaultAsync(s=>s.PropertyId==p&&(a.ReadAll||db.PropertyMemberships.Any(m=>m.PropertyId==p&&m.UserId==a.UserId&&m.IsEnabled)),t);if(s is null)return null;if(s.Version!=v)throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());return protection.Issue(s.Id,v);}
+ private async Task<WebsiteSite?> Authorized(string token,CancellationToken t){var claim=protection.Check(token);return claim is null?null:await Sites().AsNoTracking().SingleOrDefaultAsync(s=>s.Id==claim.Value.Site&&s.Version==claim.Value.Version,t);}
+ public async Task<PublicWebsite?> Read(string token,CancellationToken t){var site=await Authorized(token,t);if(site is null)return null;var pages=await db.Set<WebsitePage>().Where(p=>p.SiteId==site.Id&&p.PropertyId==site.PropertyId&&p.IsEnabled).OrderBy(p=>p.SortOrder).ToArrayAsync(t);var ids=pages.Select(p=>p.Id).ToArray();var sections=await db.Set<WebsiteSection>().Where(s=>s.PropertyId==site.PropertyId&&ids.Contains(s.PageId)&&s.IsEnabled&&s.IsVisible).OrderBy(s=>s.SortOrder).ToArrayAsync(t);var media=await db.Set<WebsiteMedia>().Where(m=>m.PropertyId==site.PropertyId&&m.SiteId==site.Id&&m.IsEnabled).Select(m=>new PublicWebsiteMedia(m.Id,m.ContentType,m.Width,m.Height,m.Sha256,m.AltText)).ToArrayAsync(t);return new(site.SiteKey,site.DisplayName,site.Tagline,site.ContactEmail,site.ContactPhone,site.IsDemo,new(site.Template,site.PrimaryColor,site.AccentColor,site.LogoMediaId,site.HeroMediaId),pages.Select(p=>new PublicWebsitePage(p.Kind.ToString(),p.Slug,p.Title,p.MenuLabel,p.ShowInMenu,p.SortOrder,p.SeoTitle,p.SeoDescription,sections.Where(s=>s.PageId==p.Id).Select(s=>new PublicWebsiteSection(s.Type.ToString(),JsonDocument.Parse(s.Data).RootElement.Clone())).ToArray())).ToArray(),media);}
+ public async Task<WebsiteMediaContent?> Media(string token,Guid id,string sha,CancellationToken t){var site=await Authorized(token,t);if(site is null)return null;var m=await db.Set<WebsiteMedia>().SingleOrDefaultAsync(m=>m.PropertyId==site.PropertyId&&m.SiteId==site.Id&&m.Id==id&&m.Sha256==sha&&m.IsEnabled,t);return m is null?null:await WebsiteMediaBytes.Read(storage,m,t);}
+}

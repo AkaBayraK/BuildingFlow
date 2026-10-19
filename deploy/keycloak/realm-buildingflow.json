@@ -59,6 +59,18 @@
       "enabled": true,
       "bearerOnly": true,
       "publicClient": false
+    },
+    {
+      "clientId": "buildingflow-admin-api",
+      "name": "BuildingFlow user administration",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "clientAuthenticatorType": "client-secret"
     }
   ],
   "loginTheme": "buildingflow",
@@ -79,5 +91,19 @@
     "auth": "false",
     "ssl": "false",
     "starttls": "false"
-  }
+  },
+  "users": [
+    {
+      "username": "service-account-buildingflow-admin-api",
+      "enabled": true,
+      "serviceAccountClientId": "buildingflow-admin-api",
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "query-users",
+          "manage-users"
+        ]
+      }
+    }
+  ]
 }

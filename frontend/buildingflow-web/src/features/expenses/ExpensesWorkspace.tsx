@@ -34,7 +34,7 @@ export function ExpensesWorkspace({propertyId}:{propertyId:string}){
  const enabled=allowed&&scope.property?.id===propertyId&&scope.property.isEnabled&&!scope.error;
  const changed=()=>{setPage(1);setRevision(n=>n+1);scope.refresh();};
  const statusBadge=useCallback((record:ExpenseRecord)=><Badge variant="outline" className={record.status==="CANCELLED"?"border-destructive/30 text-destructive":"border-primary/30 text-primary"}>{t(record.status)}</Badge>,[t]);
- const actions=useCallback((record:ExpenseRecord)=><Button variant="ghost" size="icon" aria-label={t("viewExpense")} onClick={()=>setDetail(record)}><Eye className="size-4"/></Button>,[t]);
+ const actions=useCallback((record:ExpenseRecord)=><Button variant="view" size="icon" aria-label={t("viewExpense")} onClick={()=>setDetail(record)}><Eye className="size-4"/></Button>,[t]);
  const columns=useMemo<ColumnDef<ExpenseRecord>[]>(()=>[
   {id:"date",header:t("date"),cell:({row})=>formatDateOnly(row.original.occurredDate,locale)},
   {id:"category",header:t("category"),cell:({row})=><strong>{t(row.original.category)}</strong>},
@@ -43,7 +43,7 @@ export function ExpensesWorkspace({propertyId}:{propertyId:string}){
   {id:"status",header:ui("status"),cell:({row})=>statusBadge(row.original)},
   {id:"actions",header:ui("actions"),cell:({row})=>actions(row.original)}
  ],[t,ui,locale,actions,statusBadge]);
- const budgetActions=useCallback((row:CategoryFinance)=><Button variant="outline" size="sm" disabled={!enabled} onClick={()=>setBudget(row)}><Pencil className="size-4"/>{t(row.hasBudget?"editPlan":"setPlan")}</Button>,[enabled,t]);
+ const budgetActions=useCallback((row:CategoryFinance)=><Button variant="edit" size="sm" disabled={!enabled} onClick={()=>setBudget(row)}><Pencil className="size-4"/>{t(row.hasBudget?"editPlan":"setPlan")}</Button>,[enabled,t]);
  const budgetColumns=useMemo<ColumnDef<BudgetRow>[]>(()=>[
   {id:"category",header:t("category"),cell:({row})=><strong>{t(row.original.category)}</strong>},
   {id:"budget",header:t("budgetAmount"),cell:({row})=>row.original.hasBudget?formatDecimalCurrency(row.original.budgetAmount,locale):<span className="text-muted-foreground">{t("noBudget")}</span>},
@@ -55,10 +55,10 @@ export function ExpensesWorkspace({propertyId}:{propertyId:string}){
  function reset(){setTerm("");setStatus("");setCategory("");setSort("occurredDate:desc");setPage(1);}
  const amount=(value:string|undefined)=>summaryLoading?"…":value?formatDecimalCurrency(value,locale):"—";
  if(!allowed)return <div className="py-10"><h1>{t("title")}</h1><MessageBanner>{ui("financeRoleRequired")}</MessageBanner></div>;
- return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("pageHelp")} scope={scope.property?.name??ui("loading")} icon={ChartNoAxesCombined} action={<Button variant="secondary" disabled={!enabled} onClick={()=>setCreating(true)}><Plus/>{t("newExpense")}</Button>}/>
-  {scope.error&&<MessageBanner action={<Button variant="outline" onClick={scope.refresh}>{ui("tryAgain")}</Button>}>{scope.error}</MessageBanner>}{scope.property&&!scope.property.isEnabled&&<MessageBanner kind="warning">{t("inactiveProperty")}</MessageBanner>}
+ return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("pageHelp")} scope={scope.property?.name??ui("loading")} icon={ChartNoAxesCombined} action={<Button variant="view" disabled={!enabled} onClick={()=>setCreating(true)}><Plus/>{t("newExpense")}</Button>}/>
+  {scope.error&&<MessageBanner action={<Button variant="view" onClick={scope.refresh}>{ui("tryAgain")}</Button>}>{scope.error}</MessageBanner>}{scope.property&&!scope.property.isEnabled&&<MessageBanner kind="warning">{t("inactiveProperty")}</MessageBanner>}
   <section className="mb-6 rounded-2xl border bg-card p-5 shadow-sm"><div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><h2 className="m-0 text-lg font-semibold">{t("monthlyOverview")}</h2><p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">{t("overviewHelp")}</p></div><div><Label htmlFor="finance-period">{t("period")}</Label><Input id="finance-period" type="month" min="2000-01" max="9998-12" className="w-44" value={month} onInput={event=>setMonth(event.currentTarget.value)}/></div></div>
-   {!validMonth&&<MessageBanner>{t("periodInvalid")}</MessageBanner>}{summaryError&&<MessageBanner action={<Button variant="outline" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{summaryError}</MessageBanner>}
+   {!validMonth&&<MessageBanner>{t("periodInvalid")}</MessageBanner>}{summaryError&&<MessageBanner action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{summaryError}</MessageBanner>}
    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><SummaryCard compact title={t("income")} value={amount(summary?.incomeAmount)} note={t("incomeHelp")} icon={ArrowDownLeft}/><SummaryCard compact title={t("actualExpense")} value={amount(summary?.expenseAmount)} note={t("recordedExpenses")} icon={ArrowUpRight}/><SummaryCard compact title={t("budgetAmount")} value={amount(summary?.budgetAmount)} note={t("plannedTotal")} icon={WalletCards}/><SummaryCard compact title={t("net")} value={amount(summary?.netAmount)} note={t("netHelp")} icon={ChartNoAxesCombined}/><SummaryCard compact title={t("variance")} value={amount(summary?.budgetVariance)} note={t("varianceHelp")} icon={ReceiptText}/></div>
   </section>
   <div className="mb-4 flex flex-wrap gap-2" aria-label={t("views")}><Button variant={tab==="expenses"?"default":"outline"} aria-pressed={tab==="expenses"} onClick={()=>setTab("expenses")}><ReceiptText/>{t("list")}</Button><Button variant={tab==="budget"?"default":"outline"} aria-pressed={tab==="budget"} onClick={()=>setTab("budget")}><WalletCards/>{t("budgetAndActual")}</Button></div>

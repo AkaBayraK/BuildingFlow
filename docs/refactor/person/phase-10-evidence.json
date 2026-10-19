@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-18",
+  "phase": "PERSON10",
+  "releaseGate": "NOT_PASSED",
+  "webNpmAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "mobileNpmAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 11,
+    "high": 18,
+    "critical": 0,
+    "total": 29
+  },
+  "rootAdvisories": [
+    {
+      "package": "braces",
+      "severity": "high",
+      "range": "<=3.0.3",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "package": "decode-uri-component",
+      "severity": "moderate",
+      "range": "<=0.4.2",
+      "url": "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr",
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "58.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "package": "node-forge",
+      "severity": "high",
+      "range": "<=1.4.0",
+      "url": "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "package": "uuid",
+      "severity": "moderate",
+      "range": "<11.1.1",
+      "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    }
+  ],
+  "nugetProjects": 7,
+  "nugetReportedVulnerabilities": 0,
+  "missingTools": [
+    "Fortify sourceanalyzer/fcli",
+    "Semgrep",
+    "Gitleaks",
+    "TruffleHog",
+    "OSV scanner",
+    "Trivy",
+    "Syft"
+  ],
+  "limitedSourceCheck": {
+    "scope": "current git-listed tracked and nonignored untracked text, max4MB; no history, entropy or native artefact scan",
+    "files": 905,
+    "rules": [
+      "private-key",
+      "github-token",
+      "aws-key",
+      "slack-token",
+      "exact local env credential copies"
+    ],
+    "hits": [],
+    "not_a_full_secret_scanner": true
+  },
+  "generatedConfig": {
+    "path": "deploy/seaweedfs/private-s3.json",
+    "trackedBefore": true,
+    "headMatchedRuntime": true,
+    "indexRemovalPrepared": true,
+    "diskBytesPreserved": true,
+    "envBytesPreserved": true,
+    "historyRewritten": false,
+    "credentialsRotated": false,
+    "secretValuesIncluded": false
+  },
+  "limits": [
+    "No full SAST/history/entropy/native binary scan",
+    "No native MASVS acceptance",
+    "No container OS SBOM scan",
+    "No release or production approval"
+  ],
+  "ciPrivateConfigGate": true,
+  "ciMobileHighAuditGate": {
+    "enabled": true,
+    "verifiedAuditExitCode": 1,
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 11,
+      "high": 18,
+      "critical": 0,
+      "total": 29
+    }
+  }
+}

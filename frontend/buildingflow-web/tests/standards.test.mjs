@@ -32,7 +32,16 @@ test('existing screens, metadata and roadmap use available message keys with req
   function collect(node){if(ts.isVariableDeclaration(node)&&ts.isIdentifier(node.name)&&node.initializer&&ts.isCallExpression(node.initializer)&&["useTranslations","getTranslations"].includes(node.initializer.expression.getText(sf))&&ts.isStringLiteral(node.initializer.arguments[0]))namespaces.set(node.name.text,node.initializer.arguments[0].text);ts.forEachChild(node,collect);}collect(sf);
   function visit(node){if(ts.isCallExpression(node)&&namespaces.has(node.expression.getText(sf))&&ts.isStringLiteral(node.arguments[0])){const ns=namespaces.get(node.expression.getText(sf)),key=node.arguments[0].text;assert.ok(key in catalogs.tr[ns],`${url.pathname}: ${ns}.${key}`);const params=argumentsIn(parse(catalogs.tr[ns][key]));if(params.length){assert.ok(node.arguments[1],`${key} requires ${params}`);if(ts.isObjectLiteralExpression(node.arguments[1])){const provided=node.arguments[1].properties.map(p=>p.name?.getText(sf));for(const param of params)assert.ok(provided.includes(param),`${key} missing ${param}`);}}}ts.forEachChild(node,visit);}visit(sf);
  }} }walk(new URL('../src/',import.meta.url));
- for(const milestone of milestones){for(const key of [milestone.title,milestone.description,...milestone.tasks.flatMap(task=>[task.title,task.detail,...(task.verification?[task.verification]:[])])])assert.ok(key in catalogs.tr.ui,key);}
+ for(const locale of ['tr','en']){
+  const t=createTranslator({locale,messages:catalogs[locale].ui,onError:error=>{throw error;}});
+  for(const milestone of milestones){for(const key of [milestone.title,milestone.description,...milestone.tasks.flatMap(task=>[task.title,task.detail,...(task.verification?[task.verification]:[])])]){
+   assert.ok(key in catalogs[locale].ui,key);
+   assert.deepEqual(argumentsIn(parse(catalogs[locale].ui[key])),[],`${locale}.${key}: roadmap renders without arguments`);
+   assert.ok(t(key),`${locale}.${key}`);
+  }}
+  assert.match(t('phase19Task2Detail'),/\/users\/\{id\}\/photo/);
+  assert.match(t('phase19Task2Detail'),/\/people\/\{id\}\/photo/);
+ }
 });
 test('locale validation accepts only supported languages and defaults safely',()=>{for(const value of ['en','tr'])assert.ok(isLocale(value));for(const value of [null,'EN','de','../en','en;path=/']){assert.equal(isLocale(value),false);assert.equal(resolveLocale(value),'tr');}});
 test('ProblemDetails handles malformed external data and never displays unknown exceptions',()=>{

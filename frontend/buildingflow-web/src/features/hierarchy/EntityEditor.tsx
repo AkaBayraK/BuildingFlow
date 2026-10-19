@@ -1,5 +1,7 @@
 "use client";
 import {PersonFormFields} from "@/features/people/PersonFormFields";
+import {formatPhone,normalizeEmail,validEmail,validPhone} from "@/lib/contact";
+import {personName as normalizedName} from "@/lib/person-names";
 import {ManagementPanel} from "@/components/management/ManagementPanel";
 import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
 import {useNotification} from "@/components/feedback/Notifications";
@@ -28,7 +30,7 @@ const fields:Record<EntityKind,Field[]>={
   person:[{key:"firstName",label:"firstName",max:100},{key:"lastName",label:"lastName",max:100},{key:"phoneNumber",label:"phone",max:30,type:"tel"},{key:"email",label:"email",max:254,type:"email"}]
 };
 function initialValues(kind:EntityKind,target:Entity|null){const values:Record<string,string>={};const source=target as unknown as Record<string,unknown>|null;for(const field of fields[kind])values[field.key]=source?.[field.key]==null?"":String(source[field.key]);if(kind==="person")for(const [key,fallback] of Object.entries({personKind:"NATURAL",citizenship:"DOMESTIC",countryCode:"TR",identityNumber:"",birthDate:"",gender:"",address:"",linkedUserId:""}))values[key]=source?.[key]==null?fallback:String(source[key]);return {...values,...detailValues(target,kind)};}
-export function EntityEditor({kind,url,target,apartmentOnly=false,focusReturnTarget,onClose,onSaved}:{kind:EntityKind;url:string;target:Entity|null;apartmentOnly?:boolean;focusReturnTarget?:HTMLElement|null;onClose:()=>void;onSaved:()=>void}) {
+export function EntityEditor({kind,url,target,apartmentOnly=false,focusReturnTarget,onClose,onSaved}:{kind:EntityKind;url:string;target:Entity|null;apartmentOnly?:boolean;focusReturnTarget?:HTMLElement|null;onClose:()=>void;onSaved:(saved:unknown)=>void}) {
   const t=useTranslations("ui");const codes=useTranslations("apiErrors"); const locale=useLocale();const notification=useNotification();
 
   const api=useAuthorizedApi();const [record,setRecord]=useState(target);const [values,setValues]=useState(()=>initialValues(kind,target));
@@ -55,10 +57,12 @@ export function EntityEditor({kind,url,target,apartmentOnly=false,focusReturnTar
       }else body[field.key]=field.optional && !value?null:value;
     }
     if(kind==="person"){
-      body.linkedUserId=values.linkedUserId.trim()||null;body.personKind=values.personKind;body.citizenship=values.citizenship;body.countryCode=values.citizenship==="DOMESTIC"?"TR":values.countryCode.toUpperCase();body.lastName=values.personKind==="LEGAL"?"":body.lastName;body.birthDate=values.personKind==="LEGAL"?null:body.birthDate;body.gender=values.personKind==="LEGAL"?null:values.gender||null;
+      body.linkedUserId=values.linkedUserId.trim()||null;body.personKind=values.personKind;body.citizenship=values.citizenship;body.countryCode=values.citizenship==="DOMESTIC"?"TR":values.countryCode.toUpperCase();body.lastName=values.personKind==="LEGAL"?"":body.lastName;Object.assign(body,normalizedName(String(body.firstName??""),String(body.lastName??""),values.personKind,values.citizenship==="FOREIGN"?"FOREIGN":"DOMESTIC"));body.birthDate=values.personKind==="LEGAL"?null:body.birthDate;body.gender=values.personKind==="LEGAL"?null:values.gender||null;
       if(!/^[A-Z]{2}$/.test(String(body.countryCode))||values.citizenship==="FOREIGN"&&body.countryCode==="TR")validation.countryCode=[codes("BF_PERSON_PROFILE_INVALID")];
       const id=String(body.identityNumber??"");if(values.citizenship==="DOMESTIC"?!(values.personKind==="LEGAL"?/^[0-9]{10}$/:/^[1-9][0-9]{10}$/).test(id):values.personKind==="NATURAL"&&!/^[A-Za-z0-9-]{6,30}$/.test(id))validation.identityNumber=[codes("BF_PERSON_PROFILE_INVALID")];
-      const phone=String(body.phoneNumber??"");if(!/^\+?[0-9 ()-]+$/.test(phone)||phone.replace(/\D/g,"").length<8||phone.replace(/\D/g,"").length>15)validation.phoneNumber=[codes("BF_PERSON_PROFILE_INVALID")];
+      // İŞ19: the shared contact rules (+90 and 3-3-2-2 for Turkey, + country code elsewhere; lower-case e-mail).
+      const phone=formatPhone(String(body.phoneNumber??""));body.phoneNumber=phone;if(!validPhone(phone))validation.phoneNumber=[t("phoneFieldInvalid")];
+      if(body.email!=null&&body.email!==""){body.email=normalizeEmail(String(body.email));if(!validEmail(String(body.email)))validation.email=[t("emailFieldInvalid")];}
     }
     if(kind==="unit")body.type=apartmentOnly?"APARTMENT":unitType;
     if(kind==="property"){body.type=propertyType;if(propertyType!=="APARTMENT")body.floorCount=null;}
@@ -66,11 +70,11 @@ export function EntityEditor({kind,url,target,apartmentOnly=false,focusReturnTar
     for(const [key,code] of Object.entries(validateDetailValues(values,kind,propertyType,Number(body.floor),Number(body.grossSquareMeters))))validation[key]=[code.startsWith("BF_")?codes(code):t(code)];
     setErrors(validation);setError("");setConflict(false);if(Object.keys(validation).length){document.getElementById(`entity-${Object.keys(validation)[0]}`)?.focus();return;}
     if(record){body.version=record.version;body.isEnabled=enabled;}lock.current=true;setBusy(true);
-    try{decode(await api<unknown>(url+(record?"/"+record.id:""),{method:record?"PUT":"POST",body:JSON.stringify(body)}));notification.success(t("entitySaved",{entity:label}));onSaved();onClose();}
+    try{const saved=decode(await api<unknown>(url+(record?"/"+record.id:""),{method:record?"PUT":"POST",body:JSON.stringify(body)}));notification.success(t("entitySaved",{entity:label}));onSaved(saved);onClose();}
     catch(error){setError(errorMessage(error,locale));if(error instanceof ApiError){setErrors(error.errors);setConflict(error.status===409);}}finally{lock.current=false;setBusy(false);}
   }
   return <Dialog open onOpenChange={open=>{if(!open && !busy)onClose();}}><ManagementPanel className={kind==="person"?"person-editor-panel":undefined} focusReturnTarget={focusReturnTarget} showCloseButton={!busy}>{kind==="person"?<DialogHeader className="person-editor-header"><div className="flex items-start gap-4"><IdentityMark icon={target?Users:UserPlus} className="size-12 shrink-0"/><div><DialogTitle>{target?t("editEntity",{entity:label}):t("personCreateTitle")}</DialogTitle><DialogDescription className="mt-1">{t("personCreateSubtitle")}</DialogDescription></div></div></DialogHeader>:<DialogHeader className="border-b pb-5 pr-6 text-left"><IdentityMark icon={kind==="property"?Building2:kind==="building"?Blocks:kind==="unit"?DoorOpen:Users} className="mb-2 size-12"/><DialogTitle className="text-2xl font-bold">{target?t("editEntity",{entity:label}):t("newEntity",{entity:label})}</DialogTitle><DialogDescription>{kind==="unit"?t("theNumberMustBeUniqueWithinThisScopeUse"):kind==="building"?t("theBuildingBlockNameMustBeUniqueWithinThis"):t("updateTheNameLocationAndActiveStatusTheProperty")}</DialogDescription></DialogHeader>}
-    {error && <MessageBanner className="my-4 text-left" kind={conflict?"warning":"error"}>{error}{conflict && record && <Button size="sm" variant="outline" className="mt-3 bg-card" disabled={busy} onClick={()=>void reload()}><RefreshCw className="size-3"/>{t("loadCurrentRecord")}</Button>}</MessageBanner>}
+    {error && <MessageBanner className="my-4 text-left" kind={conflict?"warning":"error"}>{error}{conflict && record && <Button size="sm" variant="view" className="mt-3 bg-card" disabled={busy} onClick={()=>void reload()}><RefreshCw className="size-3"/>{t("loadCurrentRecord")}</Button>}</MessageBanner>}
     <form noValidate onSubmit={save} className={kind==="person"?"person-editor-form":undefined}><fieldset disabled={busy} className={kind==="person"?"person-editor-fieldset":"space-y-5 border-0 p-0"}>
     {kind==="property" && record && "city" in record && <div className="space-y-2"><Label htmlFor="entity-type">{t("propertyType")}</Label><select id="entity-type" className="h-11 w-full rounded-md border bg-card px-3 text-sm disabled:bg-muted disabled:text-muted-foreground" value={propertyType} disabled={!record.canChangeType} aria-describedby="entity-type-help" aria-invalid={!!errors.type?.length} onChange={event=>{setPropertyType(event.target.value as PropertyType);setErrors(previous=>({...previous,type:[],floorCount:[]}));}}>{(Object.keys(propertyTypeNames) as PropertyType[]).map(type=><option key={type} value={type}>{t(propertyTypeNames[type])}</option>)}</select><MessageBanner id="entity-type-help" kind={record.canChangeType?"info":"warning"}>{record.canChangeType?t("noBuildingsOrUnitsHaveBeenRecordedTheType"):t("buildingsUnitsOrTheirHistoryExistTheTypeCannot")}</MessageBanner>{errors.type?.length?<FieldError>{errors.type.join(" ")}</FieldError>:null}</div>}
     {kind==="unit" && !apartmentOnly && <div className="space-y-2"><Label htmlFor="unit-type">{t("unitType")}</Label><select id="unit-type" className="h-11 w-full rounded-md border bg-card px-3 text-sm" value={unitType} onChange={event=>setUnitType(event.target.value as UnitType)}>{(Object.keys(unitTypeNames) as UnitType[]).map(type=><option key={type} value={type}>{t(unitTypeNames[type])}</option>)}</select></div>}

@@ -1,5 +1,6 @@
 import {useState} from 'react';
-import {ActivityIndicator,Pressable,StyleSheet,Text,View} from 'react-native';
+import {ActivityIndicator,StyleSheet,Text,View} from 'react-native';
+import {Action as Pressable} from './Action';
 import {useAuth} from '../auth/AuthProvider';
 import {useFinance} from '../finance/useFinance';
 import type {View as FinanceView} from '../finance/contracts';
