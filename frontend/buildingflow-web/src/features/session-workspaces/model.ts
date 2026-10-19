@@ -28,3 +28,10 @@ export function contextDetail(value:unknown,kind:string,id:string):WorkspaceDeta
  return{context:c,self:{id:s.id as string,tenantId:s.tenantId as string,kind:"NATURAL",displayName:s.displayName as string,maskedIdentity:s.maskedIdentity as string,canEdit:false}};
 }
 export function soleWorkspace(page:ContextPage){return page.page===1&&page.totalCount===1&&page.items.length===1?page.items[0]:null;}
+
+export function websiteContexts(value:unknown,audience:string):ContextPage{
+ if(!['all','management','resident'].includes(audience))fail();
+ const page=contextPage(value),allowed=audience==='all'?kinds:audience==='management'?['PLATFORM','MANAGEMENT']:['OWNER','TENANT','RESIDENT'];
+ if(page.items.some(c=>!allowed.includes(c.kind))||new Set(page.items.map(c=>c.propertyId)).size>1)fail();
+ return page;
+}

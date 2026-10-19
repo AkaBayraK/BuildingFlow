@@ -17,6 +17,7 @@ python3 scripts/check-licenses.py
 python3 scripts/test_ci_gates.py
 python3 scripts/test_release_preflight.py
 (cd frontend/buildingflow-web && npm test && npm run typecheck && npm run build && npm audit --audit-level=high)
+bash scripts/check-website.sh
 # Mobile release dependencies must pass the same high-severity gate without installing packages.
 npm --prefix mobile/buildingflow-mobile audit --audit-level=high --package-lock-only
 # This runner prepares separate PG schemas and fixture-only SeaweedFS/RabbitMQ/Mailpit.

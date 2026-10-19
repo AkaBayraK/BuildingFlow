@@ -76,3 +76,11 @@ Migration `20261018172114_WebsiteMedia`: BaseEntity8kolonlu website_media, nulla
 
 ## WEBSITE FAZ06 —19.10.2026
 İlan ve başvuru uçları, yayın engeli ve işletim koşulları [listings.md](listings.md) içindedir. Public/özel başvuru depoları ayrıdır; önceki CMS/medya davranışı korunur.
+
+## FAZ 07 — Alan adı ve taslak önizleme
+
+Uygulanan domain/DNS/TLS kapıları, SEO, güvenilir Host çözümleme ve süreli önizleme sözleşmesi: [website-domains.md](website-domains.md). Canlı DNS/sertifika kurulumu yapılmadı.
+
+## FAZ 08 — Güvenli giriş
+
+Public Yönetim/Sakin girişleri, exact dönüş allowlist ve authenticated site context sözleşmesi: [website-login.md](website-login.md). Gerçek Keycloak kabulü yapılmadı; özellik kapıları mevcut ortamda değiştirilmedi.

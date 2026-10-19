@@ -139,3 +139,19 @@ Tek agent; akadev-phase/contract/security/verify/license/docs kullanıldı. Mode
 
 ## 19.10.2026 — WEBSITE FAZ06 kullanımı
 Tek agent ile akadev-phase/contract/security/verify/license/docs mevcut skill akışı uygulandı. Kapsam T21.6/T21.10; gerçek kanıt TESTING.md, API docs/api/listings.md. Yeni agent/MCP/globalayar/bağımlılık kurulmadı. Gerçek EİDS/hukuki kabul açıkken roadmapdone işaretlenmedi.
+
+## 19.10.2026 — WEBSITE FAZ07
+
+Tek agent; mevcut akadev-phase/contract/security/verify/license/docs kullanıldı. Domain/preview sözleşmesi docs/api/website-domains.md, kanıt TESTING.md. Yeni agent/MCP/skill/paket kurulmadı. Canlı DNS/TLS kabulü yapılmadı.
+
+## 19.10.2026 — WEBSITE FAZ08
+
+Tek agent; mevcut akadev-phase/contract/security/verify/docs/license prosedürleri kullanıldı. Yeni agent/MCP/skill/paket kurulmadı. Kanıt TESTING.md; sözleşme docs/api/website-login.md. Canlı Keycloak kabulü yapılmadı.
+
+## 19.10.2026 — BAKIM tek website girişi
+
+Tek agent; phase/contract/security/verify/docs/license mevcut prosedürleri. Yeni bağımlılık/agent/MCP yok. Kanıt TESTING.md; gerçek Keycloak yalnız giriş ekranına kadar doğrulandı.
+
+## 19.10.2026 — WEBSITE FAZ09
+
+Tek agent; mevcut phase/contract/security/verify/license/docs prosedürleri. Docker/CI/SBOM/API sınırları ve yerel fixturekanıtı TESTING.md/phase09raporunda. Kullanıcı GitHub proje3 issuegövde/durum güncellemesini açıkça yetkilendirdi; #30açık kabul. Yeni agent/MCP/skill/paket kurulmadı.

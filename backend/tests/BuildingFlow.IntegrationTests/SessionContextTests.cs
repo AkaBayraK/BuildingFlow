@@ -98,5 +98,36 @@ public sealed class SessionContextTests(SiteApiTests.SiteApiFactory factory):ICl
     {
         var s=await Seed();var property=new Property("Remote fixture","City","District","Address",PropertyType.SITE);var a=property.AddBuilding("A").AddUnit("1",0,100);var b=property.AddBuilding("B").AddUnit("2",0,100);await factory.WithDb(async db=>{db.AddRange(property,new PersonPropertyScope(s.Tenant,property.Id),new UnitOwnership(s.Tenant,property.Id,a.Id,s.Person,Today),new UnitOwnership(s.Tenant,property.Id,b.Id,s.Person,Today));await db.SaveChangesAsync();});using var c=Client(s.User,"OWNER");var page=await Ok<PagedRows<SessionContext>>(await c.GetAsync(Root));Assert.Equal(2,page.TotalCount);Assert.All(page.Items,x=>{Assert.Equal("OWNER",x.Kind);Assert.Equal(property.Id,x.PropertyId);Assert.False(x.CanManagePeople);});Assert.Equal(2,page.Items.Select(x=>x.UnitId).Distinct().Count());Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync($"/api/v1/properties/{property.Id}/units")).StatusCode);
     }
+
+    private async Task<WebsiteSite> Website(Fixture s,bool published=true)
+    {
+        var site=new WebsiteSite(s.Property,Guid.NewGuid(),"entry-"+Guid.NewGuid().ToString("N"),"Entry fixture");
+        await factory.WithDb(async db=>{db.Add(site);if(published){site.MarkPublished();db.Add(new WebsitePublication(s.Property,site.Id,Guid.NewGuid(),1,"{}",new string('a',64),Now,null,null));}await db.SaveChangesAsync();});return site;
+    }
+    [PostgresFact]public async Task WebsiteEntrySeparatesAudiencePropertyAndCurrentIdentity()
+    {
+        var s=await Seed();var fp=new Property("Other entry","City","District","Address",PropertyType.APARTMENT);var fu=fp.AddUnit("2",0,100);await factory.WithDb(async db=>{db.AddRange(fp,new PersonPropertyScope(s.Tenant,fp.Id),new PropertyMembership(fp.Id,s.User));await db.SaveChangesAsync();});var foreign=new Fixture(s.Tenant,fp.Id,fu.Id,s.Person,s.Account,s.Link,s.User);var duty=await Duty(s);await Duty(foreign);var site=await Website(s);var other=await Website(foreign);
+        var owner=new UnitOwnership(s.Tenant,s.Property,s.Unit,s.Person,Today);var resident=new UnitResidency(s.Tenant,s.Property,s.Unit,s.Person,Today);
+        await factory.WithDb(async db=>{db.AddRange(owner,resident);await db.SaveChangesAsync();});using var c=Client(s.User);
+        string Entry(string key,string audience)=>Root+"/website/"+key+"/"+audience;
+        var response=await c.GetAsync(Entry(site.SiteKey,"management"));Assert.Equal("no-store",response.Headers.CacheControl!.ToString());var page=await Ok<PagedRows<SessionContext>>(response);Assert.Equal(duty.Id,Assert.Single(page.Items).Id);Assert.All(page.Items,x=>Assert.Equal(s.Property,x.PropertyId));
+        var all=await Ok<PagedRows<SessionContext>>(await c.GetAsync(Entry(site.SiteKey,"all")));Assert.Equal(3,all.TotalCount);Assert.All(all.Items,x=>Assert.Equal(s.Property,x.PropertyId));Assert.Equal(new[]{"MANAGEMENT","OWNER","RESIDENT"},all.Items.Select(x=>x.Kind));
+        var members=await Ok<PagedRows<SessionContext>>(await c.GetAsync(Entry(site.SiteKey,"resident")+"?pageSize=1"));Assert.Equal(2,members.TotalCount);Assert.Single(members.Items);Assert.False(members.Items[0].CanManageFinance);
+        using var stranger=Client(Guid.NewGuid().ToString());Assert.Equal(HttpStatusCode.NotFound,(await stranger.GetAsync(Entry(site.SiteKey,"all"))).StatusCode);Assert.Equal(HttpStatusCode.NotFound,(await stranger.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);
+        using var memberRole=Client(s.User,"RESIDENT");Assert.Equal(HttpStatusCode.NotFound,(await memberRole.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);Assert.Equal(2,(await Ok<PagedRows<SessionContext>>(await memberRole.GetAsync(Entry(site.SiteKey,"resident")))).TotalCount);Assert.Equal(2,(await Ok<PagedRows<SessionContext>>(await memberRole.GetAsync(Entry(site.SiteKey,"all")))).TotalCount);
+        Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(Entry(site.SiteKey,"SUPER_ADMIN"))).StatusCode);Assert.Equal(HttpStatusCode.BadRequest,(await c.GetAsync(Entry(site.SiteKey,"resident")+"?pageSize=101")).StatusCode);
+        using var off=Client(s.User,enabled:false);Assert.Equal(HttpStatusCode.NotFound,(await off.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);
+        using var anon=factory.CreateClient();Assert.Equal(HttpStatusCode.Unauthorized,(await anon.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);anon.DefaultRequestHeaders.Authorization=new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer","invalid");Assert.Equal(HttpStatusCode.Unauthorized,(await anon.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);
+        await factory.WithDb(async db=>{var a=await db.Set<ManagementAssignment>().SingleAsync(x=>x.Id==duty.Id);a.Cancel(Now,"Entry fixture revoke");await db.SaveChangesAsync();});Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(Entry(site.SiteKey,"management"))).StatusCode);
+        Assert.All((await Ok<PagedRows<SessionContext>>(await c.GetAsync(Entry(other.SiteKey,"management")))).Items,x=>Assert.Equal(foreign.Property,x.PropertyId));
+    }
+    [PostgresFact]public async Task WebsiteEntryRequiresActivePublishedSiteAndDoesNotInferResidentFromManagement()
+    {
+        var s=await Seed();await Duty(s);var site=await Website(s,false);using var c=Client(s.User);var path=Root+"/website/"+site.SiteKey;
+        Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(path+"/management")).StatusCode);
+        await factory.WithDb(async db=>{var w=await db.Set<WebsiteSite>().SingleAsync(x=>x.Id==site.Id);w.MarkPublished();db.Add(new WebsitePublication(s.Property,w.Id,Guid.NewGuid(),1,"{}",new string('a',64),Now,null,null));await db.SaveChangesAsync();});
+        Assert.Single((await Ok<PagedRows<SessionContext>>(await c.GetAsync(path+"/management"))).Items);Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(path+"/resident")).StatusCode);
+        await factory.WithDb(async db=>{var w=await db.Set<WebsiteSite>().SingleAsync(x=>x.Id==site.Id);w.Suspend();await db.SaveChangesAsync();});Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync(path+"/management")).StatusCode);
+    }
     public void Dispose(){foreach(var child in children)child.Dispose();}
 }

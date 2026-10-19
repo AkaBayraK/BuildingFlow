@@ -10,6 +10,7 @@ internal static class SessionContextEndpoints
         var root=app.MapGroup("/api/v2/session/contexts").RequireAuthorization();
         root.AddEndpointFilter(async(context,next)=>app.Configuration.GetValue<bool>("PersonRefactor:Enabled") && app.Configuration.GetValue<bool>("PersonRefactor:SessionContextsEnabled")?await next(context):Results.NotFound());
         root.MapGet("",async(ISessionContextStore store,CancellationToken token,int page=1,int pageSize=20)=>Results.Ok(await store.ListAsync(page,pageSize,token)));
+        root.MapGet("/website/{siteKey}/{audience}",async(string siteKey,string audience,ISessionContextStore store,HttpResponse response,CancellationToken token,int page=1,int pageSize=20)=>{response.Headers.CacheControl="no-store";return await store.WebsiteAsync(siteKey,audience,page,pageSize,token) is {} value?Results.Ok(value):Results.NotFound();});
         root.MapGet("/{kind}/{id:guid}",async(string kind,Guid id,ISessionContextStore store,CancellationToken token)=>await store.GetAsync(kind,id,token) is {} value?Results.Ok(value):Results.NotFound());
     }
     public static void UseSessionContextAccess(this WebApplication app)

@@ -1,5 +1,17 @@
 name: buildingflow
 services:
+  buildingflow-website:
+    profiles: [website]
+    build:
+      context: ..
+      dockerfile: website/Dockerfile
+    environment:
+      WEBSITE_API_ORIGIN: http://buildingflow-api:8080
+      WEBSITE_PUBLIC_ORIGIN: ${WEBSITE_PUBLIC_ORIGIN:-http://localhost:3004}
+      WEBSITE_MANAGEMENT_ORIGIN: ${WEBSITE_MANAGEMENT_ORIGIN:-http://localhost:3003}
+    ports: ["127.0.0.1:${WEBSITE_PORT:-3004}:3000"]
+    depends_on:
+      buildingflow-api: {condition: service_started}
   buildingflow-web:
     build:
       context: ..
@@ -7,12 +19,14 @@ services:
       args:
         BUILDINGFLOW_SESSION_CONTEXTS_ENABLED: ${BUILDINGFLOW_SESSION_CONTEXTS_ENABLED:-false}
         BUILDINGFLOW_PERSON_CENTER_ENABLED: ${BUILDINGFLOW_PERSON_CENTER_ENABLED:-false}
+        NEXT_PUBLIC_WEBSITE_ORIGIN: ${WEBSITE_PUBLIC_ORIGIN:-http://localhost:3004}
         NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-5005}
         NEXT_PUBLIC_OIDC_AUTHORITY: http://localhost:${KEYCLOAK_PORT:-8080}/realms/buildingflow
         NEXT_PUBLIC_OIDC_CLIENT_ID: buildingflow-web
     environment:
       BUILDINGFLOW_SESSION_CONTEXTS_ENABLED: ${BUILDINGFLOW_SESSION_CONTEXTS_ENABLED:-false}
       BUILDINGFLOW_PERSON_CENTER_ENABLED: ${BUILDINGFLOW_PERSON_CENTER_ENABLED:-false}
+      NEXT_PUBLIC_WEBSITE_ORIGIN: ${WEBSITE_PUBLIC_ORIGIN:-http://localhost:3004}
       API_INTERNAL_URL: http://buildingflow-api:8080
     ports: ["127.0.0.1:${WEB_PORT:-3003}:3000"]
     depends_on:

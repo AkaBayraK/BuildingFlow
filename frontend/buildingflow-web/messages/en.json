@@ -1,4 +1,10 @@
 {
+  "websiteEntry": {
+  "all": "Choose a workspace you can access for this website.",
+  "unavailable": "Secure site-scoped access is not enabled in this environment. Contact your administrator.",
+  "management": "Your current management assignments for this website. The login link does not grant access.",
+  "resident": "Your current owner, tenant and resident workspaces for this website."
+},
   "ui": {
     "signoutBrandEyebrow": "SIMPLIFY BUILDING LIFE",
     "signoutBrandHeadline": "Better organised buildings.",
@@ -972,11 +978,14 @@
     "phase21Task6": "T21.6 · WEBSITE PHASE 06 · Sale/rent listing management",
     "phase21Task6Detail": "Optional unit association, photos, private owner evidence, review, withdrawal, immutable events and public listing/detail are implemented. Publication remains blocked pending a real EIDS verifier and legal acceptance; task is not marked complete.",
     "phase21Task7": "T21.7 · WEBSITE PHASE 07 · Domain, SEO and publishing",
-    "phase21Task7Detail": "Domain ownership via DNS TXT, TLS/reverse proxy decision, sitemap, robots, canonical, structured data, site-keyed cache and purge on publish, preview/publish/rollback; cross-tenant cache and host injection tests.",
+    "phase21Task7Detail": "DNS TXT/TLS and SUPER_ADMIN gates, domain management, trusted Host routing, canonical/sitemap/robots/JSON-LD, expiring draft preview and no-store publication/rollback implemented. Live DNS/certificate/reverse proxy setup awaits operational acceptance.",
+    "phase21Task7Verification": "19 Oct 2026 TESTING: 42/42 selected PG/storage,277/277 unit,159/159 admin,17/17 website; typecheck/build/HTTP smoke and isolated mobile focus check. Live DNS/TLS and Keycloak acceptance not performed.",
     "phase21Task8": "T21.8 · WEBSITE PHASE 08 · Secure sign-in and redirects",
-    "phase21Task8Detail": "Management and Resident sign-in on the public site use the existing Keycloak PKCE flow; no password is collected on the public site; return URL allowlist, role/tenant context, unauthorized access and session tests.",
+    "phase21Task8Detail": "One My Account link opens existing Keycloak PKCE in a new tab for every authorized role within the website scope; the public site never collects passwords. Backend checks current assignments/relations and site scope. Previous entry links remain compatible.",
+    "phase21Task8Verification": "19.10.2026:32/32 integration(session/JWT),8/8 unit,161/161 admin,18/18 website; typecheck/build/HTTP smoke PASS. Isolated UI audience/account change/revocation passed. Live Keycloak acceptance pending.",
     "phase21Task9": "T21.9 · WEBSITE PHASE 09 · Testing, operations and documentation",
-    "phase21Task9Detail": "E2E, accessibility, SEO, tenant isolation, security, performance, migration/rollback, Docker/deploy, license/SBOM checks; Turkish operations and administrator guides.",
+    "phase21Task9Detail": "Website CI gate, standalone Docker/health, production origin check, existing-lock CycloneDX/NOTICE bundle and Turkish operations/admin guides implemented. Isolated checks passed; live deployment/UAT/EIDS/DNS/TLS and full distribution acceptance remain open in GitHub #30.",
+    "phase21Task9Verification": "19 Oct 2026:75/75 selected PG/storage integration,277/277 unit,161/161 admin,22/22 website; typecheck/build/HTTP smoke/isolated read-only nonroot Docker PASS. npm audit0,329 reviewed license metadata,230npm SBOM/148NOTICE. This is not full security/OS/UAT acceptance.",
     "phase21Task10": "T21.10 · Extra · KVKK notice, cookies and contact form",
     "phase21Task10Detail": "Versioned notice, signed 3-second challenge, private inquiry workspace,IP5/hour+site100/day and180-day anonymization are implemented. Form is closed without a server HMAC key; proxy clients share the IP budget. Operational/legal acceptance remains open.",
     "phase21Task11": "T21.11 · Extra · Media rights and image safety",

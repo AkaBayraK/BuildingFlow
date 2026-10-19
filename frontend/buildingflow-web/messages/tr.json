@@ -1,4 +1,10 @@
 {
+  "websiteEntry": {
+  "all": "Bu site için erişiminiz olan çalışma alanını seçin.",
+  "unavailable": "Siteye bağlı güvenli giriş bu ortamda henüz etkin değil. Yöneticinizle iletişime geçin.",
+  "management": "Bu web sitesindeki güncel yönetim görevleriniz. Giriş bağlantısı erişim yetkisi vermez.",
+  "resident": "Bu web sitesindeki güncel malik, kiracı ve sakin çalışma alanlarınız."
+},
   "ui": {
     "signoutBrandEyebrow": "BİNA YAŞAMINI KOLAYLAŞTIRIN",
     "signoutBrandHeadline": "Daha düzenli binalar.",
@@ -972,11 +978,14 @@
     "phase21Task6": "T21.6 · WEBSITE FAZ 06 · Satılık/kiralık ilan yönetimi",
     "phase21Task6Detail": "İlan/opsiyonel Unit, fotoğraf, özel malik belgesi, inceleme, geri çekme, değişmez olaylar ve public liste/detay uygulandı. Gerçek EİDS doğrulayıcısı ve hukuki kabul olmadığı için yayın kapalı; görev tamamlandı işaretlenmedi.",
     "phase21Task7": "T21.7 · WEBSITE FAZ 07 · Alan adı, SEO ve yayınlama",
-    "phase21Task7Detail": "DNS TXT ile alan adı sahiplik doğrulaması, TLS/ters vekil kararı, sitemap, robots, canonical, structured data, site kimlikli önbellek ve yayın sonrası temizleme, önizleme/yayın/geri alma; cross-tenant cache ve host injection testleri.",
+    "phase21Task7Detail": "DNS TXT/TLS ve SUPER_ADMIN onay kapıları, alan adı yönetimi, güvenli Host çözümleme, canonical/sitemap/robots/JSON-LD, süreli taslak önizleme ve no-store yayın/geri alma uygulandı. Canlı DNS/sertifika/ters vekil kurulumu işletim kabulü bekler.",
+    "phase21Task7Verification": "19.10.2026 TESTING: 42/42 seçili PG/storage,277/277 unit,159/159 yönetim,17/17 website; typecheck/build/HTTP smoke ve izole mobil odak kontrolü. Canlı DNS/TLS ve Keycloak kabulü yapılmadı.",
     "phase21Task8": "T21.8 · WEBSITE FAZ 08 · Güvenli giriş ve yönlendirme",
-    "phase21Task8Detail": "Public sitedeki Yönetim ve Sakin girişleri mevcut Keycloak PKCE akışına; parola public sitede alınmaz; return URL allowlist, rol/tenant bağlamı, yetkisiz erişim ve oturum testleri.",
+    "phase21Task8Detail": "Tek Hesabıma Giriş bağlantısı tüm yetkili kullanıcıları site bağlamıyla mevcut Keycloak PKCE akışına yeni sekmede yönlendirir; public sitede parola alınmaz. Backend güncel görev/ilişki ve site kapsamını doğrular. Eski giriş linkleri uyumludur.",
+    "phase21Task8Verification": "19.10.2026:32/32 entegrasyon(oturum/JWT),8/8 seçili birim,161/161 yönetim,18/18 website; typecheck/build/HTTP smoke PASS. İzole UI giriş türü/hesap değişimi/erişim iptali PASS. Canlı Keycloak kabulü bekliyor.",
     "phase21Task9": "T21.9 · WEBSITE FAZ 09 · Test, operasyon ve dokümantasyon",
-    "phase21Task9Detail": "E2E, erişilebilirlik, SEO, tenant izolasyonu, güvenlik, performans, migration/rollback, Docker/deploy, lisans/SBOM kontrolleri; Türkçe işletim ve yönetici kullanım belgeleri.",
+    "phase21Task9Detail": "Website CI kapısı, standalone Docker/health, güvenli üretim origin kontrolü, mevcut lock CycloneDX/NOTICE paketi ve Türkçe işletim/yönetici rehberleri uygulandı. İzole testler geçti; gerçek yayın/UAT/EİDS/DNS/TLS ve tam dağıtım kabulü GitHub #30’da açık.",
+    "phase21Task9Verification": "19.10.2026:75/75 seçili PG/storage integration,277/277 unit,161/161 yönetim,22/22 website; typecheck/build/HTTP smoke/Docker ağsız-readonly-nonroot PASS. npm audit0,329 lisans metadata,230npm SBOM/148NOTICE. Tam güvenlik/OS/UAT kabulü değildir.",
     "phase21Task10": "T21.10 · Ek · KVKK aydınlatma, çerez ve iletişim formu",
     "phase21Task10Detail": "Aydınlatma sürümü, imzalı 3s challenge, özel başvuru ekranı, IP5/saat+site100/gün ve180gün anonimleştirme uygulandı. HMAC anahtarı olmadan form kapalı; proxy IP kotası paylaşılır. İşletim/hukuki kabul açık, görev tamamlandı işaretlenmedi.",
     "phase21Task11": "T21.11 · Ek · Medya hakları ve görsel güvenliği",

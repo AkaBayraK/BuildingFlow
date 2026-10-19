@@ -1,3 +1,61 @@
+## WEBSITE FAZ09 —19.10.2026 — Son teknik kanıt
+
+**75/75 integration +90/90 seçili unit,0fail/skip**; izole `/tmp/bf-website09-tests.sh`: WEBSITE07 filtresine `FullyQualifiedName~SessionContextTests|FullyQualifiedName~AuthenticationTests` eklenmiş `dotnet test backend/BuildingFlow.sln --no-restore --disable-build-servers -m:1`. CMS/media/listing/domain/public/preview/session/JWT/migration/schema/persistence testleri; yalnız geçiciDB/rol/bucket temizlendi. Tüm unit ayrıca277/277. Eski migration değiştirilmedi; gerçek DB'ye migration uygulanmadı. Full backend integration iddiası yok.
+
+**161/161admin,22/22website; iki typecheck/productionbuild PASS.** Website `scripts/check-website.sh` baştan sona PASS (setup/test/typecheck/build/HTTPsmoke/SBOM). Public fixture15005/13004 yalnız kendi süreçlerini kullanır; tenant/Host/SEO/preview/listing/inquiry/media/giriş/health204 regresyonları. Node preflight valid fixturePASS/missingFAIL;4yeni unit unsafeorigin/missing/sameorigin ve exactreviewedSBOM negatiflerini kapsar. CI result gate6senaryo PASS.
+
+Docker imajı `buildingflow-website:phase09` buildPASS; nonroot USER node. `python3 scripts/test-website-container.py buildingflow-website:phase09` ağsız/read-only/capdrop/no-newprivileges fixture'da health204/demo200/WebP200/CSP/Hostfailclosed/SBOM/NextNOTICE/HTML<1MiB PASS, ownedcontainer temizlendi. İlk cachecontrol assertion sadece no-store bekledi; private,no-store kabulüyle düzeltilip sonkoşu PASS. Compose website profil config --quiet, bash -n ve git diff --check PASS. Gerçek stack/deployment yok.
+
+Web lock npm audit0açık. Docker npmci sonrasında check-licenses.py329npm/NuGetmetadata PASS; inventoryiçerikfarkı yok. CycloneDX1.6lock230npm (dev/platformoptional dahil; OS/NuGet/binaryhariç). Docker148kurulu kök license/notice/copying/copyright kaydı korur;7pakette kökdosya eksiği manifestte ve #30'da açık. MetadataPASS dağıtımhukuku kabulü değildir.
+
+Bu tur tarayıcı1280:tekmain/h1/langtr/eksikalt0/isimsizgörünürlink0/kırıkimg0; Tab→İçeriğeatla/Enter→contentfocus.390/320taşma0/tekCTA/targetblank. Otomatik axe/WCAG/Lighthouse veya gerçekcihaz/ekranokuyucu kabulü değildir. RealKeycloak giriş ekranı geçmiş BAKIM kanıtıdır; bu fazda kimlikli callback/refresh/logout koşulmadı. GerçekEİDS/DNS/TLS/UAT/OSgüvenlik/yük/backup kabulü **DOĞRULANAMADI**, [#30](https://github.com/AkaBayraK/BuildingFlow/issues/30). FAZ09teknik2/2; T21.12donefalse. [Teslim raporu](website-management/phase-09-report.md).
+
+## WEBSITE FAZ09 —19.10.2026 — Planlanan kabul
+
+Website/admin test/typecheck/build; izole HTTP smoke: iki tenant/Host/SEO/preview/media/inquiry/giriş; mevcut izole PG website/listing/session/JWT/migration/audit ve tüm unit. Standalone/Docker nonroot, health ve compose render; mevcut kilitli bağımlılıklardan SBOM/license metadata, unsafe deployment config negatifleri; CI website kapısı. Türkçe operatör ve yönetici belgeleri/yerel bağlantılar. Tarayıcı klavye/320/390/masaüstü ve semantik kontrol; Lighthouse/ekranokuyucu/gerçekcihaz/tamkimlikli UAT dış kabul olarak açık kalır. Henüz koşulmadı.
+
+## BAKIM —19.10.2026 — Tek giriş son kabul
+
+**32/32 integration,8/8 seçili unit,0skip/fail**: aynı FAZ08 izole runner/filtresi yeniden çalıştırıldı. WebsiteEntry testine all audience eklendi: aynı site3güncel management/owner/resident bağlamı birlikte, başkaProperty hariç; resident realm hesabı all içinde sadece kendi2ilişkisini alır; yabancıhesap404. Eski audience/anonim/bozukJWT/kapalıbayrak/iptal/taslak/askı ve mevcut session/JWT regresyonları geçti. Geçici DB/rol temizlendi; tüm backend suite iddiası yok.
+
+**161/161 yönetim,18/18 website; iki typecheck/production build ve public HTTP smoke PASS.** All path dönüş allowlist ve DTO all/audience negatifleri; tek renderlanmış header linki/site-all/targetblank/rel/no-portal; publicroot doğrudan WebP (Next image optimizer yok) ve mevcut host/tenant/SEO/preview/media/form izolasyonu doğrulandı. Yeni paket yok.
+
+Gerçek tarayıcı1280pxmasaüstü ve390/320mobil: headerteklink, yataytaşma0;390pxhero1536pxnaturalWidth/kırıkimg0. İlk görsel kontrolde Next optimizer internalrequest404ve390headeroverflow görüldü; mevcut WebP'ler unoptimized doğrudan sunuldu, mobil logo/gap/menu44px düzenlendi; son kontroller geçti. Public3004güncelteklink doğrulandı. Giriş tıklaması ayrı3003sekmesi açtı, asılsite13004sekmesi kaldı; gerçek Keycloak giriş ekranına Code+S256 akışıyla ulaşıldı. Kimlik bilgisi girilmedi; giriş sonrası gerçek callback/refresh/logout DOĞRULANAMADI. Cookie/token/authURL kalıcı kanıta yazılmadı.
+
+BAKIM2/2=%100,00; mevcut faz sayaçları değişmedi. [Güncel sözleşme](api/website-login.md).
+
+## BAKIM —19.10.2026 — Tek giriş planlanan kabul
+
+Tek header CTA, target blank + noopener noreferrer, header dışı duplicate yok; mobil erişilebilir tek CTA/taşma, shared login all audience ile aynı siteye ait management+owner/tenant/resident ve başka site izolasyonu; eski audience linkleri ve JWT regresyonu. FE unit/typecheck/build, izole backend ve public HTTP smoke; masaüstü/mobil tarayıcı kontrolü. Henüz koşulmadı.
+
+## WEBSITE FAZ08 —19.10.2026 — Son teknik kabul
+
+**32/32 seçili integration ve8/8 seçili unit;0fail/skip.** `/tmp/bf-website08-tests.sh` mevcut izole test-db.py fixture'ıyla `dotnet test backend/BuildingFlow.sln --no-restore --disable-build-servers -m:1 --filter 'FullyQualifiedName~SessionContextTests|FullyQualifiedName~AuthenticationTests|FullyQualifiedName~WebsitePublicBoundaryTests'` çalıştırdı; yalnız kendi geçiciDB/rolünü oluşturup temizledi. Negatif JWT issuer/audience/expiry/signature/malformed ve mevcut session parent/account/link/üyelik/görev/tarih/role testleri dahil. Tüm backend veya tüm unit suite yeniden çalıştırılmış sayılmaz.
+
+Yeni WebsiteEntry testleri: aynı hesabın iki Property'si ayrı listelenir; yönetim ve resident audience ayrılır, malik+sakin iki ilişki/sayfalama korunur; rol taklidi/outsider/no-context404, anonim/bozukJWT401, invalid audience404, sayfalama400, kapalıbayrak404, taslak/askı404, publication sonrası200, görev iptali sonrası404. Response no-store. İlk fixture koşusunda yinelenen issuer+subject hesabı unique ihlali verdi; mevcut hesapla ikinci Property kuracak şekilde düzeltildi, son32/32 başarılı. Migration/model değişmedi.
+
+**Yönetim161/161,website18/18; iki uygulama typecheck/build PASS.** Yeni testler exact yerel entry allowlist (external/query/hash/traversal/newline/rol taklidi reddi), HTTPS veya loopback management origin, site/audience bağlantısı, context DTO audience/mixedProperty reddi. Ortak çeviri testinin namespace okuyucusu awaited getTranslations çağrısını da doğrular. İlk UI dictionary kontrolü namespace'i yanlışlıkla ui sanıyordu; test parser düzeltildi, eş TR/EN ICU/render kontrolü korundu.
+
+Public HTTP smoke PASS: her tenantın kendi management/resident linki, demo sakin girişi, mevcut customHost/SEO/header spoof/revocation/preview/media/inquiry regresyonları. Site public SSR'ına özel veri/parola/token eklenmedi. Gerçek ortak SessionWorkspaces/useCenterRecord/notification/TR bileşenleriyle izole13003 browser fixture: yönetim linki MANAGEMENT, audience değişince RESIDENT; hesap değişiminde eski kart yok; fixture revoke+Yenile erişimi kapatır. Fixture'ın ilk error yolu eksik NotificationProvider nedeniyle hata verdi; üretimde zaten var olan ortak sağlayıcı fixture'a eklendi, son yollar başarılı.
+
+**DOĞRULANAMADI:** gerçek Keycloak hesabıyla browser Code/S256 callback, gerçek logout/refresh/session expiry, canlı domain/proxy ve gerçek cihaz. Keycloak adapter/config değişmedi; mevcut auth akışı kullanılır. .env/hesap/rol/parola/gerçekDB/API/Worker korunur. Feature kapıları gerçek ortamda açılmadı. Yeni paket/manifest/lock/font/ikon/görsel/restore/npmci yok; lisans envanteri yeniden üretilmedi. FAZ08 teknik2/2; FAZ06 EİDS/hukuki ve FAZ07 canlı DNS/TLS açık. [API/işletim](api/website-login.md).
+
+## WEBSITE FAZ08 —19.10.2026 — Planlanan kabul
+
+Return path saldırıları (external/protocol-relative/encoded/query/fragment), managementorigin HTTPS/loopback, iki audience linki; authenticated site context sayfalama/rol/üyelik/çapraz tenant/yayın durumu/anlık iptal; anonim/bozuk JWT ve mevcut negatif JWT regresyonu. Session storage sadece allowlist yerel path, logout temizliği, hesap değişimi ve focus revalidation. Admin/public unit/typecheck/build ve HTTP smoke. Canlı Keycloak tarayıcı kabulü koşulmadan geçti sayılmaz.
+
+## WEBSITE FAZ07 —19.10.2026 — Son teknik kabul
+
+**42/42 seçili PG/storage integration,90/90 seçili unit ve tüm277/277 unit,0fail/skip.** İzole `/tmp/bf-website07-tests.sh` mevcut test-db.py ile yalnız kendi geçiciDB/rolünü oluşturup kaldırdı; storage fixture sadece kendi buildingflow-test-* bucket'larını temizledi. Seçim WEBSITE FAZ06 komutundaki Listing/Website/ProfilePhoto/BaseEntity/SchemaContract/ErrorCatalog/Persistence filtresidir. Tamunit `dotnet test backend/tests/BuildingFlow.UnitTests --no-restore`; tüm backend suite geçti iddiası yoktur.
+
+Domain API: anonim/rol/üyelik reddi, UUID replay/çakışma, globalhost/primary, customonay, bağımsız DNS/TLS kapıları, version409, primary/publicdraft404/yayın200/disable404/rotate/delete. BCL verifier unit: private/reservedIP reddi ve exactTXT name/type/hash; fixture verifier gerçek internet/sertifika kabulü değildir. Preview imza/süre/version, cross-site medya ve whiteDTO/noindex. Migration yükseltme/Propertykoruma/reapply/emptyDown/doluDown guard, snapshot ve gerçekPostgreSQL sekizNOTNULL audit sözleşmesi geçti. Eski migration değiştirilmedi; ListingMigrationTests sonraki migration nedeniyle hedef prefix rollback bekler.
+
+**Yönetim159/159; website17/17; ikiFE typecheck/build PASS.** Devam turu website17test/typecheck/build/HTTPsmoke tekrar PASS. HTTPsmoke: iki tenant, customHost, bilinmeyenHost404, sahte forwarded/internalbaşlık, canonical/JSON-LD/sitemap/robots, anlıkdomainiptali, medyaSHA/ilan/form regresyonları; POSTpreview303/HttpOnlyLaxcookie/noindex/no-store/yabancıOrigin403/missingcookie404. Node fetch Host override yerine gerçek http.request Host kullanılır. Sandbox bindEPERM koşusu başarılı sayılmadı; yetkili izole koşu geçti.
+
+İzole gerçek React/shared UI fixture13003: domain liste/eylem onay kutusu/gönderim kilidi, ESC sonrası görünür güncel satır düğmesine odak,390px taşma0. Gerçek Keycloak/API yerine açık mockfixture; DNS/TLS çağrısı yapılmadı. Eski WebsiteDomainTests dosyası ilk ara değişiklikte yanlışlıkla ezildi, fark incelemesiyle aslı geri kondu ve yeni testler WebsiteHostTests'e taşındı. Eksik222test sonucu kanıt sayılmadı; son277test geçti.
+
+Yeni paket/manifest/lock değişimi yok; npmci/restore ve lisans envanteri yeniden üretimi yapılmadı. Gerçek DNS/TLS/sertifika/proxy, Keycloak uçtanuca, gerçek cihaz/Lighthouse ve tam güvenlik suite DOĞRULANAMADI. FAZ07 teknik2/2; canlı işletim kabulü ayrı. FAZ06 EİDS/hukuki engeli ve yayın kapısı korunur. [API/işletim](api/website-domains.md).
+
 ## WEBSITE FAZ07 —19.10.2026 — Planlanan kabul
 Domain normalizasyonu/IDN/host injection, DNS TXT exact hash, TLSözelIP/redirect/sertifika reddi, SUPER_ADMIN customonayı/üyelik/version/UUID, globalhostunique/primary, publicpending/disabled/stale404;8auditkolonu/FK/migrationupgradereplay/Down. İkiTenant no-store/ETag/yayın/restore/askı, previewimza/süre/site/noindex; canonical/sitemap/robots/structureddata yalnız doğrulanmışorigin; hostileHost/XForwardedHost/headerspoof reddi. Adminwebsite test/typecheck/build ve HTTPsmoke. Henüz koşulmadı; gerçekdomain/TLSkabulü ayrı.
 

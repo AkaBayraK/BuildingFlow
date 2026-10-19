@@ -1,3 +1,19 @@
+## 19.10.2026 — WEBSITE FAZ09
+
+Website CI kapısı/4releaseunit/HTTPSoriginpreflight, standaloneDockerfile/nonroothealth ve isteğe bağlıCompose3004 eklendi. Adminwebsiteoriginbuildarg/dev.shwebsite ve nestedenv/privateconfigDockerignore koruması. CycloneDXlockSBOM ve mevcutNOTICE toplama; Türkçe işletim/yönetici/teslim raporu. T21.9teknikdone; #30açık kabul görevi ve #20–29gövdeleri/durumları eşitlendi. Üretim/kimlikliUAT kabulü yapılmadı; yeni bağımlılık veya migration yok.
+
+## 19.10.2026 — BAKIM: Tek website girişi
+
+Rol bazlı mükerrer girişler tek Hesabıma Giriş bağlantısında birleştirildi; yeni sekme ve opener koruması. Hero portal kartı kaldırıldı, mobil header düzenlendi. Aynı siteye ait tüm yetkili bağlamlar all audience ile mevcut güvenlik modelinde birleştirildi; eski linkler korundu. WebP optimizer404 düzeltildi. Test kanıtı TESTING.md; faz sayaçları değişmedi.
+
+## 19.10.2026 — WEBSITE FAZ08
+
+Public Yönetim/Sakin girişleri site/audience bağlamıyla mevcut Keycloak akışına bağlandı. Authenticated website context listesi mevcut backend scope modelini kullanır; dönüş allowlist ve logout temizliği, ortak UI hesap değişimi/odak yenilemesi eklendi. T21.8 test kanıtı bağlandı; gerçek Keycloak kabulü bekler. Yeni migration/bağımlılık yok.
+
+## 19.10.2026 — WEBSITE FAZ07
+
+Domain entity/migration, DNS TXT/TLS ve SUPER_ADMIN kapıları, admin domain paneli, güvenli Host çözümleme/SEO ve süreli HMAC taslak önizlemesi eklendi. No-store yayın/restore davranışı korundu. T21.7 teknik kabulü TESTING.md kanıtıyla güncellendi; canlı DNS/TLS ve FAZ06 EİDS/hukuki kabulü açık. Yeni bağımlılık yok. Son devam turunda trailing-dot Host normalizasyonu ve object-src none CSP tamamlandı.
+
 ## 19.10.2026 — WEBSITE FAZ06 teknik geliştirme
 
 İlan/fotoğraf/değişmez olay/özel yetki belgesi ve başvuru modelleri, migration/API, Web Sitesi Yönetimi ilan ve başvuru panelleri; public liste/detay ve form proxy'si eklendi. EİDS sağlayıcısı olmadan fail-closed yayın kapısı; privacy sürümü/sunucu challenge/DBkilitli kota/180gün Worker anonimleştirmesi ve süre sonu olayları. Kanıt TESTING.md, API docs/api/listings.md. Gerçek yayın ve işletim kabulü açık; roadmap tiklenmedi. Yeni paket veya gerçek veri/hesap değişimi yok.

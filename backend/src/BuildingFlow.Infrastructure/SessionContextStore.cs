@@ -52,6 +52,23 @@ public sealed class SessionContextStore(BuildingFlowDbContext db,ICurrentUserSer
         if(page is <1 or >100000 || size is <1 or >100)throw new ArgumentException("Invalid context pagination.");
         await using var tx=db.Database.CurrentTransaction==null?await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token):null;var q=Entries();var count=await q.CountAsync(token);var rows=await Project(q.OrderBy(e=>e.TenantId).ThenBy(e=>e.PropertyId).ThenBy(e=>e.Kind).ThenBy(e=>e.Id).Skip((page-1)*size).Take(size)).ToArrayAsync(token);if(tx!=null)await tx.CommitAsync(token);return new(rows,page,size,count);
     }
+    public async Task<PagedRows<SessionContext>?> WebsiteAsync(string siteKey,string audience,int page,int size,CancellationToken token)
+    {
+        Identity();
+        if(page is <1 or >100000 || size is <1 or >100)throw new ArgumentException("Invalid context pagination.");
+        if(!System.Text.RegularExpressions.Regex.IsMatch(siteKey,@"\A[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])\z") || audience is not("all" or "management" or "resident"))return null;
+        await using var tx=db.Database.CurrentTransaction==null?await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token):null;
+        var property=await db.Set<WebsiteSite>().Where(s=>s.SiteKey==siteKey && s.IsEnabled && s.Status==WebsiteStatus.PUBLISHED && db.Properties.Any(p=>p.Id==s.PropertyId && p.IsEnabled) && db.Set<WebsitePublication>().Any(p=>p.SiteId==s.Id && p.PropertyId==s.PropertyId && p.IsActive && p.IsEnabled)).Select(s=>(Guid?)s.PropertyId).SingleOrDefaultAsync(token);
+        if(property==null)return null;
+        var q=Entries().Where(e=>e.PropertyId==property.Value);
+        if(audience=="management")q=q.Where(e=>e.Kind=="MANAGEMENT" || e.Kind=="PLATFORM");
+        else if(audience=="resident")q=q.Where(e=>e.Kind=="OWNER" || e.Kind=="TENANT" || e.Kind=="RESIDENT");
+        var count=await q.CountAsync(token);
+        // Do not disclose site existence to an account without a matching current context.
+        if(count==0)return null;
+        var rows=await Project(q.OrderBy(e=>e.Kind).ThenBy(e=>e.Id).Skip((page-1)*size).Take(size)).ToArrayAsync(token);
+        if(tx!=null)await tx.CommitAsync(token);return new(rows,page,size,count);
+    }
     public async Task<SessionContextDetail?> GetAsync(string kind,Guid id,CancellationToken token)
     {
         if(kind is not("PLATFORM" or "MANAGEMENT" or "OWNER" or "TENANT" or "RESIDENT") || id==Guid.Empty)throw new ArgumentException("Invalid workspace identity.");

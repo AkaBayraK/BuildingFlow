@@ -1,3 +1,53 @@
+## WEBSITE FAZ09 —19.10.2026 — Teknik teslim / yayın kabulü açık
+
+**Resmi2/2=%100,00; bu tur2/2=%100,00; WEBSITE9/10=%90,00; İŞ21 10/13=%76,92.** T21.9 teknik doğrulamayla tamamlandı; FAZ06/T21.6,T21.10 ve T21.12 açık. Kaynak BuildingFlow-WebsiteManagement-Prompt-Paketi/PHASES.md; kayıt10/10. Yeni faz yok; üretim onayı verilmedi.
+
+Website CI/test/preflight/standalone Docker/health/SBOM/NOTICE, isteğe bağlı compose profili ve dev.shwebsite eklendi. Türkçe işletim ve yönetici rehberleri hazır. Kanıt75/75PGstorageintegration,277/277unit,161/161admin,22/22website;typecheck/build/HTTPsmoke/DockerPASS. npmaudit0;329lisansmetadata;230lockSBOM/148NOTICE;7kökdosya incelemesi açık. Tarayıcıtemelsemantik/klavye/320/390PASS. FullUAT/Lighthouse/OSgüvenlik/gerçekDNS-TLS/EİDS yapılmadı.
+
+[Ayrıntılı rapor](../website-management/phase-09-report.md), [kanıt](../TESTING.md), [açık kabul #30](https://github.com/AkaBayraK/BuildingFlow/issues/30), [FAZ09 #29](https://github.com/AkaBayraK/BuildingFlow/issues/29). GitHub ilgili görev gövdeleri kanıtla güncellendi; #26 açık, #29 incelemede, #30Ready; diğer ilgili teknik fazlar Done. Alakasız PERSON/MOBIL/TraceFlow kartları korunur. .env/hesap/rol/parola/gerçekDB/API/Worker korunur; fixturekaynaklar temizlendi; commit/push/deploy yok. Tekagent phase/contract/security/verify/license/docs; yeni paket/MCP/skill yok.
+
+Token giriş: BİLGİ MEVCUT DEĞİL; çıkış: BİLGİ MEVCUT DEĞİL; toplam: BİLGİ MEVCUT DEĞİL; kalancontext: BİLGİ MEVCUT DEĞİL. Sonquota teslimde güncellenir; hesapkotası bu sohbet tüketimi değildir. Sonraki: #30gerçek kabul girdileri ve kullanıcı incelemesi.
+
+## WEBSITE FAZ09 —19.10.2026 — DEVAM EDIYOR
+
+Kullanıcı FAZ09 ve GitHub proje3 görev güncellemesini onayladı. Kaynak BuildingFlow-WebsiteManagement-Prompt-Paketi/PHASES.md, kayıt10/10,2resmi madde,0/2=%0,00. Teknik test/operasyon/CI/Docker/SBOM ve Türkçe yönetici/işletim belgeleri; açık gerçek yayın kabulü ayrı GitHub issue'da izlenecek. Mevcut #20–29 korunup yapılanlar içine yazılacak; unrelated PERSON/MOBIL/TraceFlow kartlarına dokunulmaz. Yeni paket/hesap/.env/gerçekDB değişimi yok; tek agent phase/contract/security/verify/license/docs.
+
+## BAKIM —19.10.2026 — Website tek giriş düzeni — TAMAMLANDI
+
+**Bu tur2/2=%100,00.** Üst menüde tek Hesabıma Giriş; mükerrer hero portal kartı/footer/mobil menü girişleri kaldırıldı. Rol seçmeden site/all akışına geçilir; backend aynı siteye ait güncel yönetim/malik/kiracı/sakin bağlamlarını döndürür, yetki genişletmez. Eski management/resident deep linkleri uyumludur. Yeni sekme target blank+noopener+noreferrer; asıl website sekmesi korunur. Hero alanı ve mobil logo/giriş/menü ölçüleri düzenlendi; mevcut optimize WebP'ler doğrudan sunularak Next internal image404 giderildi. CMS LOGIN_CARD geçmişi silinmedi, renderdan çıkarıldı.
+
+**32/32 izole integration+8/8 seçili unit,161/161 yönetim+18/18 website,ikiFE typecheck/build/HTTP smoke PASS.** Tarayıcı1280/390/320 tekCTA, taşma0;390pxkırık görsel0; gerçek tıklama yeni sekme açtı ve Keycloak Code/S256 giriş ekranına ulaştı. Parola/kullanıcı bilgisi girilmedi; kimlikli callback/refresh/logout ve gerçek yayın kabulü yapılmadı. Asıl3004yeni görünüm tarayıcıda doğrulandı. Geçici DB/rol temizlendi;13004izole sunucusu kapatıldı;3004asılsekme teslim görünümü olarak açık. .env/hesap/rol/parola/gerçekDB/API korunur. Yeni paket/restore/npmci/lisansenvanter değişimi yok. Tekagent phase/contract/security/verify/docs/license; yeniSkill/MCP yok. WEBSITE8/10=%80,00; İŞ21 9/13=%69,23 korunur, FAZ09 başlamadı.
+
+[Sözleşme](../api/website-login.md), [kanıt](../TESTING.md). Token giriş/çıkış/toplam/kalancontext: BİLGİ MEVCUT DEĞİL. Son Codex kullanım19.10.2026:300dk %61 kullanılan/%39 kalan,reset19.10.2026 19:43:31;10080dk %88/%12,reset25.10.2026 00:15:34 Europe/Istanbul; hesap kotası sohbet tüketimi değildir.
+
+## BAKIM —19.10.2026 — Website tek giriş düzeni — DEVAM EDIYOR
+
+Kullanıcı rol bazlı mükerrer giriş düğmelerini kaldırıp tek profesyonel giriş ve yeni sekme istedi. Bu tur2adım,0/2=%0,00; faz sayaçları değişmez. Üst menü tek ortak Hesabıma Giriş; tekrar eden hero giriş kartı/footer/mobile menü linkleri kaldırılır. Ortak site/all rotası backend güncel yetkili bağlamları birleştirir; önceki management/resident deep link'leri uyumlu kalır. Keycloak/scope kapıları ve .env/hesaplar korunur. Yeni paket yok. Phase/contract/security/verify/docs; tek agent.
+
+## WEBSITE FAZ08 —19.10.2026 — Teknik teslim
+
+**2/2 resmi madde=%100,00; WEBSITE8/10=%80,00; İŞ21 9/13=%69,23.** Bu tur2/2=%100,00. Kaynak BuildingFlow-WebsiteManagement-Prompt-Paketi/MASTER_PROMPT.md ve PHASES.md; ayrı UI planı frontend/buildingflow-ui-plan/ altında. Kök MASTER_PROMPT.md/PHASES.md yok. T21.8 teknik kabulü kanıtla tamamlandı. Yönetim/Sakin linkleri sabit management origin ve exact site/audience dönüş rotasıyla mevcut Keycloak Code+S256 akışına bağlandı. Backend yayımlanmış siteyi mevcut güncel session context'lerine daraltır; audience rol vermez. UI ortak çalışma alanı seçimini kullanır, hesap/site değişiminde önceki kartları temizler; odak/yenileme erişimi tekrar doğrular. Logout bekleyen dönüş path'ini siler.
+
+**32/32 seçili integration(session/yetki/negatif JWT),8/8 seçili unit,161/161 yönetim,18/18 website; ikiFE typecheck/production build ve public HTTPsmoke PASS.** İzole gerçek React UI: yönetim/sakin ayrımı, hesap değişimiyle kart temizliği, iptal sonrası yenileme PASS. Gerçek Keycloak uçtanuca oturum/yenileme kabulü, canlı DNS/TLS ve dağıtım yapılmadı. API/FE session context bayrakları kapalıysa erişim açıklamalı kapalı kalır; gerçek bayrak/.env/hesap/parola/DB/servis değiştirilmedi. Migration ve yeni bağımlılık yok; restore/npmci ve lisans envanteri yeniden üretimi yapılmadı. Geçici test DB/rol temizlendi; UI fixture sunucusu ve sekmesi kapatıldı. Önceki değişiklikler korunur; commit/push yok.
+
+Tek agent; phase/contract/security/verify/docs ve mevcut license prosedürü. [Sözleşme](../api/website-login.md), [kanıt](../TESTING.md). FAZ06 EİDS/hukuki engeli ve FAZ07 canlı DNS/TLS kabulü sürer. FAZ09 başlamadı; sonraki faz için kullanıcı onayı beklenir.
+
+Token giriş: BİLGİ MEVCUT DEĞİL; çıkış: BİLGİ MEVCUT DEĞİL; toplam: BİLGİ MEVCUT DEĞİL; kalan context: BİLGİ MEVCUT DEĞİL. Son Codex usage19.10.2026:300dk %37 kullanılan/%63 kalan,10080dk %85/%15; reset19.10.2026 19:43:31 ve25.10.2026 00:15:34 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## WEBSITE FAZ08 —19.10.2026 — DEVAM EDIYOR
+
+Kullanıcı FAZ08 onayı verdi. Kayıt09/10; iki resmi madde,0/2=%0,00. Public yönetim/sakin giriş linkleri, sabit yönetim origin ve allowlist dönüş rotası; backend tarafından siteye ve güncel yetkili session context'lerine daraltma. Mevcut Keycloak Code+S256 PKCE korunur; hesap/rol/parola/.env değişmez. Session context bayrakları kapalı ortam açık uyarıyla fail-closed kalır. Yeni paket yok; tekagent phase/contract/security/verify/docs. FAZ09 başlamaz.
+
+## WEBSITE FAZ07 —19.10.2026 — Teknik teslim
+
+**2/2 resmi madde=%100,00; WEBSITE7/10=%70,00; İŞ21 8/13=%61,54.** T21.7 doğrulanmış teknik kapsamla tamamlandı. Kullanıcı FAZ07'yi FAZ06'nın gerçek EİDS/hukuki engeli sürerken açıkça onayladı; T21.6/T21.10 tamamlandı sayılmaz. FAZ08 başlamadı.
+
+Domain yönetimi/DNS TXT/TLS/custom SUPER_ADMIN onayı, güvenli Host çözümleme, canonical/robots/sitemap/JSON-LD, HMAC süreli taslak önizleme ve no-store yayın/restore izolasyonu uygulandı. Yeni migration20261019065513_WebsiteDomains sadece fixture'da uygulandı. Canlı DNS/sertifika/ters vekil, Keycloak ve gerçek dağıtım kabulü yapılmadı; mevcut API/Worker yeniden başlatılmadı, .env/hesap/gerçek DB korunur.
+
+**Faz kanıtı:42/42 seçili PG/storage integration,90/90 seçili unit; tüm277/277 unit;159/159 yönetim;17/17 website.** Typecheck/production build ve HTTP smoke geçti. İzole390px domain paneli/ESC odak ve taşma kontrolü geçti. Bu devam turunda website17test/typecheck/build/smoke tekrar çalıştırıldı; yönetim159test/typecheck/build de tekrar PASS; önceki backend sonuçları tekrar koşuldu sayılmaz. Test UI sunucusu ve sekmesi temizlendi. Yeni paket/restore/npmci yok; tek agent, phase/contract/security/verify/license/docs. [Sözleşme/işletim](../api/website-domains.md), [kanıt](../TESTING.md).
+
+Token giriş: BİLGİ MEVCUT DEĞİL; çıkış: BİLGİ MEVCUT DEĞİL; toplam: BİLGİ MEVCUT DEĞİL; kalan context: BİLGİ MEVCUT DEĞİL. Son Codex usage19.10.2026:300dk %14 kullanılan/%86 kalan,10080dk %81/%19; reset19.10.2026 19:43:31 ve25.10.2026 00:15:34 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir. Sonraki: canlı DNS/TLS işletim kabulü ve FAZ06 EİDS/hukuki kabulü; FAZ08 için yeni onay beklenir.
+
 ## WEBSITE FAZ07 —19.10.2026 — DEVAM EDIYOR
 
 Kullanıcı FAZ07'yi açıkça onayladı; FAZ06 EİDS engeli korunarak ilerlenir. Kaynak BuildingFlow-WebsiteManagement-Prompt-Paketi/{MASTER_PROMPT,PHASES}.md; kayıt08/10,2resmi madde,0/2=%0,00. Domain DNS/TLS/superadmin onayı, güvenlihostçözümleme/SEO ve preview/yayın/rollback izolasyon testleri. Yeni bağımlılık yok; mevcut no-store stratejisi anlık iptal için korunur. Gerçekdomain/DNS/TLSyapılandırması verilmedi; fixture kabulü ile canlı kabul ayrı raporlanacak. Tekagent; phase/contract/security/verify/license/docs. FAZ08 başlamaz.

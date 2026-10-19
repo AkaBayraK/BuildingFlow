@@ -7,3 +7,8 @@
 **/*.tsbuildinfo
 **/*.bak
 .env.*
+
+**/.env
+**/.env.*
+deploy/seaweedfs/private-s3.json
+artifacts

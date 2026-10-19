@@ -131,6 +131,16 @@ case "$mode" in
     cd frontend/buildingflow-web
     exec npm run dev -- --hostname localhost --port "$WEB_PORT"
     ;;
+  website)
+    require npm
+    load_env
+    export WEBSITE_API_ORIGIN="http://localhost:${API_PORT:-5005}"
+    export WEBSITE_MANAGEMENT_ORIGIN="http://localhost:${WEB_PORT:-3003}"
+    export WEBSITE_PUBLIC_ORIGIN="http://localhost:${WEBSITE_PORT:-3004}"
+    npm run setup --prefix website
+    cd website
+    exec npm run dev -- --hostname localhost --port "${WEBSITE_PORT:-3004}"
+    ;;
   worker)
     require dotnet
     load_env
@@ -143,7 +153,7 @@ case "$mode" in
     exec dotnet run --project src/BuildingFlow.Worker
     ;;
   *)
-    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|worker}' >&2
+    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|website|worker}' >&2
     exit 2
     ;;
 esac

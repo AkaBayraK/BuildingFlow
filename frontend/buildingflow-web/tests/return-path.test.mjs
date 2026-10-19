@@ -16,3 +16,8 @@ test("calendar dates retain the same day in Turkish and English",()=>{
   assert.equal(formatDateOnly("2026-10-08","en"),"10/08/2026");
   assert.equal(formatDateOnly("not-a-date"),"—");
 });
+
+test('website entry survives OIDC only as an exact local site and audience path',()=>{
+ for(const role of ['all','management','resident'])assert.equal(isWorkspaceReturnPath('/website-entry/site-one/'+role),true);
+ for(const path of ['/website-entry/site-one/SUPER_ADMIN','/website-entry/site-one/resident?next=https://evil','/website-entry/site-one/resident#token=x','/website-entry/%2e%2e/resident','/website-entry/UPPER/resident','//evil/website-entry/site-one/resident','/website-entry/site-one/resident/extra','/website-entry/site-one/resident\n'])assert.equal(isWorkspaceReturnPath(path),false,path);
+});

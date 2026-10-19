@@ -136,3 +136,7 @@ Yeni üçüncü taraf paket/font/ikon/stok görsel eklenmedi; manifest/lock sür
 ## WEBSITE FAZ05 —18.10.2026
 
 Yeni paket/font/ikon/stock görsel eklenmedi. JPEG mevcut ProfilePhoto kodunu parametrik sınırlarla kullanır; PNG CRC/zlib kodu .NET BCL ve projeye ait kaynakla yazıldı. FE mevcut shadcn/TanStack/Lucide kullanır. Manifest/lock/NOTICE korunur; npm ci/restore yapılmadı. Medya hak/kişisel veri izni beyanla saklanır; otomatik hukuki uygunluk garantisi değildir.
+
+## WEBSITE FAZ09 —19.10.2026
+
+Yeni üçüncü taraf paket/font/ikon/görsel veya yeni temel imaj ailesi eklenmedi; mevcut node:24-alpine ve frontend lock kullanıldı. Docker npmci sonrasında mevcut check-licenses.py329npm/NuGet metadata için PASS; envanter içerik farkı yok. CycloneDX1.6 mevcut frontend lock230npm kaydı içerir; development/platform-optional dahil, OS/NuGet/binary SBOM değildir. Website imajı mevcut LICENSES/shadcn LICENSE/NOTICE, görsel kaynak kaydı, npm SBOM ve kurulu paketlerin148kök license/notice/copying/copyright kaydını taşır. 7pakette kök bildirim dosyası ayrıca incelenmelidir; eksik metin uydurulmadı. Metadata incelemesi bu dağıtım/ticari/OS koşullarını kapatmaz; [#30](https://github.com/AkaBayraK/BuildingFlow/issues/30) açık kabul görevidir. Yeni tarayıcı audit aracı/Lighthouse/ücretli kaynak kurulmadı.

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {context,contextPage,contextDetail,soleWorkspace,workspacePath} from '../src/features/session-workspaces/model.ts';
+import {context,contextPage,contextDetail,soleWorkspace,workspacePath,websiteContexts} from '../src/features/session-workspaces/model.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 const id='11111111-1111-4111-8111-111111111111',tenant='22222222-2222-4222-8222-222222222222',property='33333333-3333-4333-8333-333333333333';
 const duty={id,kind:'MANAGEMENT',tenantId:tenant,tenantName:'Fixture',propertyId:property,propertyName:'Fixture property',unitId:null,unitNumber:null,role:'MANAGER',startDate:'2026-10-18',endDate:null,canManagePeople:true,canManageFinance:true,canManageAssignments:false};
@@ -15,3 +15,13 @@ test('details reject a foreign route or tenant and project only masked own ident
 test('dates and context identities fail closed',()=>{for(const patch of [{id:'../users'},{tenantId:'bad'},{startDate:'2026-02-30'},{endDate:'2026-10-17'},{kind:'unknown'}])assert.throws(()=>context({...duty,...patch}));});
 test('workspace routes survive OIDC but reject foreign destinations and auth data',()=>{assert.equal(workspacePath(duty),`/workspaces/MANAGEMENT/${id}`);assert.throws(()=>workspacePath({...duty,id:'../outside'}));for(const path of ['/workspaces',`/workspaces/MANAGEMENT/${id}`,`/workspaces/OWNER/${id}`])assert.equal(isWorkspaceReturnPath(path),true);for(const path of [`/workspaces/unknown/${id}`,`/workspaces/OWNER/${id}?token=secret`,`/workspaces/OWNER/${id}/extra`,'/workspaces/OWNER/00000000-0000-0000-0000-000000000000','//outside.test/workspaces'])assert.equal(isWorkspaceReturnPath(path),false);});
 test('selection and read-only detail use labelled links with current server capabilities',()=>{const source=readFileSync(new URL('../src/features/session-workspaces/SessionWorkspaces.tsx',import.meta.url),'utf8');assert.match(source,/soleWorkspace\(value\)/);assert.match(source,/router.replace\(workspacePath\(single\)\)/);assert.match(source,/aria-label=\{t\("title"\)\}/);assert.match(source,/value.context.canManagePeople/);assert.match(source,/!value.context.canManageFinance/);assert.doesNotMatch(source,/localStorage|sessionStorage|method:\s*["'](?:PUT|POST)/);});
+
+test('website context decoder rejects audience escalation and mixed properties',()=>{
+ assert.equal(websiteContexts(page([duty]),'management').items.length,1);
+ assert.equal(websiteContexts(page([duty,owner]),'all').items.length,2);
+ assert.equal(websiteContexts(page([owner]),'resident').items.length,1);
+ assert.throws(()=>websiteContexts(page([duty]),'resident'));
+ assert.throws(()=>websiteContexts(page([owner]),'management'));
+ assert.throws(()=>websiteContexts(page([duty]),'SUPER_ADMIN'));
+ assert.throws(()=>websiteContexts(page([duty,{...duty,id:tenant,propertyId:tenant}]),'management'));
+});
