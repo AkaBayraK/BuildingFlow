@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-20",
+  "environment": "real WorkspaceShell/AuthGate/ProfileProvider/ProfileMenu with test-only Keycloak and API adapters; scope/router and notifications simulated",
+  "checks": [
+    "selected property Deneme Apartmanı with payments chooser href /payments",
+    "chooser navigates to /payments and clears selected scope name",
+    "second property İkinci Alan with reports chooser href /reports",
+    "one visible desktop profile menu; footer bottom888 at1440x900",
+    "accountChanged updates header and footer to Yeni DEMO",
+    "top/search/sidebar/footer name computed12px",
+    "76px rail hides profile and area text while profile menu remains accessible",
+    "375px mobile drawer profile and selected area visible; panel318/318 and document375",
+    "mobile account link closes menu and drawer; main focus and no scroll lock",
+    "SITE_ADMIN plus ACCOUNTANT keeps existing manager role presentation and permission rules"
+  ],
+  "limitations": [
+    "no real OIDC login/logout or API account mutation",
+    "no real photo fetch tested (fixture photoId null)",
+    "loading/error property fallback source-reviewed; runtime fixture uses loaded/null scope",
+    "sessionContexts branch source-reviewed and menu matrix unit-tested, not separately browser-accepted"
+  ]
+}

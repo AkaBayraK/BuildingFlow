@@ -1,0 +1,41 @@
+{
+  "kind": "actual-react-dashboard-with-test-only-api-keycloak-router",
+  "events": [
+    {
+      "area": "İkinci Yönetim Alanı",
+      "case": "selected-second-area",
+      "firstCard": "48",
+      "unitHref": "/properties/88888888-8888-4888-8888-888888888888/units",
+      "url": "/dashboard?property=88888888-8888-4888-8888-888888888888"
+    },
+    {
+      "area": "Altunbayrak Rezidans",
+      "case": "back",
+      "firstCard": "96"
+    },
+    {
+      "case": "photo-upload-ui",
+      "area": "Altunbayrak Rezidans",
+      "blob": true
+    },
+    {
+      "case": "switch-clears-photo-and-cards",
+      "cards": 0,
+      "photo": "/images/dashboard-residence.webp"
+    },
+    {
+      "case": "320px",
+      "heroWidth": 288,
+      "scroll": 320,
+      "width": 320
+    },
+    {
+      "case": "final-desktop",
+      "chooserBeforeLanguage": true,
+      "firstCard": "96",
+      "photoLoaded": 1536,
+      "scroll": 1440,
+      "width": 1440
+    }
+  ]
+}

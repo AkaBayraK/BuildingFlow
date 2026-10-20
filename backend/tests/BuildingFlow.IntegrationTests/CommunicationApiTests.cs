@@ -122,6 +122,24 @@ public sealed class CommunicationApiTests(SiteApiTests.SiteApiFactory factory) :
         finally{await storage.DeleteBucketPolicyAsync(new DeleteBucketPolicyRequest {BucketName=factory.StorageBucket});}
     }
 
+    [StorageFact] public async Task DashboardBannerIsSharedAcrossMembersWithHistoryAndScopedDownloads()
+    {
+        var x=await Seed();var other=await Seed();var viewer=Guid.NewGuid().ToString();
+        await factory.WithDb(async db=>{db.Add(new PropertyMembership(x.Property.Id,viewer));await db.SaveChangesAsync();});
+        using var manager=TestToken.Client(factory,x.Actor,"MANAGER");using var reader=TestToken.Client(factory,viewer,"ACCOUNTANT");using var outsider=TestToken.Client(factory,other.Actor,"MANAGER");
+        var bytes=await File.ReadAllBytesAsync(Path.Combine(AppContext.BaseDirectory,"Fixtures","avatar.jpg"));
+        const string name="buildingflow-dashboard-banner.jpg";
+        var operation=Guid.NewGuid();
+        using var first=Form(operation,name,"image/jpeg",bytes);var response=await manager.PostAsync(Root(x.Property.Id)+"/documents",first);Assert.Equal(HttpStatusCode.Created,response.StatusCode);var a=(await response.Content.ReadFromJsonAsync<DocumentResponse>())!;
+        using var retry=Form(operation,name,"image/jpeg",bytes);Assert.Equal(HttpStatusCode.OK,(await manager.PostAsync(Root(x.Property.Id)+"/documents",retry)).StatusCode);
+        using var second=Form(name:name,type:"image/jpeg",bytes:bytes);response=await manager.PostAsync(Root(x.Property.Id)+"/documents",second);Assert.Equal(HttpStatusCode.Created,response.StatusCode);var b=(await response.Content.ReadFromJsonAsync<DocumentResponse>())!;
+        var rows=(await reader.GetFromJsonAsync<ContentPage<DocumentResponse>>(Root(x.Property.Id)+"/documents?pageSize=100&search="+name))!;Assert.Equal(2,rows.TotalCount);Assert.Equal(b.Id,rows.Items[0].Id);Assert.All(rows.Items,d=>{Assert.Equal("ALL_MEMBERS",d.Audience);Assert.Null(d.AnnouncementId);});
+        var url=Root(x.Property.Id)+$"/documents/{b.Id}/download";var download=await reader.GetAsync(url);Assert.Equal(HttpStatusCode.OK,download.StatusCode);Assert.Equal(bytes,await download.Content.ReadAsByteArrayAsync());Assert.Contains("no-store",download.Headers.CacheControl!.ToString());
+        Assert.Equal(HttpStatusCode.OK,(await reader.GetAsync(Root(x.Property.Id)+$"/documents/{a.Id}/download")).StatusCode);
+        using var denied=Form(name:name,type:"image/jpeg",bytes:bytes);Assert.Equal(HttpStatusCode.Forbidden,(await reader.PostAsync(Root(x.Property.Id)+"/documents",denied)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound,(await outsider.GetAsync(url)).StatusCode);Assert.Equal(HttpStatusCode.NotFound,(await manager.GetAsync(Root(other.Property.Id)+$"/documents/{b.Id}/download")).StatusCode);
+    }
+
 }
 public sealed class StorageFactAttribute : FactAttribute
 { public StorageFactAttribute(){if(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE"))||string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_STORAGE_ENDPOINT")))Skip="Dedicated PostgreSQL and SeaweedFS S3 test configuration required.";} }

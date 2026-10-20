@@ -1,3 +1,79 @@
+## BAKIM —20.10.2026 — Dashboard sütun grafiği — TAMAMLANDI
+
+**Gelir/gider trendi referanstaki gibi yan yana mavigelir/pembegider sütunlarına dönüştü.** Son6/3ay seçimi mevcut6ayAPI verisini dilimler;backend/tutarhesabı değişmedi. Yuvarlak eksen,klavye/hover/touch kesinTRYtooltip ve ekranokuyucu tutar tablosu korunur. TrendChart.tsx/trend-bars.ts,DashboardPage,globals.css,TR/EN ve trend-bars.test.mjs güncellendi/eklendi. Yeni paket/font/asset yok.
+
+**184/184FE,0fail/skip;typecheck/üretim build PASS.** Yeni2geometri testi:sıfır/küçük/büyüktutar ekseni,240–1100px/3–6ay çakışmayan ikilisütun. GerçekReact/testAPIfixture1440px6ay12sütun,3ay6sütun/3tablosatırı,TabilekesinTRY,320pxchart262/doc320taşma0,consoleerror0 PASS. [Görsel](navigation-refactor/DASHBOARD_TREND_BARS.jpg). Bu fixturecanlıOIDC/APIkabulü değildir;backendintegration bu saltfrontend turunda tekrar koşulmadı. Başlangıçindeks/manifest/lock/next-env ve diğer kullanıcıfarkları korundu;diffcheckPASS;fixture/sekme kapalı,viewportreset. Tekagent mevcutverify/docs;bu tur1/1=%100,00,sidebar8/8korunur;yeni faz yok.
+
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage20.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%97/kalan%3 reset20.10.2026 23:36:32;10080dk kullanılan%31/kalan%69 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir. Sonraki:kullanıcıincelemesi.
+
+## BAKIM —20.10.2026 — Dashboard sütun grafiği — DEVAM EDIYOR
+
+Referansa göre yan yana mavigelir/pembegider sütunları,son6/3ay yerel seçim,gerçek veri ve erişilebilir tutarlar korunur. Yeni paket/API yok. Kabul:geometri testleri,FEtypecheck/build,desktop/mobile fixture ve klavye/filtre. Bu tur0/1=%0,00;sidebar8/8 korunur.
+
+## BAKIM —20.10.2026 — Dashboard fotoğraflı banner — TAMAMLANDI
+
+**Alan combosu headerda dil önüne taşındı;yalnız Dashboard filtrelenir. Fotoğraflı banner,önplan alan/marka/gerçeközet ve Europe/Istanbul saat/tarih paneli uygulandı.** Yönetici fotoğrafı mevcut özelbelgeupload ile ALL_MEMBERS olarak ortak kaydeder;ikinci üye aynıgörseli alır. Yeniendpoint/tablo/migration/bağımlılık yok;mevcut özgünkonutasset yeniden kullanıldı. Hava sağlayıcısı yok:sıcaklıkverisi yok durumu. [Teslim/sözleşme/geri alma](navigation-refactor/DASHBOARD_HERO.md),[masaüstü](navigation-refactor/DASHBOARD_HERO_DESKTOP.jpg),[mobil](navigation-refactor/DASHBOARD_HERO_MOBILE.jpg).
+
+**182/182FE,23/23izolePGstorageintegration(17communication+6dashboard),0fail/skip;typecheck/build PASS.** Yeni5FEsenaryo ve1ortakfotoğrafintegration. GerçekReactfixture1440/375/320,pickerönceliği,48→geri96,eskikart/fotoğraftemizliği,UIJPEGhazırlama/save/BlobSHA,consoleerror0 PASS. FixtureAPIUIakışı gerçekpersistenceyerine sayılmaz;ikinciüye/replay/yetki/alan kanıtı gerçekizolebackendtestidir. TestDB/rol/fixturebucket temiz,fixture/sekme kapalı,viewport reset. CanlıOIDC/gerçekcihaz/tamhavaservisi kabulü DOĞRULANAMADI. Bu tur1/1=%100,00;sidebar8/8=%100,00 korunur;İŞ20bakım/gerçekUATgörevleri tiklenmedi. Ürün genel yolharitası yüzdesi BİLGİ MEVCUT DEĞİL.
+
+Başlangıç indeks/manifest/lock/proje/migration/lisans/next-env korundu;build üretimi yalnız exactimportfarkıyla geri alındı. Diğer kullanıcı farkları korunur;commit/push/deploy/reset yok. Üretimbackend değişmedi;backend yalnızCommunicationApiTests ekidir. Frontend DashboardArea/area-selection/DashboardHero/banner,DashboardPage,WorkspaceShell,SessionControls,return-path,CSS,TR/EN,fixture/test vephotoasset;API/frontend/lisans/progress belgeleri güncellendi. OIDC dönüşüne yalnız `/dashboard?property=tekUUID` allowlist eklendi,negatif parametre testleri var. Tekagent contract/security/verify/docs/license;imagegen yalnız okundu,üretim yapılmadı.
+
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage20.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%82/kalan%18 reset20.10.2026 23:36:32;10080dk kullanılan%29/kalan%71 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir. Sonraki:kullanıcıincelemesi,yeni kapsam kendiliğinden açılmaz.
+
+## BAKIM —20.10.2026 — Dashboard fotoğraflı banner — DEVAM EDIYOR
+
+Güncel onay: alan combosu headerda dil öncesine,yalnız Dashboard seçimi;fotoğraflı hero/özet/saat. Fotoğraf alan üyelerine ortak olacak. Mevcut özel StoredDocument yükleme/indirme ve ALL_MEMBERS görünürlüğü yeniden kullanılacak; yeni backend/migration/paket yok. Yeni UUID ile immutable görsel dokümanı,son geçerli banner kullanılır. SaatEurope/Istanbul;hava servisi yoksa veri yok durumu. Bu tur0/1=%0,00;sidebar8/8 korunur. Kabul:model/negatif/yarış/FEtypecheck-build,gerçekReactfixture320/375/1440,mevcutstorageyetkiintegration.
+
+## BAKIM —20.10.2026 — Dashboard kompakt KPI — TAMAMLANDI
+
+**Dashboard özet kutuları daha kompakt:** globals.css içinde desktop padding18→14px,mobil14→12px,gap12→8px,ikon44→32px (yalnız KPI),ikonSVG20→17px,değer22→20px;mobil değer17px kalır. Kolon/veri/API korunur. **Typecheck ve üretim build PASS;1440/375px gerçek üretimCSS+temsiliKPI markup önizlemesi PASS**, desktop kart136,5px,padding14px,gap8px,ikon32px,değer20px;mobilpadding12px,ikon32px;docscrollWidth viewport ile eşit. [Görsel](navigation-refactor/DASHBOARD_COMPACT.jpg). Bu statik stil kabulüdür; gerçek kimlikli Dashboard/API kabulü değildir. Unit/integration bu yalnız CSS turunda tekrar koşulmadı; yeni test yazılmadı. Diff/başlangıçindeks/manifest/lock/next-env koruması PASS. Fixture/sekme kapalı,viewport reset. Yeni bağımlılık/asset yok;genel dashboard-icon diğer kullanımları korunur. Bu tur1/1=%100,00;sidebar8/8=%100,00 değişmez. Tekagent verify/docs;iptal edilen header alan seçicisi başlatılmadı.
+
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage20.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%44/kalan%56 reset20.10.2026 23:36:32;10080dk kullanılan%22/kalan%78 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM —20.10.2026 — Dashboard kompakt KPI — DEVAM EDIYOR
+
+Özet kutularında boşluk/ikon/değer boyutu azaltılır; veri ve kolon düzeni korunur. Kabul:typecheck/build ve gerçekCSS ile masaüstü/mobil kart ölçümü. Bu tur0/1=%0,00;sidebar8/8=%100,00 korunur. Yeni bağımlılık yok.
+
+## BAKIM —20.10.2026 — Dashboard header alan seçimi — İPTAL EDİLDİ
+
+Kullanıcı talebiyle çalışma iptal edildi. Yalnız mevcut kaynaklar incelendi ve başlangıç kayıtları yazıldı; seçici için uygulama kodu/test/bağımlılık/API değişikliği yapılmadı. Tamamlanma iddiası yok; bu iş sürdürülmeyecek. Önceki sağ üst profil düzeltmesi ve sidebar8/8 teslimi korunur.
+
+## BAKIM —20.10.2026 — Dashboard header alan seçimi — DEVAM EDIYOR
+
+Dil öncesi yönetim alanı combobox; kullanıcı düzeltmesi: yalnız Dashboard filtrelenir, fotoğraf sonraya bırakılır. Mevcut yetkili aktif alan API listesi/UUID ve dashboard endpointi kullanılır. Diğer modül kapsamları korunur. Kabul: seçim/deep-link/geri-ileri/gecikenyanıt/rol-boş-hata,header keyboard/mobile;FE test/typecheck/build. Bu tur0/1=%0,00;sidebar8/8=%100,00 korunur.
+
+## BAKIM —20.10.2026 — Sağ üst profil — TAMAMLANDI
+
+**Sağ üst header kullanıcı adı/rolü/profil menüsü masaüstünde geri getirildi.** SessionControls profileInSidebar parametresi ve desktop gizleme CSS'i kaldırıldı; WorkspaceShell normal SessionControls kullanır. Sidebar footer aynı provider ile korunur. Bu tur WorkspaceShell.tsx,AuthGate.tsx,globals.css ve ilgili teslim/progress belgeleri değişti; yeni paket/auth/API/DB değişimi yok. **177/177FE,typecheck/build PASS;1440px fixture header ad/rol ve Hesap/API/Çıkış menüsü PASS.** Gerçek OIDC/çıkış çalıştırılmadı; mobil davranış bu tur yeniden kabul edilmedi. [Görsel](navigation-refactor/HEADER_PROFILE_RESTORED.jpg). Başlangıç indeks/manifest/lock/next-env korundu, fixture/sekme kapalı. Bu tur1/1=%100,00; sidebar8/8=%100,00 değişmez. Tekagent verify/docs; yeni faz yok.
+
+Token giriş/çıkış/toplam/kalancontext: her biri BİLGİ MEVCUT DEĞİL. Sonusage20.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%27/kalan%73 reset20.10.2026 23:36:32;10080dk kullanılan%20/kalan%80 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM —20.10.2026 — Sağ üst profil — DEVAM EDIYOR
+
+Kullanıcı talebiyle header profil bilgisi masaüstünde yeniden gösterilir. Mevcut ortak provider/menu kullanılır; footer korunur. Bu tur0/1=%0,00; sidebar8/8=%100,00 korunur. Kabul: typecheck/build,desktop görünür ad/rol ve menü etkileşimi. Yeni bağımlılık/auth değişimi yok.
+
+## SIDEBAR FAZ07.1 — Aşama08 —20.10.2026 — TAMAMLANDI
+
+**IMPLEMENTATION, TEST_RESULTS ve LICENSE_CHECK teslim edildi; geri alma planı ve açık manuel QA listesi hazır.** [Teslim](navigation-refactor/IMPLEMENTATION.md), [test özeti](navigation-refactor/TEST_RESULTS.md), [lisans kontrolü](navigation-refactor/LICENSE_CHECK.md). Bu tur yalnız belge; bağlantı/sayaç/yönerge/kaynak-dependency/indeks koruması ve diff check PASS. Uygulama testleri tekrar koşulmadı; Aşama07'nin177/177FE,277/277unit,83/83seçiliintegration ve typecheck/build sonuçları tarihli kanıt olarak aktarıldı. Yeni paket/asset/API/DB/auth/rol değişimi yok. Gerçek OIDC/iş ekranı/offline ağ/native/ekranokuyucu/aktif reduced-motion kabulü DOĞRULANAMADI; mevcut scopedSMS dönüş kısıtı kayıtlı.
+
+**SIDEBAR8/8=%100,00 teknik teslim; bu tur1/1=%100,00.** İŞ07.1 hata altyapısı ve ayrı UI/ürün roadmap sayaçları değiştirilmedi; bütün ürün yol haritası güncel yüzdesi BİLGİ MEVCUT DEĞİL. Yeni faz başlatılmaz. Mevcut staged/unstaged/untracked kullanıcı farkları korundu; commit/push/deploy/reset/clean yok. Tek agent phase/docs/license; yeni skill/MCP/agent yok.
+
+Token giriş: BİLGİ MEVCUT DEĞİL; çıkış: BİLGİ MEVCUT DEĞİL; toplam: BİLGİ MEVCUT DEĞİL; kalan context: BİLGİ MEVCUT DEĞİL. Son Codex usage20.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%21/kalan%79, reset20.10.2026 23:36:32;10080dk kullanılan%19/kalan%81, reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## SIDEBAR FAZ07.1 — Aşama07 —20.10.2026 — TAMAMLANDI
+
+**177/177 frontend,277/277 unit,83/83 seçili izole PostgreSQL integration; typecheck/build PASS.** Lint scripti yok. Fixture modül/geri-ileri/doğrudan ikinci alan/mobile drawer smoke PASS; gerçek kimlikli iş ekranları/OIDC ve ağ kesintisinde offline kabulü DOĞRULANAMADI. [Rapor](../navigation-refactor/STAGE_07.md). Bu tur uygulama kodu değişmedi; DB/rol fixture temizlendi, sunucu/sekme kapalı. Başlangıç indeks/manifest/lock/next-env/.env korundu. Aşama07 1/1=%100,00; SIDEBAR7/8=%87,50; ürün roadmap değişmez. Aşama08 onayı beklenir.
+
+Token giriş/çıkış/toplam/kalancontext: BİLGİ MEVCUT DEĞİL. Sonusage20.10.2026:300dk%14/%86 reset20.10.2026 23:36:32;10080dk%18/%82 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+Kabul kanıtı: STAGE_07 raporu komut/83TRX sınıf dağılımı ve UI fixture sınırlarını içerir. Backend tüm suite ve canlı/offline kabulü koşulmadı.
+
+## SIDEBAR FAZ07.1 — Aşama07 —20.10.2026 — DEVAM EDIYOR
+
+Yalnız Aşama07: FE test/typecheck/build, mevcut komut envanteri, izole backend yetki/alan regresyonu ve UI navigasyon smoke. Lint scripti yok. Canlı OIDC/gerçek tenant ve offline emülasyon kabulü fixture sonucundan ayrı tutulur. Sidebar6/8=%75,00; bu tur0/1=%0,00. Aşama08 başlamaz; yeni paket/backend/auth/DB şeması değişimi yok.
+
+Plan: 177 mevcut frontend testi, typecheck/production build; Authentication/UnitPeopleNavigation/Site/SessionContext ilgili integration testleri ayrı geçici PostgreSQL veritabanında. UI fixture ile hedefler, URL/back-forward/drawer; çalıştırılamayan kabul açık raporlanır.
+
 ## WEBSITE FAZ09 —19.10.2026 — Son teknik kanıt
 
 **75/75 integration +90/90 seçili unit,0fail/skip**; izole `/tmp/bf-website09-tests.sh`: WEBSITE07 filtresine `FullyQualifiedName~SessionContextTests|FullyQualifiedName~AuthenticationTests` eklenmiş `dotnet test backend/BuildingFlow.sln --no-restore --disable-build-servers -m:1`. CMS/media/listing/domain/public/preview/session/JWT/migration/schema/persistence testleri; yalnız geçiciDB/rol/bucket temizlendi. Tüm unit ayrıca277/277. Eski migration değiştirilmedi; gerçek DB'ye migration uygulanmadı. Full backend integration iddiası yok.
@@ -1295,3 +1371,40 @@ Yönetici rolü/aktif Property scope, typed DTO/runtime doğrulama, sayfa/blok C
 - Gerçek .env/hesap/parola/tenant verisi değişmedi; migration canlı DB'ye uygulanmadı. Yeni paket/font/harici görsel yok; manifest/lock farkı yok. npm ci/restore yapılmadığı için lisans envanteri yeniden üretilmedi. Orphan nesne otomasyonu, gerçek cihaz ve üretim kabulü bu kanıt değildir.
 
 Son ek doğrulama: **17/17 seçili PG/storage integration,0fail/skip**. Önceki16'ya referanssız medya metadata version409, başka üyenin içerik404, geçerli güncelleme, eski sürümle silme409, soft-delete ve silinmiş UUID replay409 senaryosu eklendi. Aynı koşuda66 seçili unit tekrar geçti; tam253 unit önceki bu tur koşusudur. Fixture temizliği başarılı, mevcut veri değişmedi.
+
+
+## SIDEBAR FAZ07.1 Aşama02 — kabul senaryoları (19.10.2026)
+
+Plan: rol ve çoklu rol görünürlüğü; sessionContexts/centralPeople; alan yok/APARTMENT/diğer tip/yüklenmemiş alan; scope dışı ve nested rota aktifliği; disabled öğelere hedef verilmemesi; duplicate ID/route ve iç içe öğeler; mevcut kısayol/arama koşulları. npm test, typecheck ve build çalıştırılacak; canlı UI/backend kabulü bu aşamanın sonucu sayılmayacak.
+
+**Aşama02 sonuç:167/167 npm test,0fail/skip; npm run typecheck ve production build GEÇTİ.** Altı yeni navigation testi; rol/çoklu rol/flag/property/nested parent/disabled/duplicate64kombinasyon. İlk kök komut ve ara typecheck/test hataları giderildi; SWC sandbox build izinli tekrar geçti. CanlıUI/offline/backend/cihaz ÇALIŞTIRILMADI. Mevcut scopedSMS OIDC allowlist kısıtı korunur; yeni yetki yok. Manifest/lock ve iki başlangıç next-env hash'i aynı. [Ayrıntı](navigation-refactor/STAGE_02.md). Sidebar2/8=%25,00; Aşama03 başlamadı.
+
+## SIDEBAR FAZ07.1 Aşama03 — kabul planı —19.10.2026
+
+Tercih yalnız sürümlü boolean, geçersiz/eski veri ve storage erişim hatalarında güvenli varsayılan; SSR ilk render uyumu. Geniş/dar mod, aktif sol vurgu, focus/hover/disabled, dar mod tooltip, geniş mod grup aç/kapat ve aktif grubun açık kalması. Mevcut navigation regresyonları, typecheck/build; tarayıcı sonucu ayrıca raporlanacak.
+
+**Aşama03 sonuç:169/169 FE,0fail/skip; typecheck/build PASS.** GerçekChrome geniş/dar ve yenileme tercihi, Tab tooltip/focus/Escape, grup kapatma/açma ve aktif grubun açık kalması PASS. İki storage testi geçersiz değer ve reddedilen storage fallbackini doğrular. Sayısal DOM kontrast/viewport, tüm mobil/cihaz/backend/offline koşulmadı. Kaynak/dependency ve başlangıç next-env hash koruması PASS. [Teslim](navigation-refactor/STAGE_03.md). Sidebar3/8=%37,50; Aşama04 başlamadı.
+
+## SIDEBAR FAZ07.1 Aşama04 — kabul planı —20.10.2026
+
+Altı semantik grup, tüm çalışan hedeflerin korunması ve tek Kullanıcılar bağlantısı; rol/flag/property matrisinde görünürlük ve duplicate regresyonu. TR/EN büyük-küçük I/İ/ı/i, aksanlı/decomposed metin, trim/çoklu kelime, boş sorgu/sonuç; ACCOUNTANT/RESIDENT için gizli öğenin aramayla açılamaması. npm test/typecheck/build; gerçek tarayıcı kabulü ayrıca raporlanacak.
+
+**Aşama04 sonuç:173/173 FE,0fail/skip; typecheck/build PASS.** Dört yeni grup/Unicode/boş-çoklu kelime/negatif rol testleri;320kombinasyonda mevcut enabled hedeflerle birebir uyum; duplicate regresyonu başarılı. Başlangıç manifest/lock/next-env ve indeks koruması kontrol edildi. GerçekUI DOĞRULANAMADI: Keycloak girişinde açık oturum yok; kimlik bilgisi girilmedi, geçici frontend/test sekmesi kapatıldı. Backend/offline/mobil/gerçek rol kabulü yapılmadı. [Teslim](navigation-refactor/STAGE_04.md). Sidebar4/8=%50,00; Aşama05 başlamadı.
+
+## SIDEBAR FAZ07.1 Aşama05 —20.10.2026 — kabul planı
+
+Drawer: açılışta aktif link/ilk link odağı, Tab/ShiftTab trap, Escape/backdrop/close ile trigger odağı, route değişimiyle panel kapanışı+main focus, back/forward,1024px geçişinde overlay/scroll-lock kalkması.320/375/768/1024/1440px yatay taşma/son bağlantı/grup ve header/footer; reduced-motion ve aria-current/expanded. Mevcut suite/typecheck/build; izole gerçekReact/Radix fixture ile UI kabulü gerçek Keycloak/tenant kabulünden ayrı raporlanacak.
+
+**Aşama05:173/173 FE,0fail/skip; typecheck/build PASS.** Gerçek kaynaklı izoleReact/Radix320/375/768/1024/1440px taşma0; focus trap/aktiflink/sonlink/Escape/backdrop/back-forward/farklıprogramatikpathname/desktopbreakpoint/mainfocus/scrolllock PASS. Aktif reducedmotion emülasyonu yok, derlenmiş CSS doğrulandı; gerçekauth/cihaz/ekranokuyucu kabulü değildir. İndeks/manifest/lock/next-env byte/hash koruması PASS. [Ayrıntı](navigation-refactor/STAGE_05.md), [DOM kanıtı](navigation-refactor/STAGE_05_EVIDENCE.json). Sidebar5/8=%62,50; Aşama06 başlamadı.
+
+## BAKIM —20.10.2026 — Menü font eşliği kabulü
+
+Üst arama/masaüstü/mobil menü ve planlı öğelerde ortak12px; typecheck/build ve izole gerçekCSS computed font doğrulaması. Davranış değişmediği için yeni unit test yazılmaz.
+
+**BAKIM menü font: typecheck/build PASS; gerçekCSS computed font üst arama/17desktop/17mobil/planlı öğe12px.** Unit suite bu stil turunda koşulmadı. İndeks/dependency/next-env hashleri korundu. [Fixture görünümü](navigation-refactor/MENU_FONT_FIX.jpg).
+
+## SIDEBAR FAZ07.1 Aşama06 —20.10.2026 — kabul planı
+
+Ortak profil/rol/photo snapshotı, accountChanged ve subject değişiminde eski profilin görünmemesi. Footer alan adı yalnız eşleşen PropertyScope; loading/error/null fallback. Seçici mevcut modül/global seçim route'larına gider. Desktop/dar/mobil footer, Dropdown/Hesap bilgilerim/mevcut logout/APIcheck; çoklu rol/alan/auth sınırları korunur. Unit/typecheck/build ve fixture kabulü.
+
+**Aşama06:177/177 FE,0fail/skip; typecheck/build PASS.** Dört yeni footer testi ve gerçek kaynaklı izole profil/alan/çoklurol/refresh/rail/mobile popup kapanış kabulü. GerçekOIDC/fotoğraf/cihaz yok; loading/error/ContextShell kaynak/ünite kontrolü. Font12px korunur. [Kanıt ve sınırlar](navigation-refactor/STAGE_06.md). Sidebar6/8=%75,00; Aşama07 başlamadı.

@@ -37,3 +37,8 @@ Metadata DB transaction’ına kaydedilir; S3 deposu ile dağıtık transaction 
 ## Yerel çalışma ve migration
 
 `bash scripts/dev.sh api` ObjectStorage endpoint/access key/secret değerlerini mevcut .env'den belleğe alır. Yerel gateway http://127.0.0.1:9040; Docker API http://seaweedfs-s3:8333. İç filer/master/volume portları yalnız internal storage-data ağındadır. Mobil anahtar/public nesne URL'si almaz. Varsayılan API readiness DB'yi kontrol eder; kimlikli S3 round-trip ayrı integration testleridir.
+
+
+## Dashboard ortak fotoğraf tüketicisi —20.10.2026
+
+Dashboard mevcut standaloneALL_MEMBERS JPEG belge upload/list/download sözleşmesini kullanır. `buildingflow-dashboard-banner.jpg` tam adlı en yeni uygun belge ortak arka plandır. Yönetici yazımı,aktifüyelik,UUIDfingerprint/replay ve özelSHA256/boyut doğrulamalı indirme aynen korunur;ACCOUNTANTyazamaz. Yeniendpoint/tablo/izin yok. Belgelerden son görselin silinmesi önceki uygun görsele dönüş sağlar;otomatik nesne/geçmişsilme yok. Diğer oturumlar sayfaaçılışı/Yenile ile yeni görseli alır. [Ayrıntı](../navigation-refactor/DASHBOARD_HERO.md).

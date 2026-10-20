@@ -1,0 +1,98 @@
+{
+  "kind": "isolated-react-fixture-not-live-auth",
+  "events": [
+    {
+      "current": [
+        "Kişiler"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/people"
+    },
+    {
+      "current": [
+        "Aidat / Borçlar"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/dues"
+    },
+    {
+      "current": [
+        "Tahsilatlar"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/payments"
+    },
+    {
+      "current": [
+        "Gider ve Bütçe"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/expenses"
+    },
+    {
+      "current": [
+        "Raporlar"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/reports"
+    },
+    {
+      "current": [
+        "Web Sitesi Yönetimi"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/website"
+    },
+    {
+      "current": [
+        "Daireler"
+      ],
+      "focus": "",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/units"
+    },
+    {
+      "current": [
+        "Dashboard"
+      ],
+      "focus": "",
+      "path": "/dashboard"
+    },
+    {
+      "case": "back",
+      "current": "Daireler",
+      "path": "/properties/77777777-7777-4777-8777-777777777777/units"
+    },
+    {
+      "case": "forward",
+      "path": "/dashboard"
+    },
+    {
+      "case": "mobileOpen",
+      "focus": "Dashboard",
+      "locked": true,
+      "width": 375
+    },
+    {
+      "case": "mobileNavigation",
+      "focus": "workspace-content",
+      "locked": false,
+      "path": "/people"
+    },
+    {
+      "case": "escape",
+      "focus": "Menüyü aç",
+      "locked": false
+    },
+    {
+      "case": "directOtherProperty",
+      "current": [
+        {
+          "href": "/properties/88888888-8888-4888-8888-888888888888/units",
+          "label": "Daireler"
+        }
+      ],
+      "path": "/properties/88888888-8888-4888-8888-888888888888/units",
+      "width": 375
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-20",
+  "environment": "isolated React/Radix fixture; simulated identity, scope, router and profile; production auth unchanged",
+  "viewports": [
+    {
+      "current": "page",
+      "document": 320,
+      "footer": 320,
+      "header": 320,
+      "locked": true,
+      "panel": 304,
+      "panelClient": 302,
+      "panelScroll": 302,
+      "width": 320
+    },
+    {
+      "current": "page",
+      "document": 375,
+      "footer": 375,
+      "header": 375,
+      "locked": true,
+      "panel": 320,
+      "panelClient": 318,
+      "panelScroll": 318,
+      "width": 375
+    },
+    {
+      "current": "page",
+      "document": 768,
+      "footer": 768,
+      "header": 768,
+      "locked": true,
+      "panel": 320,
+      "panelClient": 318,
+      "panelScroll": 318,
+      "width": 768
+    },
+    {
+      "dialogs": 0,
+      "document": 1024,
+      "focus": "workspace-content",
+      "locked": false,
+      "sidebar": 272,
+      "width": 1024
+    },
+    {
+      "dialogs": 0,
+      "document": 1440,
+      "focus": "workspace-content",
+      "locked": false,
+      "sidebar": 272,
+      "width": 1440
+    }
+  ],
+  "motion": {
+    "preference": false,
+    "rules": true
+  },
+  "interactions": [
+    "active-link initial focus",
+    "Tab and Shift+Tab trap",
+    "Escape and close-button return to trigger",
+    "backdrop dismissal and return to trigger",
+    "menu route selection returns focus to main",
+    "browser back and forward close drawer",
+    "different programmatic path closes drawer",
+    "1024px transition closes overlay and removes scroll lock",
+    "last link keyboard access with 2px focus outline",
+    "backdrop wheel leaves background at zero",
+    "320px header controls remain within viewport",
+    "End key scrolls main to1035 while headerY0/footerBottom844/bodyScroll0"
+  ],
+  "limitations": [
+    "real Keycloak/account/API not tested",
+    "header/profile simulated",
+    "real device and screen reader not tested",
+    "reduced motion runtime emulation unavailable; inactive preference and compiled rules confirmed"
+  ]
+}

@@ -231,7 +231,7 @@ Duyurular ve Belgeler bağımsız menü, ortak RecordList/TanStack ve sağ Manag
 
 ## Sabit çalışma çerçevesi — 11.10.2026
 
-WorkspaceShell `100dvh` çerçevesidir: masaüstü (1024px ve üstü) sol menü ile üst/alt menü kaydırmada yerinde kalır. `workspace-content` tek ana içerik scroll alanıdır; min-height:0 ve flex ile footer son kaydı örtmez. Uzun sol menünün yalnız kendi listesi kayabilir; sürüm bilgisi çerçevede kalır. 1024px altında üst düğme aynı rol/kapsam menüsünü 320px sol Dialog içinde açar; alt kısa yollar Genel Bakış/Yönetim Alanları/Daireler ve yetkili Kişiler'dir. Mobil safe-area korunur. İçeriğe atla, isimli/odaklanabilir scroll region, klavye scroll, ESC ve dialog kapanış odağı korunur; rota değişiminde içerik başa döner. Yeni sayfalarda window/body scroll veya üst/alt menüyü içerik içine tekrar koyma. Dialog formları kendi scroll alanını korur. Sayaç Okumaları bilgi tablosu için ortak sağ panelin genişlik istisnası896px; onaylı kişi kayıt editörü768px genişlikte iki sütun/gruplanmış alanlar kullanır, mobilde tek sütuna iner. Diğer CRUD formları512px kalır.
+WorkspaceShell `100dvh` çerçevesidir: masaüstü (1024px ve üstü) sol menü ile üst/alt menü kaydırmada yerinde kalır. `workspace-content` tek ana içerik scroll alanıdır; min-height:0 ve flex ile footer son kaydı örtmez. Uzun sol menünün yalnız kendi listesi kayabilir; profil ve yönetim alanı footer'ı çerçevede kalır (SIDEBAR FAZ07.1). 1024px altında üst düğme aynı rol/kapsam menüsünü 320px sol Dialog içinde açar; alt kısa yollar Genel Bakış/Yönetim Alanları/Daireler ve yetkili Kişiler'dir. Mobil safe-area korunur. İçeriğe atla, isimli/odaklanabilir scroll region, klavye scroll, ESC ve dialog kapanış odağı korunur; rota değişiminde içerik başa döner. Yeni sayfalarda window/body scroll veya üst/alt menüyü içerik içine tekrar koyma. Dialog formları kendi scroll alanını korur. Sayaç Okumaları bilgi tablosu için ortak sağ panelin genişlik istisnası896px; onaylı kişi kayıt editörü768px genişlikte iki sütun/gruplanmış alanlar kullanır, mobilde tek sütuna iner. Diğer CRUD formları512px kalır.
 
 Tüketim toplamları fiziksel miktardır: her sayaç türü ayrı, üç ondalık `formatConsumption` ile BigInt hassasiyeti korunur. Tarife olmadan TRY maliyeti uydurulmaz; faturalar mevcut Expense gerçekleşme ayının giderine girer. UI'de faturaya erişim ve bu ayrım açıklanır. Test kanıtı TESTING.md BAKIM sabit menüler bölümündedir.
 
@@ -242,3 +242,33 @@ Person form/detay/listesi ortak EntityEditor/ManagementPanel/RecordList; genişl
 ## WEBSITE FAZ05 yönetim ekranları —18.10.2026
 
 features/website mevcut ManagementPanel/RecordList/Button/ContactInputs/notification ve TR–EN kullanır. API DTO/scope doğrulanır.409 yenileme type=button, ayrı key ve preventDefault kullanır; girdiler korunur, kayıt ayrıca gönderilir. Önizleme oturumda React text/doğrulanmış blob sunar; public taslak URL/token deposu yoktur. Create/publish/restore/upload aynı payload UUID retry korur. Medya sözleşmesi docs/api/website.md içinde.
+
+### SIDEBAR FAZ07.1 Aşama03 —19.10.2026
+
+Mevcut WorkspaceShell272/76px geniş/dar mod, ortak marka tokenları, aktif sol vurgu/focus ve mevcut Radix Tooltip kullanır. Dar mod tooltip yalnız masaüstünde; geniş mod mevcut grup kontrolü aktif rotayı gizlemez. `buildingflow-sidebar-v1` yalnız collapsed/expanded UI tercihini saklar; kişi/tenant/route/arama/token saklamaz. SSR ilk render geniştir, storage reddinde kontrol bellekten çalışır. Yeni grup/arama/footer ve tüm mobil kabulü sonraki aşamalardır. [Kanıt](navigation-refactor/STAGE_03.md).
+
+### SIDEBAR FAZ07.1 Aşama04 —20.10.2026
+
+Mevcut navigasyon altı semantik gruptan üretilir; görünürlük merkezi navigationPermissions koşullarını korur. Route olmayan mükerrer Kullanıcılar yer tutucusu yoktur. Arama yalnız model.searchable içindeki yerelleştirilmiş görünür etiketlere uygulanır; locale case, NFD aksan temizliği ve ı/i eşleme, çoklu kelime AND ve boş sonuç ortak search.ts kaynağındadır. Arama metni kaydedilmez ve dialog kapanınca temizlenir. Grup adı route veya izin üretmez; backend son otoritedir. [Kanıt ve sınırlar](navigation-refactor/STAGE_04.md).
+
+### SIDEBAR FAZ07.1 Aşama05 —20.10.2026
+
+Mobil drawer mevcut Radix Dialog ile; pathname veya1024px masaüstü geçişi paneli kapatır. Açılışta aktif/ilk bağlantı, dismiss sonrası trigger, navigasyon sonrası main odağı kullanılır. Genişlik min(320px,100vw−16px); scroll-lock/focus-trap ortak primitive üzerinden, reduced-motion conditional CSS ile sağlanır. Üretim auth kapısı test fixture koduna bağlanmaz. [Fixture kabulü ve sınırları](navigation-refactor/STAGE_05.md).
+
+BAKIM20.10.2026: üst arama, sidebar/drawer bağlantıları ve planlı öğeler ortak `--shell-menu-font-size:12px` kullanır; grup başlıkları11px kalır.
+
+### SIDEBAR FAZ07.1 Aşama06 —20.10.2026
+
+SessionProfileProvider mevcut hesabı paylaşır; subject eşleşmeyen profil kullanılmaz. Footer mevcut AccountAvatar/SessionProfileMenu ve PropertyScope'u kullanır. Alan değişimi mevcut modül giriş route'una gider; yeni tenant/hesap state'i veya yetki üretmez. accountChanged bütün profil yüzeylerini yeniler. [Kanıt](navigation-refactor/STAGE_06.md).
+
+
+## Sidebar navigasyon sözleşmesi —20.10.2026
+
+SIDEBAR FAZ07.1: menü/rol/flag/alan görünürlüğü features/navigation/navigation.ts kaynağından üretilir; UI görünürlüğü backend yetkisi değildir. Routesuz planlı öğeler enabled veya aranabilir yapılmaz. Arama yalnız yetkili menü etiketleridir. 272/76px sidebar, ortak12px üst/sidebar/drawer menü tokenı; dar tooltip mevcut Radix'tir. buildingflow-sidebar-v1 yalnız collapsed/expanded saklar. Footer profil mevcut account/subject eşliğiyle, alan mevcut PropertyScope ile bağlanır; yeni hesap/rol state'i oluşturulmaz. Drawer rota/desktop geçişinde kapanır, odak ve scroll lock temizlenir. [Uygulama/geri alma](navigation-refactor/IMPLEMENTATION.md), [test ve açık manuel kabul](navigation-refactor/TEST_RESULTS.md), [lisans farkı](navigation-refactor/LICENSE_CHECK.md).
+
+20.10.2026 kullanıcı düzeltmesi: sağ üst header profil adı/rolü ve menüsü masaüstünde de görünür; sidebar footer ile aynı SessionProfileProvider kullanılır. Header profilini desktopta gizleyen koşul kaldırıldı.
+
+
+20.10.2026 Dashboard banner güncellemesi: yönetimalanı seçimi headerda dil önündedir,yalnızDashboard'u etkiler;PropertyScope/diğer modüllere globalfiltre değildir. Dashboard veri altbileşeni seçiliUUIDile keylenir,öncekifotoğraf/kart/istekler temizlenir. Ortakfotoğraf mevcut standaloneALL_MEMBERS belge sözleşmesiyle;requestUUIDretry,metadataScope/SHA256/boyut ve objectURLtemizliği korunur. Alan başlığı/sayıları gerçekDTO,saatEurope/Istanbul;hava yokluğu açıkça gösterilir. [Sözleşme/kanıt](navigation-refactor/DASHBOARD_HERO.md).
+
+20.10.2026 Dashboardtrend:mevcut6ayAPI verisi yeni SVG ikilisütun(mavigelir/pembegider) ile gösterilir;Son6/3ayyereldilimleme,klavye/touch/hovertooltip ve erişilebilir tam tutartablosu korunur. Paket eklenmez.

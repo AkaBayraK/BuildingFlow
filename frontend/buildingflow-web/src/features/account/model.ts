@@ -45,3 +45,8 @@ export type PhotoAction="KEEP"|"REPLACE"|"REMOVE";
 export const profileCommand=(p:AccountProfile,operationId:string,values:{firstName:string;lastName:string;phone:string},photoAction:PhotoAction,photoBase64:string|null=null)=>({operationId,expectedVersion:p.version,firstName:values.firstName,lastName:values.lastName,phone:values.phone.trim()||null,photoAction,photoBase64:photoAction==="REPLACE"?photoBase64:null});
 export const accountName=(p:AccountProfile|null|undefined,fallback:string)=>p&&(p.firstName||p.lastName)?[p.firstName,p.lastName].filter(Boolean).join(" "):fallback;
 export const initials=(name:string)=>name.split(/\s+/).filter(Boolean).slice(0,2).map(v=>v[0]).join("").toLocaleUpperCase("tr-TR")||"?";
+
+// A stale hook result must never carry the previous account's profile into the shared shell.
+export function accountProfileForSubject(account:Account|null,subject:string|undefined):AccountProfile|null{
+ return subject&&account?.userId===subject&&account.profile?.userId===subject?account.profile:null;
+}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {readDashboard,share,TREND_MONTHS} from '../src/features/dashboard/model.ts';
 import {pickSlogan,SLOGAN_COUNT} from '../src/features/dashboard/slogans.ts';
+import {createNavigation} from '../src/features/navigation/navigation.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 // İŞ20 Dashboard: response contract, rotating slogan/background choice, menu order and route.
 const P='77777777-7777-4777-8777-777777777777';
@@ -31,8 +32,10 @@ test('one slogan and one background per page load, always in range',()=>{
 });
 test('menu: Dashboard first, Genel bakış last, no sidebar footer text; slogan sits in the top bar',()=>{
  const s=readFileSync('src/components/WorkspaceShell.tsx','utf8');
- assert.match(s,/\[dashboard,propertyLink\]\.map/);assert.match(s,/sidebar-end[\s\S]*home\.label/);assert.ok(s.indexOf('sidebar-end')>s.indexOf('shellAdministration'));
+ const model=createNavigation({roles:['SUPER_ADMIN'],sessionContexts:false,centralPeople:false,propertyId:null,property:null},'/dashboard');
+ assert.equal(model.groups[0].items[0].href,'/dashboard');assert.equal(model.home.href,'/');
+ assert.match(s,/model.groups.map/);assert.match(s,/sidebar-end[\s\S]*home\.label/);
  assert.doesNotMatch(s,/sidebar-footer|shellTagline|v1\.0\.0/);assert.match(s,/<kbd>⌘ K<\/kbd><\/button><p className="workspace-slogan"/);
- assert.match(s,/className="brand" href="\/dashboard"/);assert.match(s,/const shortcuts=\[dashboard,/);
+ assert.match(s,/className="brand" href="\/dashboard"/);assert.equal(model.shortcuts[0].href,'/dashboard');
  assert.equal(isWorkspaceReturnPath('/dashboard'),true);assert.equal(isWorkspaceReturnPath('/dashboard/x'),false);
 });

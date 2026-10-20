@@ -1,0 +1,17 @@
+# SIDEBAR FAZ07.1 — Aşama06 —20.10.2026
+
+**Footer profil/rol ve mevcut yönetim alanı seçim akışı bağlandı.** SessionProfileProvider mevcut useAccount snapshotını paylaşır; SessionProfileMenu mevcut AccountAvatar/Hesap bilgilerim/API kontrolü/Keycloak çıkışını tekrar kullanır. Desktop profil footer'a taşındı; mobil header ve drawer aynı veriyi kullanır. ContextShell header profili korunur. accountChanged güncellemesi her yüzeye yansır. accountProfileForSubject eski veya farklı subject profilini reddeder; token/parola/kişisel veri depolama veya log eklenmedi.
+
+Alan adı yalnız mevcut PropertyScope'tan gelir. Alan seçimi bulunduğu modülün mevcut global giriş ekranına (/payments,/dues vb.) gider; genel bilgiler/bina için /properties kullanılır. Yeni alan/hesap state'i, tenant listesi API'si veya yetki eklenmedi. Loading/null/error halinde eski alan adı yerine güvenli seçim/loading metni kullanılır. Önceki13px/12px farkı BAKIM olarak ortak12px tokenıyla giderildi; yeni footer adı da12px.
+
+**177/177 FE,0fail/skip; typecheck ve production build PASS.** Dört yeni footer testi canonical seçim hedeflerini, fallback/mismatched scope'u, stale subject profilini ve çoklu rol/flag korunmasını doğrular. Önceki testler yeniden koştu. Font bakımında unit suite koşulmamıştı; Aşama06 toplamı bütün suite'i tekrar çalıştırır.
+
+**İzole gerçek UI kabulü:** seçili alan ve modüle uygun hedef; ikinci alan değişiminde ad/hedef yenilenmesi; accountChanged ile header/footer adı birlikte yenilenmesi;76px rail'de gizlenen etiketler ve erişilebilir profil menüsü;375px mobilde alan/profil görünürlüğü,318/318 panel ve375 belge genişliği; Hesap bilgilerim ile popup+drawer kapanışı/main odağı/kilit temizliği. SITE_ADMIN+ACCOUNTANT mevcut Yönetici sunumu korunur. Üst/sol/footer computed12px doğrulandı.
+
+Fixture artık gerçek AuthGate/SessionProfileProvider/Menu bileşenlerini yalnız test Keycloak/API adaptörleriyle çalıştırır; gerçek OIDC değildir. İlk fixture process.env eksikliği ve Link adaptöründe Radix onClick aktarımı düzeltildi. Üretim PKCE/refresh/logout politikası değişmedi. Gerçek giriş/çıkış, fotoğraf isteği, API mutation/negatifJWT, gerçek cihaz yapılmadı. Loading/error ve ContextShell dalları kaynak/ünitelerden incelendi; ayrı browser kabulü değildir. [Kanıt](STAGE_06_EVIDENCE.json), [footer görünümü](STAGE_06_FOOTER.jpg), [font düzeltmesi](MENU_FONT_FIX.jpg).
+
+Değişen kaynaklar: auth/AuthGate.tsx (profil sunumu/paylaşımı), features/account/model.ts, features/navigation/navigation.ts, components/WorkspaceShell.tsx, globals.css, TR/EN sözlükler. Yeni tests/navigation-footer.test.mjs; test fixture adaptörleri güncellendi. Yeni paket/font/harici ikon/görsel yok; mevcut lisans/NOTICE korunur, restore/npmci yapılmadı. .env/DB/API/mobil kod ve gerçek hesaplar değişmedi. Fixture/sekme kapalı, viewport reset. İndeks içeriği, manifest/lock/iki next-env başlangıç hashleri aynıdır; build üretimi başlangıç byte'larına döndürüldü. Commit/push yok.
+
+Tek agent phase/verify/docs/security; yeni Skill/MCP yok. **Aşama06 1/1=%100,00; sidebar6/8=%75,00.** Aynı aktif çalışmaya kullanıcı font bakımı sonrası Aşama06'yı ekledi: bu tur2/2=%100,00. İŞ07.1 farklı görev; genel roadmap sayaçları değişmedi. Genel toplam BİLGİ MEVCUT DEĞİL. Aşama07 onayı beklenir.
+
+Token giriş/çıkış/toplam/kalancontext:BİLGİ MEVCUT DEĞİL. Codexusage20.10.2026:300dk kullanılan%99/kalan%1 reset20.10.2026 18:32:07;10080dk kullanılan%15/kalan%85 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.

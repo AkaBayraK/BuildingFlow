@@ -16,3 +16,8 @@
 | `maintenanceAvailable` | Planlı bakım modülü yok: her zaman `false` (T20.6) |
 
 Para string iki ondalık (TRY). Web `features/dashboard/model.ts` tutarlılığı (dolu+boş, ay sırası, tür toplamı, vade sırası, sıfır/sayı eşleşmesi) kontrol eder; bozuk yanıt gösterilmez.
+
+
+## Web banner ve alan seçimi —20.10.2026
+
+Header alan seçimi yalnız Dashboard'u değiştirir;erişilebilir aktif alan listesi aynı properties API'sinden okunur. `/dashboard?property=UUID` yalnız tek doğrulanmış UUID ile giriş dönüşünde korunur. Hero alanı Property buildingCount ve özetunitCount/occupiedUnitCount kullanır;sakin sayısı veya hava bilgisi bu DTO'da yoktur. Ortak JPEG banner mevcut özel StoredDocument yollarında saklanır;summary DTO/endpointi değişmedi. [Tam sözleşme ve kanıt](../navigation-refactor/DASHBOARD_HERO.md).

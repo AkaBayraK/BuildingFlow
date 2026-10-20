@@ -2,7 +2,7 @@
 import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
 import {useLocale,useTranslations} from "next-intl";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useMemo } from "react";
 import Keycloak from "keycloak-js";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { LogOut, ShieldCheck, ChevronDown, UserRound } from "lucide-react";
 import Link from "next/link";
 import {AccountAvatar} from "@/components/AccountAvatar";
 import {useAccount} from "@/features/account/useAccount";
-import {accountName} from "@/features/account/model";
+import {accountName,accountProfileForSubject} from "@/features/account/model";
 import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuLabel,DropdownMenuSeparator,DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {NotificationInbox} from "@/features/people/NotificationInbox";
 import {LanguageSwitcher} from "@/components/LanguageSwitcher";
@@ -79,12 +79,25 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!authenticated) return <div className="auth-wait" role="status">{t("preparingSecureSignIn")}</div>;
   return <AuthContext.Provider value={identity()}>{children}</AuthContext.Provider>;
 }
-export function SessionControls() {
- const t=useTranslations("ui");const locale=useLocale();const kc=useIdentity();const api=useAuthorizedApi();const notification=useNotification();const [checking,setChecking]=useState(false);
- async function checkApi(){if(checking)return;setChecking(true);try{await api("/api/v1/status");notification.success(t("authenticatedAPIConnectionSuccessful"));}catch(error){notification.error(errorMessage(error,locale));}finally{setChecking(false);}}
- const {account}=useAccount();const profile=account?.profile??null;
- // İŞ19: the header shows the account's own "Ad SOYAD" and photo once the account loads; the token name until then.
- const name=accountName(profile,kc.tokenParsed?.name || kc.tokenParsed?.preferred_username || t("user"));
+type SessionProfileInfo={name:string;role:string;photoPath:string|null};
+const SessionProfileContext=createContext<SessionProfileInfo|null>(null);
+export function SessionProfileProvider({children}:{children:React.ReactNode}){
+ const kc=useIdentity(),t=useTranslations("ui");const {account}=useAccount();
+ const profile=accountProfileForSubject(account,kc.subject);
+ const name=accountName(profile,kc.tokenParsed?.name||kc.tokenParsed?.preferred_username||t("user"));
  const role=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(value=>kc.hasRealmRole(value))?t("shellManager"):kc.hasRealmRole("ACCOUNTANT")?t("shellAccountant"):t("shellMember");
- return <div className="session-controls"><LanguageSwitcher/><NotificationInbox/><DropdownMenu><DropdownMenuTrigger asChild><button className="workspace-profile" aria-label={t("shellProfile")}><AccountAvatar key={profile?.photoId??"none"} path={profile?.photoId?`/api/v1/account/profile/photo/${profile.photoId}`:null} name={String(name)} className="profile-avatar"/><span className="profile-copy"><strong>{name}</strong><small>{role}</small></span><ChevronDown size={17} aria-hidden="true"/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-64"><DropdownMenuLabel><span className="block truncate">{name}</span><span className="text-xs font-normal text-muted-foreground">{role}</span></DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem asChild><Link href="/account"><UserRound/>{t("navAccount")}</Link></DropdownMenuItem><DropdownMenuItem disabled={checking} onSelect={()=>void checkApi()}><ShieldCheck/>{t("checkAPIConnection")}</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem variant="destructive" onSelect={()=>{window.sessionStorage.removeItem(returnPathKey);void kc.logout({redirectUri:window.location.origin+"/login"});}}><LogOut/>{t("signOut")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>;
+ const photoPath=profile?.photoId?`/api/v1/account/profile/photo/${profile.photoId}`:null;
+ const value=useMemo(()=>({name:String(name),role,photoPath}),[name,role,photoPath]);
+ return <SessionProfileContext.Provider value={value}>{children}</SessionProfileContext.Provider>;
+}
+export function SessionProfileMenu({sidebar=false,compact=false,onNavigate}:{sidebar?:boolean;compact?:boolean;onNavigate?:()=>void}) {
+ const t=useTranslations("ui"),locale=useLocale(),kc=useIdentity(),api=useAuthorizedApi(),notification=useNotification();
+ const [checking,setChecking]=useState(false);const profile=useContext(SessionProfileContext);
+ if(!profile)throw new Error("Session profile context required.");
+ const {name,role,photoPath}=profile;
+ async function checkApi(){if(checking)return;setChecking(true);try{await api("/api/v1/status");notification.success(t("authenticatedAPIConnectionSuccessful"));}catch(error){notification.error(errorMessage(error,locale));}finally{setChecking(false);}}
+ return <DropdownMenu><DropdownMenuTrigger asChild><button className={`workspace-profile${sidebar?" workspace-footer-profile":""}${compact?" workspace-profile-compact":""}`} aria-label={`${t("shellProfile")} — ${name}, ${role}`} title={compact?t("shellProfile"):undefined}><AccountAvatar key={photoPath??"none"} path={photoPath} name={name} className="profile-avatar"/><span className="profile-copy"><strong>{name}</strong><small>{role}</small></span><ChevronDown size={17} aria-hidden="true"/></button></DropdownMenuTrigger><DropdownMenuContent side={sidebar?"top":"bottom"} align="end" className="w-64"><DropdownMenuLabel><span className="block truncate">{name}</span><span className="text-xs font-normal text-muted-foreground">{role}</span></DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem asChild><Link href="/account" onNavigate={onNavigate}><UserRound/>{t("navAccount")}</Link></DropdownMenuItem><DropdownMenuItem disabled={checking} onSelect={()=>void checkApi()}><ShieldCheck/>{t("checkAPIConnection")}</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem variant="destructive" onSelect={()=>{window.sessionStorage.removeItem(returnPathKey);void kc.logout({redirectUri:window.location.origin+"/login"});}}><LogOut/>{t("signOut")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
+}
+export function SessionControls({beforeLanguage}:{beforeLanguage?:React.ReactNode}){
+ return <div className="session-controls">{beforeLanguage}<LanguageSwitcher/><NotificationInbox/><SessionProfileMenu/></div>;
 }
