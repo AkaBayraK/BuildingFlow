@@ -14,7 +14,7 @@ public sealed class RequestManagementStore(BuildingFlowDbContext db,ICurrentUser
  private IQueryable<RequestRow> Project(IQueryable<MobileRequest> rows)=>rows.Select(r=>new RequestRow(r.Id,r.PropertyId,r.UnitId,db.Units.Where(u=>u.PropertyId==r.PropertyId && u.Id==r.UnitId).Select(u=>u.Number).FirstOrDefault(),r.Description,r.Category,r.Priority,r.ManagementStatus,r.ManagementResponse,r.HasManagementHistory,r.Version,r.CreatedAt,r.ModifiedAt,r.PhotoId,db.Set<MobileRequestPhoto>().Where(p=>p.Id==r.PhotoId && p.PropertyId==r.PropertyId && p.RequestId==r.Id && p.State=="CURRENT").Select(p=>p.Sha256).FirstOrDefault()));
  public async Task<RequestPage> ListAsync(Guid property,int page,int pageSize,string? search,string? status,string? category,string? priority,string sort,CancellationToken token) {
   await Authorize(property,token);
-  if(page<1 || page>100000 || pageSize<1 || pageSize>100 || search?.Length>200 || status is not(null or "RECORDED" or "IN_PROGRESS" or "RESOLVED" or "REJECTED") || category is not(null or "FAULT" or "CLEANING" or "SECURITY" or "COMMON_AREA" or "SUGGESTION" or "OTHER") || priority is not(null or "LOW" or "NORMAL" or "HIGH") || sort is not("newest" or "oldest" or "updated"))throw new ArgumentException("Invalid request filters.");
+  if(page<1 || page>100000 || pageSize<1 || pageSize>100 || search?.Length>200 || status is not(null or "RECORDED" or "IN_PROGRESS" or "RESOLVED" or "REJECTED") || category!=null && !MobileRequest.Categories.Contains(category) || priority is not(null or "LOW" or "NORMAL" or "HIGH") || sort is not("newest" or "oldest" or "updated"))throw new ArgumentException("Invalid request filters.");
   var q=Rows(property).AsNoTracking();
   if(!string.IsNullOrWhiteSpace(search)){var s=search.Trim();q=q.Where(r=>r.Description.Contains(s));}
   if(status!=null)q=q.Where(r=>r.ManagementStatus==status);
@@ -44,6 +44,24 @@ public sealed class RequestManagementStore(BuildingFlowDbContext db,ICurrentUser
  public async Task<RequestDetail?> DetailAsync(Guid property,Guid id,CancellationToken token){
   await using var tx=await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token);
   await Authorize(property,token);var result=await Read(property,id,false,token);await tx.CommitAsync(token);return result;
+ }
+ public async Task<RequestDetail> CreateAsync(Guid property,CreateRequest c,CancellationToken token){
+  await Authorize(property,token);
+  var description=c.Description?.Trim();
+  if(c.OperationId==Guid.Empty || string.IsNullOrEmpty(description) || description.Length>2000 || c.Category==null || !MobileRequest.Categories.Contains(c.Category) || c.Priority is not("LOW" or "NORMAL" or "HIGH"))throw new ArgumentException("Invalid request command.");
+  await using var tx=await db.Database.BeginTransactionAsync(token);
+  // The operation id is the record id, so a retried submit returns the first result instead of a duplicate.
+  await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"mobile-record:"+c.OperationId},0))",token);
+  await Authorize(property,token);
+  var prior=await db.Set<MobileRequest>().IgnoreQueryFilters().AsNoTracking().SingleOrDefaultAsync(r=>r.Id==c.OperationId,token);
+  if(prior!=null){
+   if(prior.OwnerUserId!=actor.UserId || prior.PropertyId!=property || prior.UnitId!=c.UnitId || prior.Category!=c.Category || prior.Priority!=c.Priority || prior.Description!=description)throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+   var replay=await Read(property,prior.Id,true,token)??throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());await tx.CommitAsync(token);return replay;
+  }
+  if(c.UnitId is Guid unit && !await db.Units.AnyAsync(u=>u.PropertyId==property && u.Id==unit && u.IsEnabled,token))throw new ArgumentException("Invalid request unit.");
+  var record=new MobileRequest(c.OperationId,property,c.UnitId,"CENTER",actor.UserId!,description);record.Details(c.Category,c.Priority,null);
+  db.Add(record);await db.SaveChangesAsync(token);
+  var result=await Read(property,record.Id,false,token);await tx.CommitAsync(token);return result!;
  }
  public async Task<RequestDetail?> ManageAsync(Guid property,Guid id,ManageRequest c,CancellationToken token){
   await Authorize(property,token);

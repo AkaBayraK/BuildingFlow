@@ -3,7 +3,7 @@ export default class FixtureKeycloak {
   subject='77777777-7777-4777-8777-777777777777';
   tokenParsed={name:'Test Kullanıcısı',preferred_username:'fixture'};
   authenticated=true;
-  hasRealmRole(role:string){return ['SITE_ADMIN','ACCOUNTANT'].includes(role);}
+  hasRealmRole(role:string){return (window.location.pathname==='/users'?['SUPER_ADMIN','SITE_ADMIN','ACCOUNTANT']:['SITE_ADMIN','ACCOUNTANT']).includes(role);}
   async init(){return true;}
   async updateToken(){return true;}
   async login(){}

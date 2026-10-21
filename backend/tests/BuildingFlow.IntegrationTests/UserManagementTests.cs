@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 namespace BuildingFlow.IntegrationTests;
 
-public sealed class UserManagementTests(SiteApiTests.SiteApiFactory factory) : IClassFixture<SiteApiTests.SiteApiFactory>
+public sealed partial class UserManagementTests(SiteApiTests.SiteApiFactory factory) : IClassFixture<SiteApiTests.SiteApiFactory>
 {
     [PostgresTheory] [InlineData("MANAGER")] [InlineData("ACCOUNTANT")] [InlineData("RESIDENT")] [InlineData("")]
     public async Task OnlySuperAndSiteAdminsReachUserManagement(string role)

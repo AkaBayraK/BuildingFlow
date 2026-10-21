@@ -22,9 +22,11 @@ public sealed class MobileRequest : BaseEntity
     public static bool CanTransition(string from,string to) => (from,to) is
         ("RECORDED","IN_PROGRESS" or "REJECTED") or ("IN_PROGRESS","RESOLVED" or "REJECTED") or
         ("RESOLVED" or "REJECTED","RECORDED");
+    // Request types the resident picks with an icon; the web and mobile clients map each code to the same icon and colour.
+    public static readonly string[] Categories=["ELEVATOR","WATER","ELECTRICITY","HEATING","RENOVATION","FAULT","CLEANING","SECURITY","COMMON_AREA","SUGGESTION","OTHER"];
     public Guid? PhotoId {get;private set;}
     public void Details(string category,string priority,Guid? photo){
-        if(category is not ("FAULT" or "CLEANING" or "SECURITY" or "COMMON_AREA" or "SUGGESTION" or "OTHER") || priority is not ("LOW" or "NORMAL" or "HIGH"))throw new ArgumentException("Invalid request details.");
+        if(!Categories.Contains(category) || priority is not ("LOW" or "NORMAL" or "HIGH"))throw new ArgumentException("Invalid request details.");
         Category=category;Priority=priority;PhotoId=photo;
     }
     public void Edit(string description) => Description=Required(description,nameof(description),2000);

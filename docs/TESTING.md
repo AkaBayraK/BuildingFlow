@@ -1,3 +1,125 @@
+## BAKIM — 21.10.2026 — Yetkili kullanıcı fotoğrafı — DEVAM EDIYOR
+
+Kullanıcı yetkili yöneticinin diğer hesaplara da fotoğraf eklemesini açıkça onayladı. Mevcut kullanıcı kapsamı, hedef sahibinin güncel PROFILE_PHOTO rızası,256KB/JPEG/metadata temizliği,UUID/version,tek profil pointer ve mobil görünümü korunur. Yalnız fotoğraf değişir; ad/telefon/rol değiştirilmez. Yeni paket/tablo yok. Kabul: pozitif/negatif yetki/rıza/uyumsuz payload/409/replay/mobil okuma/değiştir-sil entegrasyon, FEtypecheck/build/test ve UI. Bu tur0/1=%0,00; ürün/MOBİL fazı değişmez.
+
+## BAKIM — 21.10.2026 — Açık/koyu/sistem teması — TAMAMLANDI
+
+**Üst çubukta dil seçiminin yanına Açık tema / Koyu tema / Sistem teması eklendi.** Ortak ThemeProvider tüm bu Next.js uygulamasını kapsar. Varsayılan sistemdir; cihaz prefers-color-scheme değişimini izler. Tercih yalnız buildingflow.theme=light/dark/system olarak tarayıcıda saklanır ve storage olayıyla sekmeler arasında eşitlenir. Saklama engellenirse seçim sekmede uygulanır, geçici tercih açıklaması gösterilir. Auth token/kişi verisi/konum saklanmaz, API/rol/DB değişmez. Ayrı website/Keycloak uygulamalarına tema taşıma bu kapsamda yapılmadı.
+
+RootLayout sabit, girdisi doğrulanan başlangıç betiğini head içinde mevcut proxy'nin request nonce'u ile çalıştırır; ilk boyada class/data-theme/color-scheme seçilir. Yalnız html tema öznitelikleri için suppressHydrationWarning vardır. CSP gevşetilmedi, unsafe-inline script eklenmedi. Tailwind dark varyantı class tabanlıdır; açık tema OS koyu olsa da açık kalır. Koyu semantik palet kart/form/dialog/popover/mesaj/aksiyon/grafik ve eski beyaz yüzeyleri kapsar; markanın lacivert sidebar/fotoğraf yüzeyleri korunur. Mobil başlık yeni tema düğmesine göre yerleştirildi.
+
+**Bu tur:** `npm test` **210/210**,fail/skip0; `npm run typecheck` ve son `npm run build` **PASS**.3 yeni test: üç tercih ve OS önceliği, bozuk/engellenmiş storage, tüm tercih×OS matrisinde ilk boya/runtime eşliği ve kayıtlı girdinin kod olarak çalıştırılmaması. Gerçek production HTTP200 yanıtında tema betiği nonce'u CSP nonce'uyla eşleşti, script-src unsafe-inline yok. Gerçek React fixture: koyu body rgb(12,20,34), kart/form rgb(19,31,49), metin rgb(229,237,247); reload sonrası koyu korunur. İkinci sekmede Açık seçilince ilk sekme açığa geçti. Sistem seçimi mevcut OS light ile eşleşti. OS ayarı test sırasında değiştirilmedi; iki OS durumu birim testinde, canlı değişim dinleyicisi kod incelemesinde doğrulandı.320px viewport=document320, tema düğmesi36×36, taşma0; tarayıcıerror0. Koyu gerçek tahakkuk formu açılıp alan dolduruldu, gerçek tahakkuk oluşturulmadı.
+
+[Görsel](../navigation-refactor/THEME_DARK.jpg), [koyu form](../navigation-refactor/THEME_DARK_FORM.jpg), [makine kanıtı](../navigation-refactor/THEME_EVIDENCE.json). Fixture örnek verili, canlı OIDC/gerçek cihaz testi değildir. Backend testleri bu frontend turunda koşulmadı. Başlangıç Git indeksi/manifest/lock/next-env ve önceki kullanıcı farkları korundu;diffcheckPASS. Yeni paket/font/ikon/görsel bağımlılığı eklenmedi; install/restore olmadığından paket envanteri yeniden yazılmadı. Test sekmeleri ve geçici sunucular kapatıldı, viewport sıfırlandı; test originindeki tercih Sistem'e geri bırakıldı.
+
+Değişen uygulama dosyaları: app/layout.tsx, auth/AuthGate.tsx, app/globals.css, yeni features/theme/theme.ts/ThemeProvider.tsx/ThemeSwitcher.tsx, TR/EN sözlükleri; mevcut fixture sarmalaması ve yeni theme.test.mjs. TESTING/progress/frontend kuralları/teslim kaydı güncellendi. Tek agent mevcut verify/docs ve nonce güvenlik incelemesi. Bu tur **1/1=%100,00**; BAKIM, ürün/UI faz ve roadmap işaretleri değişmedi. Tüm yol haritasının yeni hesaplanan yüzdesi BİLGİ MEVCUT DEĞİL. Engel yok; sonraki adım yeni kullanıcı talebi.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex teslim okuması21.10.2026:300dk kullanılan%55/kalan%45,reset22.10.2026 03:18:13;10080dk kullanılan%55/kalan%45,reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbetin token tüketimi değildir.
+
+## BAKIM — 21.10.2026 — Tek açık ana menü — TAMAMLANDI
+
+**Sidebar tek açık grup davranışına geçti.** Başka ana başlık açıldığında önceki kapanır; açık başlığa tekrar basıldığında tüm gruplar kapanabilir. Aktif alt sayfanın üst grubu rota/alan değişiminde açılır; aktif grup kullanıcı tercihini zorla geçersiz kılmaz. Masaüstü ve mobil aynı state'i kullanır; dar ikon görünümünün mevcut yapısı korunur. WorkspaceShell.tsx içinde closedGroups listesi yerine openGroup kullanıldı. Route/rol/izin ve alt menü öğeleri değişmedi; yeni paket/API/DB yok.
+
+**Bu tur:** `npm test` **207/207**, fail/skip0; `npm run typecheck` ve `npm run build` **PASS**. Gerçek shell/test API fixture1440px: Daireler→Finans, yalnız Finans açık; Aidat linkiyle /dues sonrası aktif Finans'tan Operasyonlar'a geçişte Finans kapanır. Enter ile açık Operasyonlar kapatıldı (açık grup0).375px mobil drawer'da Finans→İletişim sonrası yalnız İletişim açık; Escape kapatır. Masaüstüne dönüşte Finans açıldığında yalnız Finans açık; consoleerror0. [Görsel](../navigation-refactor/SIDEBAR_ACCORDION.jpg). Canlı OIDC/gerçek cihaz/backend testi bu yalnız frontend turunda koşulmadı. Mevcut otomatik testler kullanıldı, bu küçük state düzeltmesine uygulamayı tekrarlayan test eklenmedi.
+
+Mevcut TESTING/progress/uygulama teslim kaynakları güncellendi. Başlangıç Git indeksi, manifest/lock, next-env ve önceki kullanıcı farkları korundu; diffcheckPASS. Fixture/sekme kapatıldı, viewport sıfırlandı. **Bu tur1/1=%100,00**; BAKIM, ürün/UI fazları ve roadmap işaretleri değişmedi. Tüm iş yol haritasının yeni hesaplanan yüzdesi BİLGİ MEVCUT DEĞİL. Tek agent mevcut verify/docs yönergeleri; engel yok. Sonraki adım yeni kullanıcı talebi.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex teslim okuması21.10.2026:300dk kullanılan%25/kalan%75,reset22.10.2026 03:18:13;10080dk kullanılan%51/kalan%49,reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbetin token tüketimi değildir.
+
+## BAKIM — 21.10.2026 — İki sütunlu tahakkuk formu — TAMAMLANDI
+
+**Yeni tahakkuk paneli masaüstünde sağ/sol iki sütuna ayrıldı.** Sol: borç muhatabı, arama/bölüm listesi, toplu seçim, sayfalama ve seçilenler. Sağ: dönem, bölüm başına tutar, vade, açıklama ve toplam. Ortak Kaydet/Vazgeç altta. Panel en fazla1120px, viewport'a uyumlu;1024px altı tek sütun. Mobil tam genişlik korunur. Yalnız AssessmentEditor sunumu değişti; diğer ManagementPanel ekranları, API/finans/muhatap kuralları,500 sınırı ve UUID/retry davranışına dokunulmadı.
+
+Değişen uygulama dosyası: frontend/buildingflow-web/src/features/dues/DuesDialogs.tsx. Mevcut izole fixture'a gerçek AssessmentEditor açma ve48 temsili bölüm verisi eklendi; üretim rotası/auth bypass yok. Yeni paket/font/ikon/görsel bağımlılığı veya migration yok; salt düzen değişikliği için yeni otomatik test yazılmadı.
+
+**Bu tur:** `npm test` **207/207**,fail/skip0; `npm run typecheck` ve `npm run build` **PASS**. Gerçek React/test API fixture1440x1000:panel1120px, sol547,90px/sağ498,10px, yan yana ve taşmasız.48bölüm×1250,00=**60000,00**; seçimi temizleyip3bölüm seçildiğinde **3750,00**.375 ve320px paneller viewport genişliğinde/tek sütun ve taşmasız; tarayıcıerror0. [Görsel](../navigation-refactor/ASSESSMENT_TWO_COLUMNS.jpg). Bu testte gerçek tahakkuk oluşturulmadı; üretim/OIDC/gerçek cihaz/backend testleri bu yalnız sunum turunda çalıştırılmadı. Önceki kullanıcı farkları, başlangıç indeksi/manifest/lock ve next-env korundu;diffcheckPASS. Fixture/sekme kapatıldı, viewport sıfırlandı.
+
+Bu tur **1/1=%100,00**; BAKIM işi, ürün/UI faz ve roadmap işaretleri değişmedi. Tüm iş yol haritasının yeni hesaplanan yüzdesi BİLGİ MEVCUT DEĞİL. Tek agent, mevcut akadev-verify/docs yönergeleri. Engel yok; sonraki adım yeni kullanıcı talebi.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex teslim okuması21.10.2026:300dk kullanılan%14/kalan%86,reset22.10.2026 03:18:13;10080dk kullanılan%49/kalan%51,reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası bu sohbetin token tüketimi değildir.
+
+## BAKIM — 21.10.2026 — MET Norway — TAMAMLANDI
+
+**Kullanıcı onaylı MET Norway hava tahmini bağlandı:** kişisel İstanbul varsayılanı, İstanbul/Ankara/İzmir/Artvin seçimi, sıcaklık/koşul ikonu, sağlayıcı güncelleme zamanı, otomatik kontrol ve ayrı Hava durumunu yenile düğmesi. Şehir/hesap değişiminde istek iptal edilir; eski şehrin sıcaklığı gösterilmez. Görünür sayfada cache zamanına göre süreli kontrol, gizli sayfada sorgu yok; bu davranış kod incelemesiyle doğrulandı, dakikalar süren otomatik süre dolumu tarayıcıda ayrıca beklenmedi.
+
+**Lisans:** açıkça onaylanan veri bağlantısı CC BY4.0 koşullarıyla; MET Norway kaynak ve lisans bağlantıları görünür, seçili zaman/yuvarlama açıklaması var. Yeni npm/NuGet paketi, sağlayıcı ikonu, font veya görsel eklenmedi; paket envanteri değişmedi. Kaynak/ücretsiz kullanım/servis koşulları resmî sitelerden bu tur doğrulandı. API uygulama adıyla tanımlanır; isteğe bağlı Weather:ContactUrl gerçek HTTPS iletişim bağlantısını ekler. Uydurma iletişim bilgisi yok. Yeni konum izni yok, tarayıcı IP/koordinat/tokenı sağlayıcıya gönderilmez; yaklaşık şehir merkezleri kullanılır. Ücretli abonelik/API anahtarı gerektirmez; hizmet SLA garantisi vermez.
+
+**Sunucu:** Application DTO/arayüz + Infrastructure MetWeatherProvider + yetkili API endpoint. Sabit HTTPS hedef, yönlendirme kapalı,8sn timeout,1MiB gövde sınırı; dört şehir cache'i, şehir başına tek istek, Expires/Last-Modified/304 ve Retry-After. Bekleme içinde Yenile sağlayıcıya tekrar yük bindirmez. Hata/bozuk veri normal UNAVAILABLE veya son başarılı veriyle STALE; ham exception/sağlayıcı yanıtı render edilmez. Kişisel hava verisi Property finans kapsamı değildir; CanManageDues rol/sub ve mevcut no-store/rate limit korunur. Model tahmini anlık istasyon ölçümü diye gösterilmez. Tablo/migration/DB yazımı yok.
+
+**Bu tur test:** `npm test` **195/195**, fail/skip0; `npm run typecheck` ve `npm run build` **PASS**. Backend **11/11**, fail/skip0:6 sağlayıcı parser/cache/singleflight/304/backoff/bozuk-birim-sıcaklık testleri ve5 API testi (dört finans rolü, anonim/resident/sahte rol,400 katalog kodu, no-store). API test fixture'ı yalnız ayrı geçici PostgreSQL DB/rolünde çalıştı ve kendine ait kaynakları temizledi; hava testlerinde dış HTTP sahteydi. Ayrı gerçek MET isteği İstanbul için **HTTP200**, Celsius/90 kayıt, Expires/Last-Modified ile başarılı; bu bir canlı OIDC/tam üretim oturumu testi değildir.
+
+**UI fixture:** İstanbul18°C, Yenile düğmesi API'yi tekrar çağırdı; İzmir24°C'ye geçiş, Ankara STALE uyarısı, Artvin UNAVAILABLE/— görünümü, İstanbul'a dönüş başarılı. 320px viewport=document320, yatay taşma yok; tarayıcıerror0. Bu sıcaklıklar örnek fixture verisidir. [Görsel](../navigation-refactor/DASHBOARD_MET_WEATHER.jpg), [makine kanıtı](../navigation-refactor/DASHBOARD_MET_WEATHER_EVIDENCE.json), [tam teslim/önceki seçenekler](../navigation-refactor/DASHBOARD_WEATHER.md), [API sözleşmesi](../api/dashboard.md), [lisans kaydı](../licenses.md). Gerçek cihaz/üretim dağıtımı yapılmadı. Fixture/sekme kapatıldı, viewport sıfırlandı.
+
+Değişen dosyalar: Weather.cs, MetWeatherProvider.cs, WeatherEndpoints.cs, Program.cs'nin yalnız servis/endpoint kaydı; DashboardHero/WeatherLocation/weather.ts, CSS, TR/EN, fixture, WeatherApiTests/MetWeatherTests/weather.test.mjs ve mevcut belge kaynakları. Başlangıç Git indeksi/manifest/lock ve next-env korundu; diff check PASS. Önceki sistem durumu/diğer kullanıcı farkları korunur. Tek agent akadev-contract/security/license/verify/docs; yeni agent/MCP kurulmadı. **Bu tur 1/1=%100,00**; ürün/UI yol haritası/faz işaretleri değişmedi, tüm yol haritasının yeni hesaplanan yüzdesi BİLGİ MEVCUT DEĞİL.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex teslim okuması:300dk kullanılan%0/kalan%100, reset22.10.2026 03:18:13 Europe/Istanbul;10080dk kullanılan%47/kalan%53, reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası bu sohbetin token tüketimi değildir.
+
+Engel yok; onaylanan MET entegrasyonu tamamlandı. Sonraki adım yeni kullanıcı talebi; başka faza geçilmedi.
+
+## BAKIM — 21.10.2026 — Kişisel hava durumu şehri — TAMAMLANDI
+
+**Artvin gösteriminin kaynağı Property.city idi. Hava durumu şehri artık yönetim alanından bağımsız kişisel tercihtir; varsayılan İstanbul.** Şehir adı düğmesi mevcut Dialog/Input/Button ile düzenlenir; Unicode/uzunluk/bozuk kayıt doğrulaması ve kullanıcı subject'iyle ayrılmış tarayıcı tercihi vardır. Depolama engelliyse güvenli varsayılan/yalnız sayfada kullanım açıklaması bulunur. GPS/IP konumu okunmaz, Property veya güvenlik başlıkları değişmez. Sıcaklık — ve canlı servisin bağlı olmadığı açıkça gösterilir; mevcut dashboard Yenile düğmesi hava servisi gibi sunulmaz.
+
+Kullanıcı ayrıca **canlı servis seçeneklerini hazırlamayı** onayladı. [Karşılaştırma ve önerilen uygulama](../navigation-refactor/DASHBOARD_WEATHER.md): MET Norway ücretsiz açık veri/atıf/SLA yok, önerilen seçenek; Open-Meteo ücretsiz API ticari değildir, ticari abonelik gerekir. Resmî koşullar 21.10.2026 incelendi. Henüz dış servis, abonelik, API anahtarı, veri lisansı entegrasyonu veya yeni bağımlılık eklenmedi. Seçim sonrası otomatik yenileme + manuel Yenile + son güncelleme önerilir; sağlayıcı Expires/cache kuralları atlanmaz. Canlı sıcaklık uygulandı diye raporlanmaz.
+
+**Bu tur:** frontend `npm test` **193/193**, fail/skip 0; `npm run typecheck` ve `npm run build` **PASS**. İki yeni test kişisel şehir varsayılanı/hesap ayrımı/kalıcılık/engellenmiş depolama/bozuk kayıt/Unicode doğrulamasını kapsar. Gerçek React + izole fixture: İstanbul→İzmir kaydetme, reload sonrası İzmir, ikinci alana geçişte İzmir korunması, İstanbul'a geri dönme başarılı. 320 px viewport=document320, taşma yok; console error0. [Görsel](../navigation-refactor/DASHBOARD_WEATHER.jpg). Canlı OIDC, gerçek cihaz veya backend testi bu yalnız frontend turunda çalıştırılmadı. Başlangıç Git indeksi, manifest/lock ve next-env korundu; diff check PASS. Fixture/sekme kapalı, viewport sıfırlandı.
+
+Değişen uygulama dosyaları: DashboardHero.tsx, yeni WeatherLocation.tsx/weather-location.ts, globals.css, TR/EN sözlükleri ve weather-location.test.mjs. Mevcut TESTING, ilerleme, frontend kuralları ve teslim kaynağı güncellendi. Tek agent; akadev-verify/docs ve sağlayıcı seçeneklerinde akadev-license kaynak incelemesi kullanıldı. Bu tur **1/1 = %100,00**; ürün/UI fazları ve roadmap işaretleri değişmedi, tüm yol haritasının yeni hesaplanan yüzdesi BİLGİ MEVCUT DEĞİL.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage / rateLimitsByLimitId.codex teslim okuması21.10.2026: 300dk kullanılan%80/kalan%20, reset21.10.2026 16:14:02 Europe/Istanbul;10080dk kullanılan%44/kalan%56, reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası bu sohbetin token tüketimi değildir.
+
+Bu turda engel yok. Sonraki adım: kullanıcının canlı sağlayıcı seçimi; henüz entegrasyon onayı verilmedi.
+
+## BAKIM — 21.10.2026 — Aidat tahsilat kartı — TAMAMLANDI
+
+**Referanstaki Aidat Tahsilat Durumu kartı eklendi:** yeşil halka, Bu Ay / Önceki Ay seçimi, Tahsil Edilen / Bekleyen / Geciken tutarları, TR/EN metinleri ve mobil düzen. Mevcut gelir/gider ve doluluk kartları korunur. Seçili yönetim alanını izler; alan değişiminde kart sıfırlanır. **Bu tur 1/1, %100,00.** BAKIM işidir; SIDEBAR 8/8 ve ürün/UI faz işaretleri değiştirilmedi. Tüm yol haritasının bu tur hesaplanan yüzdesi: BİLGİ MEVCUT DEĞİL.
+
+Sözleşme: DashboardSummary.collections iki dönemli ek alandır. Aynı RepeatableRead, Property/aktif üyelik ve dört finans rolü sınırında iptal edilmemiş DuesCharge tahakkukları gruplanır. Toplam = tahsil + vadesi gelmemiş kalan + geciken kalan; dueDate=today gecikmiş değildir. Tahsil edilen PaidAmount güncel mahsuplarıdır, paidDate bazlı aylık nakit tahsilatıyla karıştırılmaz. Seçili ayın güncel bakiyesidir, tarihsel kapanış değildir. Sıfır tahakkukta oran —; eski API alanı yoksa kart açıklamalı olarak kullanılamaz. API üreticisi/FE tüketicisi birlikte güncellendi; migration, yeni paket, izin veya kişi verisi eklenmedi.
+
+**Bu tur doğrulama:** `npm test` **191/191**, sıfır fail/skip; `npm run typecheck` ve `npm run build` **PASS**. `DashboardApiTests` ayrı gerçek PostgreSQL test veritabanında **7/7**, sıfır fail/skip: dört rol, boş dönemler, tahakkuk/nakit dönemi ayrımı, kısmi ödeme, iptal edilen tahakkuk, bugünkü vade, terslenen ödeme ve 401/403/404 sınırları. Test yalnız kendisine ait geçici veritabanı/rolü temizledi. BigInt oran/toplam doğrulama testleri yıl geçişi, bozuk/negatif ondalık, tutarsız toplam ve eski API'yi kapsar.
+
+Gerçek React + test API fixture: Bu Ay **%78**, Önceki Ay **%90**; alan değişince Bu Ay'a döner. 1440 px kart genişliği 360,66 px; 320 px ekranda document=320, kart=288, taşma yok; tarayıcı hata kaydı 0. [Görsel](../navigation-refactor/DASHBOARD_COLLECTION.jpg), [kanıt](../navigation-refactor/DASHBOARD_COLLECTION_EVIDENCE.json), [API sözleşmesi](../api/dashboard.md). Canlı OIDC veya fiziksel cihaz testi çalıştırılmadı. Değişen uygulama dosyaları: Dashboard.cs, DashboardStore.cs, DashboardApiTests.cs, DashboardPage.tsx, model.ts, CollectionCard.tsx, collection.ts, globals.css, TR/EN sözlükleri, fixture ve collection.test.mjs. Paket/lock ve başlangıç Git indeksi korundu; yalnız beklenen next-env.d.ts derleme çıktısı başlangıç içeriğine döndürüldü.
+
+Giriş token'ı: BİLGİ MEVCUT DEĞİL. Çıkış token'ı: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Hesap kota kaynağı: Codex usage / rateLimitsByLimitId.codex, 21.10.2026 teslim okuması. 300 dakika kullanılan %67 / kalan %33, reset 21.10.2026 16:14:01 Europe/Istanbul. 10080 dakika kullanılan %42 / kalan %58, reset 27.10.2026 13:32:07 Europe/Istanbul. Bunlar bu sohbetin token tüketimi değildir.
+
+Engel yok. Sonraki adım: yeni kullanıcı talebi; başka faza geçilmedi.
+
+## BAKIM —21.10.2026 — Dashboard doluluk halkası — TAMAMLANDI
+
+**Tür dağılımı kartı yerine referanstaki doluluk halkası, yüzde, dolu/boş listesi ve alanın bölüm listesi bağlantısı eklendi.** Yalnız apartman birimleri varsa Daire Doluluk Oranı, diğer türlerde Bölüm Doluluk Oranı başlığı kullanılır. Beklemede verisi mevcut API'de yoktur: sayı —, açıklaması erişilebilir; turuncu halka payı veya sıfır uydurulmaz. Sıfır bölümde yüzde de —; tam dolulukta %100 gösterilir. Backend/API/DB/bağımlılık değişmedi.
+
+**188/188 frontend testi, 0 fail/skip; typecheck ve üretim build PASS.** Yeni 2 test: 88/96→%92, sıfır/tam/karma oran ve pending=null; mağaza/ofis için doğru terminoloji. Gerçek Dashboard/test API fixture: ilk alan 86/96→%90, ikinci alan38/48→%79 ve doğru UUID'li liste bağlantısı; tıklama ikinci alanın units sayfasına gitti. 320px document320/kart288, taşma0; consoleerror0. [Görsel](navigation-refactor/DASHBOARD_OCCUPANCY.jpg), [kanıt](navigation-refactor/DASHBOARD_OCCUPANCY_EVIDENCE.json). Canlı OIDC/gerçek cihaz/backend testleri bu yalnız frontend turunda koşulmadı.
+
+Değişenler: DashboardPage.tsx, yeni OccupancyCard.tsx/occupancy.ts, globals.css, TR/EN ve occupancy.test.mjs; TESTING/progress/frontend/API belgeleri. Başlangıç indeks/manifest/lock/next-env ve önceki kullanıcı farkları korundu; diff check PASS. Fixture/sekme kapalı, viewport reset. Bu tur1/1=%100,00; sidebar8/8=%100,00 korunur; ürün roadmap değişmez. Tek agent mevcut verify/docs; sonraki kullanıcı incelemesi.
+
+Token giriş/çıkış/toplam/kalan context: her biri BİLGİ MEVCUT DEĞİL. Son usage21.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%45/kalan%55 reset21.10.2026 16:14:01;10080dk kullanılan%38/kalan%62 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## BAKIM —21.10.2026 — Dashboard doluluk halkası — DEVAM EDIYOR
+
+Türdağılımı kartı yerine referans doluluk halkası/gerçekdolu-boş sayı/alanınbölümlistesine bağlantı. Beklemedeverisi mevcutAPIde yok;uydurma0/segment yok,belirsiz — satırı. Kabul:sıfır/tam/karmaoran hesapları,FEtest/typecheck/build,desktop/mobile/alanseçimfixture. Bu tur0/1=%0,00;sidebar8/8korunur. Yeni paket/API/DB yok.
+
+## BAKIM —21.10.2026 — Referans sol menü — TAMAMLANDI
+
+**Solmenü referans lacivert/cyan yuvarlatılmış çerçeve,maviaktif,arama,ikonlu ana ve çizgili altmenülerle uyarlandı.** Mevcutroute/rol/flag/disabled/APARTMENT ve profilkorundu;altalanseçimi geri eklenmedi. [Rapor](navigation-refactor/SIDEBAR_REFERENCE.md),[görsel](navigation-refactor/SIDEBAR_REFERENCE_DESKTOP.jpg). WorkspaceShell,CSS,TR/EN,sidebar-layout helper/test ve mevcut testkaynak eşliği değişti;backend/API/DB/paket/asset yok.
+
+**186/186FE,0fail/skip;typecheck/build PASS.** Yeni2test192kombinasyonda öğe/route/izin eşliği;fixture1440x1000,76pxrail,KİŞİarama,Finansaktiflik,375/320drawer,arama sonrası içerikodağı/locktemizliği ve consoleerror0 PASS. CanlıOIDC/gerçekcihaz/backend testleri bu tur koşulmadı. Başlangıçindeks/manifest/lock/next-envkorundu,diffcheckPASS;fixture/sekme kapalı,viewportreset. Bu tur1/1=%100,00;sidebar8/8=%100,00korunur;ürünroadmap değişmez. Tekagentverify/docs;sonraki kullanıcıincelemesi.
+
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage21.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%29/kalan%71 reset21.10.2026 16:14:02;10080dk kullanılan%36/kalan%64 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## BAKIM —21.10.2026 — Referans sol menü — DEVAM EDIYOR
+
+Referans lacivert/cyan çerçeve,maviaktif,dikey ikon/satırlar,arama ve iç içe altmenü sunumu uygulanır. Mevcutroute/rol/flag/APARTMENT sınırı korunur;önce kaldırılan altalanseçimi geri eklenmez,profilkartı korunur. Kabul:rol/route öğe eşliği,FEtest/typecheck/build ve desktop/rail/mobile fixture. Bu tur0/1=%0,00;sidebar8/8korunur. Yeni paket/asset/API yok.
+
+## BAKIM —21.10.2026 — Sidebar alt alan seçimi — TAMAMLANDI
+
+**Sidebar/drawer footer Yönetim alanı seçim bağlantısı kaldırıldı.** WorkspaceShell.tsx içinde tek ortak render ve kullanılmayan import kaldırıldı;profil,ana Yönetim Alanları menüsü ve Dashboardheaderseçimi korunur. **184/184FE,typecheck/üretim build,diffcheck PASS.** Bu küçük kaldırma için yeni test yazılmadı;tarayıcı/backend testleri bu tur koşulmadı. Başlangıçindeks/manifest/lock/next-env korundu;build üretimi exactimport kontrolüyle geri alındı. Yeni paket/API/DB yok. Bu tur1/1=%100,00;sidebar8/8korunur. Tekagent verify/docs;sonraki kullanıcıincelemesi.
+
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage21.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%3/kalan%97 reset21.10.2026 16:14:02;10080dk kullanılan%32/kalan%68 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM —21.10.2026 — Sidebar alt alan seçimi — DEVAM EDIYOR
+
+Kullanıcı talebiyle sidebar/drawer footer Yönetim alanı bağlantısı kaldırılır;profil ve Dashboard headerseçimi korunur. Bu tur0/1=%0,00;sidebar8/8korunur. Kabul:FEtest/typecheck/build; yeni paket/API yok.
+
 ## BAKIM —20.10.2026 — Dashboard sütun grafiği — TAMAMLANDI
 
 **Gelir/gider trendi referanstaki gibi yan yana mavigelir/pembegider sütunlarına dönüştü.** Son6/3ay seçimi mevcut6ayAPI verisini dilimler;backend/tutarhesabı değişmedi. Yuvarlak eksen,klavye/hover/touch kesinTRYtooltip ve ekranokuyucu tutar tablosu korunur. TrendChart.tsx/trend-bars.ts,DashboardPage,globals.css,TR/EN ve trend-bars.test.mjs güncellendi/eklendi. Yeni paket/font/asset yok.
@@ -1408,3 +1530,31 @@ Drawer: açılışta aktif link/ilk link odağı, Tab/ShiftTab trap, Escape/back
 Ortak profil/rol/photo snapshotı, accountChanged ve subject değişiminde eski profilin görünmemesi. Footer alan adı yalnız eşleşen PropertyScope; loading/error/null fallback. Seçici mevcut modül/global seçim route'larına gider. Desktop/dar/mobil footer, Dropdown/Hesap bilgilerim/mevcut logout/APIcheck; çoklu rol/alan/auth sınırları korunur. Unit/typecheck/build ve fixture kabulü.
 
 **Aşama06:177/177 FE,0fail/skip; typecheck/build PASS.** Dört yeni footer testi ve gerçek kaynaklı izole profil/alan/çoklurol/refresh/rail/mobile popup kapanış kabulü. GerçekOIDC/fotoğraf/cihaz yok; loading/error/ContextShell kaynak/ünite kontrolü. Font12px korunur. [Kanıt ve sınırlar](navigation-refactor/STAGE_06.md). Sidebar6/8=%75,00; Aşama07 başlamadı.
+
+## BAKIM —21.10.2026 — Planlama & Bakımlar ve duyuru kategorileri kabulü
+
+Otomatik: `dotnet test tests/BuildingFlow.UnitTests`, `dotnet test tests/BuildingFlow.IntegrationTests --filter "FullyQualifiedName~Maintenance|FullyQualifiedName~PlanningMigration|FullyQualifiedName~Communication"`, FE `npm test`, `npm run build`.
+
+Elle kısa senaryolar:
+1. Yönetici Planlama & Bakımlar → Yeni Planlama: Tatbikat, yarın, konum/sorumlu boş → kayıt listede, Dashboard kartında "1 gün kaldı" ve Planlandı rozeti.
+2. Aynı planı iki sekmede düzenle → ikinci kayıt 409 bandı, "Güncel bilgileri yükle" sonrası kaydet.
+3. Planı Tamamlandı yap → Dashboard kartından düşer, listede kalır; sil → listeden kalkar (soft-delete).
+4. Tür çipi/arama/tarih aralığı (başlangıç>bitiş uyarısı)/durum filtresi; çip sayıları tür filtresinden bağımsız.
+5. ACCOUNTANT: ekranı görür, Yeni Planlama/düzenle/sil yok; RESIDENT menüde görmez.
+6. Duyuru oluştururken Acil seç → listede kırmızı ikon, Acil çipi sayısı artar; kategori göndermeyen eski düzenleme kategoriyi korur.
+7. 375px mobil kartlar ve koyu tema; klavye ile çip/tür radyosu seçimi.
+
+## BAKIM —21.10.2026 — Anketler kabulü
+
+Otomatik: `dotnet test tests/BuildingFlow.UnitTests`, `dotnet test tests/BuildingFlow.IntegrationTests --filter "FullyQualifiedName~Survey|FullyQualifiedName~PlanningMigration"`, FE `npm test` (`tests/surveys.test.mjs`), `npm run typecheck`, `npm run build`.
+
+Elle kısa senaryolar:
+1. Yönetici İletişim → Anketler → Yeni Anket: kategori, tarih, hedef kitle, yanıt kuralı seç; tek seçim/çoklu seçim/puan/metin sorusu ekle, Önizleme sekmesini kontrol et; Taslak kaydet → listede Taslak, katılım "Henüz yayınlanmadı".
+2. Şablondan Oluştur → Genel Memnuniyet: alanlar TR/EN dolu gelir, anonim açık; Kaydet ve yayınla → Aktif.
+3. Aynı taslağı iki sekmede düzenle → ikinci kayıt 409 bandı.
+4. Sakin uygulamasından (mobil API) yanıt ver; aynı daireden ikinci yanıt 409 "zaten yanıtlandı". Anonim ankette 3 yanıta kadar sonuçlar gizli bildirimi, sonra sonuçlar; metinlerde daire numarası görünmez.
+5. Anketi kapat → Tamamlandı, katılım sabitlenir; Sonuçları dışa aktar → CSV Excel'de Türkçe karakterlerle açılır, `=` ile başlayan yanıt formül olarak çalışmaz.
+6. ACCOUNTANT ve RESIDENT rolleri menüde Anketler'i görmez; API 403.
+7. 1440/1600/375/320px: KPI, tablo/kart, yan kartlar, donut ve alt kartlar taşmasız; panel 1024px altında tek sütun.
+
+Ekran kanıtları (test API fixture, canlı OIDC/API değildir): `/mnt/project-files/analysis/surveys-screens/` altında masaüstü liste, editör, şablonlar, sonuçlar ve mobil görünümler.

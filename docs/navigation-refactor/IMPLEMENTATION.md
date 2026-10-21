@@ -10,7 +10,7 @@
 - Arama yalnız modelin görünür, enabled etiketlerini tarar; TR/EN case/aksan/Türkçe ı uyumu, çoklu kelime ve boş sonuç. Cmd/Ctrl+K; kapanışta sorgu temizlenir. Kişi/alan verisi, API araması veya sorgu kaydı yoktur.
 - `buildingflow-sidebar-v1` yalnız collapsed/expanded UI tercihini saklar; storage erişim hatasında fallback. Rol,token,alan veya kişi verisi saklamaz.
 - Mobil ortak menü Radix Dialog içinde; backdrop/Escape/focus trap/scroll lock, rota ve masaüstüne geçişte kapanma. Rota kapanışında içerik odağı, normal kapanışta açan düğmeye dönüş. Reduced-motion CSS, aria-current/expanded ve içeriğe geç bağlantısı vardır.
-- Footer mevcut ortak account/Keycloak oturumundan profil/rolü ve PropertyScope alan bağlamını gösterir. Subject uyuşmazlığında eski profil kullanılmaz; accountChanged ortak provider'ı günceller. Alan değişimi mevcut modül seçim girişine gider; yeni hesap/rol/üyelik işlemi yok. Header dil/bildirimleri korunur; profil footer ile birlikte sağ üst header üzerinden de sunulur (20.10.2026 kullanıcı düzeltmesi).
+- Footer mevcut ortak account/Keycloak oturumundan profil/rolü gösterir; alt alan seçim bağlantısı 21.10.2026 kullanıcı talebiyle kaldırıldı. Subject uyuşmazlığında eski profil kullanılmaz; accountChanged ortak provider'ı günceller. Dashboard alan seçimi üst headerdadır; yeni hesap/rol/üyelik işlemi yok. Header dil/bildirimleri korunur; profil footer ile birlikte sağ üst header üzerinden de sunulur (20.10.2026 kullanıcı düzeltmesi).
 - OIDC Authorization Code/S256, refresh/logout, API ve DB sözleşmeleri korunur. Yeni route, migration, servis, paket/font/ikon seti veya harici görsel eklenmedi.
 
 ## Değişen uygulama ve test dosyaları
@@ -46,3 +46,23 @@ Belgeler: ANALYSIS ve STAGE_02–07 raporları/JSON/JPG kanıtları, bu IMPLEMEN
 ## Sonraki kabul
 
 [Manuel QA listesi](TEST_RESULTS.md) gerçek oturum/ağ/cihaz kabulünü içerir. Sonraki ürün fazı kendiliğinden başlatılmaz. Teknik teslim %100,00, gerçek yayın/cihaz/offline kabulü tamamlandı anlamına gelmez.
+
+
+## 21.10.2026 — Son sidebar sunumu
+
+İzin/rota kaynağı `navigation.ts` korunur;renderdüzeni `sidebar-layout.ts` ile referanstaki üst/alt menü biçimine çevrildi. CSSlacivert/cyanyuvarlatılmış çerçeve ve sidebararama eklendi. Profilkartı kalır;altalanseçimi geri eklenmez. [Güncel tasarım ve kanıt](SIDEBAR_REFERENCE.md).
+
+
+## 21.10.2026 — BAKIM / Aidat tahsilat kartı
+
+**1/1 doğrulandı.** [API sözleşmesi](../api/dashboard.md), [kabul kanıtı](DASHBOARD_COLLECTION_EVIDENCE.json) ve [görsel](DASHBOARD_COLLECTION.jpg). Mevcut dashboard işinin sunum/özet genişletmesidir; yeni ürün fazı açılmaz, SIDEBAR 8/8 ve ürün yol haritasındaki tamamlanmış İŞ20 durumu korunur.
+
+21.10.2026 BAKIM — [Kişisel hava şehri ve servis seçenekleri](DASHBOARD_WEATHER.md): **1/1**, frontend193/193/typecheck/build ve UI fixture başarılı. Canlı sağlayıcı henüz bağlanmadı; faz/roadmap işareti değiştirilmedi.
+
+21.10.2026 BAKIM — Kullanıcı onaylı MET Norway entegrasyonu **1/1** tamamlandı; yeni ürün fazı açılmadı. [Sözleşme/kanıt](DASHBOARD_WEATHER.md), [görsel](DASHBOARD_MET_WEATHER.jpg). Önceki “sağlayıcı henüz yok” notu önceki turun tarihsel durumudur.
+
+21.10.2026 BAKIM — Yeni tahakkuk paneli masaüstünde sol seçim/sağ tahakkuk bilgileri olarak iki sütun, mobilde tek sütun yapıldı. **1/1**,207/207FE/typecheck/build ve gerçek form fixture doğrulandı. [Görsel](ASSESSMENT_TWO_COLUMNS.jpg), [kabul](../TESTING.md). Yeni ürün fazı/roadmap işareti yok.
+
+21.10.2026 BAKIM — Sidebar masaüstü/mobil tek açık grup; rota değişiminde aktif grup açılır, manuel başka grup seçimi aktif grubu kapatabilir. Önceki zorunlu aktif açık/grup listesi davranışı güncellendi. **1/1**,207/207FE/typecheck/build ve gerçek shell etkileşimleri PASS. [Görsel](SIDEBAR_ACCORDION.jpg), [kabul](../TESTING.md). Ürün fazı/roadmap değişmedi.
+
+21.10.2026 BAKIM — Tema seçimi **1/1** tamamlandı: Açık/Koyu/Sistem, kalıcılık, OS/sekme eşliği, nonce korumalı ilk boya ve koyu semantik palet.210/210FE/typecheck/build, production nonce ve React/mobile/form kabulü PASS. Yeni ürün fazı/roadmap işareti yok. [Görsel](THEME_DARK.jpg), [kanıt](THEME_EVIDENCE.json), [kabul](../TESTING.md).

@@ -54,6 +54,12 @@ services:
       ObjectStorage__AccessKey: ${OBJECT_STORAGE_ACCESS_KEY:?Run scripts/init-local.sh}
       ObjectStorage__SecretKey: ${OBJECT_STORAGE_SECRET_KEY:?Run scripts/init-local.sh}
       PersonCode__HmacKey: ${PERSON_CODE_HMAC_KEY:?Run scripts/init-local.sh}
+      # Sistem durumu ekranının yalnız okuma amaçlı sağlık kontrolleri (iç ağ adresleri).
+      SystemStatus__WebUrl: http://buildingflow-web:3000
+      SystemStatus__LokiUrl: http://loki:3100
+      SystemStatus__PrometheusUrl: http://prometheus:9090
+      SystemStatus__GrafanaUrl: http://grafana:3000
+      SystemStatus__MailUrl: http://mailpit:8025
       Website__PreviewHmacKey: ${WEBSITE_PREVIEW_HMAC_KEY:-}
       Website__InquiryHmacKey: ${WEBSITE_INQUIRY_HMAC_KEY:-}
       Website__PlatformDomain: ${WEBSITE_PLATFORM_DOMAIN:-}

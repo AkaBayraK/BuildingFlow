@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import {personName as normalizedName} from "@/lib/person-names";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {UserCog,Plus,Pencil,KeyRound,Link2,Unlink,Search,UserPen} from "lucide-react";
+import {Camera,UserCog,Plus,Pencil,KeyRound,Link2,Unlink,Search,UserPen} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage,type Property} from "@/services/api";
 import {parsePropertyPage,parsePerson} from "@/services/management-contracts";
@@ -20,6 +20,7 @@ import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {useSearch} from "@/features/people/useRows";
 import {personName,type Person} from "@/features/people/types";
 import {EntityEditor} from "@/features/hierarchy/EntityEditor";
+import {UserPhotoDialog} from "./UserPhotoDialog";
 import {AccountAvatar} from "@/components/AccountAvatar";
 import {EmailInput} from "@/components/forms/ContactInputs";
 import {normalizeEmail,validEmail} from "@/lib/contact";
@@ -39,6 +40,7 @@ export function UsersWorkspace(){
  const t=useTranslations("users"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),identity=useIdentity(),notice=useNotification();
  const superAdmin=identity.hasRealmRole("SUPER_ADMIN"),allowed=superAdmin||identity.hasRealmRole("SITE_ADMIN");
  const [term,setTerm]=useState(""),search=useSearch(term),[page,setPage]=useState(1),[data,setData]=useState<UserPage|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[revision,setRevision]=useState(0);
+ const [photoUser,setPhotoUser]=useState<ManagedUser|null>(null);
  const [editor,setEditor]=useState<{user:ManagedUser|null}|null>(null),[linking,setLinking]=useState<ManagedUser|null>(null);const {busy,run}=useSaving();
  const properties=useProperties();
  useEffect(()=>{setPage(1);},[search]);
@@ -51,13 +53,14 @@ export function UsersWorkspace(){
   {id:"roles",header:t("roles"),cell:({row})=><RoleBadges roles={row.original.roles}/>},
   {id:"people",header:t("linkedPeople"),cell:({row})=><LinkedSummary user={row.original}/>},
   {id:"status",header:ui("status"),cell:({row})=><StatusBadge enabled={row.original.enabled}/>},
-  {id:"actions",header:ui("actions"),cell:({row})=><UserActions user={row.original} busy={busy} onEdit={()=>setEditor({user:row.original})} onLink={()=>setLinking(row.original)} onReset={()=>reset(row.original)}/>}
+  {id:"actions",header:ui("actions"),cell:({row})=><UserActions user={row.original} busy={busy} onEdit={()=>setEditor({user:row.original})} onLink={()=>setLinking(row.original)} onReset={()=>reset(row.original)} onPhoto={()=>setPhotoUser(row.original)}/>}
  ];
  if(!allowed)return <div className="py-10"><MessageBanner>{t("roleRequired")}</MessageBanner></div>;
  return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("help")} scope={t(superAdmin?"scopeAll":"scopeOwn")} icon={UserCog} action={<Button onClick={()=>setEditor({user:null})}><Plus/>{t("newUser")}</Button>}/>
   <section className="overflow-hidden rounded-2xl border bg-card shadow-sm"><ListToolbar term={term} onTerm={setTerm} searchLabel={t("search")} placeholder={t("searchPlaceholder")} loading={loading} onRefresh={refresh} onReset={()=>setTerm("")} resetEnabled={!!term}/>
-   <RecordList compact data={data} columns={columns} page={page} onPage={setPage} loading={loading} error={error} onRetry={refresh} empty={t("empty")} card={u=><><div className="flex items-start justify-between gap-2"><div className="flex min-w-0 items-center gap-3"><AccountAvatar key={u.photoId??"none"} path={u.photoId?`/api/v1/users/${encodeURIComponent(u.id)}/photo`:null} name={displayName(u)} className="size-10 text-sm"/><div className="min-w-0"><strong>{displayName(u)}</strong><p className="text-xs text-muted-foreground">{u.username} · {u.email??"—"}</p></div></div><StatusBadge enabled={u.enabled}/></div><RoleBadges roles={u.roles}/><LinkedSummary user={u}/><UserActions user={u} busy={busy} onEdit={()=>setEditor({user:u})} onLink={()=>setLinking(u)} onReset={()=>reset(u)}/></>}/>
+   <RecordList compact data={data} columns={columns} page={page} onPage={setPage} loading={loading} error={error} onRetry={refresh} empty={t("empty")} card={u=><><div className="flex items-start justify-between gap-2"><div className="flex min-w-0 items-center gap-3"><AccountAvatar key={u.photoId??"none"} path={u.photoId?`/api/v1/users/${encodeURIComponent(u.id)}/photo`:null} name={displayName(u)} className="size-10 text-sm"/><div className="min-w-0"><strong>{displayName(u)}</strong><p className="text-xs text-muted-foreground">{u.username} · {u.email??"—"}</p></div></div><StatusBadge enabled={u.enabled}/></div><RoleBadges roles={u.roles}/><LinkedSummary user={u}/><UserActions user={u} busy={busy} onEdit={()=>setEditor({user:u})} onLink={()=>setLinking(u)} onReset={()=>reset(u)} onPhoto={()=>setPhotoUser(u)}/></>}/>
   </section>
+  {photoUser&&<UserPhotoDialog user={photoUser} onClose={()=>setPhotoUser(null)} onSaved={refresh}/>}
   {editor&&<UserDialog user={editor.user} superAdmin={superAdmin} properties={properties} onClose={()=>setEditor(null)} onSaved={refresh}/>}
   {linking&&<LinkDialog user={linking} properties={properties} onClose={()=>setLinking(null)} onChanged={updated=>{setLinking(updated);refresh();}}/>}
  </div>;
@@ -70,9 +73,9 @@ function LinkedSummary({user}:{user:ManagedUser}){const t=useTranslations("users
  if(user.linkedPeople.length===0)return <Badge variant="secondary">{t("noLinkedPerson")}</Badge>;
  return <ul className="space-y-0.5 text-xs">{user.linkedPeople.map(p=><li key={p.personId}><strong>{p.fullName}</strong> · {p.propertyName}</li>)}</ul>;}
 
-function UserActions({user,busy,onEdit,onLink,onReset}:{user:ManagedUser;busy:boolean;onEdit:()=>void;onLink:()=>void;onReset:()=>void}){
+function UserActions({user,busy,onEdit,onLink,onReset,onPhoto}:{user:ManagedUser;busy:boolean;onEdit:()=>void;onLink:()=>void;onReset:()=>void;onPhoto:()=>void}){
  const t=useTranslations("users");
- return <div className="flex flex-wrap justify-end gap-1"><Button variant="edit" size="icon-sm" disabled={!user.canEdit||busy} aria-label={t("editUser",{name:user.username})} title={t("editUser",{name:user.username})} onClick={onEdit}><Pencil/></Button><Button variant="outline" size="icon-sm" disabled={!user.canEdit||busy} aria-label={t("linkPerson",{name:user.username})} title={t("linkPerson",{name:user.username})} onClick={onLink}><Link2/></Button><Button variant="warn" size="icon-sm" disabled={!user.canEdit||busy||!user.email} aria-label={t("sendReset",{name:user.username})} title={t("sendReset",{name:user.username})} onClick={onReset}><KeyRound/></Button></div>;
+ return <div className="flex flex-wrap justify-end gap-1"><Button variant="outline" size="icon-sm" disabled={!user.canManagePhoto||busy} data-user-photo={user.id} aria-label={t("photoTitle",{name:user.username})} title={t("photoTitle",{name:user.username})} onClick={onPhoto}><Camera/></Button><Button variant="edit" size="icon-sm" disabled={!user.canEdit||busy} aria-label={t("editUser",{name:user.username})} title={t("editUser",{name:user.username})} onClick={onEdit}><Pencil/></Button><Button variant="outline" size="icon-sm" disabled={!user.canEdit||busy} aria-label={t("linkPerson",{name:user.username})} title={t("linkPerson",{name:user.username})} onClick={onLink}><Link2/></Button><Button variant="warn" size="icon-sm" disabled={!user.canEdit||busy||!user.email} aria-label={t("sendReset",{name:user.username})} title={t("sendReset",{name:user.username})} onClick={onReset}><KeyRound/></Button></div>;
 }
 
 function UserDialog({user,superAdmin,properties,onClose,onSaved}:{user:ManagedUser|null;superAdmin:boolean;properties:Property[];onClose:()=>void;onSaved:()=>void}){

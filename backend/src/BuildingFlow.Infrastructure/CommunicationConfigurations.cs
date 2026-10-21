@@ -12,12 +12,14 @@ internal sealed class AnnouncementConfiguration : IEntityTypeConfiguration<Annou
         b.Property(x => x.Content).HasColumnName("content").HasMaxLength(10000);
         b.Property(x => x.Audience).HasColumnName("audience").HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Category).HasColumnName("category").HasConversion<string>().HasMaxLength(20).HasDefaultValue(AnnouncementCategory.GENERAL);
         b.Property(x => x.PublishedAt).HasColumnName("published_at");
         b.HasOne<Property>().WithMany().HasForeignKey(x => x.PropertyId).OnDelete(DeleteBehavior.Restrict);
         b.HasAlternateKey(x => new { x.PropertyId, x.Id });
         b.HasIndex(x => new { x.PropertyId, x.Status, x.CreatedAt });
         b.ToTable(t => {
             t.HasCheckConstraint("ck_announcements_content", "length(trim(title)) > 0 AND length(trim(content)) > 0 AND audience IN ('ALL_MEMBERS','MANAGEMENT')");
+            t.HasCheckConstraint("ck_announcements_category", "category IN ('GENERAL','MEETING','DUES','MAINTENANCE','URGENT','OTHER')");
             t.HasCheckConstraint("ck_announcements_publication", "(status = 'DRAFT' AND published_at IS NULL) OR (status IN ('PUBLISHED','ARCHIVED') AND published_at IS NOT NULL)");
         });
     }

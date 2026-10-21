@@ -1,0 +1,45 @@
+{
+  "kind": "actual-shell-test-only-api-and-router",
+  "events": [
+    {
+      "areaChooser": 0,
+      "case": "finance-navigation",
+      "current": [
+        "Tahsilatlar"
+      ],
+      "path": "/payments"
+    },
+    {
+      "case": "rail",
+      "links": 18,
+      "overflow": false,
+      "width": 76
+    },
+    {
+      "case": "mobile-search-navigation",
+      "dialogs": 0,
+      "focus": "Menüyü aç",
+      "locked": false,
+      "path": "/reports"
+    },
+    {
+      "areaChoosers": 0,
+      "case": "375px-drawer",
+      "panel": 320,
+      "scroll": 375,
+      "width": 375
+    },
+    {
+      "case": "mobile-result-final",
+      "focus": "workspace-content",
+      "locked": false,
+      "path": "/documents"
+    },
+    {
+      "case": "320px-drawer",
+      "panel": 304,
+      "scroll": 320,
+      "width": 320
+    }
+  ]
+}

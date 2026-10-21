@@ -1,26 +1,31 @@
 namespace BuildingFlow.Domain;
 public enum ContentAudience { ALL_MEMBERS, MANAGEMENT }
 public enum AnnouncementStatus { DRAFT, PUBLISHED, ARCHIVED }
+// Duyuru kategorisi: icon/colour group on the list; existing rows were backfilled to GENERAL.
+public enum AnnouncementCategory { GENERAL, MEETING, DUES, MAINTENANCE, URGENT, OTHER }
 public sealed class Announcement : BaseEntity
 {
     private Announcement() { }
-    public Announcement(Guid property, string title, string content, ContentAudience audience)
+    public Announcement(Guid property, string title, string content, ContentAudience audience, AnnouncementCategory category = AnnouncementCategory.GENERAL)
     {
         if (property == Guid.Empty) throw new ArgumentException("Property required.");
-        PropertyId = property; Edit(title, content, audience);
+        PropertyId = property; Edit(title, content, audience, category);
     }
     public Guid PropertyId { get; private set; }
     public string Title { get; private set; } = null!;
     public string Content { get; private set; } = null!;
     public ContentAudience Audience { get; private set; }
+    public AnnouncementCategory Category { get; private set; }
     public AnnouncementStatus Status { get; private set; }
     public DateTimeOffset? PublishedAt { get; private set; }
-    public void Edit(string title, string content, ContentAudience audience)
+    public void Edit(string title, string content, ContentAudience audience) => Edit(title, content, audience, Category);
+    public void Edit(string title, string content, ContentAudience audience, AnnouncementCategory category)
     {
         if (Status != AnnouncementStatus.DRAFT) throw new InvalidOperationException("Published history is immutable.");
         if (!Enum.IsDefined(audience)) throw new ArgumentException("Invalid audience.");
+        if (!Enum.IsDefined(category)) throw new ArgumentException("Invalid category.");
         var name = Required(title, nameof(title), 200); var body = Required(content, nameof(content), 10000);
-        Title = name; Content = body; Audience = audience;
+        Title = name; Content = body; Audience = audience; Category = category;
     }
     public void Publish(DateTimeOffset at)
     {

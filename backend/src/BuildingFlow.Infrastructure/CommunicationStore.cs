@@ -24,18 +24,18 @@ public sealed class CommunicationStore(BuildingFlowDbContext db, IFileStorage st
     private void Touch(Announcement announcement) => db.Entry(announcement).Property(x => x.IsEnabled).IsModified = true;
     private static void Version(long expected, long actual) { if (expected != actual) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create()); }
     private static void Draft(Announcement a) { if (a.Status != AnnouncementStatus.DRAFT) throw new HierarchyConflictException(ErrorCatalog.ContentState.Create()); }
-    private static AnnouncementResponse Response(Announcement a) => new(a.Id, a.PropertyId, a.Title, a.Content, a.Audience.ToString(), a.Status.ToString(), a.Version, a.CreatedAt, a.PublishedAt);
+    private static AnnouncementResponse Response(Announcement a) => new(a.Id, a.PropertyId, a.Title, a.Content, a.Audience.ToString(), a.Status.ToString(), a.Version, a.CreatedAt, a.PublishedAt, a.Category.ToString());
     private static DocumentResponse Response(StoredDocument d, bool replayed = false) => new(d.Id, d.PropertyId, d.RequestId, d.AnnouncementId, d.Audience.ToString(), d.FileName, d.ContentType, d.Size, d.Sha256, d.Version, d.CreatedAt, replayed);
     private static string Pattern(string search) => "%" + search.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
-    public async Task<AnnouncementResponse?> SaveAsync(Guid property, Guid? id, AnnouncementRequest request, ContentAudience audience, AccessScope access, CancellationToken token)
+    public async Task<AnnouncementResponse?> SaveAsync(Guid property, Guid? id, AnnouncementRequest request, ContentAudience audience, AnnouncementCategory? category, AccessScope access, CancellationToken token)
     {
         await using var tx = await db.Database.BeginTransactionAsync(token);
         var parent = await Lock(property, access, token); if (parent is null) return null;
         Announcement value;
         if (id.HasValue) {
             value = (await db.Announcements.SingleOrDefaultAsync(a => a.PropertyId == property && a.Id == id && a.IsEnabled, token))!;
-            if (value is null) return null; Version(request.Version, value.Version); Draft(value); value.Edit(request.Title!, request.Content!, audience); Touch(value);
-        } else { value = new(property, request.Title!, request.Content!, audience); db.Add(value); }
+            if (value is null) return null; Version(request.Version, value.Version); Draft(value); value.Edit(request.Title!, request.Content!, audience, category ?? value.Category); Touch(value);
+        } else { value = new(property, request.Title!, request.Content!, audience, category ?? AnnouncementCategory.GENERAL); db.Add(value); }
         Touch(parent); await db.SaveChangesAsync(token); await tx.CommitAsync(token); return Response(value);
     }
     public async Task<AnnouncementResponse?> ChangeStatusAsync(Guid property, Guid id, long version, bool publish, AccessScope access, CancellationToken token)
@@ -54,8 +54,11 @@ public sealed class CommunicationStore(BuildingFlowDbContext db, IFileStorage st
         var rows = Announcements(property, access, manager);
         if (!string.IsNullOrWhiteSpace(query.Status)) { var status = Enum.Parse<AnnouncementStatus>(query.Status); rows = rows.Where(x => x.Status == status); }
         if (!string.IsNullOrWhiteSpace(query.Search)) { var pattern = Pattern(query.Search); rows = rows.Where(x => EF.Functions.ILike(x.Title, pattern, "\\") || EF.Functions.ILike(x.Content, pattern, "\\")); }
+        var grouped = await rows.GroupBy(x => x.Category).Select(g => new { g.Key, Count = g.Count() }).ToListAsync(token);
+        var counts = Enum.GetValues<AnnouncementCategory>().Select(c => new ContentCategoryCount(c.ToString(), grouped.SingleOrDefault(g => g.Key == c)?.Count ?? 0)).ToArray();
+        if (!string.IsNullOrEmpty(query.Category)) { var category = Enum.Parse<AnnouncementCategory>(query.Category); rows = rows.Where(x => x.Category == category); }
         var total = await rows.CountAsync(token); var values = await rows.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.Id).Skip((query.Page - 1) * query.PageSize).Take(query.PageSize).ToListAsync(token);
-        await tx.CommitAsync(token); return new(values.Select(Response).ToArray(), query.Page, query.PageSize, total);
+        await tx.CommitAsync(token); return new(values.Select(Response).ToArray(), query.Page, query.PageSize, total, counts);
     }
     public async Task<AnnouncementResponse?> AnnouncementAsync(Guid property, Guid id, AccessScope access, bool manager, CancellationToken token)
     { var value = await Announcements(property, access, manager).SingleOrDefaultAsync(x => x.Id == id, token); return value is null ? null : Response(value); }

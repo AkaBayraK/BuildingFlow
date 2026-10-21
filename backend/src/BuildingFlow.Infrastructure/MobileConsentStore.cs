@@ -131,7 +131,7 @@ public sealed class MobileConsentStore(BuildingFlowDbContext db, IMobileSessionS
         // RETIRED objects are purged from storage by ProfilePhotoMaintenance; the profile version moves so stale edits conflict.
         var photo = await db.Set<MobileProfilePhoto>().SingleOrDefaultAsync(x => x.Id == photoId && x.OwnerUserId == user, token);
         photo?.Retire();
-        profile.Edit(profile.FirstName, profile.LastName, profile.Phone, null);
+        profile.SetPhoto(null);
         db.Entry(profile).State = EntityState.Modified;
     }
 

@@ -18,6 +18,7 @@ public sealed class DashboardApiTests(SiteApiTests.SiteApiFactory factory):IClas
         Assert.Equal(x.P.Id,r.PropertyId);Assert.Equal(Today,r.Today);Assert.Equal(0,r.UnitCount);Assert.Equal("0.00",r.OverdueAmount);Assert.Equal("0.00",r.ReceiptsThisMonth);
         Assert.Equal(6,r.Trend.Count);Assert.Equal(Today.ToString("yyyy-MM"),r.Trend[^1].Period);Assert.Equal(Today.AddMonths(-5).ToString("yyyy-MM"),r.Trend[0].Period);
         Assert.Equal(Enum.GetValues<UnitType>().Length,r.UnitTypes.Count);Assert.Empty(r.UpcomingDues);Assert.False(r.MaintenanceAvailable);
+        Assert.NotNull(r.Collections);Assert.Equal(2,r.Collections.Count);Assert.All(r.Collections,row=>{Assert.Equal("0.00",row.TotalAmount);Assert.Equal("0.00",row.CollectedAmount);Assert.Equal("0.00",row.PendingAmount);Assert.Equal("0.00",row.OverdueAmount);});
         if(role=="ACCOUNTANT")Assert.Null(r.Requests);else Assert.Equal(new DashboardRequests(0,0),r.Requests);
     }
     [PostgresFact] public async Task SummarySeparatesOccupancyOverdueUpcomingCashTrendAndOpenRequestsWithoutNames()
@@ -48,6 +49,27 @@ public sealed class DashboardApiTests(SiteApiTests.SiteApiFactory factory):IClas
         Assert.Equal([new DashboardDue(t.AddDays(5),2,"100.00"),new DashboardDue(t.AddDays(45),1,"80.00")],r.UpcomingDues);
         Assert.Equal("25.00",r.ReceiptsThisMonth);Assert.Equal("60.00",r.Trend[^2].Receipts);Assert.Equal("12.35",r.Trend[^3].Expenses);Assert.Equal("0.00",r.Trend[^1].Expenses);
         Assert.Equal(new DashboardRequests(1,1),r.Requests);
+        Assert.NotNull(r.Collections);
+        Assert.Equal(new DashboardCollection(month.AddMonths(-1).ToString("yyyy-MM"),"150.00","25.00","0.00","125.00"),r.Collections[0]);
+        Assert.Equal(new DashboardCollection(month.ToString("yyyy-MM"),"100.00","0.00","100.00","0.00"),r.Collections[1]);
+    }
+    [PostgresFact] public async Task CollectionCohortsExcludeCancelledChargesAndRespectTodayBoundaryAndPaymentReversal()
+    {
+        var x=await Seed();var t=Today;var month=new DateOnly(t.Year,t.Month,1);Guid chargeId=Guid.Empty,paymentId=Guid.Empty;
+        await factory.WithDb(async db=>{
+            var p=await db.Properties.Include(p=>p.Units).SingleAsync(p=>p.Id==x.P.Id);var units=Enumerable.Range(1,4).Select(n=>p.AddUnit(n.ToString(),0,80)).ToArray();
+            DuesCharge Charge(Guid unit,DateOnly period,DateOnly due,decimal amount){var a=new DuesAssessment(p.Id,Guid.NewGuid(),new string('a',64),period,amount,"TRY",due,"Fixture");db.Add(a);return a.AddCharge(unit);}
+            var late=Charge(units[0].Id,month.AddMonths(-1),month.AddDays(-1),100);Charge(units[1].Id,month.AddMonths(-1),t,50);
+            var cancelled=Charge(units[2].Id,month,t.AddDays(1),1000);cancelled.Cancel("Fixture",DateTimeOffset.UtcNow);
+            var current=Charge(units[3].Id,month,t.AddDays(1),40);chargeId=current.Id;
+            var a=new Payment(p.Id,units[0].Id,Guid.NewGuid(),new string('a',64),20,"TRY",t,PaymentMethod.CASH,null,"Fixture");a.Allocate(late,20);a.ValidateComplete();db.Add(a);
+            var b=new Payment(p.Id,units[3].Id,Guid.NewGuid(),new string('a',64),10,"TRY",month.AddDays(-1),PaymentMethod.CASH,null,"Fixture");b.Allocate(current,10);b.ValidateComplete();db.Add(b);paymentId=b.Id;await db.SaveChangesAsync();
+        });
+        using var c=TestToken.Client(factory,x.Actor,"ACCOUNTANT");var summary=(await c.GetFromJsonAsync<DashboardSummary>(Root(x.P.Id)))!;
+        Assert.Equal("20.00",summary.ReceiptsThisMonth);Assert.Equal(new DashboardCollection(month.AddMonths(-1).ToString("yyyy-MM"),"150.00","20.00","50.00","80.00"),summary.Collections![0]);
+        Assert.Equal(new DashboardCollection(month.ToString("yyyy-MM"),"40.00","10.00","30.00","0.00"),summary.Collections[1]);
+        await factory.WithDb(async db=>{var charge=await db.DuesCharges.SingleAsync(d=>d.Id==chargeId);var payment=await db.Payments.SingleAsync(d=>d.Id==paymentId);charge.ReversePayment(10);payment.Cancel("Fixture reversal",DateTimeOffset.UtcNow);await db.SaveChangesAsync();});
+        summary=(await c.GetFromJsonAsync<DashboardSummary>(Root(x.P.Id)))!;Assert.Equal(new DashboardCollection(month.ToString("yyyy-MM"),"40.00","0.00","40.00","0.00"),summary.Collections![1]);
     }
     [PostgresFact] public async Task DashboardRejectsAnonymousResidentOutsiderAndDeletedArea()
     {

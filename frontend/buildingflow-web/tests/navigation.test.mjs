@@ -12,7 +12,7 @@ test('role matrix preserves finance, personal data and users visibility without 
   const m=createNavigation(context({roles:role?[role]:[]}),'/');
   const manager=['MANAGER','SITE_ADMIN','SUPER_ADMIN'].includes(role),finance=manager||role==='ACCOUNTANT';
   for(const id of ['people','website','requests','sms'])assert.equal(!!byId(m,id),manager,`${role}:${id}`);
-  for(const id of ['meters','reports','dues','payments','expenses'])assert.equal(!!byId(m,id),finance,`${role}:${id}`);
+  for(const id of ['maintenance','meters','reports','dues','payments','expenses'])assert.equal(!!byId(m,id),finance,`${role}:${id}`);
   assert.equal(!!byId(m,'users'),['SITE_ADMIN','SUPER_ADMIN'].includes(role));
   assert.equal(!!byId(m,'consents'),manager);
   for(const id of ['dashboard','properties','units','announcements','documents'])assert.ok(byId(m,id));
@@ -57,10 +57,12 @@ test('nested and parent active state rejects sibling scopes and prefix collision
 
 test('disabled placeholders stay routeless, unsearchable, and inactive; destinations keep OIDC compatibility',()=>{
  const m=createNavigation(context({roles:['SUPER_ADMIN'],propertyId:P,property:{id:P,type:'SITE'}}),'/');
- for(const id of ['shared-areas','parking','suppliers','definitions','settings']){
+ for(const id of ['shared-areas','parking','suppliers','definitions']){
   const item=byId(m,id);assert.equal(item.disabled,true);assert.equal(item.href,undefined);assert.equal(isNavigationActive(item,'/'),false);assert.ok(!m.searchable.some(i=>i.id===id));
  }
  assert.deepEqual(m.shortcuts.map(i=>i.id),['dashboard','properties','units','people']);
+ // Yönetim > Sistem Ayarları sistem durumu ekranına açılır ve aranabilir.
+ assert.equal(byId(m,'settings').href,'/system-settings');assert.equal(byId(m,'settings').disabled,false);assert.ok(m.searchable.some(i=>i.id==='settings'));
  for(const item of entries(m).filter(i=>!i.disabled))assert.equal(isWorkspaceReturnPath(item.href),!['sms','home'].includes(item.id),item.href);
  // Existing scoped SMS allowlist gap and root handling are recorded, not silently expanded here.
  assert.equal(m.searchable.filter(i=>i.href==='/users').length,1);

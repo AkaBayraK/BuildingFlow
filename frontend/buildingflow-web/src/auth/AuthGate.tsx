@@ -13,6 +13,7 @@ import {useAccount} from "@/features/account/useAccount";
 import {accountName,accountProfileForSubject} from "@/features/account/model";
 import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuLabel,DropdownMenuSeparator,DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {NotificationInbox} from "@/features/people/NotificationInbox";
+import {ThemeSwitcher} from "@/features/theme/ThemeSwitcher";
 import {LanguageSwitcher} from "@/components/LanguageSwitcher";
 import {useNotification} from "@/components/feedback/Notifications";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
@@ -99,5 +100,5 @@ export function SessionProfileMenu({sidebar=false,compact=false,onNavigate}:{sid
  return <DropdownMenu><DropdownMenuTrigger asChild><button className={`workspace-profile${sidebar?" workspace-footer-profile":""}${compact?" workspace-profile-compact":""}`} aria-label={`${t("shellProfile")} — ${name}, ${role}`} title={compact?t("shellProfile"):undefined}><AccountAvatar key={photoPath??"none"} path={photoPath} name={name} className="profile-avatar"/><span className="profile-copy"><strong>{name}</strong><small>{role}</small></span><ChevronDown size={17} aria-hidden="true"/></button></DropdownMenuTrigger><DropdownMenuContent side={sidebar?"top":"bottom"} align="end" className="w-64"><DropdownMenuLabel><span className="block truncate">{name}</span><span className="text-xs font-normal text-muted-foreground">{role}</span></DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem asChild><Link href="/account" onNavigate={onNavigate}><UserRound/>{t("navAccount")}</Link></DropdownMenuItem><DropdownMenuItem disabled={checking} onSelect={()=>void checkApi()}><ShieldCheck/>{t("checkAPIConnection")}</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem variant="destructive" onSelect={()=>{window.sessionStorage.removeItem(returnPathKey);void kc.logout({redirectUri:window.location.origin+"/login"});}}><LogOut/>{t("signOut")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
 }
 export function SessionControls({beforeLanguage}:{beforeLanguage?:React.ReactNode}){
- return <div className="session-controls">{beforeLanguage}<LanguageSwitcher/><NotificationInbox/><SessionProfileMenu/></div>;
+ return <div className="session-controls">{beforeLanguage}<ThemeSwitcher/><LanguageSwitcher/><NotificationInbox/><SessionProfileMenu/></div>;
 }

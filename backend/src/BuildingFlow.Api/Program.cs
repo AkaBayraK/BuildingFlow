@@ -48,6 +48,8 @@ builder.Services.AddScoped<DuesService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<MeterService>();
+builder.Services.AddScoped<MaintenanceService>();
+builder.Services.AddScoped<SurveyService>();
 builder.Services.AddScoped<SmsService>();
 builder.Services.AddScoped<ConsentService>();
 builder.Services.AddScoped<UserService>();
@@ -65,6 +67,8 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithMethods("GET", "POST", "PUT", "DELETE")
     .WithHeaders("Authorization", "Content-Type")));
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgres", tags: ["ready"]);
+builder.Services.AddSystemStatus();
+builder.Services.AddWeather(builder.Configuration);
 
 var app = builder.Build();
 var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
@@ -141,8 +145,12 @@ app.MapDuesEndpoints();
 app.MapPaymentEndpoints();
 app.MapExpenseEndpoints();
 app.MapMeterEndpoints();
+app.MapMaintenanceEndpoints();
+app.MapSurveyEndpoints();
 app.MapReportEndpoints();
 app.MapDashboardEndpoints();
+app.MapWeatherEndpoints();
+app.MapSystemStatusEndpoints();
 app.MapCommunicationEndpoints();
 app.MapWebsiteInquiryEndpoints();
 app.MapListingEndpoints();

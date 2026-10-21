@@ -5,7 +5,7 @@ using BuildingFlow.Application;
 using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace BuildingFlow.Infrastructure;
-public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionStore sessions,ICurrentUserService actor,IFileStorage storage,TimeProvider clock):IMobileProfileStore {
+public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionStore sessions,ICurrentUserService actor,IFileStorage storage,TimeProvider clock):IMobileProfileStore,IManagedUserPhotoStore {
  private string User()=>actor.IsAuthenticated && !string.IsNullOrWhiteSpace(actor.UserId)?actor.UserId:throw new UnauthorizedAccessException();
  private async Task Authorize(CancellationToken token) {
   // The profile is the caller's own account data, so accounts without a person link (İŞ15) may read and edit it too.
@@ -23,9 +23,20 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
   if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
   return await Dto(p,user,token);
  }
- public async Task<MobileProfileResult> SaveAsync(MobileProfileCommand c,CancellationToken token) {
-  await Authorize(token);var user=User();
-  if(c.OperationId==Guid.Empty || c.ExpectedVersion<0 || string.IsNullOrWhiteSpace(c.FirstName) || c.FirstName.Trim().Length>80 || c.FirstName.Any(char.IsControl) || string.IsNullOrWhiteSpace(c.LastName) || c.LastName.Trim().Length>80 || c.LastName.Any(char.IsControl) || c.PhotoAction is not ("KEEP" or "REPLACE" or "REMOVE") || (c.PhotoAction!="REPLACE" && c.PhotoBase64!=null))throw new ArgumentException("Invalid profile.");
+ public Task<MobileProfileResult> SaveAsync(MobileProfileCommand c,CancellationToken token) => SaveCore(c,User(),Authorize,false,token);
+ public async Task<UserPhotoState> ReadPhotoAsync(string target,CancellationToken token) {
+  var p=await db.Set<MobileProfile>().IgnoreQueryFilters().AsNoTracking().SingleOrDefaultAsync(x=>x.OwnerUserId==target,token);
+  if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
+  var dto=await Dto(p,target,token);
+  return new(target,dto.PhotoId,dto.PhotoSha256,dto.Version,await ConsentGate.ActiveAsync(db,target,ConsentFeature.PROFILE_PHOTO,token));
+ }
+ public Task<MobileProfileResult> SavePhotoAsync(string target,UserPhotoCommand c,string firstName,string lastName,Func<CancellationToken,Task> authorize,CancellationToken token) {
+  if(c.PhotoAction is not ("REPLACE" or "REMOVE"))throw new ArgumentException("Invalid photo action.");
+  return SaveCore(new(c.OperationId,c.ExpectedVersion,firstName,lastName,null,c.PhotoAction,c.PhotoBase64),target,authorize,true,token);
+ }
+ private async Task<MobileProfileResult> SaveCore(MobileProfileCommand c,string user,Func<CancellationToken,Task> authorize,bool photoOnly,CancellationToken token) {
+  await authorize(token);
+  if(c.OperationId==Guid.Empty || c.ExpectedVersion<0 || (!photoOnly && (string.IsNullOrWhiteSpace(c.FirstName) || c.FirstName.Trim().Length>80 || c.FirstName.Any(char.IsControl) || string.IsNullOrWhiteSpace(c.LastName) || c.LastName.Trim().Length>80 || c.LastName.Any(char.IsControl))) || c.PhotoAction is not ("KEEP" or "REPLACE" or "REMOVE") || (c.PhotoAction!="REPLACE" && c.PhotoBase64!=null))throw new ArgumentException("Invalid profile.");
   var phone=string.IsNullOrWhiteSpace(c.Phone)?null:c.Phone.Trim();
   if(phone!=null) {
    var digits=phone.Count(char.IsAsciiDigit);
@@ -37,8 +48,9 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
    try {bytes=ProfilePhoto.Normalize(Convert.FromBase64String(c.PhotoBase64));}catch(FormatException){throw new ArgumentException("Invalid image encoding.");}
   }
   var hash=bytes==null?null:Convert.ToHexString(SHA256.HashData(bytes));
-  var canonical=c with{FirstName=PersonNames.Given(c.FirstName)!,LastName=PersonNames.Family(c.LastName)!,Phone=phone,PhotoBase64=hash};
-  var fingerprint=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("profile:"+JsonSerializer.Serialize(canonical))));
+  var canonical=c with{FirstName=PersonNames.Given(c.FirstName)??"",LastName=PersonNames.Family(c.LastName)??"",Phone=phone,PhotoBase64=hash};
+  var payload=photoOnly?"managed-profile-photo:"+JsonSerializer.Serialize(new{Actor=User(),Target=user,Command=new{canonical.OperationId,canonical.ExpectedVersion,canonical.PhotoAction,canonical.PhotoBase64}}):"profile:"+JsonSerializer.Serialize(canonical);
+  var fingerprint=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
   // Durable reservation before upload: failed/uncertain storage writes can be reclaimed later.
   MobileProfilePhoto? staged=null;
   // T17.2: a new photo needs an ACTIVE PROFILE_PHOTO consent; KEEP and REMOVE never do, so a person can always delete.
@@ -58,7 +70,7 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
   await using var tx=await db.Database.BeginTransactionAsync(token);
   await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"profile:"+user},0))",token);
   await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({user+":"+c.OperationId},0))",token);
-  await Authorize(token);
+  await authorize(token);
   var receipt=await db.Set<MobileOperationReceipt>().IgnoreQueryFilters().SingleOrDefaultAsync(x=>x.OwnerUserId==user && x.OperationId==c.OperationId,token);
   if(receipt!=null) {
    if(receipt.IsDeleted || receipt.Fingerprint!=fingerprint)throw Conflict();
@@ -68,7 +80,13 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
   if(p!=null && (p.IsDeleted || !p.IsEnabled))throw new UnauthorizedAccessException();
   if(bytes!=null){await ConsentGate.LockAsync(db,user,token);await ConsentGate.RequireAsync(db,user,ConsentFeature.PROFILE_PHOTO,token);}
   if((p?.Version??0)!=c.ExpectedVersion)throw Conflict();
-  if(p==null){p=new(user);db.Add(p);}
+  var creating=p==null;
+  if(p==null){
+   // Mobile version>0 profiles require names. Seed a first photo profile from the existing directory;
+   // never overwrite existing owner-saved details or change the Keycloak account.
+   if(photoOnly && (string.IsNullOrWhiteSpace(canonical.FirstName)||canonical.FirstName.Length>80||canonical.FirstName.Any(char.IsControl)||string.IsNullOrWhiteSpace(canonical.LastName)||canonical.LastName.Length>80||canonical.LastName.Any(char.IsControl)))throw new ArgumentException("Invalid profile names.");
+   p=new(user);db.Add(p);
+  }
   var photoId=p.PhotoId;
   if(c.PhotoAction!="KEEP") {
    if(p.PhotoId is Guid old) {
@@ -82,7 +100,7 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
     staged.Current();photoId=staged.Id;
    }
   }
-  p.Edit(canonical.FirstName,canonical.LastName,phone,photoId);
+  if(photoOnly && !creating)p.SetPhoto(photoId);else p.Edit(canonical.FirstName,canonical.LastName,phone,photoId);
   if(db.Entry(p).State!=EntityState.Added)db.Entry(p).State=EntityState.Modified;
   await db.SaveChangesAsync(token);
   var result=await Dto(p,user,token);

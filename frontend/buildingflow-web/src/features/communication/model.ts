@@ -1,7 +1,9 @@
 export type Audience="ALL_MEMBERS"|"MANAGEMENT";
-export type Announcement={id:string;propertyId:string;title:string;content:string;audience:Audience;status:"DRAFT"|"PUBLISHED"|"ARCHIVED";version:number;createdAt:string;publishedAt:string|null};
+export const announcementCategories=["GENERAL","MEETING","DUES","MAINTENANCE","URGENT","OTHER"] as const;
+export type AnnouncementCategory=typeof announcementCategories[number];
+export type Announcement={id:string;propertyId:string;title:string;content:string;audience:Audience;status:"DRAFT"|"PUBLISHED"|"ARCHIVED";version:number;createdAt:string;publishedAt:string|null;category:AnnouncementCategory};
 export type DocumentRecord={id:string;propertyId:string;requestId:string;announcementId:string|null;audience:Audience;fileName:string;contentType:string;size:number;sha256:string;version:number;createdAt:string;replayed:boolean};
-export type ContentPage<T>={items:T[];page:number;pageSize:number;totalCount:number};
+export type ContentPage<T>={items:T[];page:number;pageSize:number;totalCount:number;categoryCounts?:{category:AnnouncementCategory;count:number}[]};
 export const maxFileBytes=10*1024*1024;
 const object=(v:unknown):v is Record<string,unknown>=>v!==null&&typeof v==="object"&&!Array.isArray(v);
 const text=(v:unknown):v is string=>typeof v==="string";
@@ -10,7 +12,7 @@ const positive=(v:unknown)=>typeof v==="number"&&Number.isSafeInteger(v)&&v>0;
 const timestamp=(v:unknown)=>text(v)&&Number.isFinite(Date.parse(v));
 const audience=(v:unknown)=>v==="ALL_MEMBERS"||v==="MANAGEMENT";
 export function readAnnouncement(v:unknown,property:string):Announcement{
- if(!object(v)||!guid(v.id)||v.propertyId!==property||!text(v.title)||!v.title.trim()||v.title.length>200||!text(v.content)||!v.content.trim()||v.content.length>10000||!audience(v.audience)||!positive(v.version)||!timestamp(v.createdAt)||!["DRAFT","PUBLISHED","ARCHIVED"].includes(String(v.status))||(v.status==="DRAFT"?v.publishedAt!==null:!timestamp(v.publishedAt)))throw new Error("Invalid announcement");
+ if(!object(v)||!guid(v.id)||v.propertyId!==property||!text(v.title)||!v.title.trim()||v.title.length>200||!text(v.content)||!v.content.trim()||v.content.length>10000||!audience(v.audience)||!positive(v.version)||!timestamp(v.createdAt)||!["DRAFT","PUBLISHED","ARCHIVED"].includes(String(v.status))||(v.status==="DRAFT"?v.publishedAt!==null:!timestamp(v.publishedAt))||!announcementCategories.includes(v.category as AnnouncementCategory))throw new Error("Invalid announcement");
  return v as Announcement;
 }
 export function readDocument(v:unknown,property:string,announcement?:string):DocumentRecord{
@@ -19,7 +21,10 @@ export function readDocument(v:unknown,property:string,announcement?:string):Doc
 }
 export function readContentPage<T extends {id:string}>(v:unknown,read:(row:unknown)=>T):ContentPage<T>{
  if(!object(v)||!Array.isArray(v.items)||!positive(v.page)||!positive(v.pageSize)||Number(v.pageSize)>100||typeof v.totalCount!=="number"||!Number.isSafeInteger(v.totalCount)||v.totalCount<0||v.items.length>Number(v.pageSize)||v.items.length>v.totalCount)throw new Error("Invalid page");
- const items=v.items.map(read);if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error("Duplicate rows");return {items,page:v.page as number,pageSize:v.pageSize as number,totalCount:v.totalCount};
+ const items=v.items.map(read);if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error("Duplicate rows");
+ // Announcement lists carry per-category totals (all six, fixed order); document lists send null.
+ const counts=v.categoryCounts;if(!(counts===undefined||counts===null||Array.isArray(counts)&&counts.length===announcementCategories.length&&counts.every((c,i)=>object(c)&&c.category===announcementCategories[i]&&typeof c.count==="number"&&Number.isSafeInteger(c.count)&&c.count>=0)))throw new Error("Invalid category counts");
+ return {items,page:v.page as number,pageSize:v.pageSize as number,totalCount:v.totalCount,...(Array.isArray(counts)?{categoryCounts:counts as ContentPage<T>["categoryCounts"]}:{})};
 }
 export function validFile(file:{name:string;size:number;type:string}):boolean{
  const extension=file.name.split('.').pop()?.toLowerCase();return !!file.name.trim()&&file.name.length<=200&&!/[\\/\x00-\x1f\x7f]/.test(file.name)&&Number.isSafeInteger(file.size)&&file.size>0&&file.size<=maxFileBytes&&(file.type==="application/pdf"?extension==="pdf":file.type==="image/png"?extension==="png":file.type==="image/jpeg"&&(extension==="jpg"||extension==="jpeg"));

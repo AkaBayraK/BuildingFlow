@@ -18,6 +18,8 @@ Manual cash/bank receipts, partial settlement, explicit charge allocation and re
 - [Gider, aylık kategori bütçeleri, revizyon geçmişi ve gelir–gider özeti](expenses.md) — İŞ 07; dört finans rolü ve aktif yönetim alanı üyeliği.
 
 - [Duyurular ve belgeler (İŞ08)](communication.md)
+- [Planlama & Bakımlar](maintenance.md)
+- [Anketler](surveys.md)
 
 - [Hesap bilgilerim: kendi profil, fotoğraf ve rızalar; kullanıcı ve kişi fotoğrafı (İŞ19)](account.md)
 - [Dashboard özeti (İŞ20)](dashboard.md)

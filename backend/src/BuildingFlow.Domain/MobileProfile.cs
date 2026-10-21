@@ -7,6 +7,7 @@ public sealed class MobileProfile : BaseEntity {
     public string LastName {get;private set;}="";
     public string? Phone {get;private set;}
     public Guid? PhotoId {get;private set;}
+    public void SetPhoto(Guid? photo) { PhotoId=photo; }
     public void Edit(string first,string last,string? phone,Guid? photo) {FirstName=Required(first,nameof(first),80);LastName=Required(last,nameof(last),80);Phone=phone;PhotoId=photo;}
 }
 public sealed class MobileProfilePhoto : BaseEntity {

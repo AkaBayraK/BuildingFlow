@@ -1,5 +1,5 @@
 export const statuses=["RECORDED","IN_PROGRESS","RESOLVED","REJECTED"] as const;
-export const categories=["FAULT","CLEANING","SECURITY","COMMON_AREA","SUGGESTION","OTHER"] as const;
+export const categories=["ELEVATOR","WATER","ELECTRICITY","HEATING","RENOVATION","FAULT","CLEANING","SECURITY","COMMON_AREA","SUGGESTION","OTHER"] as const;
 export const priorities=["LOW","NORMAL","HIGH"] as const;
 export type Status=typeof statuses[number];
 export type RequestRow={id:string;propertyId:string;unitId:string|null;unitNumber:string|null;description:string;category:typeof categories[number];priority:typeof priorities[number];status:Status;response:string|null;hasHistory:boolean;version:number;createdAt:string;modifiedAt:string;photoId:string|null;photoSha256:string|null};

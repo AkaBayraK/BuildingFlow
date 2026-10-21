@@ -5,9 +5,12 @@ public sealed record RequestHistory(Guid Id,string FromStatus,string ToStatus,st
 public sealed record RequestPhotoConsent(string State,Guid? RecordId,int? TextVersion,DateTimeOffset? ApprovedAt,DateTimeOffset? WithdrawnAt);
 public sealed record RequestDetail(RequestRow Record,RequestHistory[] History,bool Replayed=false,RequestPhotoConsent? PhotoConsent=null);
 public sealed record RequestPage(RequestRow[] Items,int Page,int PageSize,int TotalCount);
+// Centre-entered request: staff record a fault or request for a unit or the common area, choosing its type (OTHER when unclear).
+public sealed record CreateRequest(Guid OperationId,Guid? UnitId,string Category,string Priority,string Description);
 public sealed record ManageRequest(Guid OperationId,long Version,string Status,string Response);
 public interface IRequestManagementStore {
  Task<RequestPage> ListAsync(Guid property,int page,int pageSize,string? search,string? status,string? category,string? priority,string sort,CancellationToken token);
  Task<RequestDetail?> DetailAsync(Guid property,Guid id,CancellationToken token);
+ Task<RequestDetail> CreateAsync(Guid property,CreateRequest request,CancellationToken token);
  Task<RequestDetail?> ManageAsync(Guid property,Guid id,ManageRequest request,CancellationToken token);
 }

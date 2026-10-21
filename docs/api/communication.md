@@ -6,10 +6,10 @@ Temel yol `/api/v1/properties/{propertyId}`. JWT `sub`, SUPER_ADMIN veya aktif y
 
 | İstek | Davranış |
 | --- | --- |
-| GET `/announcements?page=1&pageSize=10&search=&status=` | Filtreli/sayfalı liste; pageSize1–100, search≤200; literal `%/_` kaçırılır |
+| GET `/announcements?page=1&pageSize=10&search=&status=&category=` | Filtreli/sayfalı liste; pageSize1–100, search≤200; literal `%/_` kaçırılır. `categoryCounts` kategori filtresinden bağımsız, görünür kayıtlar üzerinden altı kategoriyi sabit sırayla döner |
 | GET `/announcements/{id}` | Kapsamlı detay |
-| POST `/announcements` | `title`1–200, düz metin `content`1–10000, `audience`ALL_MEMBERS/MANAGEMENT; DRAFT oluşturur |
-| PUT `/announcements/{id}` | Aynı alanlar + `version`; yalnız taslak düzenlenir |
+| POST `/announcements` | `title`1–200, düz metin `content`1–10000, `audience`ALL_MEMBERS/MANAGEMENT, opsiyonel `category` GENERAL/MEETING/DUES/MAINTENANCE/URGENT/OTHER (yoksa GENERAL); DRAFT oluşturur |
+| PUT `/announcements/{id}` | Aynı alanlar + `version`; yalnız taslak düzenlenir. `category` gönderilmezse mevcut kategori korunur (eski istemciler) |
 | PUT `/announcements/{id}/publish` | `{version}`; DRAFT → PUBLISHED; UTC server publishedAt |
 | PUT `/announcements/{id}/archive` | `{version}`; PUBLISHED → ARCHIVED; içerik/yayın tarihi korunur |
 

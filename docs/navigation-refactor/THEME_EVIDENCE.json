@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "scope": "BAKIM Theme 1/1",
+  "frontend": {
+    "passed": 210,
+    "failed": 0,
+    "skipped": 0,
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "newTests": 3
+  },
+  "startup": {
+    "http": 200,
+    "nonceMatchesCsp": true,
+    "scriptUnsafeInline": false,
+    "bootstrap": "Constant code, validated enum, pre-body script; preference x OS matrix tested"
+  },
+  "ui": {
+    "source": "Real React, isolated fixture, example data",
+    "darkBody": "rgb(12, 20, 34)",
+    "darkCard": "rgb(19, 31, 49)",
+    "darkFormText": "rgb(229, 237, 247)",
+    "reload": "dark persisted",
+    "crossTab": "light change propagated; system choice also propagated",
+    "system": "Current OS light matched",
+    "mobile": {
+      "viewport": 320,
+      "document": 320,
+      "triggerSize": 36
+    },
+    "consoleErrors": 0,
+    "screenshots": [
+      "THEME_DARK.jpg",
+      "THEME_DARK_FORM.jpg"
+    ]
+  },
+  "limits": [
+    "No physical device/live OIDC test",
+    "OS setting not changed; both OS states tested in unit bootstrap matrix, live listener reviewed",
+    "Separate website and Keycloak theme not changed"
+  ],
+  "protection": {
+    "indexPreserved": true,
+    "manifestLockPreserved": true,
+    "nextEnvRestored": true,
+    "newDependencies": false,
+    "apiDatabaseChanges": false
+  }
+}

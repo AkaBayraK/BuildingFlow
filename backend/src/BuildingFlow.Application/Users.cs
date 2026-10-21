@@ -7,7 +7,7 @@ public sealed record KeycloakUser(string Id, string Username, string? Email, str
 public sealed record KeycloakUserDraft(string Username, string Email, string FirstName, string LastName, bool Enabled);
 public sealed record LinkedPerson(Guid PersonId, Guid PropertyId, string PropertyName, string FullName, long Version);
 public sealed record UserResponse(string Id, string Username, string? Email, string? FirstName, string? LastName, bool Enabled, bool EmailVerified,
-    DateTimeOffset? CreatedAt, IReadOnlyList<string> Roles, int PropertyCount, IReadOnlyList<LinkedPerson> LinkedPeople, bool CanEdit, Guid? PhotoId = null);
+    DateTimeOffset? CreatedAt, IReadOnlyList<string> Roles, int PropertyCount, IReadOnlyList<LinkedPerson> LinkedPeople, bool CanEdit, Guid? PhotoId = null, bool CanManagePhoto = false);
 public sealed record CreateUserRequest(string? Username, string? Email, string? FirstName, string? LastName, bool Enabled = true,
     IReadOnlyList<string>? Roles = null, Guid? PropertyId = null, string? TemporaryPassword = null);
 public sealed record UpdateUserRequest(string? Email, string? FirstName, string? LastName, bool Enabled, IReadOnlyList<string>? Roles);
@@ -51,7 +51,7 @@ public static partial class UserRoles
     public static partial Regex Username();
 }
 
-public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore store, ICurrentUserService user, IMobileProfileStore? photos = null)
+public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore store, ICurrentUserService user, IMobileProfileStore? photos = null, IManagedUserPhotoStore? managedPhotos = null)
 {
     private const int MaxSearchScan = 100;
 
@@ -97,6 +97,29 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
     }
 
     // İŞ19: the account's own photo (added by its owner with consent) is visible to the managers who can see the account.
+    private async Task<KeycloakUser?> PhotoTarget(string id, CancellationToken token)
+    {
+        var scope = await Scope(token);
+        var target = await Visible(id, scope, token); if (target is null) return null;
+        if (id != scope.ActorId) Editable(scope, id, await keycloak.RealmRolesAsync(id, token));
+        return target;
+    }
+    public async Task<UserPhotoState?> PhotoStateAsync(string id, CancellationToken token)
+    {
+        if (await PhotoTarget(id, token) is null) return null;
+        return await (managedPhotos ?? throw new IdentityUnavailableException()).ReadPhotoAsync(id, token);
+    }
+    public async Task<UserPhotoResult?> SavePhotoAsync(string id, UserPhotoCommand command, CancellationToken token)
+    {
+        if (await PhotoTarget(id, token) is not { } target) return null;
+        async Task Authorize(CancellationToken ct) { if (await PhotoTarget(id, ct) is null) throw new UnauthorizedAccessException(); }
+        var result = await (managedPhotos ?? throw new IdentityUnavailableException()).SavePhotoAsync(id, command, target.FirstName ?? "", target.LastName ?? "", Authorize, token);
+        var p = result.Profile;
+        // The mobile receipt remains private; target phone/name never enter the administration response.
+        var state = await managedPhotos.ReadPhotoAsync(id, token);
+        return new(result.OperationId, new(id, p.PhotoId, p.PhotoSha256, p.Version, state.CanReplace), result.Replayed);
+    }
+
     public async Task<byte[]?> PhotoAsync(string id, CancellationToken token)
     {
         var scope = await Scope(token);
@@ -199,7 +222,7 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
             var own = roles[i].Where(UserRoles.All.Contains).Order(StringComparer.Ordinal).ToArray();
             var link = links.TryGetValue(u.Id, out var value) ? value : (0, []);
             var canEdit = scope.All || !own.Any(UserRoles.Privileged.Contains);
-            return new UserResponse(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Enabled, u.EmailVerified, u.CreatedAt, own, link.Item1, link.Item2, canEdit, photoIds.TryGetValue(u.Id, out var photo) ? photo : null);
+            return new UserResponse(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Enabled, u.EmailVerified, u.CreatedAt, own, link.Item1, link.Item2, canEdit, photoIds.TryGetValue(u.Id, out var photo) ? photo : null, managedPhotos is not null && (u.Id == scope.ActorId || canEdit));
         }).ToArray();
     }
 

@@ -1,4 +1,6 @@
 using BuildingFlow.Application;
+using Microsoft.AspNetCore.Http.Features;
+using System.Text.Json;
 namespace BuildingFlow.Api;
 internal static class UserEndpoints
 {
@@ -10,6 +12,18 @@ internal static class UserEndpoints
         root.MapPost("", async (CreateUserRequest request, UserService service, CancellationToken token) => { var created = await service.CreateAsync(request, token); return Results.Created($"/api/v1/users/{created.Id}", created); });
         root.MapPut("/{userId}", async (string userId, UpdateUserRequest request, UserService service, CancellationToken token) => Found(await service.UpdateAsync(userId, request, token)));
         root.MapGet("/{userId}/photo", async (string userId, UserService service, CancellationToken token) => await service.PhotoAsync(userId, token) is { } bytes ? AccountEndpoints.Photo(bytes) : Results.NotFound());
+        root.MapGet("/{userId}/photo/state", async (string userId, UserService service, CancellationToken token) => Found(await service.PhotoStateAsync(userId, token)));
+        root.MapPost("/{userId}/photo/commands", async (string userId, HttpContext ctx, UserService service, CancellationToken token) => {
+            const long limit = 384 * 1024;
+            if (ctx.Features.Get<IHttpMaxRequestBodySizeFeature>() is { IsReadOnly: false } body) body.MaxRequestBodySize = limit;
+            if (ctx.Request.ContentLength > limit) return Results.StatusCode(413);
+            if (!ctx.Request.HasJsonContentType()) return Results.StatusCode(415);
+            UserPhotoCommand? command;
+            try { command = await ctx.Request.ReadFromJsonAsync<UserPhotoCommand>(cancellationToken: token); }
+            catch (JsonException) { return Results.BadRequest(); }
+            if (command is null) return Results.BadRequest();
+            return Found(await service.SavePhotoAsync(userId, command, token));
+        });
         root.MapPost("/{userId}/password-reset", async (string userId, UserService service, CancellationToken token) => await service.SendPasswordResetAsync(userId, token) ? Results.NoContent() : Results.NotFound());
         root.MapPost("/{userId}/people", async (string userId, LinkPersonRequest request, UserService service, CancellationToken token) => Found(await service.LinkAsync(userId, request, token)));
         root.MapDelete("/{userId}/people/{personId:guid}", async (string userId, Guid personId, Guid propertyId, long version, UserService service, CancellationToken token) => await service.UnlinkAsync(userId, propertyId, personId, version, token) ? Results.NoContent() : Results.NotFound());

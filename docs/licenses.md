@@ -145,3 +145,11 @@ Yeni üçüncü taraf paket/font/ikon/görsel veya yeni temel imaj ailesi eklenm
 ## 20.10.2026 Dashboard fotoğraflı banner
 
 Yeni üçüncü taraf paket/font/görsel yok. Varsayılan `frontend/buildingflow-web/public/images/dashboard-residence.webp`,bu proje için18.10.2026 üretilmiş `website/public/images/residence.webp` dosyasının byteeş kopyasıdır;[özgün prompt/kaynak](../website/public/images/README.md) korunur. Bu turimagegen çalıştırılmadı. Kullanıcıfotoğrafları mevcut özelbelgeupload akışındadır. Manifest/lock ve lisans/NOTICEkorundu;restore/kurulum yok,envanter yeniden üretilmedi. Bu kayıt mevcutcontainer/OSdağıtım yükümlülüklerinin yerine geçmez.
+
+## 21.10.2026 — Kullanıcı onaylı MET Norway hava verisi
+
+Kullanıcı MET Norway bağlantısını lisans koşulları korunarak açıkça onayladı. Yalnız Locationforecast 2.0 **verisi** kullanılır; seçilen veri lisansı **CC BY 4.0 International**. Ticari kullanım bu lisansın atıf/koşullarıyla mümkündür; API kullanım koşulları da ayrıca uygulanır. [Resmî veri politikası](https://api.met.no/doc/License), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), [API koşulları](https://api.met.no/doc/TermsOfService), [ücretsiz veri](https://www.met.no/en/free-meteorological-data) 21.10.2026 incelendi. Hizmet SLA garantisi vermez.
+
+Uygulamada MET Norway kaynak bağlantısı ve CC BY4 bağlantısı görünür; seçilen zaman dilimi/tek ondalığa yuvarlama açıklaması eklenmiştir. Provider ikonları, fotoğrafları veya kodu kopyalanmaz: mevcut lucide ikonları ve platform HTTP istemcisi kullanılır. Yeni npm/NuGet paketi, font veya harici görsel yoktur. Paket envanteri bu nedenle değişmez; paket kurulumu/restore yapılmadı. Bu onay yalnız hava verisi bağlantısı içindir; genel “yeni lisans yükü yok” politikası kaldırılmadı.
+
+API istekleri sunucudan sabit şehir merkezi koordinatlarına yapılır. BuildingFlow/1.0 uygulama kimliği kullanılır; Weather:ContactUrl yapılandırılırsa gerçek HTTPS iletişim bağlantısı User-Agent'a eklenebilir (hayali adres eklenmez). Expires/Last-Modified/If-Modified-Since, Retry-After ve şehir başına tek istek/cache korunur. Veri lisansı ile servis kullanım şartları birbirinin yerine geçirilmez. [Uygulama/kanıt](navigation-refactor/DASHBOARD_WEATHER.md).

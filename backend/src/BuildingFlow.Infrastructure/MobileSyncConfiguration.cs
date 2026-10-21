@@ -18,7 +18,7 @@ internal sealed class MobileRequestConfiguration : IEntityTypeConfiguration<Mobi
         b.ToTable(t=>t.HasCheckConstraint("ck_request_management_status","management_status IN ('RECORDED','IN_PROGRESS','RESOLVED','REJECTED')"));
         b.Property(x=>x.PhotoId).HasColumnName("photo_id");
         b.HasOne<MobileRequestPhoto>().WithMany().HasForeignKey(x=>new{x.OwnerUserId,x.PropertyId,x.PhotoId}).HasPrincipalKey(x=>new{x.OwnerUserId,x.PropertyId,x.Id}).OnDelete(DeleteBehavior.Restrict);
-        b.ToTable(t=>{t.HasCheckConstraint("ck_mobile_request_category","category IN ('FAULT','CLEANING','SECURITY','COMMON_AREA','SUGGESTION','OTHER')");t.HasCheckConstraint("ck_mobile_request_priority","priority IN ('LOW','NORMAL','HIGH')");});
+        b.ToTable(t=>{t.HasCheckConstraint("ck_mobile_request_category","category IN ("+string.Join(",",MobileRequest.Categories.Select(c=>"'"+c+"'"))+")");t.HasCheckConstraint("ck_mobile_request_priority","priority IN ('LOW','NORMAL','HIGH')");});
         b.Property(x=>x.Description).HasColumnName("description").HasMaxLength(2000);
         b.HasOne<Property>().WithMany().HasForeignKey(x=>x.PropertyId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<Unit>().WithMany().HasForeignKey(x=>new {x.PropertyId,x.UnitId}).HasPrincipalKey(x=>new {x.PropertyId,x.Id}).OnDelete(DeleteBehavior.Restrict);

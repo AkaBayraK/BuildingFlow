@@ -35,6 +35,14 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("audience");
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("GENERAL")
+                        .HasColumnName("category");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(10000)
@@ -100,6 +108,8 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("announcements", null, t =>
                         {
+                            t.HasCheckConstraint("ck_announcements_category", "category IN ('GENERAL','MEETING','DUES','MAINTENANCE','URGENT','OTHER')");
+
                             t.HasCheckConstraint("ck_announcements_content", "length(trim(title)) > 0 AND length(trim(content)) > 0 AND audience IN ('ALL_MEMBERS','MANAGEMENT')");
 
                             t.HasCheckConstraint("ck_announcements_publication", "(status = 'DRAFT' AND published_at IS NULL) OR (status IN ('PUBLISHED','ARCHIVED') AND published_at IS NOT NULL)");
@@ -1676,6 +1686,98 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.MaintenancePlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("location");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("PlannedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("planned_date");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Responsible")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("responsible");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PropertyId", "Id");
+
+                    b.HasIndex("PropertyId", "PlannedDate");
+
+                    b.ToTable("maintenance_plans", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_maintenance_plans_valid", "type IN ('MAINTENANCE','CLEANING','INSPECTION','DRILL','OTHER') AND status IN ('PLANNED','IN_PROGRESS','COMPLETED','CANCELLED') AND length(trim(title)) > 0 AND planned_date BETWEEN DATE '2000-01-01' AND DATE '2100-12-31'");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ManagementAssignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2744,7 +2846,7 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("mobile_requests", null, t =>
                         {
-                            t.HasCheckConstraint("ck_mobile_request_category", "category IN ('FAULT','CLEANING','SECURITY','COMMON_AREA','SUGGESTION','OTHER')");
+                            t.HasCheckConstraint("ck_mobile_request_category", "category IN ('ELEVATOR','WATER','ELECTRICITY','HEATING','RENOVATION','FAULT','CLEANING','SECURITY','COMMON_AREA','SUGGESTION','OTHER')");
 
                             t.HasCheckConstraint("ck_mobile_request_priority", "priority IN ('LOW','NORMAL','HIGH')");
 
@@ -4926,6 +5028,536 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.Survey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Audience")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("audience");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<int?>("EligibleCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("eligible_count");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_anonymous");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at");
+
+                    b.Property<int>("ResponseCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_count");
+
+                    b.Property<string>("ResponseMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("response_mode");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "StartDate");
+
+                    b.ToTable("surveys", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_surveys_status", "(status = 'DRAFT' AND published_at IS NULL AND closed_at IS NULL AND response_count = 0) OR (status = 'PUBLISHED' AND published_at IS NOT NULL AND closed_at IS NULL) OR (status = 'CLOSED' AND published_at IS NOT NULL AND closed_at IS NOT NULL AND eligible_count IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_surveys_valid", "category IN ('DUES','SERVICE','SECURITY','SOCIAL','PARKING','ENVIRONMENT','GENERAL') AND audience IN ('ALL_RESIDENTS','OWNERS','TENANTS') AND response_mode IN ('PER_UNIT','PER_ACCOUNT') AND length(trim(title)) > 0 AND start_date BETWEEN DATE '2000-01-01' AND DATE '2100-12-31' AND end_date BETWEEN start_date AND DATE '2100-12-31' AND response_count >= 0 AND (eligible_count IS NULL OR eligible_count >= 0)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_anonymous");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid?>("OptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("option_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_id");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("integer")
+                        .HasColumnName("rating");
+
+                    b.Property<Guid>("ResponseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("response_id");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("survey_id");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("text");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "OptionId");
+
+                    b.HasIndex("PropertyId", "QuestionId");
+
+                    b.HasIndex("PropertyId", "ResponseId");
+
+                    b.HasIndex("SurveyId", "QuestionId");
+
+                    b.ToTable("survey_answers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_survey_answers_anonymous", "NOT is_anonymous OR (created_by = 'anonymous' AND modified_by = 'anonymous')");
+
+                            t.HasCheckConstraint("ck_survey_answers_value", "num_nonnulls(option_id, rating, text) = 1 AND (rating IS NULL OR rating BETWEEN 1 AND 5) AND (text IS NULL OR length(trim(text)) > 0)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_id");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("survey_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("text");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "QuestionId");
+
+                    b.HasIndex("PropertyId", "SurveyId");
+
+                    b.HasIndex("QuestionId", "Position")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("survey_options", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_survey_options_valid", "position BETWEEN 1 AND 10 AND length(trim(text)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyParticipation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BallotKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("ballot_key");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RespondentUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("respondent_user_id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("survey_id");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "SurveyId");
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.HasIndex("SurveyId", "BallotKey")
+                        .IsUnique();
+
+                    b.HasIndex("SurveyId", "RespondentUserId");
+
+                    b.ToTable("survey_participations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_survey_participations_valid", "role IN ('OWNER','TENANT','RESIDENT') AND (ballot_key LIKE 'UNIT:%' OR ballot_key LIKE 'ACCOUNT:%')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("survey_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "SurveyId");
+
+                    b.HasIndex("SurveyId", "Position")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("survey_questions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_survey_questions_valid", "type IN ('SINGLE_CHOICE','MULTIPLE_CHOICE','RATING','TEXT') AND position BETWEEN 1 AND 30 AND length(trim(text)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyResponse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_anonymous");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid?>("ParticipationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("participation_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateOnly>("SubmittedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("submitted_on");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("survey_id");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParticipationId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "SurveyId");
+
+                    b.HasIndex("SurveyId", "SubmittedOn");
+
+                    b.ToTable("survey_responses", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_survey_responses_anonymous", "(is_anonymous AND participation_id IS NULL AND unit_id IS NULL AND created_by = 'anonymous' AND modified_by = 'anonymous') OR (NOT is_anonymous AND participation_id IS NOT NULL AND unit_id IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.Unit", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6557,6 +7189,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.MaintenancePlan", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ManagementAssignment", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.CentralPerson", null)
@@ -6907,6 +7548,97 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.Survey", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyAnswer", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SurveyOption", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "OptionId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SurveyQuestion", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "QuestionId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SurveyResponse", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "ResponseId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyOption", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SurveyQuestion", null)
+                        .WithMany("Options")
+                        .HasForeignKey("PropertyId", "QuestionId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Survey", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SurveyId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyParticipation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Survey", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SurveyId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyQuestion", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Survey", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("PropertyId", "SurveyId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyResponse", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SurveyParticipation", null)
+                        .WithMany()
+                        .HasForeignKey("ParticipationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Survey", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SurveyId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.Unit", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.Property", null)
@@ -7150,6 +7882,16 @@ namespace BuildingFlow.Infrastructure.Migrations
             modelBuilder.Entity("BuildingFlow.Domain.PropertyBudget", b =>
                 {
                     b.Navigation("Revisions");
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.Survey", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SurveyQuestion", b =>
+                {
+                    b.Navigation("Options");
                 });
 #pragma warning restore 612, 618
         }

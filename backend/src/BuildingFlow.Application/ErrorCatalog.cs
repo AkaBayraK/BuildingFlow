@@ -77,6 +77,13 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition MeterConflict = new("BF_METER_CONFLICT", "Sayaç adı, okuma tarihi veya istek kimliği çakışıyor. Güncel listeyi kontrol edin.", "warning");
     public static readonly ErrorDefinition MeterInvalidUnit = new("BF_METER_INVALID_UNIT", "Aynı yönetim alanındaki aktif bağımsız bölümü seçin.", "warning");
     public static readonly ErrorDefinition MeterInactive = new("BF_METER_INACTIVE", "Pasif sayaca yeni okuma veya düzeltme eklenemez.", "warning");
+    public static readonly ErrorDefinition SurveyInvalid = new("BF_SURVEY_INVALID", "Anket için 1–200 karakter başlık, geçerli kategori, hedef kitle, yanıt kuralı ve başlangıçtan önce olmayan bitiş tarihi gerekli; açıklama en fazla 2000 karakter olabilir.", "error");
+    public static readonly ErrorDefinition SurveyQuestionInvalid = new("BF_SURVEY_QUESTION_INVALID", "En fazla 30 soru eklenebilir. Her soru 1–500 karakter olmalı; seçmeli sorularda 2–10 farklı seçenek (en fazla 200 karakter) bulunmalı, puan ve metin sorularında seçenek olmamalı.", "error");
+    public static readonly ErrorDefinition SurveyState = new("BF_SURVEY_STATE", "Anket bu işlem için uygun durumda değil. Yalnız taslak düzenlenip silinebilir; yayın için en az bir soru ve geçmemiş bitiş tarihi gerekir.", "warning");
+    public static readonly ErrorDefinition SurveyAnswerInvalid = new("BF_SURVEY_ANSWER_INVALID", "Yanıtları kontrol edin: zorunlu soruları cevaplayın, yalnız sorunun seçeneklerini seçin, puanı 1–5 arasında verin ve metni en fazla 1000 karakter yazın.", "error");
+    public static readonly ErrorDefinition SurveyAlreadyAnswered = new("BF_SURVEY_ALREADY_ANSWERED", "Bu anket için yanıtınız zaten kaydedildi; yanıtlar sonradan değiştirilemez.", "warning");
+    public static readonly ErrorDefinition SurveyNotOpen = new("BF_SURVEY_NOT_OPEN", "Anket şu anda yanıta açık değil.", "warning");
+    public static readonly ErrorDefinition PlanInvalid = new("BF_PLAN_INVALID", "Planlama için 1–200 karakter başlık, geçerli tür, durum ve 2000–2100 arası tarih gerekli; açıklama en fazla 2000, konum ve sorumlu en fazla 200 karakter olabilir.", "error");
     public static readonly ErrorDefinition ReadingOrder = new("BF_READING_ORDER", "Endeks önceki okumadan küçük veya sonraki okumadan büyük olamaz.", "warning");
 
     public static readonly ErrorDefinition ConstructionYearInvalid = new("BF_CONSTRUCTION_YEAR_INVALID", "Yapım yılı 1800 ile içinde bulunulan yıl arasında olmalı.", "error");
@@ -237,6 +244,7 @@ public static class ErrorCatalog
     public static string FieldKey(string label) => label == "Blok adı" ? "buildingName" : FieldLabels.First(value => value.Value == label).Key;
     public static IReadOnlyList<ErrorDefinition> All { get; } = Array.AsReadOnly(new[]
     {
+        SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,

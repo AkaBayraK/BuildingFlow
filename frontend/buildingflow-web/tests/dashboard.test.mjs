@@ -23,6 +23,16 @@ test('dashboard summary is accepted only when counts, money, months and lists ag
  const e=valid();e.upcomingDues[0].dueDate='2026-10-01';assert.throws(()=>readDashboard(e,P));
  assert.equal(share(208,240),87);assert.equal(share(1,0),0);
 });
+test('recent requests: icon categories, newest first, hidden with the counts',()=>{
+ const r=(id,category,createdAt,status='RECORDED')=>({id,category,title:'Asansör çalışmıyor',buildingName:'A Blok',unitNumber:'12',status,createdAt});
+ const ok={...valid(),recentRequests:[r('a','ELEVATOR','2026-10-17T10:00:00Z'),r('b','WATER','2026-10-17T08:00:00Z','IN_PROGRESS')]};
+ assert.equal(readDashboard(ok,P).recentRequests.length,2);
+ assert.equal(readDashboard({...valid(),requests:null,recentRequests:null},P).recentRequests,null);
+ assert.equal(readDashboard(valid(),P).recentRequests,undefined,'older API without the list');
+ for(const recentRequests of [[r('a','PLUMBING','2026-10-17T10:00:00Z')],[r('a','WATER','2026-10-17T08:00:00Z'),r('b','WATER','2026-10-17T10:00:00Z')],[r('a','WATER','2026-10-17T08:00:00Z','PLANNED')],Array.from({length:5},(_,i)=>r(String(i),'OTHER','2026-10-17T08:00:00Z')),null])
+  assert.throws(()=>readDashboard({...valid(),recentRequests},P),JSON.stringify(recentRequests));
+ assert.throws(()=>readDashboard({...valid(),requests:null,recentRequests:[]},P));
+});
 test('one slogan and one background per page load, always in range',()=>{
  assert.equal(SLOGAN_COUNT,8);assert.equal(pickSlogan(0),1);assert.equal(pickSlogan(.999999),8);assert.equal(pickSlogan(NaN),1);assert.equal(pickSlogan(1),1);
  const tr=JSON.parse(readFileSync('messages/tr.json','utf8')),en=JSON.parse(readFileSync('messages/en.json','utf8'));
@@ -34,7 +44,7 @@ test('menu: Dashboard first, Genel bakış last, no sidebar footer text; slogan 
  const s=readFileSync('src/components/WorkspaceShell.tsx','utf8');
  const model=createNavigation({roles:['SUPER_ADMIN'],sessionContexts:false,centralPeople:false,propertyId:null,property:null},'/dashboard');
  assert.equal(model.groups[0].items[0].href,'/dashboard');assert.equal(model.home.href,'/');
- assert.match(s,/model.groups.map/);assert.match(s,/sidebar-end[\s\S]*home\.label/);
+ assert.match(s,/sidebarRows\(model\)/);assert.match(s,/sidebar-end[\s\S]*home\.label/);
  assert.doesNotMatch(s,/sidebar-footer|shellTagline|v1\.0\.0/);assert.match(s,/<kbd>⌘ K<\/kbd><\/button><p className="workspace-slogan"/);
  assert.match(s,/className="brand" href="\/dashboard"/);assert.equal(model.shortcuts[0].href,'/dashboard');
  assert.equal(isWorkspaceReturnPath('/dashboard'),true);assert.equal(isWorkspaceReturnPath('/dashboard/x'),false);

@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {ShieldCheck,Plus,Pencil,Trash2,Send,Eye,History,FileText,RefreshCw} from "lucide-react";
+import {ShieldCheck,Plus,Pencil,Trash2,Send,Eye,History,FileText,RefreshCw,Tags,ClipboardCheck} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage,type Property} from "@/services/api";
 import {parsePropertyPage} from "@/services/management-contracts";
@@ -25,6 +25,7 @@ import {ConsentMarkupView} from "./ConsentMarkupView";
 import {readTypes,readType,readText,readRecord,readHistory,readPage,typeName,recordTypeName,consentKinds,consentRowStates,consentCodePattern,type ConsentType,type ConsentText,type ConsentRecord,type ConsentHistory,type ConsentKind,type ConsentRowState,type ConsentSummaryState,type Page} from "./model";
 
 type Tab="types"|"texts"|"records";
+const tabIcon={types:Tags,texts:FileText,records:ClipboardCheck} as const satisfies Record<Tab,unknown>;
 const root="/api/v1/consents";
 const stateVariant:Record<ConsentSummaryState,"default"|"secondary"|"destructive"|"outline">={ACTIVE:"default",OUTDATED:"outline",WITHDRAWN:"destructive",SUPERSEDED:"secondary",NONE:"secondary"};
 
@@ -43,7 +44,7 @@ export function ConsentsWorkspace(){
  if(!manager)return <div className="py-10"><MessageBanner>{ui("aManagementRoleIsRequiredToViewPersonalInformation")}</MessageBanner></div>;
  return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("help")} scope={t("scopeAll")} icon={ShieldCheck}/>
   {error&&<MessageBanner className="mb-4" action={<Button variant="view" onClick={refresh}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}
-  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{(["types","texts","records"] as Tab[]).map(value=><Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}>{t(`tab_${value}`)}</Button>)}</div>
+  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{(["types","texts","records"] as Tab[]).map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{t(`tab_${value}`)}</Button>;})}</div>
   {!types&&!error?<p role="status">{ui("loading")}</p>:types&&<div role="tabpanel">
    {tab==="types"&&<TypesTab types={types} admin={admin} onChanged={refresh}/>}
    {tab==="texts"&&<TextsTab types={types} admin={admin} onChanged={refresh}/>}

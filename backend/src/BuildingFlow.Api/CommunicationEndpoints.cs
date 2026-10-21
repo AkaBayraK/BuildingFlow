@@ -7,7 +7,7 @@ internal static class CommunicationEndpoints
     public static void MapCommunicationEndpoints(this WebApplication app)
     {
         var root = app.MapGroup("/api/v1/properties/{propertyId:guid}").WithTags("Announcements and documents").RequireAuthorization("CanReadProperties");
-        root.MapGet("/announcements", async (Guid propertyId, CommunicationService service, CancellationToken token, int page = 1, int pageSize = 10, string? search = null, string? status = null) => Found(await service.Announcements(propertyId, new(page, pageSize, search, status), token)));
+        root.MapGet("/announcements", async (Guid propertyId, CommunicationService service, CancellationToken token, int page = 1, int pageSize = 10, string? search = null, string? status = null, string? category = null) => Found(await service.Announcements(propertyId, new(page, pageSize, search, status, Category: category), token)));
         root.MapGet("/announcements/{id:guid}", async (Guid propertyId, Guid id, CommunicationService service, CancellationToken token) => Found(await service.Announcement(propertyId, id, token)));
         root.MapPost("/announcements", async (Guid propertyId, AnnouncementRequest request, CommunicationService service, CancellationToken token) => {
             var result = await service.Save(propertyId, null, request, token);

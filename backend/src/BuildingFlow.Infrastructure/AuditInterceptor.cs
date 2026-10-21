@@ -41,10 +41,15 @@ public sealed class AuditInterceptor(ICurrentUserService currentUser, TimeProvid
 
             if (entry.State is not (EntityState.Added or EntityState.Modified)) continue;
 
+            // Anonymous survey answers keep no actor and only the day, so they cannot be joined back to a participation row.
+            var hidden = entry.Entity is IAnonymousAudit { HideActor: true };
+            var who = hidden ? "anonymous" : actor;
+            var when = hidden ? new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero) : now;
+
             if (entry.State == EntityState.Added)
             {
-                entry.Property(entity => entity.CreatedAt).CurrentValue = now;
-                entry.Property(entity => entity.CreatedBy).CurrentValue = actor;
+                entry.Property(entity => entity.CreatedAt).CurrentValue = when;
+                entry.Property(entity => entity.CreatedBy).CurrentValue = who;
                 entry.Property(entity => entity.Version).CurrentValue = 1;
             }
             else
@@ -54,8 +59,8 @@ public sealed class AuditInterceptor(ICurrentUserService currentUser, TimeProvid
                 entry.Property(entity => entity.Version).CurrentValue = checked(entry.Property(entity => entity.Version).OriginalValue + 1);
             }
 
-            entry.Property(entity => entity.ModifiedAt).CurrentValue = now;
-            entry.Property(entity => entity.ModifiedBy).CurrentValue = actor;
+            entry.Property(entity => entity.ModifiedAt).CurrentValue = when;
+            entry.Property(entity => entity.ModifiedBy).CurrentValue = who;
         }
     }
 }

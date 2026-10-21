@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-21",
+  "scope": "BAKIM Aidat tahsilat kartı 1/1",
+  "frontend": {
+    "test": {
+      "passed": 191,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typecheck": "PASS",
+    "productionBuild": "PASS"
+  },
+  "postgres": {
+    "suite": "DashboardApiTests",
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "isolation": "Dedicated temporary test database/role, only owned resources cleaned",
+    "cases": [
+      "four finance roles, zero cohorts",
+      "prior/current assessment periods distinct from cash dates",
+      "cancelled charges excluded",
+      "due today is pending",
+      "partial allocation and reversed payment",
+      "anonymous 401/resident 403/outsider and deleted property 404"
+    ]
+  },
+  "ui": {
+    "source": "Real React components, isolated fixture, no live authentication/API",
+    "desktop": {
+      "viewportWidth": 1440,
+      "cardWidth": 360.6640625,
+      "cardHeight": 481.5,
+      "currentPercent": 78,
+      "previousPercent": 90
+    },
+    "mobile": {
+      "viewportWidth": 320,
+      "documentWidth": 320,
+      "cardWidth": 288,
+      "overflow": false
+    },
+    "areaChange": "Old previous-month selection discarded; new area loads current-month summary",
+    "consoleErrors": 0,
+    "screenshot": "DASHBOARD_COLLECTION.jpg"
+  },
+  "protection": {
+    "migration": false,
+    "newDependencies": false,
+    "indexPreserved": true,
+    "manifestLockPreserved": true,
+    "nextEnvRestored": true
+  },
+  "limits": "No live OIDC session or physical-device test; current balances by assessment period, not a historical closing balance."
+}

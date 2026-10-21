@@ -1,9 +1,12 @@
+import {readCollections,type DashboardCollection} from "./collection.ts";
 // İŞ20 Dashboard: runtime check of GET /api/v1/properties/{id}/dashboard before anything is drawn.
+import {categories,statuses,type Status} from "../requests/model.ts";
+export type RecentRequest={id:string;category:typeof categories[number];title:string;buildingName:string|null;unitNumber:string|null;status:Status;createdAt:string};
 export const UNIT_TYPES=["APARTMENT","OFFICE","SHOP","VILLA","WAREHOUSE","WORKSHOP"] as const;
 export type DashboardSummary={propertyId:string;today:string;currency:"TRY";unitCount:number;occupiedUnitCount:number;vacantUnitCount:number;
  receiptsThisMonth:string;overdueAmount:string;overdueChargeCount:number;upcomingAmount:string;upcomingChargeCount:number;
  requests:{recorded:number;inProgress:number}|null;trend:{period:string;receipts:string;expenses:string}[];
- unitTypes:{type:typeof UNIT_TYPES[number];count:number}[];upcomingDues:{dueDate:string;chargeCount:number;amount:string}[];maintenanceAvailable:boolean};
+ unitTypes:{type:typeof UNIT_TYPES[number];count:number}[];upcomingDues:{dueDate:string;chargeCount:number;amount:string}[];maintenanceAvailable:boolean;recentRequests?:RecentRequest[]|null;collections?:DashboardCollection[]|null};
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const int=(v:unknown)=>Number.isSafeInteger(v)&&Number(v)>=0;
 const money=(v:unknown):v is string=>typeof v==="string"&&/^(?:0|[1-9][0-9]*)\.[0-9]{2}$/.test(v);
@@ -23,7 +26,9 @@ export function readDashboard(v:unknown,propertyId:string):DashboardSummary{
  if(!Array.isArray(s.unitTypes)||s.unitTypes.length!==UNIT_TYPES.length||!s.unitTypes.every((r,i)=>obj(r)&&r.type===UNIT_TYPES[i]&&int(r.count))||(s.unitTypes as {count:number}[]).reduce((a,r)=>a+r.count,0)!==s.unitCount)bad("unitTypes");
  if(!Array.isArray(s.upcomingDues)||s.upcomingDues.length>4||!s.upcomingDues.every((r,i,a)=>obj(r)&&day(r.dueDate)&&r.dueDate>=today&&(i===0||String(a[i-1].dueDate)<r.dueDate)&&int(r.chargeCount)&&Number(r.chargeCount)>0&&money(r.amount)&&r.amount!=="0.00"))bad("upcomingDues");
  if(typeof s.maintenanceAvailable!=="boolean")bad("maintenance");
- return s as unknown as DashboardSummary;
+ // Older APIs omit the list; it is null exactly when request counts are hidden (ACCOUNTANT).
+ if(s.recentRequests!==undefined&&!(s.recentRequests===null?s.requests===null:s.requests!==null&&Array.isArray(s.recentRequests)&&s.recentRequests.length<=4&&s.recentRequests.every((r,i,a)=>obj(r)&&typeof r.id==="string"&&categories.includes(r.category as RecentRequest["category"])&&typeof r.title==="string"&&r.title.length<=120&&(r.buildingName===null||typeof r.buildingName==="string")&&(r.unitNumber===null||typeof r.unitNumber==="string")&&statuses.includes(r.status as Status)&&typeof r.createdAt==="string"&&Number.isFinite(Date.parse(r.createdAt))&&(i===0||Date.parse(String(a[i-1].createdAt))>=Date.parse(r.createdAt)))))bad("recentRequests");
+ return {...s,collections:readCollections(s.collections,current)} as unknown as DashboardSummary;
 }
 /** Whole-number share for tiles; 0 when there is nothing to divide. */
 export const share=(part:number,total:number)=>total>0?Math.round(part*100/total):0;

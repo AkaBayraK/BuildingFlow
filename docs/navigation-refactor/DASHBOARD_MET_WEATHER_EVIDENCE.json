@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-21",
+  "scope": "BAKIM MET Norway 1/1",
+  "license": "User approved CC BY4.0 data, attribution/license links and selection/rounding notice; no provider images/code copied",
+  "frontend": {
+    "passed": 195,
+    "failed": 0,
+    "skipped": 0,
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "backend": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "providerTests": 6,
+    "apiTests": 5,
+    "report": "/tmp/bf-met-results/met.trx",
+    "upstream": "Controlled HTTP handlers",
+    "database": "Dedicated temporary test DB/role cleaned"
+  },
+  "liveProvider": {
+    "status": 200,
+    "city": "İstanbul city centre",
+    "unit": "celsius",
+    "records": 90,
+    "headers": [
+      "Expires",
+      "Last-Modified"
+    ],
+    "identity": "BuildingFlow/1.0, no user credentials"
+  },
+  "ui": {
+    "source": "Real React, isolated fixture with example temperatures",
+    "Istanbul": "18°C",
+    "Izmir": "24°C",
+    "Ankara": "STALE warning",
+    "Artvin": "UNAVAILABLE / —",
+    "refresh": "GET repeated on user click",
+    "mobile": {
+      "viewport": 320,
+      "document": 320
+    },
+    "consoleErrors": 0,
+    "screenshot": "DASHBOARD_MET_WEATHER.jpg"
+  },
+  "limits": [
+    "No real OIDC/production deployment/physical device test",
+    "Minute-long auto-refresh timer expiry not waited; visibility/timing guards reviewed"
+  ],
+  "protection": {
+    "indexPreserved": true,
+    "manifestLockPreserved": true,
+    "nextEnvRestored": true,
+    "migration": false,
+    "newPackages": false
+  }
+}

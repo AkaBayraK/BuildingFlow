@@ -1,9 +1,13 @@
 import { contextKey, selectContext, type Session, type Context } from '../auth/contracts.ts';
 export type Action = 'CREATE' | 'UPDATE' | 'DELETE';
-export const categories={FAULT:'Arıza',CLEANING:'Temizlik',SECURITY:'Güvenlik',COMMON_AREA:'Ortak alan',SUGGESTION:'Öneri',OTHER:'Diğer'};
+export const categories={ELEVATOR:'Asansör arızası',WATER:'Su / tesisat',ELECTRICITY:'Elektrik',HEATING:'Isıtma / doğalgaz',RENOVATION:'Boya / tadilat',FAULT:'Arıza',CLEANING:'Temizlik',SECURITY:'Güvenlik',COMMON_AREA:'Ortak alan',SUGGESTION:'Öneri',OTHER:'Diğer'};
 export const priorities={LOW:'Düşük',NORMAL:'Normal',HIGH:'Yüksek'};
 export const requestStatuses={RECORDED:'Kaydedildi',IN_PROGRESS:'İşlemde',RESOLVED:'Çözüldü',REJECTED:'Reddedildi'};
 export type Category=keyof typeof categories;
+// Request type icons (Ionicons names) and colours; the web centre uses the same mapping so both sides read alike.
+const tone={red:{color:'#dc2626',background:'#fef2f2'},blue:{color:'#0866e8',background:'#edf4ff'},amber:{color:'#d97706',background:'#fffbeb'},green:{color:'#059669',background:'#ecfdf5'},violet:{color:'#6d28d9',background:'#f5f3ff'},teal:{color:'#0f766e',background:'#f0fdfa'},neutral:{color:'#385374',background:'#f4f6f9'}};
+export const categoryIcons={ELEVATOR:{icon:'build-outline',...tone.red},WATER:{icon:'water-outline',...tone.blue},ELECTRICITY:{icon:'flash-outline',...tone.amber},HEATING:{icon:'flame-outline',...tone.red},RENOVATION:{icon:'brush-outline',...tone.blue},
+ FAULT:{icon:'hammer-outline',...tone.amber},CLEANING:{icon:'sparkles-outline',...tone.green},SECURITY:{icon:'shield-checkmark-outline',...tone.violet},COMMON_AREA:{icon:'business-outline',...tone.teal},SUGGESTION:{icon:'bulb-outline',...tone.amber},OTHER:{icon:'ellipsis-horizontal-circle-outline',...tone.neutral}} as const satisfies Record<Category,{icon:string;color:string;background:string}>;
 export type Priority=keyof typeof priorities;
 export type Command = { operationId: string; recordId: string; propertyId: string; unitId: string | null; role: string; action: Action; expectedVersion: number; description: string | null; category?:Category; priority?:Priority; photoAction?:'KEEP'|'REPLACE'|'REMOVE';contextKind?:string;contextId?:string };
 export type RecordValue = { id: string; propertyId: string; unitId: string | null; role: string; description: string | null; version: number; deleted: boolean; modifiedAt: string; category?:Category; priority?:Priority; photoId?:string|null; photoSha256?:string|null; managementStatus?:keyof typeof requestStatuses; managementResponse?:string|null; hasManagementHistory?:boolean };

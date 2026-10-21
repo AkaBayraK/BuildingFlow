@@ -189,3 +189,15 @@ Aşama07 tek agent phase/verify/security/docs;177FE,277unit,83izoleintegration v
 20.10.2026 BAKIM Dashboard fotoğraflıhero/headeralan:tekagent mevcut contract/security/verify/docs/license yönergeleri;182FE,23izolePGstorageintegration,typecheck/build ve gerçekReactfixture kanıtı[raporda](navigation-refactor/DASHBOARD_HERO.md). imagegen skill okundu;mevcut özgünkonutasset yeterli olduğundan yeni görsel üretimi yapılmadı. Yeniagent/MCP/skill/paket yok.
 
 20.10.2026 BAKIMgelirgiderikilisütun:tekagent mevcutverify/docs;184FE,typecheck/build,1440/320Reactfixture. YeniSkill/MCP/paket yok.
+
+21.10.2026 BAKIM sidebaraltalan kaldırma:tekagent mevcutverify/docs;184FE,typecheck/build ve indeks/dependencykoruması. YeniSkill/MCP/paket yok.
+
+21.10.2026 BAKIM referanssidebar:tekagent mevcutverify/docs;186FE,typecheck/build,192modelkombinasyonu ve desktop/rail/mobilefixture. YeniSkill/agent/MCP/paket yok. [Kanıt](navigation-refactor/SIDEBAR_REFERENCE.md).
+
+21.10.2026 BAKIM doluluk halkası: tek agent mevcut verify/docs;188FE,typecheck/build,iki alan ve320px gerçek React fixture kabulü. Yeni skill/MCP/paket yok.
+
+21.10.2026 Dashboard hava şehri BAKIM: tek agent; akadev-verify/docs yönergeleri ve akadev-license kapsamında resmî sağlayıcı koşulları incelendi. Yeni servis/paket/agent kurulmadı. [Kabul kaydı](TESTING.md), [seçenekler](navigation-refactor/DASHBOARD_WEATHER.md).
+
+21.10.2026 MET Norway BAKIM: tek agent, akadev-contract/security/license/verify/docs yönergeleriyle kullanıcı onaylı hava servisi tamamlandı.195/195 FE ve11/11 backend; [teslim/kanıt](navigation-refactor/DASHBOARD_WEATHER.md). Yeni paket/agent/MCP yok.
+
+21.10.2026 tema BAKIM: tek agent, mevcut verify/docs ve güvenlik yönergeleriyle nonce/ilk boya/enum tercih kontrolü. Yeni agent/MCP/paket kurulmadı. [Kabul](TESTING.md).

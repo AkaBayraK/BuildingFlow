@@ -1,3 +1,6 @@
+import {headers} from "next/headers";
+import {ThemeProvider} from "@/features/theme/ThemeProvider";
+import {themeBootstrap} from "@/features/theme/theme";
 import type { Metadata } from "next";
 import "./globals.css";
 import {NextIntlClientProvider} from "next-intl";
@@ -7,9 +10,11 @@ export async function generateMetadata():Promise<Metadata>{const t=await getTran
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const nonce=(await headers()).get("x-nonce")??undefined;
   return (
-    <html lang={await getLocale()}>
-      <body><NextIntlClientProvider><NotificationProvider>{children}</NotificationProvider></NextIntlClientProvider></body>
+    <html lang={await getLocale()} suppressHydrationWarning>
+      <head><script nonce={nonce} dangerouslySetInnerHTML={{__html:themeBootstrap}}/></head>
+      <body><ThemeProvider><NextIntlClientProvider><NotificationProvider>{children}</NotificationProvider></NextIntlClientProvider></ThemeProvider></body>
     </html>
   );
 }

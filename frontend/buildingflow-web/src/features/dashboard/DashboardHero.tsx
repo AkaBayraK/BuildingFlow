@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
-import {Building2,DoorOpen,UsersRound,ShieldCheck,CloudSun,ImagePlus,RefreshCw,Upload} from "lucide-react";
+import {Building2,DoorOpen,UsersRound,ShieldCheck,ImagePlus,RefreshCw,Upload} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage,type Property} from "@/services/api";
 import {useNotification} from "@/components/feedback/Notifications";
@@ -10,6 +10,7 @@ import {Dialog,DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogT
 import {readDocument,verifyDownload} from "@/features/communication/model";
 import {bannerName,latestBanner,prepareBanner} from "./banner";
 import type {DashboardSummary} from "./model";
+import {WeatherLocation} from "./WeatherLocation";
 const fallback="/images/dashboard-residence.webp";
 export function DashboardHero({property,data,loading,onRefresh}:{property:Property|null;data:DashboardSummary|null;loading:boolean;onRefresh:()=>void}){
  const t=useTranslations("dashboard"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),identity=useIdentity(),notice=useNotification();
@@ -36,7 +37,7 @@ export function DashboardHero({property,data,loading,onRefresh}:{property:Proper
   <img className="dashboard-hero-photo" src={background&&background.id===id?background.url:fallback} alt="" onError={()=>setBackground(null)}/><div className="dashboard-photo-shade"/>
   <div className="dashboard-photo-content"><div className="dashboard-photo-main"><p className="dashboard-area-name"><Building2 aria-hidden="true"/>{property?.name??ui("selectProperty")}</p><h1>Building<span>Flow</span></h1><p className="dashboard-photo-tagline">{t("heroTagline")}</p>
    <div className="dashboard-hero-chips"><span><Building2 aria-hidden="true"/>{t("heroBuildings",{count:property?.buildingCount??0})}</span><span><DoorOpen aria-hidden="true"/>{t("heroUnits",{count:data?.unitCount??property?.unitCount??0})}</span><span><UsersRound aria-hidden="true"/>{data?t("heroOccupied",{count:data.occupiedUnitCount}):t("loading")}</span><span><ShieldCheck aria-hidden="true"/>{ui(manager?"shellManager":"shellAccountant")}</span></div>
-  </div><aside className="dashboard-clock-panel" aria-label={t("clockLabel")}><time dateTime={now?.toISOString()}><span>{date}</span><strong>{time}</strong></time><div className="dashboard-weather"><CloudSun aria-hidden="true"/><div><strong>—°C</strong><span>{property?.city??"—"}</span><small>{t("weatherUnavailable")}</small></div></div></aside></div>
+  </div><aside className="dashboard-clock-panel" aria-label={t("clockLabel")}><time dateTime={now?.toISOString()}><span>{date}</span><strong>{time}</strong></time>{(manager||identity.hasRealmRole("ACCOUNTANT"))&&<WeatherLocation key={identity.subject??"current"} subject={identity.subject??"current"}/>}</aside></div>
   <div className="dashboard-hero-tools"><button type="button" disabled={loading||!id} onClick={()=>{setRevision(n=>n+1);onRefresh();}} aria-label={ui("refresh")} title={ui("refresh")}><RefreshCw size={16}/></button>{manager&&id&&<button type="button" onClick={()=>{setInvalid("");setOpen(true);}} aria-label={t("changeBanner")} title={t("changeBanner")}><ImagePlus size={16}/></button>}</div>
  </section><Dialog open={open} onOpenChange={value=>{if(!busy)setOpen(value);}}><DialogContent><DialogHeader><DialogTitle>{t("changeBanner")}</DialogTitle><DialogDescription>{t("bannerShared")}</DialogDescription></DialogHeader><label className="space-y-2"><span className="block text-sm font-medium">{t("bannerFile")}</span><input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>void picked(e.target.files?.[0]??null)} aria-invalid={!!invalid}/></label><p className="text-xs text-muted-foreground">{t("bannerHelp")}</p>{file&&<p className="text-sm" role="status">{t("bannerReady")}</p>}{invalid&&<p className="text-sm text-destructive" role="alert">{invalid}</p>}<DialogFooter><Button variant="outline" disabled={busy} onClick={()=>setOpen(false)}>{ui("cancel")}</Button><Button disabled={busy||!file} onClick={()=>void save()}><Upload/>{busy?ui("saving"):ui("save")}</Button></DialogFooter></DialogContent></Dialog></>;
 }

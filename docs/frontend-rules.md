@@ -18,7 +18,7 @@ Bu dosya geliştirme standardıdır. Bir paketin burada adının geçmesi onun k
 - Kullanıcının seçimi **shadcn/ui + Tailwind CSS + TanStack Table** korunur. Önce `src/components/ui`, mevcut feature bileşenleri ve LICENSE/NOTICE incelenir; aynı amaç için yeni button/modal/table sistemi eklenmez.
 - Button, Input, Select, Checkbox, DatePicker, Badge, Tooltip, Dialog/Modal, Drawer, Tabs, Card, DataTable, Pagination ve SearchInput ihtiyaç ortaya çıktığında ortaklaştırılır. Hepsi için kullanılmayan boş bileşen üretme.
 - Ortak sunum bileşeni iş domain'i veya doğrudan API erişimi taşımaz. Feature modülü veri/iş akışını, UI bileşeni görünümü ve etkileşimi yönetir.
-- İkonlar mevcut lisanslı Lucide kaynağından; ikon düğmeleri erişilebilir ad taşır. Dialog odak yönetimi, klavye ve kapatma davranışı korunur. Lisanssız template/font/görsel eklenmez.
+- İkonlar mevcut lisanslı Lucide kaynağından; ikon düğmeleri erişilebilir ad taşır. Sekmeler (`role="tablist"` dahil), `FilterChips`, durum sekme/rozetleri, tür ve kategori seçimleri ikonsuz yapılmaz; ikon feature `*-style.ts` eşlemesinden gelir, renk tek ayırt edici olmaz (kullanıcı kararı 21.10.2026). Dialog odak yönetimi, klavye ve kapatma davranışı korunur. Lisanssız template/font/görsel eklenmez.
 
 ## 3. CRUD ekranları
 
@@ -272,3 +272,17 @@ SIDEBAR FAZ07.1: menü/rol/flag/alan görünürlüğü features/navigation/navig
 20.10.2026 Dashboard banner güncellemesi: yönetimalanı seçimi headerda dil önündedir,yalnızDashboard'u etkiler;PropertyScope/diğer modüllere globalfiltre değildir. Dashboard veri altbileşeni seçiliUUIDile keylenir,öncekifotoğraf/kart/istekler temizlenir. Ortakfotoğraf mevcut standaloneALL_MEMBERS belge sözleşmesiyle;requestUUIDretry,metadataScope/SHA256/boyut ve objectURLtemizliği korunur. Alan başlığı/sayıları gerçekDTO,saatEurope/Istanbul;hava yokluğu açıkça gösterilir. [Sözleşme/kanıt](navigation-refactor/DASHBOARD_HERO.md).
 
 20.10.2026 Dashboardtrend:mevcut6ayAPI verisi yeni SVG ikilisütun(mavigelir/pembegider) ile gösterilir;Son6/3ayyereldilimleme,klavye/touch/hovertooltip ve erişilebilir tam tutartablosu korunur. Paket eklenmez.
+
+21.10.2026 kullanıcı düzeltmesi: sidebar/drawer footer altındaki Yönetim alanı bağlantısı kaldırıldı. Footer profil,ana Yönetim Alanları bağlantısı ve Dashboard headerseçimi korunur.
+
+21.10.2026 sidebarreferansı: `sidebar-layout.ts` semantik yetkili model öğelerini referans sunumuna dönüştürür;route/rol kaynağı değildir. Yuvarlatılmış lacivert/cyançerçeve,sidebararama,ikonlu üstmenü ve çizgili altmenü vardır. Altalanseçimi kaldırılmışkalır,profilkartı korunur. [Kanıt](navigation-refactor/SIDEBAR_REFERENCE.md).
+
+21.10.2026 Dashboard doluluk kartı: `OccupancyCard` mevcut doğrulanmış unitCount/occupiedUnitCount/vacantUnitCount alanlarını kullanır. Yalnız APARTMENT türleri varsa daire, karma türlerde bölüm terminolojisi; yeşil dolu ve gri-mavi boş halka. Beklemede DTO'da yoktur, — ve erişilebilir açıklama gösterilir; segment uydurulmaz. Sıfır toplamda oran tanımsızdır. Liste bağlantısı seçili alan UUID'sine gider. [Kanıt](TESTING.md).
+
+21.10.2026 BAKIM: Dashboard hava şehri Property.city'den bağımsız kişisel, hesap bazında tarayıcı tercihidir; ilk şehir İstanbul. Otomatik GPS/IP tespiti yoktur, geolocation güvenlik başlığı değişmez. Canlı hava sağlayıcısı henüz bağlı değildir. [Davranış ve sağlayıcı seçenekleri](navigation-refactor/DASHBOARD_WEATHER.md).
+
+21.10.2026 MET Norway kullanıcı onayı sonrası: önceki “canlı servis yok” durumu değişmiştir. Kişisel şehir tercihi dört desteklenen şehir arasından seçilir; API sunucu proxy/cache üzerinden güncel şehir merkezi model tahmini verir. Görünür sayfada süreli ve manuel kontrol, stale/unknown gösterimi ve atıf/lisans bağlantıları korunur. Cihaz geolocation izni veya yeni paket eklenmez. [Sözleşme](api/dashboard.md), [lisans](licenses.md).
+
+21.10.2026 Düzenlenebilir dashboard (TraceFlow widget ızgarası örneği): KPI şeridi, trend, doluluk, son talepler, tahsilat ve yaklaşan tarihler kartları `DashboardWidgets` ile tutamaçtan sürüklenir, ok tuşları/düğmelerle taşınır, geniş ekranda 1/3-2/3-tam satır genişlik alır, gizlenip geri gösterilir ve büyütme penceresinde açılır. Düzen hesap bazında `buildingflow.dashboard-layout.<subject>` tarayıcı anahtarında saklanır, "Varsayılan düzen" ile sıfırlanır; bozuk/eski kayıt varsayılanla birleşir. Yeni paket yoktur. Kanıt: `tests/dashboard-layout.test.mjs`.
+
+21.10.2026 BAKIM — Açık/koyu/sistem teması artık ortak ThemeProvider ve semantik paletle uygulanır; önceki dark theme tamamlanmadı notları tarihsel durumdur. Yeni tema paketi yok. buildingflow.theme yalnız doğrulanmış enum tutar, OS/storage dinleyicileri temizlenir. RootLayout ilk boya betiği mevcut request nonce'unu kullanır; CSP/nonce gevşetilmez. Genel UI renkleri tema token'ından gelir; fotoğraf/marka yüzeyleri ayrı kontrastını korur. [Kabul/kanıt](TESTING.md), [görsel](navigation-refactor/THEME_DARK.jpg).

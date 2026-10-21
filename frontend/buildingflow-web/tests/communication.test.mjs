@@ -6,12 +6,12 @@ import {problemDetails} from '../src/services/problem.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 import {managementSection} from '../src/features/navigation/routes.ts';
 const property='9b962f3e-8812-459f-a42f-45ec6e3c6eba',other='24d39d57-021b-4705-87d3-98a091c95f23';
-const a={id:other,propertyId:property,title:'Title',content:'Plain <script> text',audience:'ALL_MEMBERS',status:'DRAFT',version:1,createdAt:'2026-10-10T04:00:00Z',publishedAt:null};
+const a={id:other,propertyId:property,title:'Title',content:'Plain <script> text',audience:'ALL_MEMBERS',status:'DRAFT',version:1,createdAt:'2026-10-10T04:00:00Z',publishedAt:null,category:'GENERAL'};
 const pdf=new Blob(['%PDF-1.7 test'],{type:'application/pdf'});const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await pdf.arrayBuffer())),b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
 const d={id:other,propertyId:property,requestId:other,announcementId:null,audience:'MANAGEMENT',fileName:'test.pdf',contentType:'application/pdf',size:pdf.size,sha256:digest,version:1,createdAt:a.createdAt,replayed:false};
 test('announcement responses preserve scope and publication history',()=>{
  assert.deepEqual(readAnnouncement(a,property),a);assert.throws(()=>readAnnouncement(a,other));
- for(const v of [{...a,status:'unknown'},{...a,publishedAt:a.createdAt},{...a,status:'PUBLISHED'},{...a,version:0},{...a,title:''},{...a,content:'x'.repeat(10001)},{...a,audience:'TENANT'}])assert.throws(()=>readAnnouncement(v,property));
+ for(const v of [{...a,status:'unknown'},{...a,publishedAt:a.createdAt},{...a,status:'PUBLISHED'},{...a,version:0},{...a,title:''},{...a,content:'x'.repeat(10001)},{...a,audience:'TENANT'},{...a,category:'FIRE'},{...a,category:undefined},{...a,category:'general'}])assert.throws(()=>readAnnouncement(v,property));
  assert.equal(readAnnouncement({...a,status:'ARCHIVED',publishedAt:a.createdAt},property).status,'ARCHIVED');
 });
 test('document metadata does not accept foreign property or unsafe filenames',()=>{
@@ -22,6 +22,10 @@ test('document metadata does not accept foreign property or unsafe filenames',()
 test('content pages reject duplicate rows and invalid counters',()=>{
  const page={items:[a],page:1,pageSize:10,totalCount:1};assert.deepEqual(readContentPage(page,v=>readAnnouncement(v,property)),page);
  for(const v of [{...page,items:[a,a],totalCount:2},{...page,pageSize:101},{...page,totalCount:0},{...page,page:0}])assert.throws(()=>readContentPage(v,row=>readAnnouncement(row,property)));
+ const categories=['GENERAL','MEETING','DUES','MAINTENANCE','URGENT','OTHER'],counts=categories.map((category,i)=>({category,count:i}));
+ assert.deepEqual(readContentPage({...page,categoryCounts:counts},v=>readAnnouncement(v,property)).categoryCounts,counts);
+ assert.equal(readContentPage({...page,categoryCounts:null},v=>readAnnouncement(v,property)).categoryCounts,undefined);
+ for(const bad of [counts.slice(1),[...counts].reverse(),counts.map(c=>({...c,count:-1})),counts.map(c=>({...c,count:1.5})),{}])assert.throws(()=>readContentPage({...page,categoryCounts:bad},v=>readAnnouncement(v,property)));
 });
 test('file selection validates supported extension MIME and size',()=>{
  assert.ok(validFile({name:'test.PDF',type:'application/pdf',size:maxFileBytes}));

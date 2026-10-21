@@ -28,7 +28,7 @@ public sealed class MobileSyncStore(BuildingFlowDbContext db, IMobileSessionStor
     public async Task<MobileSyncResult> PushAsync(MobileSyncCommand c,CancellationToken token) {
         if(c.OperationId==Guid.Empty || c.RecordId==Guid.Empty || c.PropertyId==Guid.Empty || c.UnitId==Guid.Empty || c.ExpectedVersion<0 || c.Action is not ("CREATE" or "UPDATE" or "DELETE") || (c.Action!="DELETE" && (string.IsNullOrWhiteSpace(c.Description) || c.Description.Trim().Length>2000)) || (c.Action=="CREATE" && c.ExpectedVersion!=0) || (c.Action!="CREATE" && c.ExpectedVersion<1) || (c.Action=="DELETE" && c.Description!=null)) throw new ArgumentException("Invalid mobile command.");
         var user=User();
-        if(c.Category is not (null or "FAULT" or "CLEANING" or "SECURITY" or "COMMON_AREA" or "SUGGESTION" or "OTHER") || c.Priority is not (null or "LOW" or "NORMAL" or "HIGH") || c.PhotoAction is not ("KEEP" or "REPLACE" or "REMOVE") || (c.PhotoAction!="REPLACE" && c.PhotoBase64!=null) || (c.Action=="DELETE" && (c.Category!=null || c.Priority!=null || c.PhotoAction!="KEEP")))throw new ArgumentException("Invalid request details.");
+        if(c.Category!=null && !MobileRequest.Categories.Contains(c.Category) || c.Priority is not (null or "LOW" or "NORMAL" or "HIGH") || c.PhotoAction is not ("KEEP" or "REPLACE" or "REMOVE") || (c.PhotoAction!="REPLACE" && c.PhotoBase64!=null) || (c.Action=="DELETE" && (c.Category!=null || c.Priority!=null || c.PhotoAction!="KEEP")))throw new ArgumentException("Invalid request details.");
         var context=await Authorize(c.PropertyId,c.UnitId,c.Role,token,c.ContextKind,c.ContextId);
         byte[]? bytes=null;
         if(c.PhotoAction=="REPLACE"){

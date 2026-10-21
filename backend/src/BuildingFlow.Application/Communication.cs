@@ -1,17 +1,20 @@
 using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
-public sealed record AnnouncementRequest(string? Title, string? Content, string? Audience, long Version = 0);
-public sealed record AnnouncementResponse(Guid Id, Guid PropertyId, string Title, string Content, string Audience, string Status, long Version, DateTimeOffset CreatedAt, DateTimeOffset? PublishedAt);
+// Category is optional for older clients: null keeps the current category on edit and means GENERAL on create.
+public sealed record AnnouncementRequest(string? Title, string? Content, string? Audience, long Version = 0, string? Category = null);
+public sealed record AnnouncementResponse(Guid Id, Guid PropertyId, string Title, string Content, string Audience, string Status, long Version, DateTimeOffset CreatedAt, DateTimeOffset? PublishedAt, string Category = "GENERAL");
 public sealed record DocumentResponse(Guid Id, Guid PropertyId, Guid RequestId, Guid? AnnouncementId, string Audience, string FileName, string ContentType, long Size, string Sha256, long Version, DateTimeOffset CreatedAt, bool Replayed = false);
-public sealed record ContentQuery(int Page = 1, int PageSize = 10, string? Search = null, string? Status = null, Guid? AnnouncementId = null);
-public sealed record ContentPage<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);
+public sealed record ContentQuery(int Page = 1, int PageSize = 10, string? Search = null, string? Status = null, Guid? AnnouncementId = null, string? Category = null);
+public sealed record ContentCategoryCount(string Category, int Count);
+// CategoryCounts is set for announcement lists only and ignores the category filter itself.
+public sealed record ContentPage<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount, IReadOnlyList<ContentCategoryCount>? CategoryCounts = null);
 public sealed record DocumentUpload(Guid RequestId, Guid? AnnouncementId, long AnnouncementVersion, ContentAudience Audience, string FileName, string ContentType, byte[] Bytes);
 public sealed record DocumentDownload(DocumentResponse Metadata, Stream Content);
 public sealed class StorageUnavailableException : Exception { }
 public sealed class DocumentSizeException : Exception { }
 public interface ICommunicationStore
 {
-    Task<AnnouncementResponse?> SaveAsync(Guid property, Guid? id, AnnouncementRequest request, ContentAudience audience, AccessScope access, CancellationToken token);
+    Task<AnnouncementResponse?> SaveAsync(Guid property, Guid? id, AnnouncementRequest request, ContentAudience audience, AnnouncementCategory? category, AccessScope access, CancellationToken token);
     Task<AnnouncementResponse?> ChangeStatusAsync(Guid property, Guid id, long version, bool publish, AccessScope access, CancellationToken token);
     Task<ContentPage<AnnouncementResponse>?> AnnouncementsAsync(Guid property, ContentQuery query, AccessScope access, bool manager, CancellationToken token);
     Task<AnnouncementResponse?> AnnouncementAsync(Guid property, Guid id, AccessScope access, bool manager, CancellationToken token);
@@ -34,6 +37,12 @@ public sealed class CommunicationService(ICommunicationStore store, ICurrentUser
         if (!Enum.TryParse<ContentAudience>(value, out var audience) || !Enum.IsDefined(audience) || value != audience.ToString()) Invalid("audience", ErrorCatalog.ContentInvalid);
         return audience;
     }
+    public static AnnouncementCategory? Category(string? value)
+    {
+        if (value is null) return null;
+        if (!Enum.GetNames<AnnouncementCategory>().Contains(value)) Invalid("category", ErrorCatalog.ContentInvalid);
+        return Enum.Parse<AnnouncementCategory>(value);
+    }
     public static void Version(long version) { if (version < 1) Invalid("version", ErrorCatalog.VersionRequired); }
     private static void Query(ContentQuery query)
     {
@@ -41,12 +50,13 @@ public sealed class CommunicationService(ICommunicationStore store, ICurrentUser
         if (query.Search?.Length > 200) Invalid("search", ErrorCatalog.ErrorsSearchBounds);
         if (query.Status is not (null or "" or "DRAFT" or "PUBLISHED" or "ARCHIVED")) Invalid("status", ErrorCatalog.ContentInvalid);
         if (query.AnnouncementId == Guid.Empty) Invalid("announcementId", ErrorCatalog.ContentInvalid);
+        if (!string.IsNullOrEmpty(query.Category)) Category(query.Category);
     }
     public Task<AnnouncementResponse?> Save(Guid property, Guid? id, AnnouncementRequest request, CancellationToken token)
     {
         var access = Access(true); if (id.HasValue) Version(request.Version);
         if (string.IsNullOrWhiteSpace(request.Title) || request.Title.Trim().Length > 200 || string.IsNullOrWhiteSpace(request.Content) || request.Content.Trim().Length > 10000) Invalid("content", ErrorCatalog.ContentInvalid);
-        return store.SaveAsync(property, id, request, Audience(request.Audience), access, token);
+        return store.SaveAsync(property, id, request, Audience(request.Audience), Category(request.Category), access, token);
     }
     public Task<AnnouncementResponse?> ChangeStatus(Guid property, Guid id, long version, bool publish, CancellationToken token)
     { var access = Access(true); Version(version); return store.ChangeStatusAsync(property, id, version, publish, access, token); }

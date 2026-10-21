@@ -4,7 +4,7 @@ import {PhoneInput} from "@/components/forms/ContactInputs";
 import {formatPhone,validPhone} from "@/lib/contact";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {MessageSquareText,Send,Pencil,Plus,RefreshCw,RotateCcw,Coins,Settings} from "lucide-react";
+import {MessageSquareText,Send,Pencil,Plus,RefreshCw,RotateCcw,Coins,Settings,FileText} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {usePropertyScope} from "@/features/navigation/PropertyScope";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
@@ -23,6 +23,7 @@ import {formatDateTime,formatNumber} from "@/lib/format";
 import {readOverview,readAccount,readCredit,readTemplate,readMessage,readPage,segments,placeholders,preview,type SmsOverview,type SmsAccount,type SmsTemplate,type SmsType,type SmsMessage,type SmsCredit,type Page} from "./model";
 
 type Tab="account"|"templates"|"messages";
+const tabIcon={account:Settings,templates:FileText,messages:MessageSquareText} as const satisfies Record<Tab,unknown>;
 const statusVariant={QUEUED:"secondary",SENT:"default",FAILED:"destructive"} as const;
 
 export function SmsWorkspace({propertyId}:{propertyId:string}){
@@ -35,7 +36,7 @@ export function SmsWorkspace({propertyId}:{propertyId:string}){
  const writable=!!scope.property?.isEnabled&&!scope.error;
  return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("help")} scope={scope.property?.name??ui("loading")} icon={MessageSquareText} action={<Button disabled={!writable||!overview?.account?.isEnabled} onClick={()=>setSend(true)}><Send/>{t("send")}</Button>}/>
   {error&&<MessageBanner className="mb-4" action={<Button variant="view" onClick={refresh}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}
-  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{(["account","templates","messages"] as Tab[]).map(value=><Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}>{t(`tab_${value}`)}</Button>)}</div>
+  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{(["account","templates","messages"] as Tab[]).map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{t(`tab_${value}`)}</Button>;})}</div>
   {!overview&&!error?<p role="status">{ui("loading")}</p>:overview&&<div role="tabpanel">
    {tab==="account"&&<AccountTab root={root} propertyId={propertyId} account={overview.account} admin={admin&&writable} onChanged={refresh}/>}
    {tab==="templates"&&<TemplatesTab root={root} types={overview.types} writable={writable}/>}

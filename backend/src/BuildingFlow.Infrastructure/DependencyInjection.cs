@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IMobileSyncStore, MobileSyncStore>();
         services.AddScoped<BuildingFlow.Application.IRequestManagementStore, RequestManagementStore>();
         services.AddScoped<BuildingFlow.Application.IMobileProfileStore, MobileProfileStore>();
+        services.AddScoped<BuildingFlow.Application.IManagedUserPhotoStore>(sp => (BuildingFlow.Application.IManagedUserPhotoStore)sp.GetRequiredService<BuildingFlow.Application.IMobileProfileStore>());
         services.AddScoped<BuildingFlow.Application.IMobileOwnerStore, MobileOwnerStore>();
         services.AddScoped<BuildingFlow.Application.IMobileManagerStore, MobileManagerStore>();
         services.AddScoped<BuildingFlow.Application.IMobileFinanceStore, MobileFinanceStore>();
@@ -49,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
         services.AddScoped<BuildingFlow.Application.IDashboardStore, DashboardStore>();
         services.AddScoped<BuildingFlow.Application.IMeterStore, MeterStore>();
+        services.AddScoped<BuildingFlow.Application.IMaintenanceStore, MaintenanceStore>();
+        services.AddScoped<BuildingFlow.Application.ISurveyStore, SurveyStore>();
         services.AddScoped<BuildingFlow.Application.IExpenseStore, ExpenseStore>();
         services.AddScoped<BuildingFlow.Application.ICommunicationStore, CommunicationStore>();
         services.AddScoped<BuildingFlow.Application.IPublicWebsiteMediaStore, PublicWebsiteMediaStore>();
