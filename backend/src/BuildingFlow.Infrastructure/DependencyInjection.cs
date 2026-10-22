@@ -13,13 +13,18 @@ public static class DependencyInjection
         services.AddScoped<ManagementAccess>();
         services.AddScoped<BuildingFlow.Application.IManagementAccess>(p=>p.GetRequiredService<ManagementAccess>());
         services.AddScoped<BuildingFlow.Application.IPersonCenterStore, PersonCenterStore>();
+        services.AddScoped<BuildingFlow.Application.ILeaseContractStore, LeaseContractStore>();
         services.AddScoped<SessionContextStore>();
         services.AddScoped<BuildingFlow.Application.ISessionContextStore>(p=>p.GetRequiredService<SessionContextStore>());
+        services.AddScoped<BuildingFlow.Application.IMyPortfolioStore>(p=>p.GetRequiredService<SessionContextStore>());
+        services.AddScoped<BuildingFlow.Application.IPersonAccountLinkStore, PersonAccountLinkStore>();
+        services.AddScoped<BuildingFlow.Application.IMyUnitStore, MyUnitStore>();
         services.AddScoped<BuildingFlow.Application.IMobileAuthorizationStore>(p=>p.GetRequiredService<SessionContextStore>());
         services.AddScoped<BuildingFlow.Application.IManagementAssignmentStore, ManagementAssignmentStore>();
         services.AddScoped<BuildingFlow.Application.IMobileSyncStore, MobileSyncStore>();
         services.AddScoped<BuildingFlow.Application.IRequestManagementStore, RequestManagementStore>();
         services.AddScoped<BuildingFlow.Application.IMobileProfileStore, MobileProfileStore>();
+        services.AddScoped<BuildingFlow.Application.IContactVerificationStore, ContactVerificationStore>();
         services.AddScoped<BuildingFlow.Application.IManagedUserPhotoStore>(sp => (BuildingFlow.Application.IManagedUserPhotoStore)sp.GetRequiredService<BuildingFlow.Application.IMobileProfileStore>());
         services.AddScoped<BuildingFlow.Application.IMobileOwnerStore, MobileOwnerStore>();
         services.AddScoped<BuildingFlow.Application.IMobileManagerStore, MobileManagerStore>();
@@ -42,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<SmsDispatcher>();
         var keycloak = KeycloakAdminOptions.From(configuration);
         services.AddSingleton(keycloak);
+        services.AddSingleton(new BuildingFlow.Application.EmailVerificationPolicy(keycloak.EmailVerificationEnabled));
         services.AddSingleton<BuildingFlow.Application.IKeycloakAdmin>(provider => new KeycloakAdminClient(keycloak, new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, provider.GetRequiredService<TimeProvider>()));
         services.AddScoped<BuildingFlow.Application.IUserDirectoryStore, UserDirectoryStore>();
         services.AddScoped<BuildingFlow.Application.IMobileOnboardingStore, MobileOnboardingStore>();

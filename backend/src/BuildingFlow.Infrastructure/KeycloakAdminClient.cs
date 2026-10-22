@@ -13,11 +13,13 @@ public sealed class KeycloakAdminOptions
     public string Realm { get; init; } = "buildingflow";
     public string ClientId { get; init; } = "buildingflow-admin-api";
     public string ClientSecret { get; init; } = "";
+    public bool EmailVerificationEnabled { get; init; }
     public bool Configured => Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" && ClientSecret.Length >= 16;
     public static KeycloakAdminOptions From(IConfiguration config) => new()
     {
         BaseUrl = (config["KeycloakAdmin:BaseUrl"] ?? "").TrimEnd('/'), Realm = config["KeycloakAdmin:Realm"] ?? "buildingflow",
-        ClientId = config["KeycloakAdmin:ClientId"] ?? "buildingflow-admin-api", ClientSecret = config["KeycloakAdmin:ClientSecret"] ?? ""
+        ClientId = config["KeycloakAdmin:ClientId"] ?? "buildingflow-admin-api", ClientSecret = config["KeycloakAdmin:ClientSecret"] ?? "",
+        EmailVerificationEnabled = bool.TryParse(config["ContactVerification:EmailEnabled"], out var enabled) && enabled
     };
 }
 
@@ -53,7 +55,7 @@ public sealed class KeycloakAdminClient(KeycloakAdminOptions options, HttpClient
 
     public async Task<string> CreateAsync(KeycloakUserDraft draft, CancellationToken token)
     {
-        using var response = await Send(HttpMethod.Post, Admin("users"), new UserRepresentation(null, draft.Username, draft.Email, draft.FirstName, draft.LastName, draft.Enabled, false, null), token);
+        using var response = await Send(HttpMethod.Post, Admin("users"), new UserRepresentation(null, draft.Username, draft.Email, draft.FirstName, draft.LastName, draft.Enabled, false, null, options.EmailVerificationEnabled ? ["VERIFY_EMAIL"] : null), token);
         if (response.StatusCode == HttpStatusCode.Conflict) throw new IdentityConflictException();
         Ensure(response);
         var location = response.Headers.Location?.ToString() ?? throw new IdentityUnavailableException();
@@ -62,7 +64,12 @@ public sealed class KeycloakAdminClient(KeycloakAdminOptions options, HttpClient
 
     public async Task UpdateAsync(string id, KeycloakUserDraft draft, CancellationToken token)
     {
-        using var response = await Send(HttpMethod.Put, Admin($"users/{Id(id)}"), new UserRepresentation(null, null, draft.Email, draft.FirstName, draft.LastName, draft.Enabled, null, null), token);
+        if (options.EmailVerificationEnabled) {
+            var current = await GetAsync(id, token) ?? throw new IdentityUnavailableException();
+            if (!string.Equals(current.Email, draft.Email, StringComparison.OrdinalIgnoreCase))
+                throw new RequestValidationException(new() { ["email"] = [ErrorCatalog.UserInvalid.Create()] });
+        }
+        using var response = await Send(HttpMethod.Put, Admin($"users/{Id(id)}"), new UserRepresentation(null, null, options.EmailVerificationEnabled ? null : draft.Email, draft.FirstName, draft.LastName, draft.Enabled, null, null), token);
         if (response.StatusCode == HttpStatusCode.Conflict) throw new HierarchyConflictException(ErrorCatalog.UserExists.Create());
         Ensure(response);
     }
@@ -155,7 +162,7 @@ public sealed class KeycloakAdminClient(KeycloakAdminOptions options, HttpClient
     private static KeycloakUser Map(UserRepresentation u) => new(u.Id!, u.Username!, u.Email, u.FirstName, u.LastName, u.Enabled ?? false, u.EmailVerified ?? false,
         u.CreatedTimestamp is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : null);
 
-    private sealed record UserRepresentation(string? Id, string? Username, string? Email, string? FirstName, string? LastName, bool? Enabled, bool? EmailVerified, long? CreatedTimestamp);
+    private sealed record UserRepresentation(string? Id, string? Username, string? Email, string? FirstName, string? LastName, bool? Enabled, bool? EmailVerified, long? CreatedTimestamp, string[]? RequiredActions = null);
     private sealed record RoleRepresentation(string? Id, string Name);
     private sealed record TokenResponse([property: JsonPropertyName("access_token")] string AccessToken, [property: JsonPropertyName("expires_in")] int ExpiresIn);
 }

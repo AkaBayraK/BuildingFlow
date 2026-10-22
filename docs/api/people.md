@@ -110,3 +110,8 @@ Eski v1 alan kapsamlı kişi API'si bu fazda korunur; yeni tenant-scoped `/api/v
 ## İŞ19 — Bağlı hesabın fotoğrafı
 
 `GET /api/v1/properties/{propertyId}/people/{personId}/photo`: kişiye bağlı giriş hesabının profil fotoğrafı (`image/jpeg`). Kişiyi okuma kapsamıyla aynı (yönetim rolü + aktif üyelik); bağ veya fotoğraf yoksa 404. Liste ve detay yanıtında `linkedPhotoId` (güncel fotoğraf kimliği, yoksa null). Fotoğrafı yalnız hesap sahibi rızasıyla ekler. Ayrıntı [account.md](account.md).
+
+
+## Mükerrer kişi engeli (22.10.2026)
+
+Aynı Property içinde aynı kimlik no (silinmemiş), aynı normalize cep telefonu veya e-posta (etkin kişiler) ile oluşturma/güncelleme 409 (`BF_PERSON_DUPLICATE_*`). Güncelleme de Property kilidi altında. Ayrıntı [ek-04](../refactor/multi-property/ek-04-duplicates.md).

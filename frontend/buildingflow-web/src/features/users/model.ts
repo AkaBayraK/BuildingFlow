@@ -2,14 +2,14 @@ export const allRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT","RESIDE
 export const siteRoles=["MANAGER","ACCOUNTANT","RESIDENT"] as const;
 export type Role=typeof allRoles[number];
 export type LinkedPerson={personId:string;propertyId:string;propertyName:string;fullName:string;version:number};
-export type ManagedUser={id:string;username:string;email:string|null;firstName:string|null;lastName:string|null;enabled:boolean;emailVerified:boolean;createdAt:string|null;roles:Role[];propertyCount:number;linkedPeople:LinkedPerson[];canEdit:boolean;photoId?:string|null;canManagePhoto?:boolean};
+export type ManagedUser={id:string;username:string;email:string|null;firstName:string|null;lastName:string|null;enabled:boolean;emailVerified:boolean;createdAt:string|null;roles:Role[];propertyCount:number;linkedPeople:LinkedPerson[];canEdit:boolean;photoId?:string|null;canManagePhoto?:boolean;canEditEmail?:boolean;invitationStatus?:"ACCEPTED"|"UNAVAILABLE"|"NOT_REQUESTED"|null};
 export type UserPage={items:ManagedUser[];page:number;pageSize:number;totalCount:number};
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const guid=(v:unknown)=>typeof v==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v);
 const optional=(v:unknown)=>v===null||typeof v==="string";
 const int=(v:unknown,min=0)=>Number.isSafeInteger(v)&&Number(v)>=min;
 export function readUser(v:unknown):ManagedUser{
- if(!obj(v)||typeof v.id!=="string"||!v.id||typeof v.username!=="string"||!optional(v.email)||!optional(v.firstName)||!optional(v.lastName)||typeof v.enabled!=="boolean"||typeof v.emailVerified!=="boolean"||!(v.createdAt===null||typeof v.createdAt==="string"&&!Number.isNaN(Date.parse(v.createdAt)))||!Array.isArray(v.roles)||!v.roles.every(r=>(allRoles as readonly string[]).includes(String(r)))||!int(v.propertyCount)||typeof v.canEdit!=="boolean"||!(v.photoId===undefined||v.photoId===null||guid(v.photoId))||!(v.canManagePhoto===undefined||typeof v.canManagePhoto==="boolean")||!Array.isArray(v.linkedPeople))throw new Error("Invalid user");
+ if(!obj(v)||typeof v.id!=="string"||!v.id||typeof v.username!=="string"||!optional(v.email)||!optional(v.firstName)||!optional(v.lastName)||typeof v.enabled!=="boolean"||typeof v.emailVerified!=="boolean"||!(v.createdAt===null||typeof v.createdAt==="string"&&!Number.isNaN(Date.parse(v.createdAt)))||!Array.isArray(v.roles)||!v.roles.every(r=>(allRoles as readonly string[]).includes(String(r)))||!int(v.propertyCount)||typeof v.canEdit!=="boolean"||!(v.photoId===undefined||v.photoId===null||guid(v.photoId))||!(v.canManagePhoto===undefined||typeof v.canManagePhoto==="boolean")||!(v.canEditEmail===undefined||typeof v.canEditEmail==="boolean")||!(v.invitationStatus===undefined||v.invitationStatus===null||["ACCEPTED","UNAVAILABLE","NOT_REQUESTED"].includes(String(v.invitationStatus)))||!Array.isArray(v.linkedPeople))throw new Error("Invalid user");
  for(const p of v.linkedPeople)if(!obj(p)||!guid(p.personId)||!guid(p.propertyId)||typeof p.propertyName!=="string"||typeof p.fullName!=="string"||!int(p.version,1))throw new Error("Invalid linked person");
  return v as ManagedUser;
 }

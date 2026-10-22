@@ -67,3 +67,10 @@ test('abort before refresh, during refresh and during problem parsing never prod
  const body=new AbortController();await assert.rejects(authorizedRequest({token:'test',updateToken:async()=>true},'en',reporter,'http://local.test','/api',{signal:body.signal},async()=>({ok:false,status:400,json:async()=>{body.abort();throw new DOMException('Aborted','AbortError');}})));
  assert.deepEqual(notices,[]);
 });
+
+test('new user phone validation is localized and never renders raw contact details',()=>{
+ const body={code:'BF_VALIDATION_FAILED',fieldIssues:{phone:[{code:'BF_USER_INVALID',parameters:{},message:'private-contact-detail'}]}};
+ assert.deepEqual(problemDetails(400,body,'tr').errors,{phone:[tr.apiErrors.BF_USER_INVALID]});
+ assert.deepEqual(problemDetails(400,body,'en').errors,{phone:[en.apiErrors.BF_USER_INVALID]});
+ assert.equal(JSON.stringify(problemDetails(400,body,'tr')).includes('private-contact-detail'),false);
+});

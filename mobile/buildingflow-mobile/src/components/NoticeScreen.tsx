@@ -1,16 +1,19 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import {ActivityIndicator,Alert,Platform,StyleSheet,Switch,Text,View} from 'react-native';
 import {Action as Pressable} from './Action';
 import {Link,useLocalSearchParams} from 'expo-router';
 import {useAuth} from '../auth/AuthProvider';
-import {parseNoticeLink,type Query} from '../notices/contracts';
+import {noticeContextSwitch,parseNoticeLink,type Query} from '../notices/contracts';
 import {useNotices} from '../notices/useNotices';
 import {managerRoles} from '../manager/contracts';
 import {ManagerPanel} from './ManagerPanel';
 import {Icon,Screen,styles,SectionTitle} from './Screen';
 export function NoticeScreen(){
  const a=useAuth(),params=useLocalSearchParams();let link:Query|null=null,error='';
- if(a.session&&a.selected){try{link=parseNoticeLink(params,a.session,a.selected);}catch(e){error=e instanceof Error?e.message:'Bağlantı doğrulanamadı.';}}
+ let target:string|null=null;if(a.session){try{target=noticeContextSwitch(params,a.session,a.selected);}catch(e){error=e instanceof Error?e.message:'Bağlantı doğrulanamadı.';}}
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ useEffect(()=>{if(target)a.choose(target);},[target]);
+ if(!error&&!target&&a.session&&a.selected){try{link=parseNoticeLink(params,a.session,a.selected);}catch(e){error=e instanceof Error?e.message:'Bağlantı doğrulanamadı.';}}
  return <Screen title="Duyurular ve bildirimler" subtitle={a.selected?.propertyName}>{!a.selected||error?<View style={styles.card}><Text accessibilityRole="alert" style={styles.text}>{error||'Önce yetkili mülkünüzü seçin.'}</Text><Link href="/profile" style={s.link}>Hesabım ve mülk seçimi</Link><Link href="/announcements" style={s.link}>Bildirim listesine dön</Link></View>:<NoticePanel key={a.session?.userId+':'+a.selected.propertyId+':'+a.selected.unitId+':'+a.selected.role+':'+(link?JSON.stringify(link):'list')} initial={link}/>}</Screen>;
 }
 function NoticePanel({initial}:{initial:Query|null}){

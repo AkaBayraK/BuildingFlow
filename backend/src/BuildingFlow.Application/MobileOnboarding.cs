@@ -101,7 +101,7 @@ public sealed class MobileOnboardingService(IKeycloakAdmin keycloak, IMobileOnbo
         return await store.LinkAsync(userId, hasher.Hash(code), identity, token);
     }
 
-    private static PersonIdentity Identity(string? first, string? last, string? phone, string? email, bool emailRequired)
+    internal static PersonIdentity Identity(string? first, string? last, string? phone, string? email, bool emailRequired)
     {
         first = first?.Trim(); last = last?.Trim(); email = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
         if (string.IsNullOrEmpty(first) || first.Length > 80 || first.Any(char.IsControl)) Invalid("firstName");

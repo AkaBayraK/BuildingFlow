@@ -26,3 +26,37 @@ export function parseAuthorization(value:unknown):Authorization{
  return{policyVersion:1,snapshotId:r.snapshotId as string,userId,issuedAt,expiresAt,offlineReadOnly:true,people,contexts};
 }
 export function readableOffline(value:Authorization,now:number,lastSeen:number){return Number.isSafeInteger(now)&&Number.isSafeInteger(lastSeen)&&now>=lastSeen&&now>=Date.parse(value.issuedAt)-60000&&now<Date.parse(value.expiresAt);}
+
+export type PortfolioUnit<T>={key:string;unitId:string;unitNumber:string;contexts:T[]};
+export type PortfolioArea<T>={key:string;tenantName:string;propertyName:string;units:PortfolioUnit<T>[]};
+// Unit relations are grouped area → unit; management duties stay a separate workspace list.
+export function portfolioGroups<T extends {canonical?:CanonicalContext}>(contexts:T[]){
+ const areas=new Map<string,PortfolioArea<T>>(),workspaces:T[]=[];
+ for(const item of contexts){const c=item.canonical;if(!c)continue;if(!c.unitId){workspaces.push(item);continue;}
+  const areaKey=c.tenantId+':'+c.propertyId;let area=areas.get(areaKey);if(!area){area={key:areaKey,tenantName:c.tenantName,propertyName:c.propertyName,units:[]};areas.set(areaKey,area);}
+  let unit=area.units.find(u=>u.unitId===c.unitId);if(!unit){unit={key:areaKey+':'+c.unitId,unitId:c.unitId,unitNumber:c.unitNumber??'',contexts:[]};area.units.push(unit);}unit.contexts.push(item);}
+ const order=(a:string,b:string)=>a.localeCompare(b,'tr-TR',{numeric:true});
+ const list=[...areas.values()].sort((a,b)=>order(a.propertyName,b.propertyName));for(const a of list)a.units.sort((x,y)=>order(x.unitNumber,y.unitNumber));
+ return{areas:list,workspaces};
+}
+
+export const unitStatusLabels:Record<string,string>={OWNER_OCCUPIED:'Kendisi oturuyor',RENTED_OUT:'Kiraya verilmiş',OWNER_ONLY:'Boş / kullanılmıyor',TENANT_RESIDENT:'Kiracı, oturuyor',TENANT_NOT_RESIDENT:'Kiracı, oturmuyor',RESIDENT_ONLY:'Sakin'};
+export type ContextAccess={status:string;capabilities:string[]};
+// Only status and capability codes per authorized context are kept; names and other people's data are never stored.
+export function portfolioAccess(value:unknown,allowedKeys:readonly string[]):{fingerprint:string;access:Record<string,ContextAccess>}{
+ const r=obj(value);if(typeof r.fingerprint!=='string'||!/^[0-9a-f]{64}$/.test(r.fingerprint)||!Array.isArray(r.units))bad();const access:Record<string,ContextAccess>={};
+ for(const v of r.units as unknown[]){const u=obj(v);const status=String(u.status);if(!(status in unitStatusLabels)||!Array.isArray(u.capabilities)||!Array.isArray(u.contexts))bad();
+  const caps=(u.capabilities as unknown[]).map(c=>typeof c==='string'&&/^[A-Z_]{3,40}$/.test(c)?c:bad());
+  for(const cv of u.contexts as unknown[]){const key=String(obj(cv).contextKey);if(allowedKeys.includes(key))access[key]={status,capabilities:caps};}}
+ return{fingerprint:r.fingerprint as string,access};
+}
+
+export type UnitSummary={balance:string|null;overdue:string|null;announcements:string[]};
+const money=(v:unknown)=>typeof v==='string'&&/^-?\d{1,12}\.\d{2}$/.test(v)?v:bad();
+// Only totals and announcement titles are kept in memory; a response for another context is rejected.
+export function unitSummary(dues:unknown,announcements:unknown,key:string):UnitSummary{
+ let balance=null,overdue=null,titles:string[]=[];
+ if(dues!==null){const d=obj(dues);if(d.contextKey!==key)bad();const s=obj(d.summary);balance=money(s.balance);overdue=money(s.overdue);}
+ if(announcements!==null){const a=obj(announcements);if(a.contextKey!==key)bad();const rows=obj(a.rows);if(!Array.isArray(rows.items))bad();titles=(rows.items as unknown[]).slice(0,3).map(x=>text(obj(x).title));}
+ return{balance,overdue,announcements:titles};
+}

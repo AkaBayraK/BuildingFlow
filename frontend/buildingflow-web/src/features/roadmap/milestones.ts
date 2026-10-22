@@ -244,10 +244,10 @@ export const milestones: Milestone[] = [
     number: "19", title: "phase19Title", description: "phase19Description",
     tasks: [
       done("phase19Task1", "phase19Task1Detail", "phase19Verification"),
-      done("phase19Task2", "phase19Task2Detail", "phase19Verification"),
+      done("phase19Task2", "phase19Task2Detail", "userPhotoManagementVerification"),
       done("phase19Task3", "phase19Task3Detail", "phase19Verification"),
       done("phase19Task4", "phase19Task4Detail", "phase19Verification"),
-      done("phase19Task5", "phase19Task5Detail", "phase19Verification"),
+      done("phase19Task5", "phase19Task5Detail", "userPhotoManagementVerification"),
       planned("phase19Task6", "phase19Task6Detail"),
     ],
   },

@@ -58,7 +58,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition ConsentRequired = new("BF_CONSENT_REQUIRED", "Fotoğraf eklemek için güncel açık rıza metnini onaylayın.", "warning");
     public static readonly ErrorDefinition ConsentTextOutdated = new("BF_CONSENT_TEXT_OUTDATED", "Rıza metni güncellendi. Güncel metni okuyup yeniden onaylayın.", "warning");
     public static readonly ErrorDefinition ConsentNotWithdrawable = new("BF_CONSENT_NOT_WITHDRAWABLE", "Aydınlatma metni okundu bilgisi geri çekilemez.", "warning");
-    public static readonly ErrorDefinition UserInvalid = new("BF_USER_INVALID", "Kullanıcı adı (küçük harf, 3–50), e-posta, ad ve soyadı kontrol edin.", "error");
+    public static readonly ErrorDefinition UserInvalid = new("BF_USER_INVALID", "Kullanıcı adı (küçük harf, 3–50), e-posta, ad, soyad ve girilmişse cep telefonunu kontrol edin.", "error");
     public static readonly ErrorDefinition UserPasswordWeak = new("BF_USER_PASSWORD_WEAK", "Geçici parola en az 12 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.", "error");
     public static readonly ErrorDefinition UserExists = new("BF_USER_EXISTS", "Bu kullanıcı adı veya e-posta zaten kayıtlı.", "warning");
     public static readonly ErrorDefinition UserRoleForbidden = new("BF_USER_ROLE_FORBIDDEN", "Bu rolü atama yetkiniz yok.", "error");
@@ -185,6 +185,12 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition ErrorsApartmentFloorsOnly = new("BF_ERRORS_APARTMENT_FLOORS_ONLY", "Kat sayısı yalnızca apartman için girilebilir.", "error");
     public static readonly ErrorDefinition ErrorsApartmentPositiveFloors = new("BF_ERRORS_APARTMENT_POSITIVE_FLOORS", "Kat sayısı yalnızca apartman için pozitif olmalı.", "error");
     public static readonly ErrorDefinition ErrorsFloorRequired = new("BF_ERRORS_FLOOR_REQUIRED", "Kat zorunludur; bodrum için negatif değer kullanılabilir.", "error");
+    public static readonly ErrorDefinition PersonDuplicateIdentity = new("BF_PERSON_DUPLICATE_IDENTITY", "Bu kimlik numarasıyla (T.C. kimlik, vergi veya yabancı kimlik/pasaport no) kayıtlı başka bir kişi var. Yeni kişi açmak yerine mevcut kişiyi kullanın.", "warning");
+    public static readonly ErrorDefinition PersonDuplicatePhone = new("BF_PERSON_DUPLICATE_PHONE", "Bu cep telefonu başka bir kişide kayıtlı. Aynı kişiyse mevcut kaydı kullanın; değilse farklı bir numara girin.", "warning");
+    public static readonly ErrorDefinition PersonDuplicateEmail = new("BF_PERSON_DUPLICATE_EMAIL", "Bu e-posta adresi başka bir kişide kayıtlı. Aynı kişiyse mevcut kaydı kullanın; değilse farklı bir adres girin.", "warning");
+    public static readonly ErrorDefinition PersonLinkUnavailable = new("BF_PERSON_LINK_UNAVAILABLE", "Bu kişi için bağlama kodu oluşturulamaz: kişi etkin gerçek kişi olmalı, yetkili alanda güncel ilişkisi veya görevi bulunmalı ve bağlı hesabı olmamalı.", "warning");
+    public static readonly ErrorDefinition LeaseOverlap = new("BF_LEASE_OVERLAP", "Bu bağımsız bölümde aynı dönemde başka bir kira sözleşmesi var. Ortak kiracıyı mevcut sözleşmeye taraf olarak ekleyin.", "warning");
+    public static readonly ErrorDefinition LeasePartyOutside = new("BF_LEASE_PARTY_OUTSIDE", "Kiracı dönemi sözleşme dönemi içinde olmalı; bitirilecek sözleşmenin daha geç biten veya sonra başlayan tarafı olamaz.", "warning");
     public static readonly ErrorDefinition RecordChanged = new("BF_RECORD_CHANGED", "Kayıt değişti. Güncel bilgileri yükleyip yeniden deneyin.", "warning");
     public static readonly ErrorDefinition DuesErrorMoveOutReason = new("BF_DUES_ERROR_MOVE_OUT_REASON", "Kiracı taşınması iptal nedeni kullanılamıyor. Önizlemeyi yenileyin.", "warning");
     public static readonly ErrorDefinition PersonRequired = new("BF_PERSON_REQUIRED", "Kişi seçin.", "error");
@@ -361,6 +367,12 @@ public static class ErrorCatalog
         ErrorsApartmentPositiveFloors,
         ErrorsFloorRequired,
         RecordChanged,
+        PersonDuplicateIdentity,
+        PersonDuplicatePhone,
+        PersonDuplicateEmail,
+        PersonLinkUnavailable,
+        LeaseOverlap,
+        LeasePartyOutside,
         DuesErrorMoveOutReason,
         PersonRequired,
         OccupancyTypeInvalid,

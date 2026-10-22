@@ -82,5 +82,13 @@ public sealed class PersonCenterTests(SiteApiTests.SiteApiFactory factory):IClas
         var unitPath=$"/api/v1/properties/{s.Property}/units/{s.Unit}";Assert.Equal(HttpStatusCode.Conflict,(await c.PutAsJsonAsync(unitPath,new UpdateUnitRequest("1",0,100,false,1))).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict,(await c.PostAsJsonAsync($"/api/v1/properties/{s.Property}/people",new {firstName="Fixture",lastName="New",phoneNumber="+905551234567",email="fixture@example.test",personKind="NATURAL",citizenship="DOMESTIC",countryCode="TR",identityNumber="12345678901"})).StatusCode);
     }
+    [PostgresFact]public async Task ManagerWriteIsVerifiedByActorAccountAndAccountlessActorCannotWrite()
+    {
+        var s=await Seed();using var c=Client(s.User);var created=await Ok<PersonUnitRelationMutation>(await c.PostAsJsonAsync(Root(s)+"/unit-relations",Draft(s,"TENANT")));
+        await factory.WithDb(async db=>{var account=await db.Set<PersonUserAccount>().SingleAsync(a=>a.Subject==s.User);var row=await db.Set<UnitTenancy>().SingleAsync(r=>r.Id==created.Record.Id);
+            Assert.Equal(RelationVerificationStatus.VERIFIED,row.VerificationStatus);Assert.Equal(account.Id,row.VerifiedByAccountId);Assert.NotNull(row.VerifiedAt);Assert.Null(row.EvidenceDocumentId);Assert.Null(row.LeaseContractId);});
+        using var accountless=Client(Guid.NewGuid().ToString(),"SUPER_ADMIN");Assert.Equal(HttpStatusCode.Forbidden,(await accountless.PostAsJsonAsync(Root(s)+"/unit-relations",Draft(s,"RESIDENT"))).StatusCode);
+        await factory.WithDb(async db=>Assert.False(await db.Set<UnitResidency>().AnyAsync(r=>r.PersonId==s.Person)));
+    }
     public void Dispose(){foreach(var child in children)child.Dispose();}
 }

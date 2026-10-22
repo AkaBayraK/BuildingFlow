@@ -1,3 +1,91 @@
+- BF-VERIFY02 kapanışı: #45 Closed(completed)/Project3 Done son okumada doğrulandı;12/12 madde,3/3 resmi adım.
+
+## BF-VERIFY FAZ02 — 22.10.2026
+
+- Eklendi: kapalı varsayılan yeni hesap e-posta politikası ve ortak Keycloak required-action; davette ACCEPTED/UNAVAILABLE/NOT_REQUESTED.
+- Düzeltildi: yönetici/adaptör doğrudan e-posta yazımı bypass'ı; web uyarı ve salt okunur alan,TR/EN.
+- Eklendi: projeye ait commit-sonrası eski adrese bildirim eklentisi, tema metinleri ve mevcut API ile derleme/izole IdP test araçları.
+- Doğrulandı:12 gerçek IdP/SMTP grubu,8 politika,15 JWT/adaptör,20 web,19 mobil;typecheck/build. Canlı değişiklik/paket/migration yok. [Rapor](../refactor/contact-verification/02-report.md).
+
+## BF-MULTI Ek 04 — 22.10.2026
+
+- Eklendi: kişi kayıt/güncellemede kimlik no, cep telefonu ve e-posta mükerrer engeli (v1 alan, v2 müşteri kapsamı); `BF_PERSON_DUPLICATE_IDENTITY|PHONE|EMAIL`.
+- Değişti: eski kişi güncellemesi Property kilidi + transaction; testlerde benzersiz kişi fixture'ları.
+
+## BF-VERIFY FAZ 01 — 22.10.2026 — Ortak iletişim doğrulama altyapısı
+
+- Eklendi:AccountPhoneVerification,ortak ContactVerification DTO/store/API,hesap/mobil GET ve telefon adayı POST;güncel Keycloak e-posta okuması.
+- Bağlandı:eski MobileProfileStore telefon yazımı aynı transaction'da kanıt/aday modeline;isim/fotoğraf/aynı numara korunuyor.
+- Eklendi:20261022142952 migration+Designer+snapshot;veri backfill'i yok,dolu tablo Down reddi.
+- Kanıt:14/14 PostgreSQL/API/migration/şema+6/6 domain ve build geçti;ADR,iki API belgesi ve teslim raporu.
+- Gerçek SMS/e-posta flow/istemci ekranı/canlı ayar henüz eklenmedi;yeni bağımlılık yok.
+- #44 ayrıntılı işlem/kanıt ve12/12 maddeyle completed kapatıldı;Project3 Done son okumayla doğrulandı. Geçici yalnız-kendi test kaynakları temizlendi.
+
+## BF-MULTI FAZ 09 — 22.10.2026
+
+- Mobil `noticeContextSwitch` (bildirim yalnız yetkili bağlama geçer); 09-report geçiş planı ve kabul listesi.
+
+## BF-MULTI FAZ 08 — 22.10.2026
+
+- Eklendi: `/api/v2/me/units/{u}/documents/{id}/download`, `/api/v2/me/finance-summary`; web portal talepler/indirme/toplu özet; mobil seçili daire özeti.
+
+## BF-VERIFY FAZ 00 — 22.10.2026 — Prompt ve görev paketi
+
+- Eklendi:`buildingflow-contact-verification-prompts/` MASTER_PROMPT,PHASES,START_HERE,TASK_REPORT_TEMPLATE ve8 faz promptu.
+- Eklendi:`docs/refactor/contact-verification/00-analysis.md`,32 senaryolu ACCEPTANCE_MATRIX.md;onaylı kapsam ile D1–D4 kararları ayrıldı.
+- Açıldı:GitHub #43–#50 ve Project3 öğeleri;ayrıntılı işlem/test/dosya açıklaması ve eksiksiz kabul sonrası completed/Done kapanış kuralı her görevde.
+- Güncellendi:TESTING ve STATUS/SESSION;uygulama kodu/DB/ayar/bağımlılık/yolharitası tiki değişmedi. Belge doğrulaması geçti;uygulama testleri çalıştırılmadı.
+
+## BF-MULTI FAZ 07 — 22.10.2026
+
+- Mobil SQLite şema 9 `portfolio_cache`, `portfolioAccess`, AuthProvider portföy okuma/önbellek, ekran durum rozeti ve `CREATE_REQUEST` kapısı; testler güncellendi.
+
+## BF-MULTI FAZ 06 — 22.10.2026
+
+- Mobil canonical Portföyüm gruplama, `initialContext`, `portfolioGroups`; test person-portfolio.test.mjs (2).
+
+## BAKIM — 22.10.2026 — Hesap iletişim bilgileri — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** E-posta aslında Hesap bölümündeydi; Kişisel bilgilerde telefonun yanına salt okunur taşındı, kaynak mevcut giriş hesabı. Kullanıcının ek isteğiyle bakım kapsamına yeni kullanıcı cep telefonu da alındı; tek bakım adımı olarak tamamlandı. İsteğe bağlı `CreateUserRequest.Phone`, mevcut ortak MobileProfile'a ilk kayıt olarak ve üyelikle aynı yerel transaction'da kaydediliyor; mevcut profil üzerine yazılmaz. Hesap sahibi web/mobilde okur ve günceller. Keycloak telefon attribute'ı, Person kaydı, PHOTO rızası ve dizin telefon okuma yetkisi açılmadı. **27/27 izole PostgreSQL/S3 fixture entegrasyonu;235/235 FE; typecheck/build PASS.** Gerçek bileşenli fixture1440/375px: readonly e-posta doğru bölümde, telefon girişi/biçimleme ve yatay taşma0; canlı kullanıcı veya gerçek karşılama e-postası işlemi yapılmadı. Yeni paket/entity/migration yok; ilgili contract/security/verify/docs prosedürleri uygulandı. İŞ yol haritası24 kayıt,141/151=%93,38; ürün/UI/BF-MULTI fazı veya görevi tiklenmedi. Başlangıç indeksi/manifest/lock/next-env ve diğer devam eden işler korundu. Engel yok; sonraki kapsam yeni kullanıcı talebidir.
+
+## BF-MULTI FAZ 05 — 22.10.2026
+
+- Eklendi: `/api/v2/me/units/{unitId}/{dues,payments,announcements,documents,leases}` (`MyUnitStore`); web `features/my-portfolio` ve `/workspaces/portfolio`; `myPortfolio` TR/EN; fixture `/fixture-portfolio`.
+- Değişti: OIDC dönüş whitelist'ine `/workspaces/portfolio`; bağlam kabuğu menüsü ve çalışma alanları sayfasına Portföyüm bağlantısı.
+- Testler: MyUnitTests (2), my-portfolio.test.mjs (6).
+
+## BF-MULTI FAZ 04 — 22.10.2026
+
+- Eklendi: `features/person-center` UnitPicker, PersonPicker, PortfolioSection, LeasePanel, AccountLink, Badges, relation-style; fixture `/fixture-people`, `/fixture-person`.
+- Değişti: Kişiler listesi `/api/v2/people` dizini (alan seçimi zorunlu değil); ilişki formu malik/sakin + bağımlı seçim; kiracılık sözleşme üzerinden; sekmeler ikonlu; TR/EN anahtarlar.
+- Testler: person-center.test.mjs +7.
+
+## BF-MULTI FAZ 03 — 22.10.2026
+
+- Eklendi: `POST …/people/{p}/account-link-codes`, `POST …/account-link/end`, `POST /api/v2/me/person-links`, `GET /api/v2/me/portfolio`, `GET /api/v2/me/active-context`; `CentralPersonLinkCode`, `PersonAccountLinkService/Store`, `PortfolioCapabilities`; `BF_PERSON_LINK_UNAVAILABLE`; migration `20261022091337_CentralPersonLinkCodes`.
+- Değişti: oturum bağlamları ve mobil yetki PENDING/REJECTED ilişkileri ve pasif sözleşmeli kiracılığı dışarıda bırakır; `account-status` `codeHint`/`codeExpiresAt`.
+- Testler: MyPortfolioTests (4), PortfolioCapabilitiesTests (2); eski bağlam testlerinin fixture ilişkileri LEGACY (`TestRelations`).
+
+## BF-MULTI FAZ 02 — 22.10.2026
+
+- Eklendi: `GET /api/v2/people`, `…/people/{person}/portfolio`, `…/person-building-choices`, `…/units/{u}/lease-contracts` (GET/POST, parties, attach, end); `LeaseContractStore`, `LeaseContractOperation`; `BF_LEASE_OVERLAP`, `BF_LEASE_PARTY_OUTSIDE`; migration `20261022085436_LeaseContractExclusivityAndOperations`.
+- Değişti: `person-unit-choices` isteğe bağlı `buildingId` ve satırda `buildingId`; `unit-relations` satırında `verificationStatus`, `leaseContractId` (ekleyici).
+- Testler: PersonPortfolioApiTests (6), LeaseContractPersistenceTests +1, LeaseContractTests +1.
+
+## BF-MULTI FAZ 01 — 22.10.2026
+
+- Eklendi: `LeaseContract`, `VerifiableRecord`/`RelationVerificationStatus`, `UnitTenancy.LeaseContractId`, `PersonPortfolio` read model, migration `20261022083050_LeaseContractsAndRelationVerification` (LEGACY backfill, değişmezlik ve sözleşme aralığı trigger'ları, dolu Down reddi).
+- Değişti: Kişi merkezi ilişki yazımı aktör hesabıyla VERIFIED kaydeder, hesapsız aktöre 403; person-transition aktarımı LEGACY yazar.
+- Testler: LeaseContractTests, PersonPortfolioTests, LeaseContractPersistenceTests, PersonCenterTests +1.
+
+## BAKIM — 22.10.2026 — Üst ve alt menü oval köşeleri — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** Ortak workspace-header/footer masaüstünde18px,≤650px ekranlarda16px oval köşeli; küçük dış boşluk ve semantik tema sınırı. Menü açılır panelleri kırpılmıyor; radius için overflow:hidden eklenmedi. Yalnız globals.css sunumu değişti; auth/API/kayıt/menü davranışı değişmedi. **221/221 FE, typecheck ve build geçti;1440/320/390px CUA fixture: hesap ve gizlilik menüsü açılıyor, yatay taşma yok, browser error/warn0.** Yeni test, bağımlılık, font/ikon/görsel paketi yok. Backend/mobil testleri bu CSS turunda çalıştırılmadı. Kaynak planlar frontend/buildingflow-ui-plan/MASTER_PROMPT.md ve PHASES.md okundu; tarihsel analiz adımı yeniden başlatılmadı. Mevcut frontendShellAndLogo sunum görevinin ek kanıtıdır; ürün/UI fazı veya görev tiki değiştirilmedi. İŞ planı 24 kayıt, 141/151 = %93,38. Git indeksi/manifest/lock/next-env ve önceki kullanıcı farkları korundu. Engel yok; sonraki kapsam yeni kullanıcı talebidir.
+
+## BAKIM — 22.10.2026 — Yetkili kullanıcı fotoğrafı — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** Kullanıcının açık onayıyla yetkili yöneticinin diğer hesaplara fotoğraf ekle/değiştir/kaldır eylemi; hedef sahibinin güncel PROFILE_PHOTO rızası, mevcut rol/üyelik sınırı, ortak mobil/web pointer/version, actor+target UUID replay, JPEG256KiB/40MP kaynak sınırı ve metadata temizliği korunur. İlk fotoğrafta mevcut dizinden geçerli ad/soyad, mevcut profilde alan koruması. Yeni paket/tablo/migration yok. **24/24 gerçek izole PostgreSQL/özel test bucket entegrasyonu;221/221 FE, typecheck/build; masaüstü/dar ekran fixture+odak/rıza/kaldır kanıtı.** Canlı Keycloak/telefon kabulü çalıştırılmadı. [Dosyalar,komutlar,görseller ve koruma raporu](../navigation-refactor/USER_PHOTO_EVIDENCE.md). İŞ yol haritası24 kayıt,141/151=%93,38; mevcut İŞ19 kanıtı bağlandı, yeni görev/faz tiki yok. Engel yok; sonraki kapsam kullanıcı talebidir.
+
 ## BAKIM — 21.10.2026 — Anket sekmelerine ikon ve kalıcı ikon kuralı — TAMAMLANDI
 
 **Anketler durum sekmeleri ikonlu:** Tümü LayoutGrid, Taslak FilePen, Planlandı CalendarClock, Aktif CirclePlay, Tamamlanan CircleCheckBig, Süresi Dolan TimerOff (mevcut lucide-react; yeni paket yok). Aynı ikonlar tablo/kart durum rozetlerinde de gösterilir (`features/surveys/category-style.ts` `stateIcon`). Ortak `FilterChips` türünde `icon` artık zorunlu; ikonsuz çip typecheck'ten geçmez. Kullanıcı kararı AGENTS.md ve frontend-rules.md'ye kalıcı kural olarak yazıldı: sekme, filtre çipi, durum, tür ve kategori seçimleri her zaman ikonludur.
@@ -807,3 +895,4 @@ FAZ09 kullanıcı kabulüyle #14 Done; mevcut #15 In review. **Mobil npm audit29
 Gerçek runtime özel konfigürasyonu ignore olmasına rağmen HEAD/indexte takipliydi. Disk dosyası ve .env byte'ları korunarak yalnız Git indeksinden çıkarıldı (bilinçli staged deletion). Eski erişim bilgilerini yenileme, geçmiş/klon incelemesi ve düzeltmenin commit'e alınması açık; commit/push/geçmiş değişimi/rotasyon yapılmadı. Dört private runtime yolunun ignored+untracked gate'i ve3regresyon fixture CI'ye eklendi. Mobil high audit gate'i de CI'ye eklendi; bugün exit1 ile kapatır, bulgu bastırılmaz.
 
 **364/364 seçili izole PG/storage integration,244/244unit,126/126mobil,6/6telemetri,23/23seçiliweb;0fail/skip.** Typecheck/lint/mobil export, .NET0hata0uyarı, yeni3fixture, mevcut6CIgate/29unsafe release reddi, shell/diff PASS. Testlerin geçmesi güvenli yayın sonucu değildir. Native MASVS, biyometrinin gerçek anahtara kriptografik bağı, OS/picker/modal/background/screenshot ve artifact lisans doğrulaması açık. Bu faz uygulama/migration/paket sürümü değiştirmedi; shared checkout'taki eşzamanlı WEBSITE kod/model değişimleri korunur. Teknik6/6=%100 çalışma teslimi; kabul edilmiş önceki9/11=%81,82. FAZ11 başlamadı; diğer İŞ/UI/MOBİL sayaçları değişmedi. [Rapor](../refactor/person/phase-10-report.md), [redacted kanıt](../refactor/person/phase-10-evidence.json).
+- 22.10.2026 BAKIM: Kişiler ekranındaki tek seferlik "Eski kişi kayıtlarını aktar" paneli ve TR/EN metinleri kaldırıldı; yerel transition bayrağı kapatıldı.

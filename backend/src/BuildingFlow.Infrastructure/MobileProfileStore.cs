@@ -100,6 +100,7 @@ public sealed class MobileProfileStore(BuildingFlowDbContext db,IMobileSessionSt
     staged.Current();photoId=staged.Id;
    }
   }
+  if(!photoOnly)await ContactVerificationStore.ObserveProfileChangeAsync(db,user,p.Phone,phone,token);
   if(photoOnly && !creating)p.SetPhoto(photoId);else p.Edit(canonical.FirstName,canonical.LastName,phone,photoId);
   if(db.Entry(p).State!=EntityState.Added)db.Entry(p).State=EntityState.Modified;
   await db.SaveChangesAsync(token);

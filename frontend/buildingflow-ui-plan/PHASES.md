@@ -22,3 +22,5 @@ Her aşama için kabul kriterleri: mevcut fonksiyonlar korunur; yeni UI tutarlı
 - [x] **23 frontend testi, typecheck/build ve 312 sürüm lisans kontrolü geçti; kullanıcı kayıtları/backend/DB sözleşmesi değiştirilmedi.**
 
 Kanıt ve sınırlamalar: [TESTING.md](../../docs/TESTING.md), [UI06 uygulama raporu](../../docs/analysis/UI_STAGE06_REPORT.md). Bu görsel aşama iş yol haritasındaki 06 ödeme/tahsilat değildir. Önceki UI 02–05 başlıkları bu teslimle tamamlanmış sayılmaz; UI 07 için yeni kullanıcı onayı gerekir.
+
+22.10.2026 BAKIM: ortak üst/alt menü oval köşeleri ve responsive boşlukları doğrulandı; UI03/Shell sunum kanıtı, yeni faz onayı/tiki değildir. [Kanıt](../../docs/navigation-refactor/ROUNDED_MENUS.md).

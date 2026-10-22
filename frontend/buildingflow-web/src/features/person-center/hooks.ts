@@ -19,7 +19,7 @@ export function useCenterMutation(onDone:()=>void){
   if(lock.current)return;lock.current=true;setBusy(true);setError("");setFields({});setConflict(false);
   attempt.current=submissionKey(attempt.current,JSON.stringify({path,method,payload}),()=>crypto.randomUUID());controller.current=new AbortController();
   try{const result=parse(await api<unknown>(path,{method,body:JSON.stringify({...payload,operationId:attempt.current.id}),signal:controller.current.signal}));if(!controller.current.signal.aborted){setAmbiguous(false);onDone();}return result;}
-  catch(e){if(!controller.current.signal.aborted){setError(errorMessage(e,locale));setFields(e instanceof ApiError?e.errors:{});setConflict(e instanceof ApiError&&e.status===409);setAmbiguous(!(e instanceof ApiError)||e.status>=500);}}
+  catch(e){if(!controller.current.signal.aborted){setError(errorMessage(e,locale));setFields(e instanceof ApiError?e.errors:{});setConflict(e instanceof ApiError&&e.status===409&&!e.feedback?.code?.startsWith("BF_PERSON_DUPLICATE_"));setAmbiguous(!(e instanceof ApiError)||e.status>=500);}}
   finally{lock.current=false;if(!controller.current?.signal.aborted)setBusy(false);}
  }
  return{submit,busy,error,fields,conflict,ambiguous,reset};

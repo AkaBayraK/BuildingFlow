@@ -34,7 +34,7 @@ public sealed class MobileAuthorizationTests(SiteApiTests.SiteApiFactory factory
     }
     [PostgresTheory][InlineData(false)][InlineData(true)]public async Task ResidentLeaseIsAtMost24HoursAndNeverPassesInclusiveEndDay(bool endsToday)
     {
-        var s=await Seed();var relation=new UnitResidency(s.Tenant,s.Property,s.Unit,s.Person,Today,endsToday?Today:null);await factory.WithDb(async db=>{db.Add(relation);await db.SaveChangesAsync();});using var c=Client(s.User,"RESIDENT");var value=await Ok(await c.GetAsync(Root));Assert.Equal(endsToday?new DateTimeOffset(2026,10,18,21,0,0,TimeSpan.Zero):Now.AddHours(24),value.ExpiresAt);Assert.False(Assert.Single(value.Contexts).CanManageFinance);
+        var s=await Seed();var relation=TestRelations.Effective(new UnitResidency(s.Tenant,s.Property,s.Unit,s.Person,Today,endsToday?Today:null));await factory.WithDb(async db=>{db.Add(relation);await db.SaveChangesAsync();});using var c=Client(s.User,"RESIDENT");var value=await Ok(await c.GetAsync(Root));Assert.Equal(endsToday?new DateTimeOffset(2026,10,18,21,0,0,TimeSpan.Zero):Now.AddHours(24),value.ExpiresAt);Assert.False(Assert.Single(value.Contexts).CanManageFinance);
     }
     [PostgresFact]public async Task NextOnlineSnapshotRemovesRevokedDutyAndItsPersonProjection()
     {
@@ -42,7 +42,7 @@ public sealed class MobileAuthorizationTests(SiteApiTests.SiteApiFactory factory
     }
     [PostgresFact]public async Task ForeignAccountDoesNotReceiveAnotherPersonsTenantOrIdentity()
     {
-        var s=await Seed();await factory.WithDb(async db=>{db.Add(new UnitOwnership(s.Tenant,s.Property,s.Unit,s.Person,Today));await db.SaveChangesAsync();});using var foreign=Client(Guid.NewGuid().ToString(),"OWNER");var value=await Ok(await foreign.GetAsync(Root));Assert.Empty(value.Contexts);Assert.Empty(value.People);
+        var s=await Seed();await factory.WithDb(async db=>{db.Add(TestRelations.Effective(new UnitOwnership(s.Tenant,s.Property,s.Unit,s.Person,Today)));await db.SaveChangesAsync();});using var foreign=Client(Guid.NewGuid().ToString(),"OWNER");var value=await Ok(await foreign.GetAsync(Root));Assert.Empty(value.Contexts);Assert.Empty(value.People);
     }
     [PostgresFact]public async Task AnonymousAndDisabledGatesCannotFetchSnapshots()
     {

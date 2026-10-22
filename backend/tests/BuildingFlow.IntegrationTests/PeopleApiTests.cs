@@ -30,9 +30,12 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         await factory.WithDb(async db => { db.Add(property); db.Add(new PropertyMembership(property.Id, actor)); await db.SaveChangesAsync(); });
         return (actor, property, unit);
     }
+    private static int sequence;
     private static async Task<PersonResponse> Person(HttpClient client, Guid property, string first = "Ada")
     {
-        var response = await client.PostAsJsonAsync(Root(property) + "/people", new CreatePersonRequest(first, "Kaya", "+90 555 123", "ada@example.test", "NATURAL", "DOMESTIC", "TR", "12345678901"));
+        // Each fixture person gets its own identity and e-mail: duplicates inside a Property are rejected by design.
+        var n = Interlocked.Increment(ref sequence);
+        var response = await client.PostAsJsonAsync(Root(property) + "/people", new CreatePersonRequest(first, "Kaya", $"+90555{n:0000000}", $"ada{n}@example.test", "NATURAL", "DOMESTIC", "TR", TestRelations.Tc(9000 + n)));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode); return (await response.Content.ReadFromJsonAsync<PersonResponse>())!;
     }
     private static CreateOccupancyRequest Link(PersonResponse person, Unit unit, string role = "OWNER", bool primary = false, DateOnly? end = null) => new(person.Id, unit.Id, role, Today.AddDays(-10), end, primary);
@@ -162,5 +165,20 @@ public sealed class PeopleApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         });
         var response=await client.PostAsJsonAsync(Root(x.Property.Id)+"/occupancies",Link(p,x.Unit)); var link=(await response.Content.ReadFromJsonAsync<OccupancyResponse>())!;
         await factory.WithDb(async db => { await Assert.ThrowsAsync<Npgsql.PostgresException>(()=>db.Database.ExecuteSqlInterpolatedAsync($"UPDATE unit_occupancies SET end_date={Today.AddDays(-20)} WHERE id={link.Id}")); });
+    }
+}
+
+public sealed class LegacyPersonDuplicateTests(SiteApiTests.SiteApiFactory factory):IClassFixture<SiteApiTests.SiteApiFactory>
+{
+    [PostgresFact]public async Task SameIdentityPhoneOrEmailInOnePropertyIsRejectedButAnotherPropertyIsFree()
+    {
+        var actor=Guid.NewGuid().ToString();var a=new Property("Dup A","City","District","Address");var b=new Property("Dup B","City","District","Address");
+        await factory.WithDb(async db=>{db.AddRange(a,b,new PropertyMembership(a.Id,actor),new PropertyMembership(b.Id,actor));await db.SaveChangesAsync();});
+        using var client=TestToken.Client(factory,actor,"SUPER_ADMIN");
+        var first=new CreatePersonRequest("Ada","Kaya","+905551112233","ada@example.test","NATURAL","DOMESTIC","TR","10000000146");
+        Assert.Equal(HttpStatusCode.Created,(await client.PostAsJsonAsync($"/api/v1/properties/{a.Id}/people",first)).StatusCode);
+        foreach(var (request,code) in new[]{(first with{FirstName="Başka",PhoneNumber="+905552223344",Email="baska@example.test"},"BF_PERSON_DUPLICATE_IDENTITY"),(first with{IdentityNumber=TestRelations.Tc(7002),PhoneNumber="0555 111 22 33",Email="x@example.test"},"BF_PERSON_DUPLICATE_PHONE"),(first with{IdentityNumber=TestRelations.Tc(7002),PhoneNumber="+905553334455",Email="ADA@example.test"},"BF_PERSON_DUPLICATE_EMAIL")})
+        {var response=await client.PostAsJsonAsync($"/api/v1/properties/{a.Id}/people",request);Assert.Equal(HttpStatusCode.Conflict,response.StatusCode);var json=await response.Content.ReadAsStringAsync();Assert.Contains(code,json);Assert.DoesNotContain("Kaya",json);}
+        Assert.Equal(HttpStatusCode.Created,(await client.PostAsJsonAsync($"/api/v1/properties/{b.Id}/people",first)).StatusCode);
     }
 }

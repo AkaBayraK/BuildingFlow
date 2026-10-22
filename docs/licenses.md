@@ -153,3 +153,8 @@ Kullanıcı MET Norway bağlantısını lisans koşulları korunarak açıkça o
 Uygulamada MET Norway kaynak bağlantısı ve CC BY4 bağlantısı görünür; seçilen zaman dilimi/tek ondalığa yuvarlama açıklaması eklenmiştir. Provider ikonları, fotoğrafları veya kodu kopyalanmaz: mevcut lucide ikonları ve platform HTTP istemcisi kullanılır. Yeni npm/NuGet paketi, font veya harici görsel yoktur. Paket envanteri bu nedenle değişmez; paket kurulumu/restore yapılmadı. Bu onay yalnız hava verisi bağlantısı içindir; genel “yeni lisans yükü yok” politikası kaldırılmadı.
 
 API istekleri sunucudan sabit şehir merkezi koordinatlarına yapılır. BuildingFlow/1.0 uygulama kimliği kullanılır; Weather:ContactUrl yapılandırılırsa gerçek HTTPS iletişim bağlantısı User-Agent'a eklenebilir (hayali adres eklenmez). Expires/Last-Modified/If-Modified-Since, Retry-After ve şehir başına tek istek/cache korunur. Veri lisansı ile servis kullanım şartları birbirinin yerine geçirilmez. [Uygulama/kanıt](navigation-refactor/DASHBOARD_WEATHER.md).
+
+
+## BF-VERIFY02 — 22.10.2026
+
+Projeye ait ContactNoticeFactory Java kaynağı ve e-posta metinleri yazıldı; harici kaynak kopyalanmadı. Derleme mevcut Keycloak26.7.5 API jar'larını yalnız classpath'te kullanır; çıktı yalnız projenin sınıfları/service kaydıdır, üçüncü taraf jar içermez. Yeni JDK/paket/SDK/imaj/sürüm eklenmedi; mevcut JDK, Keycloak26.7.5 ve Mailpit1.27.10 kullanıldı. Tema LICENSE/NOTICE korundu; manifest/lock/project farkı yok. Restore/install yapılmadığı için metadata envanteri yeniden üretilmedi. Yeni bir açık kaynak lisansı projeye atanmadı; üretim binary/NOTICE dağıtım denetimi FAZ07 kapsamındadır.

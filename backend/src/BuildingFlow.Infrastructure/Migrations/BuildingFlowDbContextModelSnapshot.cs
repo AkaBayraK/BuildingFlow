@@ -23,6 +23,88 @@ namespace BuildingFlow.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BuildingFlow.Domain.AccountPhoneVerification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("PendingKey")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("pending_key");
+
+                    b.Property<string>("PendingPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("pending_phone");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<string>("VerifiedKey")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("verified_key");
+
+                    b.Property<string>("VerifiedPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("verified_phone");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId")
+                        .IsUnique();
+
+                    b.ToTable("account_phone_verifications", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_account_phone_pending", "(pending_phone IS NULL) = (pending_key IS NULL)");
+
+                            t.HasCheckConstraint("ck_account_phone_proof", "(verified_phone IS NULL) = (verified_key IS NULL) AND (verified_key IS NULL) = (verified_at IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -475,6 +557,105 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.ToTable("person_account_links", null, t =>
                         {
                             t.HasCheckConstraint("ck_person_link_dates", "ended_at IS NULL OR ended_at>=linked_at");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CentralPersonLinkCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("code_hash");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("Hint")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("hint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid>("IssuedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("issued_by_account_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid?>("UsedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("used_by_account_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodeHash")
+                        .IsUnique()
+                        .HasFilter("is_deleted=false AND used_at IS NULL AND revoked_at IS NULL");
+
+                    b.HasIndex("IssuedByAccountId");
+
+                    b.HasIndex("UsedByAccountId");
+
+                    b.HasIndex("TenantId", "PersonId")
+                        .IsUnique()
+                        .HasFilter("is_deleted=false AND used_at IS NULL AND revoked_at IS NULL");
+
+                    b.ToTable("person_link_codes", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_person_link_codes_state", "length(code_hash)=64 AND length(hint)=2 AND NOT (used_at IS NOT NULL AND revoked_at IS NOT NULL) AND (used_at IS NULL) = (used_by_account_id IS NULL)");
                         });
                 });
 
@@ -1361,6 +1542,208 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_expenses_history", "is_deleted = false AND is_enabled = true");
 
                             t.HasCheckConstraint("ck_expenses_values", "amount > 0 AND currency = 'TRY' AND occurred_date >= DATE '2000-01-01' AND category IN ('MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER') AND length(trim(description)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LeaseContract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContractReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("contract_reference");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<Guid?>("EvidenceDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evidence_document_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("verification_status");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_account_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VerifiedByAccountId");
+
+                    b.HasIndex("PropertyId", "EvidenceDocumentId");
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.HasIndex("TenantId", "PropertyId", "UnitId", "StartDate");
+
+                    b.ToTable("lease_contracts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_lease_contracts_dates", "start_date > DATE '0001-01-01' AND (end_date IS NULL OR end_date>=start_date)");
+
+                            t.HasCheckConstraint("ck_lease_contracts_reference", "contract_reference IS NULL OR length(trim(contract_reference)) > 0");
+
+                            t.HasCheckConstraint("ck_lease_contracts_verification", "(verification_status IN ('LEGACY','PENDING') AND verified_by_account_id IS NULL AND verified_at IS NULL) OR (verification_status IN ('VERIFIED','REJECTED') AND verified_by_account_id IS NOT NULL AND verified_at IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LeaseContractOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("ActorIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("actor_issuer");
+
+                    b.Property<string>("ActorSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_subject");
+
+                    b.Property<long>("AppliedVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("applied_version");
+
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contract_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "ActorIssuer", "ActorSubject", "OperationId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "PropertyId", "UnitId", "ContractId");
+
+                    b.ToTable("lease_contract_operations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_lease_contract_operation", "action IN ('CREATE','ADD_PARTY','ATTACH','END') AND applied_version>0 AND length(fingerprint)=64");
                         });
                 });
 
@@ -5806,6 +6189,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 
+                    b.Property<Guid?>("EvidenceDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evidence_document_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -5856,12 +6243,30 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("unit_id");
 
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("verification_status");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_account_id");
+
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint")
                         .HasColumnName("version");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("VerifiedByAccountId");
+
+                    b.HasIndex("PropertyId", "EvidenceDocumentId");
 
                     b.HasIndex("PropertyId", "UnitId");
 
@@ -5876,6 +6281,8 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_ownership_share", "(share_numerator IS NULL AND share_denominator IS NULL) OR (share_numerator IS NOT NULL AND share_denominator IS NOT NULL AND share_numerator>0 AND share_denominator>0 AND share_numerator<=share_denominator)");
 
                             t.HasCheckConstraint("ck_unit_ownerships_dates", "start_date > DATE '0001-01-01' AND (end_date IS NULL OR end_date>=start_date)");
+
+                            t.HasCheckConstraint("ck_unit_ownerships_verification", "(verification_status IN ('LEGACY','PENDING') AND verified_by_account_id IS NULL AND verified_at IS NULL) OR (verification_status IN ('VERIFIED','REJECTED') AND verified_by_account_id IS NOT NULL AND verified_at IS NOT NULL)");
                         });
                 });
 
@@ -5899,6 +6306,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 
+                    b.Property<Guid?>("EvidenceDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evidence_document_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -5941,12 +6352,30 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("unit_id");
 
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("verification_status");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_account_id");
+
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint")
                         .HasColumnName("version");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("VerifiedByAccountId");
+
+                    b.HasIndex("PropertyId", "EvidenceDocumentId");
 
                     b.HasIndex("PropertyId", "UnitId");
 
@@ -5959,6 +6388,8 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.ToTable("unit_residencies", null, t =>
                         {
                             t.HasCheckConstraint("ck_unit_residencies_dates", "start_date > DATE '0001-01-01' AND (end_date IS NULL OR end_date>=start_date)");
+
+                            t.HasCheckConstraint("ck_unit_residencies_verification", "(verification_status IN ('LEGACY','PENDING') AND verified_by_account_id IS NULL AND verified_at IS NULL) OR (verification_status IN ('VERIFIED','REJECTED') AND verified_by_account_id IS NOT NULL AND verified_at IS NOT NULL)");
                         });
                 });
 
@@ -5982,6 +6413,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 
+                    b.Property<Guid?>("EvidenceDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evidence_document_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -5993,6 +6428,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsPrimaryContact")
                         .HasColumnType("boolean")
                         .HasColumnName("is_primary_contact");
+
+                    b.Property<Guid?>("LeaseContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lease_contract_id");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -6024,6 +6463,20 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("unit_id");
 
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("verification_status");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_account_id");
+
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint")
@@ -6031,9 +6484,15 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("VerifiedByAccountId");
+
+                    b.HasIndex("PropertyId", "EvidenceDocumentId");
+
                     b.HasIndex("PropertyId", "UnitId");
 
                     b.HasIndex("TenantId", "PersonId");
+
+                    b.HasIndex("TenantId", "PropertyId", "UnitId", "LeaseContractId");
 
                     b.HasIndex("TenantId", "PropertyId", "UnitId", "PersonId")
                         .IsUnique()
@@ -6042,6 +6501,8 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.ToTable("unit_tenancies", null, t =>
                         {
                             t.HasCheckConstraint("ck_unit_tenancies_dates", "start_date > DATE '0001-01-01' AND (end_date IS NULL OR end_date>=start_date)");
+
+                            t.HasCheckConstraint("ck_unit_tenancies_verification", "(verification_status IN ('LEGACY','PENDING') AND verified_by_account_id IS NULL AND verified_at IS NULL) OR (verification_status IN ('VERIFIED','REJECTED') AND verified_by_account_id IS NOT NULL AND verified_at IS NOT NULL)");
                         });
                 });
 
@@ -7021,6 +7482,27 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.CentralPersonLinkCode", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("IssuedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UsedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.CentralPerson", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PersonId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.CentralPersonOperation", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.CentralPerson", null)
@@ -7106,6 +7588,44 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasOne("BuildingFlow.Domain.Property", null)
                         .WithMany()
                         .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LeaseContract", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("VerifiedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "EvidenceDocumentId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.PersonPropertyScope", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PropertyId")
+                        .HasPrincipalKey("TenantId", "PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LeaseContractOperation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.LeaseContract", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PropertyId", "UnitId", "ContractId")
+                        .HasPrincipalKey("TenantId", "PropertyId", "UnitId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -7673,6 +8193,17 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.UnitOwnership", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("VerifiedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "EvidenceDocumentId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.Unit", null)
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId")
@@ -7697,6 +8228,17 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.UnitResidency", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("VerifiedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "EvidenceDocumentId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.Unit", null)
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId")
@@ -7721,6 +8263,17 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.UnitTenancy", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("VerifiedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "EvidenceDocumentId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.Unit", null)
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId")
@@ -7741,6 +8294,12 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasPrincipalKey("TenantId", "PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.LeaseContract", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PropertyId", "UnitId", "LeaseContractId")
+                        .HasPrincipalKey("TenantId", "PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.UserConsent", b =>

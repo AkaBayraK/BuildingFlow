@@ -31,3 +31,6 @@ export const roleLabels: Record<Role, string> = { SUPER_ADMIN: 'Yönetici', SITE
 export function sessionFromAuthorization(value:unknown):Session {const authorization=parseAuthorization(value);return{userId:authorization.userId,username:null,hasMore:false,authorization,contexts:authorization.contexts.map(c=>({propertyId:c.propertyId,propertyName:c.propertyName,unitId:c.unitId,unitNumber:c.unitNumber,role:c.role,canonical:c}))};}
 
 export function sameContextModel(session:Session,key:string){const canonical=['PLATFORM','MANAGEMENT','OWNER','TENANT','RESIDENT'].includes(key.split(':')[1]);return !!session.authorization===canonical;}
+
+// Canonical mode never guesses among several units: only a remembered or the single available context opens by itself.
+export function initialContext(contexts:Context[],remembered:string|null,canonical:boolean):Context|null{return contexts.find(c=>contextKey(c)===remembered)??(canonical?(contexts.length===1?contexts[0]:null):contexts[0]??null);}

@@ -22,8 +22,8 @@ import {personName,type Person} from "@/features/people/types";
 import {EntityEditor} from "@/features/hierarchy/EntityEditor";
 import {UserPhotoDialog} from "./UserPhotoDialog";
 import {AccountAvatar} from "@/components/AccountAvatar";
-import {EmailInput} from "@/components/forms/ContactInputs";
-import {normalizeEmail,validEmail} from "@/lib/contact";
+import {EmailInput,PhoneInput} from "@/components/forms/ContactInputs";
+import {formatPhone,validPhone,normalizeEmail,validEmail} from "@/lib/contact";
 import {readUser,readUserPage,displayName,validUsername,strongPassword,allRoles,siteRoles,type ManagedUser,type UserPage,type Role} from "./model";
 
 function useSaving(){const lock=useRef(false);const [busy,setBusy]=useState(false);
@@ -82,22 +82,27 @@ function UserDialog({user,superAdmin,properties,onClose,onSaved}:{user:ManagedUs
  const t=useTranslations("users"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification();const {busy,run}=useSaving();
  const assignable:readonly Role[]=superAdmin?allRoles:siteRoles;
  const [username,setUsername]=useState(user?.username??""),[email,setEmail]=useState(user?.email??""),[firstName,setFirstName]=useState(user?.firstName??""),[lastName,setLastName]=useState(user?.lastName??""),[enabled,setEnabled]=useState(user?.enabled??true);
+ const [phone,setPhone]=useState("");
  const [roles,setRoles]=useState<Role[]>(user?.roles.filter(r=>assignable.includes(r))??["RESIDENT"]),[property,setProperty]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState("");
  function toggle(role:Role){setRoles(current=>current.includes(role)?current.filter(r=>r!==role):[...current,role]);}
  function save(e:React.FormEvent){e.preventDefault();setError("");
   if(!user&&!validUsername(username.trim().toLowerCase())||!validEmail(email)||!firstName.trim()||!lastName.trim()){setError(t("invalid"));return;}
+  if(!user&&phone.trim()&&!validPhone(phone)){setError(ui("phoneFieldInvalid"));return;}
+  if(!user&&phone.trim()&&(firstName.trim().length>80||lastName.trim().length>80)){setError(t("phoneProfileNames"));return;}
   if(!user&&!superAdmin&&!property){setError(t("propertyRequired"));return;}
   if(!user&&password&&!strongPassword(password)){setError(t("passwordWeak"));return;}
   void run(async()=>{try{
-   const names=normalizedName(firstName,lastName);const body=user?{email:normalizeEmail(email),...names,enabled,roles}:{username:username.trim().toLowerCase(),email:normalizeEmail(email),...names,enabled,roles,propertyId:property||null,temporaryPassword:password||null};
-   readUser(await api(user?`/api/v1/users/${encodeURIComponent(user.id)}`:"/api/v1/users",{method:user?"PUT":"POST",body:JSON.stringify(body)}));
-   notice.success(t(user?"saved":password?"createdWithPassword":"createdWithEmail"));onSaved();onClose();
+   const names=normalizedName(firstName,lastName);const body=user?{email:normalizeEmail(email),...names,enabled,roles}:{username:username.trim().toLowerCase(),email:normalizeEmail(email),...names,enabled,roles,propertyId:property||null,temporaryPassword:password||null,phone:formatPhone(phone)||null};
+   const saved=readUser(await api(user?`/api/v1/users/${encodeURIComponent(user.id)}`:"/api/v1/users",{method:user?"PUT":"POST",body:JSON.stringify(body)}));
+   if(!user&&saved.invitationStatus==="UNAVAILABLE")notice.warning(t("createdInviteUnavailable"));
+   else notice.success(t(user?"saved":saved.invitationStatus==="ACCEPTED"?"createdInviteAccepted":password?"createdWithPassword":"createdWithEmail"));onSaved();onClose();
   }catch(reason){setError(errorMessage(reason,locale));}});}
  return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy}><DialogHeader><DialogTitle>{user?t("editUser",{name:user.username}):t("newUser")}</DialogTitle><DialogDescription>{t(user?"editHelp":"createHelp")}</DialogDescription></DialogHeader>
   <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4">{error&&<MessageBanner>{error}</MessageBanner>}
    <Label htmlFor="user-username">{t("username")} *</Label><Input id="user-username" autoComplete="off" disabled={!!user} maxLength={50} value={username} onChange={e=>setUsername(e.target.value)} aria-describedby="user-username-help"/><p id="user-username-help" className="text-xs text-muted-foreground">{t("usernameHelp")}</p>
-   <Label htmlFor="user-email">{t("email")} *</Label><EmailInput id="user-email" autoComplete="off" required hint value={email} onValueChange={setEmail}/>
+   <Label htmlFor="user-email">{t("email")} *</Label><EmailInput id="user-email" autoComplete="off" required hint readOnly={user?.canEditEmail===false} value={email} onValueChange={setEmail}/>{user?.canEditEmail===false&&<p className="text-xs text-muted-foreground">{t("emailOwnerChangeHelp")}</p>}
    <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="user-first">{t("firstName")} *</Label><Input id="user-first" maxLength={100} value={firstName} onChange={e=>setFirstName(e.target.value)}/></div><div className="space-y-2"><Label htmlFor="user-last">{t("lastName")} *</Label><Input id="user-last" maxLength={100} value={lastName} onChange={e=>setLastName(e.target.value)}/></div></div>
+   {!user&&<div className="space-y-2"><Label htmlFor="user-phone">{t("phone")}</Label><PhoneInput id="user-phone" value={phone} onValueChange={setPhone} describedBy="user-phone-help"/><p id="user-phone-help" className="text-xs text-muted-foreground">{t("phoneCreateHelp")}</p></div>}
    <fieldset className="space-y-2"><legend className="text-sm font-medium">{t("roles")}</legend><div className="flex flex-wrap gap-3">{assignable.map(role=><label key={role} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={roles.includes(role)} onChange={()=>toggle(role)}/>{t(`role_${role}`)}</label>)}</div>{user&&user.roles.some(r=>!assignable.includes(r))&&<p className="text-xs text-muted-foreground">{t("otherRolesKept")}</p>}</fieldset>
    {!user&&<><Label htmlFor="user-property">{t("property")}{superAdmin?"":" *"}</Label><select id="user-property" className={toolbarSelectClass+" w-full"} value={property} onChange={e=>setProperty(e.target.value)}><option value="">{t(superAdmin?"noProperty":"chooseProperty")}</option>{properties.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>
     <Label htmlFor="user-password">{t("temporaryPassword")}</Label><Input id="user-password" type="password" autoComplete="new-password" maxLength={128} value={password} onChange={e=>setPassword(e.target.value)} aria-describedby="user-password-help"/><p id="user-password-help" className="text-xs text-muted-foreground">{t("temporaryPasswordHelp")}</p></>}

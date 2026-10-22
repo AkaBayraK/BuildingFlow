@@ -59,3 +59,8 @@ LegacyPersonMap ile bağlı import kişileri henüz legacy yazım kaynağını i
 
 ## FAZ05 yönetim görevi —17.10.2026
 Tenant bazında açıkça ENFORCED seçilmişse merkezi kişi yönetimi gerçek rol/aktif üyelik yanında en az bir yetkili Property'de güncel SITE_ADMIN/MANAGER görevi ister. ACCOUNTANT kişi yetkisi kazanmaz; self-read readonly kalır. Aktif/gelecek görevi olan kişi pasife/LEGAL'e çevrilemez. Legacy/SHADOW varsayılan erişimi korur. [Yönetim görevlendirmeleri](management-assignments.md).
+
+
+## Mükerrer kişi engeli (22.10.2026)
+
+Aynı müşteride aynı tür+uyruk+ülke+kimlik no (silinmemiş), aynı normalize cep telefonu veya küçük harf e-posta (etkin kişiler) ile oluşturma/güncelleme 409: `BF_PERSON_DUPLICATE_IDENTITY`, `BF_PERSON_DUPLICATE_PHONE`, `BF_PERSON_DUPLICATE_EMAIL`. Yanıt diğer kişiyi açıklamaz. Ayrıntı [ek-04](../refactor/multi-property/ek-04-duplicates.md).

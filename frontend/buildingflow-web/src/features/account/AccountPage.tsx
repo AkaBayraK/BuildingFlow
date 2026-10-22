@@ -115,7 +115,8 @@ export function AccountPage(){
      <div className="space-y-2"><Label htmlFor="account-first">{t("firstName")} *</Label><Input id="account-first" maxLength={80} autoComplete="given-name" value={first} onChange={e=>setFirst(e.target.value)} onBlur={()=>setFirst(v=>personName(v,last).firstName)}/></div>
      <div className="space-y-2"><Label htmlFor="account-last">{t("lastName")} *</Label><Input id="account-last" maxLength={80} autoComplete="family-name" value={last} onChange={e=>setLast(e.target.value)} onBlur={()=>setLast(v=>personName(first,v).lastName)}/></div>
      <p className="-mt-1 text-xs text-muted-foreground sm:col-span-2">{t("nameRule")}</p>
-     <div className="space-y-2 sm:col-span-2"><Label htmlFor="account-phone">{t("phone")}</Label><PhoneInput id="account-phone" value={phone} onValueChange={setPhone}/></div>
+     <div className="space-y-2"><Label htmlFor="account-phone">{t("phone")}</Label><PhoneInput id="account-phone" value={phone} onValueChange={setPhone}/></div>
+     <div className="space-y-2"><Label htmlFor="account-email">{t("email")}</Label><Input id="account-email" type="email" readOnly value={account.email??""} placeholder={t("emailMissing")} aria-describedby="account-email-help" className="bg-muted/40"/><p id="account-email-help" className="text-xs text-muted-foreground">{t("emailReadOnly")}</p></div>
      {!!error&&<div className="sm:col-span-2"><MessageBanner presentation="inline">{error}</MessageBanner></div>}
      <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2"><small className="text-muted-foreground">{profile.modifiedAt?t("lastSaved",{date:formatDateTime(profile.modifiedAt,locale)}):t("neverSaved")}</small><Button type="submit" disabled={busy}>{busy?t("saving"):t("save")}</Button></div>
     </form>
@@ -124,7 +125,6 @@ export function AccountPage(){
     <h2 id="account-info" className="flex items-center gap-2 text-base font-semibold"><Building2 className="size-4"/>{t("accountTitle")}</h2>
     <dl className="mt-3 divide-y text-sm">
      <div className="flex flex-wrap gap-2 py-2"><dt className="w-36 text-muted-foreground">{t("username")}</dt><dd className="font-medium">{account.username??"—"}</dd></div>
-     <div className="flex flex-wrap gap-2 py-2"><dt className="w-36 text-muted-foreground">{t("email")}</dt><dd className="font-medium break-all">{account.email??"—"}</dd></div>
      <div className="flex flex-wrap gap-2 py-2"><dt className="w-36 text-muted-foreground">{t("roles")}</dt><dd className="flex flex-wrap gap-1">{account.roles.length?account.roles.map(r=><RoleBadge key={r} role={r} label={roleKeys[r]?t(roleKeys[r]):r}/>):"—"}</dd></div>
     </dl>
     <h3 className="mt-4 text-sm font-semibold">{t("propertiesTitle")}</h3>

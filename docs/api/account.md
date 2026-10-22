@@ -20,8 +20,21 @@ Yetki: geçerli JWT yeter (her rol, yalnız kendi verisi). Başka hesabın veris
 | `linkedPhotoId` (kişi listesi ve detayı) | Bağlı hesabın güncel fotoğraf kimliği, yoksa null. İstemci yalnız doluysa fotoğrafı ister. |
 | GET `/api/v1/properties/{propertyId}/people/{personId}/photo` | Kişiyi okuyabilen yönetici (`PeopleService.GetAsync` kapsamı: yönetim rolü + aktif üyelik). Kişiye bağlı giriş hesabının fotoğrafı; bağ yoksa veya fotoğraf yoksa 404. Muhasebeci ve başka alanın yöneticisi göremez. |
 
-Yöneticiler fotoğrafı görüntüler ama ekleyemez veya değiştiremez; fotoğrafı yalnız hesap sahibi kendi rızasıyla ekler.
+22.10.2026 kullanıcı onaylı genişletme: yetkili yöneticiler [Kullanıcılar fotoğraf komutu](users.md) ile kapsamlarındaki hesapların fotoğrafını ekleyebilir/değiştirebilir/kaldırabilir. Ekleme/değiştirmede rıza hedef hesap sahibine aittir; yönetici başkası adına rıza veremez. Kendi hesap uçları yalnız JWT sahibini kabul etmeye devam eder.
 
 ## Testler
 
 `AccountApiTests` (PostgreSQL + SeaweedFS): kendi rol/alan/profil, web kanallı rıza kaydı, mobil ile aynı profil; rızasız fotoğraf 403, onay sonrası aynı fotoğraf mobil uçtan da okunur; bağlı kişi üzerinden kapsam içi yönetici görür, bağsız kişi 404, başka alan yöneticisi ve muhasebeci göremez, başka hesap kendi uçlarından 404 alır; geri çekme fotoğrafı her yerden kaldırır. `UserManagementTests.UserPhotoIsVisibleOnlyWithinManagerScope`: SITE_ADMIN kapsamı.
+
+22.10.2026 BAKIM: mevcut `account.email` kişisel bilgilerde telefonun yanında salt okunur gösterilir; yoksa yerelleştirilmiş “Kayıtlı e-posta yok” durumu. Profil komutu e-posta değiştirmez; giriş hesabı kaynağı korunur. Yeni kullanıcı oluşturulurken girilen isteğe bağlı telefon aynı MobileProfile üzerinden web/mobilde görünür; [kullanıcı oluşturma sözleşmesi](users.md),[kanıt](../navigation-refactor/ACCOUNT_CONTACT.md).
+
+
+## BF-VERIFY 01 — Ortak iletişim doğrulama temeli
+
+GET `/api/v1/account/contact-verification` ve mobilde GET `/api/v1/mobile/contact-verification` aynı `IContactVerificationStore` sözleşmesini kullanır. Yalnız JWT hesabının kendi verisi;Property/Person seçimi yok. E-posta Keycloak'tan güncel okunur,ulaşılamazsa UNKNOWN/available=false;eski JWT onayı otorite sayılmaz. Telefonun eski profil değeri,mevcut doğrulanmış değeri ve yeni adayı ayrıdır. POST aynı kökün `/phone` ucu `{operationId,expectedVersion,phone}` ile **aday hazırlar**;SMS göndermez,doğrulandı yapmaz. DTO'da canSendCode=false,deliveryStatus=NOT_REQUESTED,challengeId=null. Mevcut profil DTO/komutu değişmez;eski telefon yazımı aynı transaction içinde kanıt/aday modelini günceller;isim/fotoğraf/aynı normalize numara kanıtı sıfırlamaz. Hatalar mevcut BF_USER_INVALID(phone)/BF_MOBILE_SYNC_CONFLICT kodları;bilinmeyen JSON alanları reddedilir.
+
+[Ayrıntılı DTO/null/versiyon/replay/şema sözleşmesi](../refactor/contact-verification/01-contract.md). Bu bir sahiplik doğrulama gönderim akışı değildir;gönderim/e-posta zorunluluğu sonraki fazlardır.
+
+## BF-VERIFY02 — E-posta sahipliği
+
+E-posta otoritesi yine güncel Keycloak kaydıdır; eski JWT değeri kanıt değildir. Opt-in yeni hesapta ilk giriş IdP VERIFY_EMAIL akışında tamamlanır. Native UPDATE_EMAIL yeni adres doğrulanana kadar eski adresi korur; force verification/max-auth-age0 ve eski adrese güvenlik bildirimi izole kabulde doğrulandı. Uygulama profil komutu e-posta yazmaz; sahiplik Person/Property yetkisi üretmez. Canlı politika kapalı; ortak hesap ekranındaki doğrulama eylemleri FAZ04/05'tedir. [Kanıt ve kurulum sınırı](../refactor/contact-verification/02-report.md).

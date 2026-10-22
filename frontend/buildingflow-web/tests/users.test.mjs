@@ -9,3 +9,9 @@ test('user contract and helpers',()=>{
  assert.ok(validUsername('ayse.yilmaz'));for(const bad of ['ab','Ayse','a b','.ayse'])assert.equal(validUsername(bad),false);
  assert.ok(strongPassword('Abcdefghij12'));assert.equal(strongPassword('abcdefghij12'),false);assert.equal(strongPassword('Abc12'),false);
 });
+
+test('invitation result and email ownership restriction have a strict backward-compatible contract',()=>{
+ for(const status of ['ACCEPTED','UNAVAILABLE','NOT_REQUESTED',null])assert.equal(readUser({...user,invitationStatus:status,canEditEmail:false}).invitationStatus,status);
+ assert.equal(readUser(user).invitationStatus,undefined);
+ for(const patch of [{invitationStatus:'VERIFIED'},{canEditEmail:'false'}])assert.throws(()=>readUser({...user,...patch}));
+});

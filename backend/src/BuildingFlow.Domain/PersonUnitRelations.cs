@@ -80,7 +80,7 @@ public sealed class LegacyOccupancyMap : BaseEntity
     public Guid? OwnershipId {get;private set;} public Guid? TenancyId {get;private set;} public Guid? ResidencyId {get;private set;}
 }
 
-public sealed class UnitOwnership : BaseEntity, IPersonUnitRelation
+public sealed class UnitOwnership : VerifiableRecord, IPersonUnitRelation
 {
     private UnitOwnership() { }
     public UnitOwnership(Guid tenantId,Guid propertyId,Guid unitId,Guid personId,DateOnly startDate,DateOnly? endDate=null,bool isPrimaryContact=false,long? shareNumerator=null,long? shareDenominator=null)
@@ -93,11 +93,22 @@ public sealed class UnitOwnership : BaseEntity, IPersonUnitRelation
     {if(EndDate!=null)throw new InvalidOperationException("Ended relation is immutable.");if(date<StartDate)throw new ArgumentException("Invalid end date.");EndDate=date;}
 }
 
-public sealed class UnitTenancy : BaseEntity, IPersonUnitRelation
+// A tenancy is the lease party row: joint tenants share one LeaseContract, a renewal is a new contract.
+public sealed class UnitTenancy : VerifiableRecord, IPersonUnitRelation
 {
     private UnitTenancy() { }
     public UnitTenancy(Guid tenantId,Guid propertyId,Guid unitId,Guid personId,DateOnly startDate,DateOnly? endDate=null,bool isPrimaryContact=false)
     {TenantId=tenantId;PropertyId=propertyId;UnitId=unitId;PersonId=personId;StartDate=startDate;EndDate=endDate;IsPrimaryContact=isPrimaryContact;PersonUnitRules.Validate(this);}
+    public UnitTenancy(LeaseContract contract,Guid personId,DateOnly startDate,DateOnly? endDate=null,bool isPrimaryContact=false)
+        :this(contract.TenantId,contract.PropertyId,contract.UnitId,personId,startDate,endDate,isPrimaryContact){AttachLease(contract);}
+    public Guid? LeaseContractId {get;private set;}
+    public void AttachLease(LeaseContract contract)
+    {
+        if(LeaseContractId!=null)throw new InvalidOperationException("Lease party is immutable.");
+        if((contract.TenantId,contract.PropertyId,contract.UnitId)!=(TenantId,PropertyId,UnitId))throw new ArgumentException("Lease scope mismatch.");
+        if(!contract.Covers(StartDate,EndDate))throw new ArgumentException("Lease party is outside the contract period.");
+        LeaseContractId=contract.Id;
+    }
     public Guid TenantId {get;private set;} public Guid PropertyId {get;private set;} public Guid UnitId {get;private set;} public Guid PersonId {get;private set;}
     public DateOnly StartDate {get;private set;} public DateOnly? EndDate {get;private set;} public bool IsPrimaryContact {get;private set;}
     public OccupancyType Kind => OccupancyType.TENANT;
@@ -106,7 +117,7 @@ public sealed class UnitTenancy : BaseEntity, IPersonUnitRelation
     {if(EndDate!=null)throw new InvalidOperationException("Ended relation is immutable.");if(date<StartDate)throw new ArgumentException("Invalid end date.");EndDate=date;}
 }
 
-public sealed class UnitResidency : BaseEntity, IPersonUnitRelation
+public sealed class UnitResidency : VerifiableRecord, IPersonUnitRelation
 {
     private UnitResidency() { }
     public UnitResidency(Guid tenantId,Guid propertyId,Guid unitId,Guid personId,DateOnly startDate,DateOnly? endDate=null,bool isPrimaryContact=false)

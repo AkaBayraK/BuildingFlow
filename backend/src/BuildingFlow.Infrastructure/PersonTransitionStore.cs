@@ -31,12 +31,17 @@ public sealed class PersonTransitionStore(BuildingFlowDbContext db,ICurrentUserS
         return new(people,links,Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(data))));
     }
     private static CentralPerson Canonical(Guid tenant,Person p)=>new(tenant,p.PersonKind!,p.Citizenship!,p.CountryCode!,p.IdentityNumber!,p.FirstName,p.LastName,p.BirthDate,p.Gender,p.PhoneNumber,p.Email);
-    private static IPersonUnitRelation Relation(Guid tenant,UnitOccupancy l,Guid person)=>l.Type switch
+    private static IPersonUnitRelation Relation(Guid tenant,UnitOccupancy l,Guid person)
     {
-        OccupancyType.OWNER=>new UnitOwnership(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact),
-        OccupancyType.TENANT=>new UnitTenancy(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact),
-        _=>new UnitResidency(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact)
-    };
+        VerifiableRecord relation=l.Type switch
+        {
+            OccupancyType.OWNER=>new UnitOwnership(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact),
+            OccupancyType.TENANT=>new UnitTenancy(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact),
+            _=>new UnitResidency(tenant,l.PropertyId,l.UnitId,person,l.StartDate,l.EndDate,l.IsPrimaryContact)
+        };
+        // Legacy occupancies were never verified in the new sense; the copy must not invent a verifier.
+        relation.MarkLegacy();return (IPersonUnitRelation)relation;
+    }
     private async Task<PersonTransitionPreview> Preview(Guid tenant,Guid property,Source source,CancellationToken token)
     {
         var invalid=source.People.Count(p=>p.PersonKind==null || p.Citizenship==null || p.CountryCode==null || p.IdentityNumber==null);

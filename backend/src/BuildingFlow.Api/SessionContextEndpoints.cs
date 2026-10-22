@@ -7,6 +7,21 @@ internal static class SessionContextEndpoints
     {
         app.MapGet("/api/v2/mobile/authorization",async(IMobileAuthorizationStore store,CancellationToken token)=>Results.Ok(await store.ReadAsync(token)))
             .RequireAuthorization().AddEndpointFilter(async(context,next)=>app.Configuration.GetValue<bool>("PersonRefactor:Enabled") && app.Configuration.GetValue<bool>("PersonRefactor:SessionContextsEnabled") && app.Configuration.GetValue<bool>("PersonRefactor:MobileAuthorizationEnabled")?await next(context):Results.NotFound());
+        app.MapPost("/api/v2/me/person-links",async(LinkMyPersonRequest request,PersonAccountLinkService service,HttpResponse response,CancellationToken token)=>{response.Headers.CacheControl="no-store";return Results.Ok(await service.LinkAsync(request,token));})
+            .RequireAuthorization().AddEndpointFilter(async(context,next)=>app.Configuration.GetValue<bool>("PersonRefactor:Enabled")?await next(context):Results.NotFound());
+        var me=app.MapGroup("/api/v2/me").RequireAuthorization();
+        me.AddEndpointFilter(async(context,next)=>app.Configuration.GetValue<bool>("PersonRefactor:Enabled") && app.Configuration.GetValue<bool>("PersonRefactor:SessionContextsEnabled")?await next(context):Results.NotFound());
+        me.MapGet("/portfolio",async(IMyPortfolioStore store,HttpResponse response,CancellationToken token)=>{response.Headers.CacheControl="no-store";return Results.Ok(await store.PortfolioAsync(token));});
+        // The selected context is only a hint: it resolves from current database facts or returns 404.
+        me.MapGet("/active-context",async(Guid propertyId,string capacity,Guid relationId,IMyPortfolioStore store,HttpResponse response,CancellationToken token,Guid? unitId=null)=>{response.Headers.CacheControl="no-store";return await store.ResolveAsync(new(propertyId,unitId,capacity,relationId),token) is {} value?Results.Ok(value):Results.NotFound();});
+        var unit=me.MapGroup("/units/{unitId:guid}");unit.AddEndpointFilter(async(context,next)=>{context.HttpContext.Response.Headers.CacheControl="no-store";return await next(context);});
+        unit.MapGet("/dues",async(Guid unitId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,CancellationToken token,int page=1,int pageSize=20)=>Found(await store.DuesAsync(new(propertyId,unitId,capacity,relationId,page,pageSize),token)));
+        unit.MapGet("/payments",async(Guid unitId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,CancellationToken token,int page=1,int pageSize=20)=>Found(await store.PaymentsAsync(new(propertyId,unitId,capacity,relationId,page,pageSize),token)));
+        unit.MapGet("/announcements",async(Guid unitId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,CancellationToken token,int page=1,int pageSize=20)=>Found(await store.AnnouncementsAsync(new(propertyId,unitId,capacity,relationId,page,pageSize),token)));
+        unit.MapGet("/documents",async(Guid unitId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,CancellationToken token,int page=1,int pageSize=20)=>Found(await store.DocumentsAsync(new(propertyId,unitId,capacity,relationId,page,pageSize),token)));
+        unit.MapGet("/documents/{documentId:guid}/download",async(Guid unitId,Guid documentId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,HttpResponse response,CancellationToken token)=>{var file=await store.DownloadAsync(new(propertyId,unitId,capacity,relationId),documentId,token);if(file==null)return Results.NotFound();response.Headers["X-Content-Type-Options"]="nosniff";return Results.File(file.Content,file.ContentType,file.FileName,enableRangeProcessing:false);});
+        me.MapGet("/finance-summary",async(IMyUnitStore store,HttpResponse response,CancellationToken token)=>{response.Headers.CacheControl="no-store";return Results.Ok(await store.FinanceSummaryAsync(token));});
+        unit.MapGet("/leases",async(Guid unitId,Guid propertyId,string capacity,Guid relationId,IMyUnitStore store,CancellationToken token,int page=1,int pageSize=20)=>Found(await store.LeasesAsync(new(propertyId,unitId,capacity,relationId,page,pageSize),token)));
         var root=app.MapGroup("/api/v2/session/contexts").RequireAuthorization();
         root.AddEndpointFilter(async(context,next)=>app.Configuration.GetValue<bool>("PersonRefactor:Enabled") && app.Configuration.GetValue<bool>("PersonRefactor:SessionContextsEnabled")?await next(context):Results.NotFound());
         root.MapGet("",async(ISessionContextStore store,CancellationToken token,int page=1,int pageSize=20)=>Results.Ok(await store.ListAsync(page,pageSize,token)));
@@ -39,4 +54,5 @@ internal static class SessionContextEndpoints
             await next(context);
         });
     }
+    private static IResult Found<T>(T? value) where T:class=>value==null?Results.NotFound():Results.Ok(value);
 }

@@ -64,3 +64,24 @@ public sealed class CentralPersonOperation : BaseEntity {
  public Guid PersonId {get;private set;}
  public long AppliedVersion {get;private set;}
 }
+// A manager-issued one-time code; only its HMAC is stored and a used or revoked code never becomes valid again.
+public sealed class CentralPersonLinkCode : BaseEntity {
+ public static readonly TimeSpan Lifetime=TimeSpan.FromHours(72);
+ private CentralPersonLinkCode() { }
+ public CentralPersonLinkCode(Guid tenant,Guid person,string codeHash,string hint,Guid issuedBy,DateTimeOffset issuedAt) {
+  if(tenant==Guid.Empty||person==Guid.Empty||issuedBy==Guid.Empty||codeHash is not {Length:64}||!codeHash.All(char.IsAsciiHexDigit)||hint is not {Length:2}||!hint.All(char.IsAsciiDigit))throw new ArgumentException("Invalid link code.");
+  TenantId=tenant;PersonId=person;CodeHash=codeHash;Hint=hint;IssuedByAccountId=issuedBy;ExpiresAt=issuedAt+Lifetime;
+ }
+ public Guid TenantId {get;private set;}
+ public Guid PersonId {get;private set;}
+ public string CodeHash {get;private set;}=null!;
+ public string Hint {get;private set;}=null!;
+ public Guid IssuedByAccountId {get;private set;}
+ public DateTimeOffset ExpiresAt {get;private set;}
+ public DateTimeOffset? UsedAt {get;private set;}
+ public Guid? UsedByAccountId {get;private set;}
+ public DateTimeOffset? RevokedAt {get;private set;}
+ public bool IsUsable(DateTimeOffset now)=>IsEnabled && UsedAt==null && RevokedAt==null && now<ExpiresAt;
+ public void Use(Guid account,DateTimeOffset at){if(!IsUsable(at)||account==Guid.Empty)throw new InvalidOperationException("Link code is not usable.");UsedAt=at;UsedByAccountId=account;}
+ public void Revoke(DateTimeOffset at){if(UsedAt!=null||RevokedAt!=null)throw new InvalidOperationException("Link code is closed.");RevokedAt=at;}
+}

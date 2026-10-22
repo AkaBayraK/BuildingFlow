@@ -4,12 +4,13 @@ using System.Text.RegularExpressions;
 namespace BuildingFlow.Application;
 
 public sealed record KeycloakUser(string Id, string Username, string? Email, string? FirstName, string? LastName, bool Enabled, bool EmailVerified, DateTimeOffset? CreatedAt);
+public sealed record EmailVerificationPolicy(bool Enabled = false);
 public sealed record KeycloakUserDraft(string Username, string Email, string FirstName, string LastName, bool Enabled);
 public sealed record LinkedPerson(Guid PersonId, Guid PropertyId, string PropertyName, string FullName, long Version);
 public sealed record UserResponse(string Id, string Username, string? Email, string? FirstName, string? LastName, bool Enabled, bool EmailVerified,
-    DateTimeOffset? CreatedAt, IReadOnlyList<string> Roles, int PropertyCount, IReadOnlyList<LinkedPerson> LinkedPeople, bool CanEdit, Guid? PhotoId = null, bool CanManagePhoto = false);
+    DateTimeOffset? CreatedAt, IReadOnlyList<string> Roles, int PropertyCount, IReadOnlyList<LinkedPerson> LinkedPeople, bool CanEdit, Guid? PhotoId = null, bool CanManagePhoto = false, string? InvitationStatus = null, bool CanEditEmail = true);
 public sealed record CreateUserRequest(string? Username, string? Email, string? FirstName, string? LastName, bool Enabled = true,
-    IReadOnlyList<string>? Roles = null, Guid? PropertyId = null, string? TemporaryPassword = null);
+    IReadOnlyList<string>? Roles = null, Guid? PropertyId = null, string? TemporaryPassword = null, string? Phone = null);
 public sealed record UpdateUserRequest(string? Email, string? FirstName, string? LastName, bool Enabled, IReadOnlyList<string>? Roles);
 public sealed record LinkPersonRequest(Guid PropertyId, Guid PersonId, long Version);
 public sealed record UserScope(string ActorId, bool All, IReadOnlyList<Guid> Properties, IReadOnlySet<string> ManagedRoles);
@@ -38,6 +39,7 @@ public interface IUserDirectoryStore
     Task<IReadOnlyDictionary<string, (int PropertyCount, IReadOnlyList<LinkedPerson> People)>> LinksAsync(IReadOnlyCollection<string> userIds, IReadOnlyList<Guid>? properties, CancellationToken token);
     Task<bool> PropertyExistsAsync(Guid property, CancellationToken token);
     Task EnsureMembershipAsync(Guid property, string userId, CancellationToken token);
+    Task InitializeCreatedAccountAsync(Guid? property, string userId, string firstName, string lastName, string? phone, CancellationToken token);
     Task<LinkedPerson?> LinkAsync(Guid property, Guid person, long version, string userId, CancellationToken token);
     Task<bool> UnlinkAsync(Guid property, Guid person, long version, string userId, CancellationToken token);
 }
@@ -51,7 +53,7 @@ public static partial class UserRoles
     public static partial Regex Username();
 }
 
-public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore store, ICurrentUserService user, IMobileProfileStore? photos = null, IManagedUserPhotoStore? managedPhotos = null)
+public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore store, ICurrentUserService user, IMobileProfileStore? photos = null, IManagedUserPhotoStore? managedPhotos = null, EmailVerificationPolicy? emailPolicy = null)
 {
     private const int MaxSearchScan = 100;
 
@@ -130,6 +132,15 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
     {
         var scope = await Scope(token);
         var draft = Draft(Clean(request.Username)?.ToLowerInvariant(), request.Email, request.FirstName, request.LastName, request.Enabled);
+        var phone = Clean(request.Phone);
+        if (phone is not null)
+        {
+            var digits = phone.Count(char.IsAsciiDigit);
+            if (phone.Length > 32 || digits is < 7 or > 15 || phone.Any(c => !char.IsAsciiDigit(c) && !"+ -()".Contains(c))) Invalid("phone");
+            // The shared mobile profile accepts at most 80 characters per name.
+            if (draft.FirstName.Length > 80) Invalid("firstName");
+            if (draft.LastName.Length > 80) Invalid("lastName");
+        }
         var roles = Roles(request.Roles, scope);
         if (request.TemporaryPassword is { } password && !StrongPassword(password)) Invalid("temporaryPassword", ErrorCatalog.UserPasswordWeak);
         if (request.PropertyId is { } property)
@@ -144,7 +155,7 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
         {
             if (roles.Count > 0) await keycloak.ChangeRealmRolesAsync(id, roles, [], token);
             if (request.TemporaryPassword is not null) await keycloak.SetPasswordAsync(id, request.TemporaryPassword, true, token);
-            if (request.PropertyId is { } target) await store.EnsureMembershipAsync(target, id, token);
+            await store.InitializeCreatedAccountAsync(request.PropertyId, id, draft.FirstName, draft.LastName, phone, token);
         }
         catch
         {
@@ -152,11 +163,15 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
             try { await keycloak.DeleteAsync(id, CancellationToken.None); } catch (IdentityUnavailableException) { }
             throw;
         }
-        if (request.TemporaryPassword is null)
+        var invitation = "NOT_REQUESTED";
+        if (request.TemporaryPassword is null || emailPolicy?.Enabled == true)
         {
-            try { await keycloak.SendActionsEmailAsync(id, ["UPDATE_PASSWORD"], token); } catch (IdentityUnavailableException) { }
+            try {
+                await keycloak.SendActionsEmailAsync(id, emailPolicy?.Enabled == true ? ["VERIFY_EMAIL", "UPDATE_PASSWORD"] : ["UPDATE_PASSWORD"], token);
+                invitation = "ACCEPTED"; // SMTP acceptance is not mailbox delivery or ownership proof.
+            } catch (IdentityUnavailableException) { invitation = "UNAVAILABLE"; }
         }
-        return (await GetAsync(id, token))!;
+        return (await GetAsync(id, token))! with { InvitationStatus = invitation };
     }
 
     public async Task<UserResponse?> UpdateAsync(string id, UpdateUserRequest request, CancellationToken token)
@@ -167,7 +182,10 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
         Editable(scope, id, current);
         var desired = Roles(request.Roles, scope);
         if (id == scope.ActorId && (!request.Enabled || scope.All && !desired.Contains("SUPER_ADMIN"))) Invalid("enabled", ErrorCatalog.UserSelfChange);
-        await keycloak.UpdateAsync(id, Draft(found.Username, request.Email, request.FirstName, request.LastName, request.Enabled), token);
+        var draft = Draft(found.Username, request.Email, request.FirstName, request.LastName, request.Enabled);
+        // Only the account owner's native UPDATE_EMAIL flow may change an address once enabled.
+        if (emailPolicy?.Enabled == true && !string.Equals(found.Email, draft.Email, StringComparison.OrdinalIgnoreCase)) Invalid("email");
+        await keycloak.UpdateAsync(id, draft, token);
         var add = desired.Except(current).ToArray();
         var remove = current.Where(scope.ManagedRoles.Contains).Except(desired).ToArray();
         if (add.Length + remove.Length > 0) await keycloak.ChangeRealmRolesAsync(id, add, remove, token);
@@ -180,7 +198,7 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
         if (await Visible(id, scope, token) is not { } found) return false;
         Editable(scope, id, await keycloak.RealmRolesAsync(id, token));
         if (string.IsNullOrWhiteSpace(found.Email)) Invalid("email");
-        await keycloak.SendActionsEmailAsync(id, ["UPDATE_PASSWORD"], token);
+        await keycloak.SendActionsEmailAsync(id, emailPolicy?.Enabled == true && !found.EmailVerified ? ["VERIFY_EMAIL", "UPDATE_PASSWORD"] : ["UPDATE_PASSWORD"], token);
         return true;
     }
 
@@ -222,7 +240,7 @@ public sealed class UserService(IKeycloakAdmin keycloak, IUserDirectoryStore sto
             var own = roles[i].Where(UserRoles.All.Contains).Order(StringComparer.Ordinal).ToArray();
             var link = links.TryGetValue(u.Id, out var value) ? value : (0, []);
             var canEdit = scope.All || !own.Any(UserRoles.Privileged.Contains);
-            return new UserResponse(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Enabled, u.EmailVerified, u.CreatedAt, own, link.Item1, link.Item2, canEdit, photoIds.TryGetValue(u.Id, out var photo) ? photo : null, managedPhotos is not null && (u.Id == scope.ActorId || canEdit));
+            return new UserResponse(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Enabled, u.EmailVerified, u.CreatedAt, own, link.Item1, link.Item2, canEdit, photoIds.TryGetValue(u.Id, out var photo) ? photo : null, managedPhotos is not null && (u.Id == scope.ActorId || canEdit), CanEditEmail: emailPolicy?.Enabled != true);
         }).ToArray();
     }
 

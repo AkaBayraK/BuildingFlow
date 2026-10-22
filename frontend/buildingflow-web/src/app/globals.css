@@ -1066,3 +1066,19 @@ body{background:var(--background);color:var(--foreground);}
 /* Anketler koyu tema: yalnız sabit renkli rozetler; diğer yüzeyler ortak token kullanır. */
 :root.dark .survey-rank-1{background:#4a3712;color:#fcd98a;}:root.dark .survey-rank-2{background:#2b3a50;color:#d6e2f2;}:root.dark .survey-rank-3{background:#4a2a17;color:#fdba8c;}
 :root.dark .survey-kpi,:root.dark .survey-card,:root.dark .survey-preview>ol>li,:root.dark .survey-question{box-shadow:none;}
+
+/* BAKIM: rounded header and footer surfaces, with breathing room from the viewport edge. */
+.shell .workspace-header,
+.shell .workspace-footer {
+  margin-inline:12px;
+  border:1px solid var(--shell-border);
+  border-radius:18px;
+}
+.shell .workspace-header { margin-block:8px 0; }
+.shell .workspace-footer { margin-block:0 8px; }
+@media (max-width:650px) {
+  .shell .workspace-header,
+  .shell .workspace-footer { margin-inline:6px; border-radius:16px; }
+  .shell .workspace-header { margin-top:6px; padding-inline:4px; }
+  .shell .workspace-footer { margin-bottom:6px; }
+}

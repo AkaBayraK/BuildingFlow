@@ -21,3 +21,12 @@ Mobil: SQLCipher schema4 metadata/tek iş; AES-GCM dosya, hesap-depo/dosya adı 
 Rıza metinleri merkezden yayınlanır (İŞ16); mobil rıza ekranları İŞ18 kapsamındadır, o zamana kadar mobil uygulama mevcut metni gösterir. Fotoğraf görünürlük tercihi teknik cihaz ayarıdır, hukuki rıza değildir. Kamera/galeri fotoğraf seçimi opsiyoneldir.
 
 Kanıt:27/27 hedefli MobileProfile/ProfileImage/MobileSession/MobileSync/S3Policy test; gerçek izole PostgreSQL ve fixture SeaweedFS bucket temizlendi. Mobil36/36, lint/typecheck/export; fiziksel iPhone AES dosya/AAD/yanlış anahtar/SQLCipher fixture geçti. Gerçek kullanıcı fotoğrafı yazılmadı. UI görsel inceleme kullanıcı talimatıyla yapılmadı. Ayrıntı kardeş mobil docs/mobile/PHASE07.md.
+
+
+## BF-VERIFY 01 — Ortak iletişim doğrulama temeli
+
+GET `/api/v1/account/contact-verification` ve mobilde GET `/api/v1/mobile/contact-verification` aynı `IContactVerificationStore` sözleşmesini kullanır. Yalnız JWT hesabının kendi verisi;Property/Person seçimi yok. E-posta Keycloak'tan güncel okunur,ulaşılamazsa UNKNOWN/available=false;eski JWT onayı otorite sayılmaz. Telefonun eski profil değeri,mevcut doğrulanmış değeri ve yeni adayı ayrıdır. POST aynı kökün `/phone` ucu `{operationId,expectedVersion,phone}` ile **aday hazırlar**;SMS göndermez,doğrulandı yapmaz. DTO'da canSendCode=false,deliveryStatus=NOT_REQUESTED,challengeId=null. Mevcut profil DTO/komutu değişmez;eski telefon yazımı aynı transaction içinde kanıt/aday modelini günceller;isim/fotoğraf/aynı normalize numara kanıtı sıfırlamaz. Hatalar mevcut BF_USER_INVALID(phone)/BF_MOBILE_SYNC_CONFLICT kodları;bilinmeyen JSON alanları reddedilir.
+
+[Ayrıntılı DTO/null/versiyon/replay/şema sözleşmesi](../refactor/contact-verification/01-contract.md). Bu bir sahiplik doğrulama gönderim akışı değildir;gönderim/e-posta zorunluluğu sonraki fazlardır.
+
+BF-VERIFY02: mobil hesap açılışı ortak Keycloak.CreateAsync adaptörünü kullanır; EmailEnabled opt-in ile yeni hesaba VERIFY_EMAIL atanır. Mobil kayıt için ikinci admin daveti gönderilmez; ilk PKCE girişi native doğrulamayı tamamlatır. Kayıt/profil DTO şekli ve mevcut mobil telefon giriş validasyonu bu fazda değişmedi; kanal ekranları FAZ05 kapsamındadır. [Gerçek IdP ve mobil callback kabulü](../refactor/contact-verification/02-report.md).

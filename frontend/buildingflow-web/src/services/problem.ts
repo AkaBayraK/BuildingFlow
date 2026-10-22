@@ -4,7 +4,7 @@ import en from "../../messages/en.json" with {type:"json"};
 import {resolveLocale} from "../i18n/locale.ts";
 import {errorCodes} from "./error-codes.ts";
 import {knownProblems} from "./known-problems.ts";
-const fields=new Set(["name","city","district","address","floorCount","number","floor","grossSquareMeters","firstName","lastName","phoneNumber","email","type","isEnabled","version","unitId","personId","startDate","endDate","isPrimaryContact","requestId","unitIds","period","amount","currency","dueDate","description","dueFrom","dueTo","status","reason","paidDate","method","reference","allocations","from","to","debtorType","partyRole","reasonId","cancellationApprovals","page","pageSize","search","sortBy","sortDirection","category","occurredDate","documentReference","explanation","content","audience","file","announcementId"]);
+const fields=new Set(["name","city","district","address","floorCount","number","floor","grossSquareMeters","firstName","lastName","phone","phoneNumber","email","type","isEnabled","version","unitId","personId","startDate","endDate","isPrimaryContact","requestId","unitIds","period","amount","currency","dueDate","description","dueFrom","dueTo","status","reason","paidDate","method","reference","allocations","from","to","debtorType","partyRole","reasonId","cancellationApprovals","page","pageSize","search","sortBy","sortDirection","category","occurredDate","documentReference","explanation","content","audience","file","announcementId"]);
 function record(value:unknown):value is Record<string,unknown>{return value!==null && typeof value==="object" && !Array.isArray(value);}
 export function translateProblemText(text:string,locale:string,fallback="errors.invalidField") {
  const catalog=resolveLocale(locale)==="en"?en:tr;

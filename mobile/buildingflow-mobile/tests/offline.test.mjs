@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { migrate, readSnapshot, writeSnapshot, writeSelection, MAX_CACHE_AGE_MS } from '../src/offline/database.ts';
+import { migrate, readSnapshot, writeSnapshot, writeSelection, MAX_CACHE_AGE_MS, writePortfolio, readPortfolio } from '../src/offline/database.ts';
+import { portfolioAccess } from '../src/person-authorization/model.ts';
 function fixture() {
  const sql = new DatabaseSync(':memory:'); sql.exec('PRAGMA foreign_keys=ON');
  const db = { execAsync: async s=>{sql.exec(s);}, runAsync:async(s,...v)=>sql.prepare(s).run(...v), getFirstAsync:async(s,...v)=>sql.prepare(s).get(...v)??null };
@@ -11,10 +12,10 @@ const context={propertyId:'11111111-1111-1111-1111-111111111111',propertyName:'T
 const key=`${context.propertyId}:${context.unitId}:OWNER`;
 const session={userId:'user-a',username:'Test',contexts:[context],hasMore:false};
 test('migration creates version8, preserves rows when repeated, indexes account context',async()=>{
- const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);await migrate(db);assert.equal(sql.prepare('PRAGMA user_version').get().user_version,8);assert.equal((await readSnapshot(db,'user-a',1001)).session.contexts[0].propertyName,'Test mülkü');assert.ok(sql.prepare("SELECT name FROM sqlite_master WHERE name='cache_scope'").get());}finally{sql.close();}
+ const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);await migrate(db);assert.equal(sql.prepare('PRAGMA user_version').get().user_version,9);assert.equal((await readSnapshot(db,'user-a',1001)).session.contexts[0].propertyName,'Test mülkü');assert.ok(sql.prepare("SELECT name FROM sqlite_master WHERE name='cache_scope'").get());}finally{sql.close();}
 });
 test('version1 upgrades without erasing snapshot; future schema is refused',async()=>{
- const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);sql.exec('DROP TABLE owner_snapshots; DROP TABLE profile_cache; DROP TABLE profile_jobs; DROP TABLE profile_settings; DROP INDEX cache_scope; DROP TABLE sync_outbox; DROP TABLE sync_requests; DROP TABLE sync_state; DROP TABLE notice_jobs; DROP TABLE request_files; DROP TABLE request_drafts; DROP TABLE request_photo_cache; DROP TABLE consent_cache; DROP TABLE consent_jobs; DROP TABLE consent_seen; PRAGMA user_version=1');await migrate(db);assert.ok(await readSnapshot(db,'user-a',1001));sql.exec('PRAGMA user_version=9');await assert.rejects(migrate(db));assert.equal(sql.prepare('SELECT count(*) AS n FROM cache_records').get().n,1);}finally{sql.close();}
+ const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);sql.exec('DROP TABLE owner_snapshots; DROP TABLE profile_cache; DROP TABLE profile_jobs; DROP TABLE profile_settings; DROP INDEX cache_scope; DROP TABLE sync_outbox; DROP TABLE sync_requests; DROP TABLE sync_state; DROP TABLE notice_jobs; DROP TABLE request_files; DROP TABLE request_drafts; DROP TABLE request_photo_cache; DROP TABLE consent_cache; DROP TABLE consent_jobs; DROP TABLE consent_seen; DROP TABLE portfolio_cache; PRAGMA user_version=1');await migrate(db);assert.ok(await readSnapshot(db,'user-a',1001));sql.exec('PRAGMA user_version=10');await assert.rejects(migrate(db));assert.equal(sql.prepare('SELECT count(*) AS n FROM cache_records').get().n,1);}finally{sql.close();}
 });
 test('another account cannot read or overwrite cache; malformed context is refused',async()=>{
  const {sql,db}=fixture();try {await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);assert.equal(await readSnapshot(db,'user-b',1001),null);await assert.rejects(writeSnapshot(db,{...session,userId:'user-b'},1001,'id-2',null));await assert.rejects(writeSnapshot(db,session,1001,'id-2','foreign'));assert.equal((await readSnapshot(db,'user-a',1001)).session.userId,'user-a');}finally{sql.close();}
@@ -54,4 +55,14 @@ test('account-only session without person link survives offline and upgrades in 
   await writeSnapshot(db,linked,2000,'id-2',`${context.propertyId}:${context.unitId}:TENANT`);
   assert.equal((await readSnapshot(db,'user-b',2001)).session.contexts[0].role,'TENANT');
  } finally { sql.close(); }
+});
+
+test('portfolio cache keeps only status codes of current contexts and expires with the account cache',async()=>{
+ const t='11111111-1111-4111-8111-111111111111',a=`${t}:OWNER:22222222-2222-4222-8222-222222222222`,b=`${t}:TENANT:33333333-3333-4333-8333-333333333333`;
+ const body={fingerprint:'a'.repeat(64),people:[{displayName:'Ahmet'}],units:[{status:'RENTED_OUT',capabilities:['VIEW_DUES','VIEW_LEASE'],contexts:[{contextKey:a}]},{status:'TENANT_RESIDENT',capabilities:['CREATE_REQUEST'],contexts:[{contextKey:b}]},{status:'OWNER_ONLY',capabilities:[],contexts:[{contextKey:'foreign'}]}]};
+ const value=portfolioAccess(body,[a,b]);assert.deepEqual(Object.keys(value.access).sort(),[a,b].sort());assert.doesNotMatch(JSON.stringify(value),/Ahmet|foreign/);
+ for(const bad of [{...body,fingerprint:'x'},{...body,units:[{...body.units[0],status:'LANDLORD'}]},{...body,units:[{...body.units[0],capabilities:['drop table']}]}])assert.throws(()=>portfolioAccess(bad,[a]));
+ const {sql,db}=fixture();try{await migrate(db);await writeSnapshot(db,session,1000,'id-1',key);await writePortfolio(db,'user-a',value,1000);
+  assert.deepEqual(Object.keys((await readPortfolio(db,'user-a',[a],1001)).access),[a]);assert.equal(await readPortfolio(db,'user-a',[a,b],1000+MAX_CACHE_AGE_MS+1),null);assert.equal(await readPortfolio(db,'user-b',[a],1001),null);
+  await assert.rejects(writePortfolio(db,'user-b',value,1000));}finally{sql.close();}
 });

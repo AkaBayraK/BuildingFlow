@@ -34,3 +34,17 @@ public sealed class CentralPeopleService(ICentralPeopleStore store,TimeProvider 
  public Task<CentralPersonMutation?> CreateAsync(Guid tenant,CreateCentralPersonRequest c,CancellationToken token){if(c.OperationId==Guid.Empty)throw new ArgumentException("Operation required.");var p=Validate(c.Profile);ValidateProfile(p);return store.WriteAsync(tenant,null,c.OperationId,0,p,true,token);}
  public Task<CentralPersonMutation?> UpdateAsync(Guid tenant,Guid person,UpdateCentralPersonRequest c,CancellationToken token){if(c.OperationId==Guid.Empty || c.ExpectedVersion<1)throw new ArgumentException("Operation and version required.");var p=Validate(c.Profile);ValidateProfile(p);return store.WriteAsync(tenant,person,c.OperationId,c.ExpectedVersion,p,c.IsEnabled,token);}
 }
+
+// Duplicate rule (user decision 22.10.2026): identity among non-deleted people, phone/email among active ones; the conflict never names the other person.
+public static class PersonDuplicates
+{
+    public static string IdentityKey(string identity)=>identity.Trim().ToUpperInvariant();
+    public static string? EmailKey(string? email)=>string.IsNullOrWhiteSpace(email)?null:email.Trim().ToLowerInvariant();
+    public static ErrorDefinition? Contact(string? phone,string? email,IEnumerable<(string? Phone,string? Email)> others)
+    {
+        var p=SmsText.NormalizePhone(phone);var e=EmailKey(email);var rows=others.ToArray();
+        if(p!=null && rows.Any(o=>SmsText.NormalizePhone(o.Phone)==p))return ErrorCatalog.PersonDuplicatePhone;
+        if(e!=null && rows.Any(o=>EmailKey(o.Email)==e))return ErrorCatalog.PersonDuplicateEmail;
+        return null;
+    }
+}

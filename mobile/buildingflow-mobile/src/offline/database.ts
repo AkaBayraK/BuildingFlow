@@ -6,7 +6,7 @@ export interface Database {
   runAsync(sql: string, ...values: SqlValue[]): Promise<unknown>;
   getFirstAsync<T>(sql: string, ...values: SqlValue[]): Promise<T | null>;
 }
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 export const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
 export type Snapshot = { session: Session; verifiedAt: number; selectedKey: string | null };
 export async function migrate(db: Database) {
@@ -61,6 +61,7 @@ export async function migrate(db: Database) {
       CREATE INDEX consent_jobs_due ON consent_jobs(user_id,status,next_attempt_at,created_at);
       CREATE TABLE consent_seen(user_id TEXT NOT NULL REFERENCES account(user_id),text_id TEXT NOT NULL,seen_at INTEGER NOT NULL,PRIMARY KEY(user_id,text_id));
     `);
+    if(version<9)await db.execAsync('CREATE TABLE IF NOT EXISTS portfolio_cache(user_id TEXT PRIMARY KEY NOT NULL REFERENCES account(user_id),payload TEXT NOT NULL,checked_at INTEGER NOT NULL);');
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}; COMMIT;`);
   } catch (error) { await db.execAsync('ROLLBACK'); throw error; }
 }
@@ -94,4 +95,17 @@ export async function readSnapshot(db: Database, userId: string, now: number): P
 export async function writeSelection(db: Database, snapshot: Snapshot, key: string) {
   if (!snapshot.session.contexts.some(c => contextKey(c) === key)) throw new Error('Yabancı bağlam.');
   await db.runAsync('UPDATE preferences SET selected_key=? WHERE user_id=?', key, snapshot.session.userId);
+}
+
+// Account-scoped portfolio codes; a read keeps only contexts still present in the current authorization.
+export async function writePortfolio(db: Database, userId: string, value: {fingerprint:string;access:Record<string,{status:string;capabilities:string[]}>}, checkedAt: number) {
+  const owner = await db.getFirstAsync<{ user_id: string }>('SELECT user_id FROM account WHERE user_id=?', userId);
+  if (!owner) throw new Error('Hesap önbelleği yok.');
+  await db.runAsync('INSERT INTO portfolio_cache(user_id,payload,checked_at) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET payload=excluded.payload,checked_at=excluded.checked_at', userId, JSON.stringify(value), checkedAt);
+}
+export async function readPortfolio(db: Database, userId: string, allowedKeys: readonly string[], now: number) {
+  const row = await db.getFirstAsync<{ payload: string; checked_at: number }>('SELECT payload,checked_at FROM portfolio_cache WHERE user_id=?', userId);
+  if (!row || now < row.checked_at || now - row.checked_at > MAX_CACHE_AGE_MS) return null;
+  const value = JSON.parse(row.payload) as {fingerprint:string;access:Record<string,{status:string;capabilities:string[]}>};
+  return { fingerprint: value.fingerprint, access: Object.fromEntries(Object.entries(value.access).filter(([key]) => allowedKeys.includes(key))), checkedAt: row.checked_at };
 }

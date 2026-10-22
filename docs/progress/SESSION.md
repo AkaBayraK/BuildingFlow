@@ -1,3 +1,103 @@
+
+
+Son kota okuması: Codex usage /22.10.2026. 300dk kullanılan%98/kalan%2, reset22.10.2026 22:19:52;10080dk kullanılan%93/kalan%7, reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası bu sohbetin token tüketimi değildir.
+Giriş token: BİLGİ MEVCUT DEĞİL.
+Çıkış token: BİLGİ MEVCUT DEĞİL.
+Toplam token: BİLGİ MEVCUT DEĞİL.
+Kalan context: BİLGİ MEVCUT DEĞİL.
+
+## BF-VERIFY FAZ02 — 22.10.2026 — TAMAMLANDI
+
+**#45 Closed(completed), Project3 Done;12/12 madde ve son uzak okuma doğrulandı. Faz3/3=%100,00; BF-VERIFY plan3/8=%37,50.** D1/D2 onaylı; EmailEnabled defaultfalse, hesap bazlı VERIFY_EMAIL/tek davet, davet hata sonucu, yönetici e-posta bypass koruması ve native UPDATE_EMAIL pending/re-auth/eski adrese bildirim tamam. **12/12 gerçek izole IdP/SMTP grubu;8/8 politika;15/15 JWT/adaptör;20/20 web (son sözlük değişimi sonrası11/11 tekrar);19/19 ilgili mobil;web typecheck/build ve .NET0hata0uyarı.** 17 belge/50 yerel bağlantı ve JSON/Python/shell/diff geçti. Geçici test kaynakları temizlendi. Yeni paket/şema/migration yok;canlı realm/.env/DB/hesap/servis değiştirilmedi. Bu çalışma commit/push/deploy yapmadı;eşzamanlı kaynak/index korundu. [Rapor](../refactor/contact-verification/02-report.md). Sonraki:#46/FAZ03;henüz yetkili değil. D3/D4 sağlayıcı/OTP kararı ilgili fazda;gerçek gönderim kapsamı ayrıca netleşir. Üretim FAZ07;bildirim SMTP/DB atomik değil,kalıcı retry yok;güvenli hata izleme/kurtarma kapısı açık. Ortak web/mobil doğrulama UX'i FAZ04/05.
+
+## BF-VERIFY FAZ02 — 22.10.2026 — Doğrulama tamam / kapanış kontrolü
+
+D1/D2 onaylı. #45 uygulama ve zorunlu kabulü tamamlandı;3 resmi adımın son kapanış kontrolü sürüyor. Kapalı varsayılan EmailEnabled, yeni hesap bazlı VERIFY_EMAIL, tek davet/delivery sonucu, yönetici e-posta bypass koruması, native UPDATE_EMAIL re-auth/pending ve eski adrese bildirim. **12/12 gerçek izole Keycloak26.7.5/Mailpit grubu;8/8 politika;15/15 JWT/adaptör;20/20 web;19/19 ilgili mobil;web typecheck/build ve .NET0hata0uyarı.** Paket/SDK/şema/migration yok. Canlı realm/.env/kullanıcı/servis değişmedi;test kaynakları temizlendi. [Rapor](../refactor/contact-verification/02-report.md). Faz2/3=%66,67 (kapanış adımı devam ediyor);tamamlanan plan2/8=%25,00. FAZ03 başlatılmadı.
+
+## BF-VERIFY FAZ 02 — Adım 01 sonucu / Adım 02 DEVAM EDIYOR
+
+D1/D2 kullanıcı yanıtı: önerilen politika onaylı. Yeni hesapta e-posta zorunlu/telefon doğrulaması isteğe bağlı, eski doğrulanmış adres korunur, kontrollü geçiş ve yetkili destek; canlı enforcement açılmaz. Gerçek kurulu sürüm salt okunur kc.sh --version ile26.7.5. Mevcut API davet hatasını yutuyor ve yönetici email alanını doğrudan yazabiliyor. Kapalı varsayılan EmailEnabled politikası ve native akış/bildirim testleri uygulanıyor. İnceleme1/3=%33,33; plan2/8=%25,00.
+
+
+## BF-VERIFY FAZ 02 — 22.10.2026 — DEVAM EDIYOR
+
+Kullanıcı sıradaki fazı başlattı: #45, liste 3/08, resmi adım 01/03 inceleme. D1/D2 açık politika yanıtı beklenirken yalnız ilgili hesap/Keycloak kodları ve izole test imkânları inceleniyor. Bu tur henüz test çalıştırılmadı; önceki fazın testleri bu turun kanıtı değildir. Canlı ayarlar/veriler ve eşzamanlı çalışmalar korunur. Faz 0/3=%0,00; tamamlanan plan 2/8=%25,00.
+## BF-MULTI Ek 04 — 22.10.2026 — Mükerrer kişi engeli — TAMAMLANDI (teknik)
+
+Kullanıcı kararı: aynı kimlik no (T.C./vergi/yabancı), aynı cep telefonu veya aynı e-posta ile ikinci kişi kaydedilemez — yeni modelde müşteri, eski ekranda yönetim alanı kapsamında; 409 `BF_PERSON_DUPLICATE_IDENTITY|PHONE|EMAIL`, diğer kişi sızdırılmaz, kilit altında. DB benzersiz indeksi bilinçli eklenmedi (geçiş ve bilinmeyen mevcut veri). Unit 302/302, kişi suite'leri 41/41, tam regresyon (bağlantı kotası sonrası yeniden koşu dahil) yalnız bilinen S3 testi kırmızı; web 237/237. #42'de doğrulama eylemi ve kanıt belgesi açık. Commit yok. [Ek](../refactor/multi-property/ek-04-duplicates.md). Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 09 — 22.10.2026 — Güvenlik, regresyon, geçiş — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 09 | 10 faz, liste 10/10] %100,00; BF-MULTI planı 10/10 teslim = %100,00 (FAZ 09 onay bekliyor).** Mobil bildirim → yetkili bağlama geçiş; güvenlik regresyonu; geçiş/rollout planı, kabul listesi, native kişi tahakkuk tasarımı (kodlanmadı). Backend etkilenen sınıflar 228/1 bilinen S3/5 atlandı, unit 301/301, web 237/237, mobil 131/131, idempotent SQL PASS. **Yayın kapısı kapalı:** mobil audit 24 (18 high), SeaweedFS anahtar rotasyonu kanıtsız. Prod/migration/bayrak işlemi yok; commit yok. [Rapor](../refactor/multi-property/09-report.md). Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 08 — 22.10.2026 — İş modülleri bağlam entegrasyonu — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 08 | 10 faz, liste 9/10] %100,00; plan 9/10 = %90,00.** Bağlam doğrulamalı belge indirme, mükerrer saymayan toplu finans özeti, web talep oluşturma/geçmiş, mobil seçili daire özeti. Native kişiye bağlı tahakkuk ve canonical bildirim derin bağlantısı kapsam dışı (belgeli). **Engel:** paralel iletişim doğrulama işinin migration'sız entity'si backend DB testlerini durduruyor. Web 237/237, mobil 130/130, unit 295/295. Migration/paket yok; commit yok. [Rapor](../refactor/multi-property/08-report.md). Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BF-VERIFY FAZ 01 — 22.10.2026 — Ortak doğrulama temeli — TAMAMLANDI
+
+Kullanıcı ilk uygulama fazını başlattı;#44 Closed(completed)/Project3 Done,12/12 madde tamam son okumayla doğrulandı.Faz3/3=%100,00;BF-VERIFY planı2/8=%25,00;#45–#50 açık/Backlog.Hesap bazlı AccountPhoneVerification,web/mobil ortak GET ve aday POST,IdP e-posta otoritesi,eski profil yazım adaptörü;DTO geriye uyumlu. Yeni migration20261022142952 yalnız tek tablo,backfill yok,dolu Down korumalı. **Build0hata;14/14 gerçek izole PostgreSQL/API/migration/şema+6/6 domain,0atlanan.** Son tekrar photo-only korumasını da kapsar.Kaynakta SMS/e-posta gönderimi veya canlı zorunluluk açılmadı;istemci UX sonraki fazlarda. Canlı .env/DB/Keycloak/servis değişmedi;bu tur commit/push yok. Eşzamanlı BF-MULTI/mobil/indeks farkları korundu;genel ağacın değişmediği iddia edilmez. [Rapor](../refactor/contact-verification/01-report.md) · [ADR](../refactor/contact-verification/01-contract.md). Sonraki:#45/FAZ02,e-posta/onboarding;henüz yetkilendirilmedi.Geçici yalnız-kendi test kaynakları temizlendi.
+
+## BF-VERIFY FAZ 00 — 22.10.2026 — Prompt, görev ve analiz teslimi — TAMAMLANDI
+
+Kullanıcının **önce prompt, görevler ve analiz fazı** kapsamı uygulandı. Kanonik plan [PHASES.md](../../buildingflow-contact-verification-prompts/PHASES.md):8 faz(00–07),her faz3 resmi adım. Prompt paketi12 dosya+analiz/matris2 dosya;65 kabul+32 senaryo. GitHub #43–#50,Project3'e tekil bağlı;#43 Closed(completed)/Done son okumayla doğrulandı;diğer7 görev açıktır. **14 belge/49 yerel bağlantı/faz-task-pano eşliği GEÇTİ;19897 başlangıç kaynak dosyası hash aynı.** Uygulama testi/build/restore/migration/servis/gerçek gönderim yapılmadı;uygulama kodu/manifest/lock/.env/canlı ayarlar değişmedi;commit/push yok. Ürün/İŞ/UI/MOBİL/BF-MULTI tiki değişmedi. D1 e-posta/aktivasyon,D2 eski hesap,D3 gerçek SMS sağlayıcı/maliyet,D4 OTP politikası ilgili fazların karar kapısıdır;FAZ00 eksikliği değildir. [Ayrıntılı analiz ve kanıt](../refactor/contact-verification/00-analysis.md). Sonraki mesaj: kullanıcı FAZ01'i başlattı;güncel kapsam üst kayıttadır.
+
+## BF-MULTI FAZ 07 — 22.10.2026 — Mobil offline önbellek — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 07 | 10 faz, liste 8/10] %100,00; plan 8/10 = %80,00.** Mobil şema 9 `portfolio_cache` (yalnız durum/yetenek kodları), çevrimdışı son doğrulanmış portföy, durum rozeti ve yetenek bazlı talep bölümü; iptal bağlam kuyruğu mevcut `blocked` davranışıyla. Mobil check 129/129, build PASS. Backend/paket yok; commit yok. [Rapor](../refactor/multi-property/07-report.md). Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 06 — 22.10.2026 — Mobil portföy — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 06 | 10 faz, liste 7/10] Adım = %100,00; plan 7/10 = %70,00.** Canonical mobil: Portföyüm (alan→daire→rol çipleri, seçili bağlam göstergesi, görevler ayrı), çoklu bağlamda otomatik seçim yok. Mobil check 128/128, build PASS. Backend/migration/paket yok; commit yok. [Rapor](../refactor/multi-property/06-report.md). Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BAKIM — 22.10.2026 — Hesap iletişim bilgileri — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** E-posta aslında Hesap bölümündeydi; Kişisel bilgilerde telefonun yanına salt okunur taşındı, kaynak mevcut giriş hesabı. Kullanıcının ek isteğiyle bakım kapsamına yeni kullanıcı cep telefonu da alındı; tek bakım adımı olarak tamamlandı. İsteğe bağlı `CreateUserRequest.Phone`, mevcut ortak MobileProfile'a ilk kayıt olarak ve üyelikle aynı yerel transaction'da kaydediliyor; mevcut profil üzerine yazılmaz. Hesap sahibi web/mobilde okur ve günceller. Keycloak telefon attribute'ı, Person kaydı, PHOTO rızası ve dizin telefon okuma yetkisi açılmadı. **27/27 izole PostgreSQL/S3 fixture entegrasyonu;235/235 FE; typecheck/build PASS.** Gerçek bileşenli fixture1440/375px: readonly e-posta doğru bölümde, telefon girişi/biçimleme ve yatay taşma0; canlı kullanıcı veya gerçek karşılama e-postası işlemi yapılmadı. Yeni paket/entity/migration yok; ilgili contract/security/verify/docs prosedürleri uygulandı. İŞ yol haritası24 kayıt,141/151=%93,38; ürün/UI/BF-MULTI fazı veya görevi tiklenmedi. Başlangıç indeksi/manifest/lock/next-env ve diğer devam eden işler korundu. Engel yok; sonraki kapsam yeni kullanıcı talebidir.
+
+[Dosyalar,komutlar ve görseller](../navigation-refactor/ACCOUNT_CONTACT.md). Giriş token:BİLGİ MEVCUT DEĞİL. Çıkış token:BİLGİ MEVCUT DEĞİL. Toplam token:BİLGİ MEVCUT DEĞİL. Kalan context:BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex,22.10.2026 teslim okuması:300dk kullanılan%53/kalan%47,reset22.10.2026 15:39:36;10080dk kullanılan%71/kalan%29,reset27.10.2026 13:32:07 Europe/Istanbul.
+
+## BF-MULTI FAZ 05 — 22.10.2026 — Malik/kiracı web portalı — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 05 | 10 faz, liste 6/10] Adım 7/7 = %100,00 (bu faz); BF-MULTI planı 6/10 faz teslim = %60,00 (FAZ 00–04 onaylı, FAZ 05 onay bekliyor).** Project 3: #37 In progress. `/workspaces/portfolio` Portföyüm (Tüm Dairelerim / Seçili Daire), yetenek tabanlı ikonlu sekmeler, `contextKey` ile bayat veri koruması; yeni salt okunur `/api/v2/me/units/{unitId}/{dues,payments,announcements,documents,leases}` (her istekte bağlam yeniden çözülür). **Backend 84 geçti/0 başarısız/7 S3 atlandı, unit 295/295; web 234/234, typecheck, build; fixture 1440/375 px.** Migration yok; canlı DB/.env/Keycloak/bayrak değişmedi; yeni paket yok; commit yok. #42 (mükerrer kişi) kullanıcı kararı bekliyor. [Rapor](../refactor/multi-property/05-report.md). Sonraki: kullanıcı onayı → FAZ 06 (#38).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Hesap/oturum kotası: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 04 — 22.10.2026 — Merkez Kişiler ekranı — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 04 | 10 faz, liste 5/10] Adım 7/7 = %100,00 (bu faz); BF-MULTI planı 5/10 faz teslim = %50,00 (FAZ 00–03 onaylı, FAZ 04 onay bekliyor).** Project 3: #36 In progress. Kişiler listesi alan seçmeden yetkili dizinden (ikonlu ilişki çipleri, maskeli kimlik); detayda daire başına portföy, alan→blok→daire seçimi, doğrulama rozeti; malik/sakin ayrı form, kiracılık kira sözleşmesi paneliyle (oluştur/ortak kiracı/bağla/bitir, 409 yeniden yükleme); tek gösterimlik hesap bağlama kodu ve bağı sonlandırma. **Web 228/228, typecheck ve build PASS; fixture 1440/375 px taşma 0, konsol hatası 0.** Backend/şema değişmedi; yeni paket yok; commit yok. Açık karar: mükerrer kişi birleştirme ve kanıt belgesi ayrı iş. [Rapor](../refactor/multi-property/04-report.md). Sonraki: kullanıcı onayı → FAZ 05 (#37).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Hesap/oturum kotası: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 03 — 22.10.2026 — Kimlik, çoklu rol ve aktif bağlam — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 03 | 10 faz, liste 4/10] Adım 7/7 = %100,00 (bu faz); BF-MULTI planı 4/10 faz teslim = %40,00 (FAZ 00–02 onaylı, FAZ 03 onay bekliyor).** Project 3: #35 In progress. Yeni: yönetici onaylı tek kullanımlık hesap↔kişi bağlama kodu (HMAC, 72 sa, ortak deneme kilidi, kimlik ek kontrolü, bağ sonlandırma), `GET /api/v2/me/portfolio` (daire başına kapasite/durum/yetenek, yönetim bağlamı ayrı, fingerprint), `GET /api/v2/me/active-context` (sunucu doğrulamalı bağlam). Bağlamlar artık yalnız VERIFIED/LEGACY ve etkin sözleşmeli kiracılıktan. `BF_PERSON_LINK_UNAVAILABLE` (ErrorCatalog + FE TR/EN). Migration `20261022091337_CentralPersonLinkCodes`. **Entegrasyon 223/224 (S3 baseline); unit 295/295; web 221/221 + typecheck.** Canlı DB/.env/Keycloak/bayrak değişmedi; yeni paket yok; commit yok. [Rapor](../refactor/multi-property/03-report.md). Sonraki: kullanıcı onayı → FAZ 04 (#36).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Hesap/oturum kotası: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 02 — 22.10.2026 — Backend ilişkiler ve kişi listesi API — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 02 | 10 faz, liste 3/10] Adım 7/7 = %100,00 (bu faz); BF-MULTI planı 3/10 faz teslim = %30,00 (FAZ 00–01 onaylı, FAZ 02 onay bekliyor).** Project 3: #34 In progress. Yeni: `GET /api/v2/people` (alan seçimsiz, yetkili kapsamlı, maskeli dizin), kişi portföyü endpoint'i, blok seçimi + bina filtreli daire seçimi, kira sözleşmesi API'si (oluştur/taraf ekle/bağla/bitir; VERIFIED aktör, makbuz, version). Kullanıcı kararı: dairede aynı dönemde tek sözleşme — domain + daire kilitli DB trigger; `BF_LEASE_OVERLAP`, `BF_LEASE_PARTY_OUTSIDE` (ErrorCatalog + FE TR/EN). Migration `20261022085436_LeaseContractExclusivityAndOperations`. **Entegrasyon 172/172; unit 293/293; regresyon 74/75 (S3 baseline); web 221/221 + typecheck.** Canlı DB/.env/Keycloak/bayrak değişmedi; yeni paket yok; commit yok. [Rapor](../refactor/multi-property/02-report.md). Sonraki: kullanıcı onayı → FAZ 03 (#35).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Hesap/oturum kotası: BİLGİ MEVCUT DEĞİL.
+
+## BF-MULTI FAZ 01 — 22.10.2026 — Domain model ve migration tasarımı — TEKNİK TESLİM, ONAY BEKLİYOR
+
+**[FAZ BF-MULTI 01 | 10 faz, liste 2/10] Adım 7/7 = %100,00 (bu faz); BF-MULTI planı 2/10 faz teslim = %20,00 (FAZ 00 onaylı, FAZ 01 onay bekliyor).** GitHub Project 3'e #32–#41 eklendi; #32 Done, #33 In progress. BF-PERSON canonical modeli üzerine ekleyici: `LeaseContract` + `UnitTenancy.lease_contract_id` (ortak kiracı/yenileme), dört tabloda doğrulama alanları (LEGACY/PENDING/VERIFIED/REJECTED, doğrulayan hesap, zaman, aynı Property kanıt belgesi), yönetici yazımı VERIFIED, legacy aktarım ve mevcut satırlar LEGACY (uydurma doğrulayan yok), saf `PersonPortfolio` read model (endpoint yok). Migration `20261022083050_LeaseContractsAndRelationVerification`, dolu Down reddi. **Unit 292/292; ilgili entegrasyon 81/81 + 4/4; regresyon 85/86 (S3 baseline).** Canlı DB/.env/Keycloak/bayrak değişmedi; yeni paket yok; commit yok. [Rapor](../refactor/multi-property/01-report.md). Sonraki: kullanıcı onayı → FAZ 02 (#34).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Hesap/oturum kotası: BİLGİ MEVCUT DEĞİL.
+
+## BAKIM — 22.10.2026 — Üst ve alt menü oval köşeleri — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** Ortak workspace-header/footer masaüstünde18px,≤650px ekranlarda16px oval köşeli; küçük dış boşluk ve semantik tema sınırı. Menü açılır panelleri kırpılmıyor; radius için overflow:hidden eklenmedi. Yalnız globals.css sunumu değişti; auth/API/kayıt/menü davranışı değişmedi. **221/221 FE, typecheck ve build geçti;1440/320/390px CUA fixture: hesap ve gizlilik menüsü açılıyor, yatay taşma yok, browser error/warn0.** Yeni test, bağımlılık, font/ikon/görsel paketi yok. Backend/mobil testleri bu CSS turunda çalıştırılmadı. Kaynak planlar frontend/buildingflow-ui-plan/MASTER_PROMPT.md ve PHASES.md okundu; tarihsel analiz adımı yeniden başlatılmadı. Mevcut frontendShellAndLogo sunum görevinin ek kanıtıdır; ürün/UI fazı veya görev tiki değiştirilmedi. İŞ planı 24 kayıt, 141/151 = %93,38. Git indeksi/manifest/lock/next-env ve önceki kullanıcı farkları korundu. Engel yok; sonraki kapsam yeni kullanıcı talebidir.
+
+[Değişiklik ve görseller](../navigation-refactor/ROUNDED_MENUS.md). Giriş token:BİLGİ MEVCUT DEĞİL. Çıkış token:BİLGİ MEVCUT DEĞİL. Toplam token:BİLGİ MEVCUT DEĞİL. Kalan context:BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex,22.10.2026 teslim okuması:300dk kullanılan%22/kalan%78,reset22.10.2026 15:39:36;10080dk kullanılan%66/kalan%34,reset27.10.2026 13:32:07 Europe/Istanbul.
+
+## BAKIM — 22.10.2026 — Yetkili kullanıcı fotoğrafı — TAMAMLANDI
+
+**Adım01/01; bakım ve bu tur1/1=%100,00.** Kullanıcının açık onayıyla yetkili yöneticinin diğer hesaplara fotoğraf ekle/değiştir/kaldır eylemi; hedef sahibinin güncel PROFILE_PHOTO rızası, mevcut rol/üyelik sınırı, ortak mobil/web pointer/version, actor+target UUID replay, JPEG256KiB/40MP kaynak sınırı ve metadata temizliği korunur. İlk fotoğrafta mevcut dizinden geçerli ad/soyad, mevcut profilde alan koruması. Yeni paket/tablo/migration yok. **24/24 gerçek izole PostgreSQL/özel test bucket entegrasyonu;221/221 FE, typecheck/build; masaüstü/dar ekran fixture+odak/rıza/kaldır kanıtı.** Canlı Keycloak/telefon kabulü çalıştırılmadı. [Dosyalar,komutlar,görseller ve koruma raporu](../navigation-refactor/USER_PHOTO_EVIDENCE.md). İŞ yol haritası24 kayıt,141/151=%93,38; mevcut İŞ19 kanıtı bağlandı, yeni görev/faz tiki yok. Engel yok; sonraki kapsam kullanıcı talebidir.
+
+Giriş token:BİLGİ MEVCUT DEĞİL. Çıkış token:BİLGİ MEVCUT DEĞİL. Toplam token:BİLGİ MEVCUT DEĞİL. Kalan context:BİLGİ MEVCUT DEĞİL. 300 dk: kullanılan %8, kalan %92; reset 22.10.2026 15:39:36 Europe/Istanbul. 10080 dk: kullanılan %64, kalan %36; reset 27.10.2026 13:32:07 Europe/Istanbul. Kaynak: Codex usage rateLimitsByLimitId.codex, 22.10.2026 teslim okuması.
+
 ## BAKIM — 21.10.2026 — Anket sekmelerine ikon ve kalıcı ikon kuralı — TAMAMLANDI
 
 **Anketler durum sekmeleri ikonlu:** Tümü LayoutGrid, Taslak FilePen, Planlandı CalendarClock, Aktif CirclePlay, Tamamlanan CircleCheckBig, Süresi Dolan TimerOff (mevcut lucide-react; yeni paket yok). Aynı ikonlar tablo/kart durum rozetlerinde de gösterilir (`features/surveys/category-style.ts` `stateIcon`). Ortak `FilterChips` türünde `icon` artık zorunlu; ikonsuz çip typecheck'ten geçmez. Kullanıcı kararı AGENTS.md ve frontend-rules.md'ye kalıcı kural olarak yazıldı: sekme, filtre çipi, durum, tür ve kategori seçimleri her zaman ikonludur.
@@ -15,10 +115,6 @@
 **Test:** Unit **285/285**; anket integration 7 + migration 1 **PASS**; tam integration koşusunda yalnız S3 gerektiren baseline `MobileCanonicalSync` fotoğraf testi kırmızı (bu işten bağımsız). FE `npm test` **214/214** (yeni `surveys.test.mjs` 7), `npm run typecheck` ve `npm run build` **PASS**, `check-licenses.py` PASS (329 paket, değişiklik yok). Test API fixture ile 1440/1600/375/320px liste, editör, şablon ve sonuç ekranları yatay taşma 0, console error 0; fixture canlı OIDC/API kabulü değildir. `PlanningMigrationTests` içindeki "son migration Planning" beklentisi yeni migration nedeniyle `migrations.Last()` kontrolüne çevrildi.
 
 **Açık:** sakin mobil uygulamasındaki yanıt ekranı yazılmadı (API hazır). Commit/push/deploy yok; önceki kullanıcı farkları korundu. Tek agent. Token giriş/çıkış/toplam/kalan context: BİLGİ MEVCUT DEĞİL.
-
-## BAKIM — 21.10.2026 — Yetkili kullanıcı fotoğrafı — DEVAM EDIYOR
-
-Kullanıcı yetkili yöneticinin diğer hesaplara da fotoğraf eklemesini açıkça onayladı. Mevcut kullanıcı kapsamı, hedef sahibinin güncel PROFILE_PHOTO rızası,256KB/JPEG/metadata temizliği,UUID/version,tek profil pointer ve mobil görünümü korunur. Yalnız fotoğraf değişir; ad/telefon/rol değiştirilmez. Yeni paket/tablo yok. Kabul: pozitif/negatif yetki/rıza/uyumsuz payload/409/replay/mobil okuma/değiştir-sil entegrasyon, FEtypecheck/build/test ve UI. Bu tur0/1=%0,00; ürün/MOBİL fazı değişmez.
 
 ## BAKIM — 21.10.2026 — Açık/koyu/sistem teması — TAMAMLANDI
 

@@ -201,3 +201,24 @@ Aşama07 tek agent phase/verify/security/docs;177FE,277unit,83izoleintegration v
 21.10.2026 MET Norway BAKIM: tek agent, akadev-contract/security/license/verify/docs yönergeleriyle kullanıcı onaylı hava servisi tamamlandı.195/195 FE ve11/11 backend; [teslim/kanıt](navigation-refactor/DASHBOARD_WEATHER.md). Yeni paket/agent/MCP yok.
 
 21.10.2026 tema BAKIM: tek agent, mevcut verify/docs ve güvenlik yönergeleriyle nonce/ilk boya/enum tercih kontrolü. Yeni agent/MCP/paket kurulmadı. [Kabul](TESTING.md).
+
+22.10.2026 kullanıcı fotoğrafı bakımında mevcut akadev-contract/security/verify/docs prosedürleri uygulandı; yeni Agent/Skill/MCP kurulmadı. Yetki, ortak mobil/web sözleşmesi ve gerçek doğrulama [kanıtı](navigation-refactor/USER_PHOTO_EVIDENCE.md).
+
+22.10.2026 oval menü bakımında mevcut akadev-verify/docs kullanıldı; tek agent, yeni paket/Agent/MCP kurulmadı. [Kanıt](navigation-refactor/ROUNDED_MENUS.md).
+
+22.10.2026 hesap iletişim bakımında mevcut akadev-contract/security/verify/docs uygulandı; tek agent,yeni kurulum yok. [Kanıt](navigation-refactor/ACCOUNT_CONTACT.md).
+
+
+## 22.10.2026 — BF-VERIFY FAZ 00 prompt/görev/analiz turu
+
+Tek agent;akadev-phase ile8faz kimliği/3adım/kapanış,akadev-contract ile ortak hesap üretici-tüketici ve uyumluluk planı,akadev-docs ile mevcut TESTING/progress kanıt bağlantıları uygulandı. Belgeye uygun statik doğrulama yapıldı;uygulama/güvenlik taraması veya test sonucu iddia edilmedi. Yeni agent/Skill/MCP kurulmadı;uygulama kodu ve bağımlılık değişmedi. Kanıt:[00-analysis.md](refactor/contact-verification/00-analysis.md).
+
+
+## 22.10.2026 — BF-VERIFY FAZ 01
+
+Tek agent;akadev-phase/contract/security/verify/docs kapsamında ortak actor/scope ve eski istemci sözleşmesi,gerçek izole PostgreSQL/API/şema testleri ve kanıta dayalı görev kapanışı.Uygulama testleri14+6 geçti;gerçek gönderim/cihaz testi iddia edilmedi.Yeni Skill/agent/MCP/bağımlılık kurulmadı.[Rapor](refactor/contact-verification/01-report.md).
+
+
+## 22.10.2026 — BF-VERIFY FAZ02
+
+Tek agent; akadev-phase/contract/security/verify/docs ve lisans politikası uygulandı. Mevcut hesap/Keycloak modülü, doğrudan web tüketicisi ve izole IdP testleriyle sınırlandı; yeni Skill/agent/MCP/paket kurulmadı. [Kanıt](refactor/contact-verification/02-report.md).

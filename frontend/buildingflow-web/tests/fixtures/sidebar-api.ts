@@ -1,3 +1,4 @@
+import {personCenterApi} from './person-center-api';
 let firstName='Ada';
 export function updateFixtureName(){firstName='Yeni';}
 const subject='77777777-7777-4777-8777-777777777777';
@@ -21,8 +22,10 @@ async function api(path:string,options:RequestInit={}){
   if(path.includes('/documents?')){const saved=banners.get(path.split('/')[4]);return {items:saved?[saved.record]:[],page:1,pageSize:100,totalCount:saved?1:0};}
   if(path.endsWith('/download'))return banners.get(path.split('/')[4])?.blob;
 
-  if(path==='/api/v1/account')return {userId:subject,username:'fixture',email:null,roles:['SITE_ADMIN','ACCOUNTANT'],contexts:[],hasMore:false,profile:{userId:subject,firstName,lastName:'DEMO',phone:null,photoId:null,photoSha256:null,version:1,modifiedAt:null}};
+  if(path==='/api/v1/account/consents')return {userId:subject,items:[]};
+  if(path==='/api/v1/account')return {userId:subject,username:'fixture',email:window.location.pathname==='/account'?'profil@example.test':null,roles:['SITE_ADMIN','ACCOUNTANT'],contexts:[],hasMore:false,profile:{userId:subject,firstName,lastName:'DEMO',phone:window.location.pathname==='/account'?'+90 555 123 45 67':null,photoId:null,photoSha256:null,version:1,modifiedAt:null}};
   if(path==='/api/v1/status')return {status:'fixture'};
+  if(path.startsWith('/api/v2/'))return personCenterApi(path,options);
   throw new Error('Unexpected fixture API path');
 }
 export function useAuthorizedApi(){return api;}

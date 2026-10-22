@@ -1,6 +1,6 @@
 import {deviceAccess} from '../person-authorization/device';
-import {readableOffline} from '../person-authorization/model';
-import type {Snapshot} from '../offline/database';
+import {portfolioAccess,readableOffline,type ContextAccess} from '../person-authorization/model';
+import {readPortfolio,writePortfolio,type Snapshot} from '../offline/database';
 import {purgeUnauthorizedNotices} from '../notices/store';
 import {validateQuery as validateNoticeQuery,type Query as NoticeQuery,type Kind as NoticeKind} from '../notices/contracts';
 import * as Crypto from 'expo-crypto';
@@ -21,7 +21,7 @@ import { visibleJobs, cancel as cancelQueued, retry as retryQueued, enqueue, typ
 import type { PrivateFiles } from '../profile/files';
 import type { Command } from '../sync/contracts';
 import { authConfig } from './config';
-import { contextKey, parseSession, sessionFromAuthorization, selectContext, type Context, type Session } from './contracts';
+import { contextKey, initialContext, parseSession, sessionFromAuthorization, selectContext, type Context, type Session } from './contracts';
 import { readRefresh, writeRefresh } from './storage';
 import { errorText, linkBody, parseRegistration, registrationBody, responseCode, type PersonLinkInput, type RegistrationInput, type RegistrationResult } from './registration';
 
@@ -32,7 +32,7 @@ const canonicalSync=canonicalMode&&process.env.EXPO_PUBLIC_PERSON_SYNC_ENABLED==
 const cacheScope = config ? `${config.issuer}|${config.api}|${config.clientId}` : 'unconfigured';
 const expoGo = Platform.OS !== 'web' && Constants.appOwnership === 'expo';
 type State = 'loading' | 'signedOut' | 'signedIn' | 'working' | 'locked';
-type Value = { withDeviceAction:<T>(task:()=>Promise<T>)=>Promise<T>; privacyLocked:boolean; canUnlockOffline:boolean; unlockOffline:()=>Promise<void>; offlineEnabled:boolean; enableOffline:()=>Promise<void>; noticeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; noticeRequest:(q:NoticeQuery)=>Promise<Response>; noticeRead:(kind:NoticeKind,id:string)=>Promise<Response>; noticePreference:(enabled:boolean,version:number)=>Promise<Response>; requestCache:<T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; queueRequestDraft:(draft:Draft)=>Promise<void>; requestPhoto:(id:string,photoId:string,sha:string)=>Promise<{uri:string;local:boolean}>; financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; register: (input: RegistrationInput, requestId: string) => Promise<RegistrationResult>; linkPerson: (input: PersonLinkInput) => Promise<void>; cancel: () => void; choose: (key: string) => void };
+type Value = { withDeviceAction:<T>(task:()=>Promise<T>)=>Promise<T>; privacyLocked:boolean; canUnlockOffline:boolean; unlockOffline:()=>Promise<void>; offlineEnabled:boolean; enableOffline:()=>Promise<void>; noticeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; noticeRequest:(q:NoticeQuery)=>Promise<Response>; noticeRead:(kind:NoticeKind,id:string)=>Promise<Response>; noticePreference:(enabled:boolean,version:number)=>Promise<Response>; requestCache:<T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; queueRequestDraft:(draft:Draft)=>Promise<void>; requestPhoto:(id:string,photoId:string,sha:string)=>Promise<{uri:string;local:boolean}>; financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; register: (input: RegistrationInput, requestId: string) => Promise<RegistrationResult>; linkPerson: (input: PersonLinkInput) => Promise<void>; cancel: () => void; choose: (key: string) => void; portfolio: Record<string,ContextAccess> | null; meRequest: (path: string, signal: AbortSignal) => Promise<Response> };
 const AuthContext = createContext<Value | null>(null);
 class TimeoutError extends Error {}
 // Keycloak issues 5-minute access tokens; expo-auth-session's default 10-minute margin would treat every token as expired.
@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [cacheNote, setCacheNote] = useState('');
   const [session, setSession] = useState<Session | null>(null);
   const [selected, setSelected] = useState<Context | null>(null);
+  const [portfolio, setPortfolio] = useState<{userId:string;access:Record<string,ContextAccess>|null} | null>(null);
   const [discovery, setDiscovery] = useState<AuthSession.DiscoveryDocument | null>(null);
   const [boot, setBoot] = useState(0);
   const token = useRef<AuthSession.TokenResponse | null>(null);
@@ -102,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await writeRefresh(next.refreshToken ?? null);
     if (epoch !== generation.current) { await writeRefresh(null); return; }
     activeUser.current=verified.userId; token.current = next; setSession(verified);
-    const context = verified.contexts.find(c => contextKey(c) === lastContext.current) ?? verified.contexts[0] ?? null;
+    const context = initialContext(verified.contexts,lastContext.current,canonicalMode);
     lastContext.current = context ? contextKey(context) : null; setSelected(context);
     const now = Date.now(); setVerifiedAt(now); setOffline(false);
     try { const saved = await saveCache(verified, now, lastContext.current, cacheScope); if(epoch!==generation.current)return; if(saved&&verified.authorization){await deviceAccess.recordOnline(verified.authorization,cacheScope);const enabled=await deviceAccess.status(verified.userId,cacheScope);if(epoch===generation.current)setOfflineEnabled(enabled);} if(saved&&!canonicalMode&&Platform.OS!=='web')await withSyncCache(cacheScope,verified.userId,db=>purgeUnauthorizedNotices(db,verified),()=>epoch===generation.current); if (epoch === generation.current) setCacheNote(Platform.OS !== 'web' && !saved ? 'Çevrimdışı kopya kaydedilemedi.' : ''); }
@@ -131,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (!cached) throw new Error('Çevrimdışı kopya yok veya süresi doldu.');
           if (!alive || epoch !== generation.current) return;
           token.current = null;
-          const context = cached.session.contexts.find(c => contextKey(c) === cached.selectedKey) ?? cached.session.contexts[0] ?? null;
+          const context = initialContext(cached.session.contexts,cached.selectedKey,canonicalMode);
           lastContext.current = context ? contextKey(context) : null;
           activeUser.current=cached.session.userId; setSession(cached.session); setSelected(context); setVerifiedAt(cached.verifiedAt); setOffline(true); setState('signedIn'); setMessage('');
           return;
@@ -192,6 +193,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const networkSub = Network.addNetworkStateListener(s => { const next=String(s.isConnected)+':'+String(s.isInternetReachable);const previous=lastNetworkState.current;lastNetworkState.current=next;if(previous!==null && previous!==next)void renew(); });
     return () => { clearTimeout(timer); sub.remove(); networkSub.remove(); };
   }, [renew, state, offline, verifiedAt,session]);
+  // Unit status and capabilities come from /me/portfolio online; offline the last account-scoped copy is shown, limited to current contexts.
+  useEffect(()=>{
+    if(!canonicalMode||state!=='signedIn'||!session?.authorization||Platform.OS==='web')return;
+    const epoch=generation.current,keys=session.contexts.map(contextKey),userId=session.userId,active=()=>epoch===generation.current;const controller=new AbortController();
+    void (async()=>{
+      try{
+        if(!offline&&token.current&&config){const response=await fetch(config.api+'/api/v2/me/portfolio',{headers:{Authorization:`Bearer ${token.current}`},signal:controller.signal});
+          if(response.ok){const value=portfolioAccess(await response.json(),keys);await withSyncCache(cacheScope,userId,db=>writePortfolio(db,userId,value,Date.now()),active);if(active())setPortfolio({userId,access:value.access});return;}}
+        const cached=await withSyncCache(cacheScope,userId,db=>readPortfolio(db,userId,keys,Date.now()),active);if(active())setPortfolio({userId,access:cached?.access??null});
+      }catch{if(active())setPortfolio({userId,access:null});}
+    })();
+    return()=>controller.abort();
+  },[state,offline,session]);
   useEffect(()=>{
     if(!canonicalMode||state!=='signedIn'||!session?.authorization)return;
     const authorization=session.authorization;let seen=verifiedAt??Date.now();
@@ -458,6 +472,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       catch { setMessage('Cihaz oturumu kapandı. Sunucu oturumunun kapatılması doğrulanamadı.'); }
     }
   };
+  // Canonical read-only unit summaries; online only, the server re-resolves the context on every call.
+  const meRequest = async (path: string, signal: AbortSignal) => { if (!canonicalMode || offline || !config || !token.current || !path.startsWith('/api/v2/me/units/')) throw Error('Çevrimiçi doğrulama gerekli.'); return fetch(config.api + path, { headers: { Authorization: `Bearer ${token.current}` }, signal }); };
   const choose = (key: string) => { if (session) { const context = selectContext(session, key); syncAbort.current?.abort(); lastContext.current = key; setSelected(context); void saveSelection(key, cacheScope).catch(() => setCacheNote('Mülk seçimi cihazda saklanamadı.')); } };
   const unlockOffline=async()=>{
     if(!canonicalMode||!canUnlockOffline||state!=='locked'||deviceBusy.current)return;
@@ -507,7 +523,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });return()=>sub.remove();
   },[state,session,verifiedAt,offlineEnabled]);
   const note = expoGo ? 'Güvenli giriş için BuildingFlow development build gerekli. Expo Go özel giriş dönüş adresini desteklemiyor.' : !config ? 'Giriş yapılandırması hazır değil.' : message;
-  return <AuthContext.Provider value={{ withDeviceAction,privacyLocked,canUnlockOffline,unlockOffline,offlineEnabled,enableOffline,noticeCache, noticeRequest, noticeRead, noticePreference, requestCache, queueRequestDraft, requestPhoto, financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, register, linkPerson, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && (state === 'signedOut'||state==='locked'), retrySetup, login, logout, cancel, choose }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ withDeviceAction,privacyLocked,canUnlockOffline,unlockOffline,offlineEnabled,enableOffline,noticeCache, noticeRequest, noticeRead, noticePreference, requestCache, queueRequestDraft, requestPhoto, financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, register, linkPerson, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && (state === 'signedOut'||state==='locked'), retrySetup, login, logout, cancel, choose, meRequest, portfolio: canonicalMode && state==='signedIn' && session && portfolio?.userId===session.userId ? portfolio.access : null }}>{children}</AuthContext.Provider>;
 }
 export function useOptionalAuth() { return useContext(AuthContext); }
 export function useAuth() { const v = useOptionalAuth(); if (!v) throw new Error('AuthProvider gerekli.'); return v; }

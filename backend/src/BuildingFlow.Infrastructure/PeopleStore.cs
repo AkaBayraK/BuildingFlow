@@ -72,7 +72,7 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock, Pe
     {
         await using var transaction=await db.Database.BeginTransactionAsync(token);
         var parent = await LockProperty(property,access,token); if (parent is null) return null;
-        Active(parent); await CheckLinked(property,request.LinkedUserId,token);
+        Active(parent); await CheckLinked(property,request.LinkedUserId,token); await CheckDuplicates(property,null,request.PersonKind,request.Citizenship,request.CountryCode,request.IdentityNumber,request.PhoneNumber,request.Email,token);
         var person = new Person(property, request.FirstName!, request.PersonKind=="LEGAL" ? "—" : request.LastName!, request.PhoneNumber, request.Email);
         person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
         person.Update(request.FirstName!,request.LastName ?? "",request.PhoneNumber,request.Email,true);
@@ -118,14 +118,28 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock, Pe
     }
     public async Task<PersonResponse?> UpdateAsync(Guid property, Guid personId, UpdatePersonRequest request, AccessScope access, CancellationToken token)
     {
+        await using var transaction=await db.Database.BeginTransactionAsync(token);
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM properties WHERE id = {property} FOR UPDATE", token);
         var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
         var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == personId, token); if (parent is null || person is null) return null;
         Active(parent); Expected(person, request.Version);
+        await CheckDuplicates(property,personId,request.PersonKind,request.Citizenship,request.CountryCode,request.IdentityNumber,request.PhoneNumber,request.Email,token);
         if (request.IsEnabled == false && await HasUnfinished(personId, null, token)) throw new HierarchyConflictException(ErrorCatalog.PersonHasOccupancy.Create());
         await CheckLinked(property,request.LinkedUserId,token);
         person.SetProfile(request.PersonKind!,request.Citizenship!,request.CountryCode!,request.IdentityNumber!,request.BirthDate,request.Gender,request.Address,request.LinkedUserId);
         person.Update(request.FirstName!, request.LastName!, request.PhoneNumber, request.Email, request.IsEnabled!.Value);
-        Touch(person); Touch(parent); await Save(token); return await GetAsync(property, personId, access, token);
+        Touch(person); Touch(parent); await Save(token); await transaction.CommitAsync(token); return await GetAsync(property, personId, access, token);
+    }
+    // Same identity number twice in one Property is rejected; the Property lock serializes competing writes.
+    private async Task CheckDuplicates(Guid property,Guid? self,string? kind,string? citizenship,string? country,string? identity,string? phone,string? email,CancellationToken token)
+    {
+        var id=self??Guid.Empty;
+        if(!string.IsNullOrWhiteSpace(identity)){var key=PersonDuplicates.IdentityKey(identity);
+            if(await db.People.AnyAsync(p=>p.PropertyId==property && p.Id!=id && p.PersonKind==kind && p.Citizenship==citizenship && p.CountryCode==country && p.IdentityNumber!=null && p.IdentityNumber.ToUpper()==key,token))
+                throw new HierarchyConflictException(ErrorCatalog.PersonDuplicateIdentity.Create());}
+        var contacts=await db.People.Where(p=>p.PropertyId==property && p.Id!=id && p.IsEnabled && (p.PhoneNumber!=null || p.Email!=null)).Select(p=>new{p.PhoneNumber,p.Email}).ToArrayAsync(token);
+        if(PersonDuplicates.Contact(phone,email,contacts.Select(c=>(c.PhoneNumber,c.Email))) is {} duplicate)throw new HierarchyConflictException(duplicate.Create());
     }
     private async Task CheckLinked(Guid property,string? subject,CancellationToken token)
     {
@@ -219,7 +233,9 @@ public sealed class PeopleStore(BuildingFlowDbContext db, TimeProvider clock, Pe
     public async Task<OccupancyResponse?> CreateOccupancyAsync(Guid property, CreateOccupancyRequest request, AccessScope access, CancellationToken token)
     {
         await using var transaction=await db.Database.BeginTransactionAsync(token);
-        var parent = await LockProperty(property,access,token);
+        if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM properties WHERE id = {property} FOR UPDATE", token);
+        var parent = await Properties(access).SingleOrDefaultAsync(value => value.Id == property, token);
         var person = await People(property, access).SingleOrDefaultAsync(value => value.Id == request.PersonId, token);
         var unit = await db.Units.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == request.UnitId, token);
         if (parent is null || person is null || unit is null) return null;

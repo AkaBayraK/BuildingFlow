@@ -96,6 +96,12 @@ Kodlar sabittir; çeviri metni kimlik olarak kullanılmaz. Yeni kod için katalo
 | BF_ERRORS_APARTMENT_POSITIVE_FLOORS | 400 | error | — |
 | BF_ERRORS_FLOOR_REQUIRED | 400 | error | — |
 | BF_RECORD_CHANGED | 409 | warning | — |
+| BF_PERSON_LINK_UNAVAILABLE | 409 | warning | — |
+| BF_PERSON_DUPLICATE_IDENTITY | 409 | warning | — |
+| BF_PERSON_DUPLICATE_PHONE | 409 | warning | — |
+| BF_PERSON_DUPLICATE_EMAIL | 409 | warning | — |
+| BF_LEASE_OVERLAP | 409 | warning | — |
+| BF_LEASE_PARTY_OUTSIDE | 409 | warning | — |
 | BF_DUES_ERROR_MOVE_OUT_REASON | 409 | warning | — |
 | BF_PERSON_REQUIRED | 400 | error | — |
 | BF_OCCUPANCY_TYPE_INVALID | 400 | error | — |

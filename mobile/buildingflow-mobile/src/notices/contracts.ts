@@ -19,3 +19,10 @@ export function parseNoticeLink(params:Record<string,unknown>,session:Session,c:
  selectContext(session,contextKey(c));id(params.propertyId);const q={kind:params.kind as Kind,page:1,itemId:id(params.id)};validateQuery(q);return q;
 }
 export function readResult(value:unknown,kind:Kind,item:string){if(!value||typeof value!=='object')throw Error('Okundu makbuzu eksik.');const v=value as {id:string;kind:string;readAt:string};if(v.id!==item||v.kind!==kind)throw Error('Okundu makbuzu eşleşmiyor.');return time(v.readAt);}
+
+// A notification may name its context; the app switches only to a context the current authorization still holds, then the server re-checks it.
+export function noticeContextSwitch(params:Record<string,unknown>,session:Session,c:Context|null):string|null{
+ const target=params.contextKey;if(target===undefined)return null;
+ if(typeof target!=='string'||!session.contexts.some(x=>contextKey(x)===target))throw Error('Bu bildirimin dairesine artık erişiminiz yok.');
+ return c&&contextKey(c)===target?null:target;
+}

@@ -78,6 +78,8 @@ public sealed class SmsApiTests(SiteApiTests.SiteApiFactory factory) : IClassFix
         Assert.Equal("FAILED", withoutAccount.RegistrationSms!.Status); Assert.Equal(SmsQueue.NoAccount, withoutAccount.RegistrationSms.ErrorCode);
         var account = (await (await admin.PutAsJsonAsync(root + "/account", Account())).Content.ReadFromJsonAsync<SmsAccountResponse>())!;
         await admin.PostAsJsonAsync(root + "/account/credits", new SmsCreditRequest("LOAD", 3));
+        // The same identity, phone and e-mail may exist only once per Property, so the first fixture person is removed.
+        await factory.WithDb(async db => { var first = await db.People.SingleAsync(p => p.Id == withoutAccount.Id); db.Entry(first).Property(p => p.IsDeleted).CurrentValue = true; await db.SaveChangesAsync(); });
         var person = await CreatePerson(admin, x.Property);
         Assert.Equal("QUEUED", person.RegistrationSms!.Status);
         var messageId = person.RegistrationSms.MessageId!.Value;

@@ -1,0 +1,9 @@
+{
+  "verifyEmail": false,
+  "emailTheme": "buildingflow",
+  "eventsListeners": ["buildingflow-contact-notice"],
+  "requiredActions": [
+    {"alias":"VERIFY_EMAIL","name":"Verify Email","providerId":"VERIFY_EMAIL","enabled":true,"defaultAction":false,"priority":50},
+    {"alias":"UPDATE_EMAIL","name":"Update Email","providerId":"UPDATE_EMAIL","enabled":true,"defaultAction":false,"priority":40,"config":{"verifyEmail":"true","max_auth_age":"0"}}
+  ]
+}

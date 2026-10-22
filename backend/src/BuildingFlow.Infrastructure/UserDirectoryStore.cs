@@ -34,6 +34,30 @@ public sealed class UserDirectoryStore(BuildingFlowDbContext db) : IUserDirector
 
     public Task<bool> PropertyExistsAsync(Guid property, CancellationToken token) => db.Properties.AnyAsync(p => p.Id == property, token);
 
+    // Called only for the freshly created Keycloak id, before the welcome/reset email is sent.
+    // Membership and optional shared profile initialization commit together; no existing profile is overwritten.
+    public async Task InitializeCreatedAccountAsync(Guid? property, string userId, string firstName, string lastName, string? phone, CancellationToken token)
+    {
+        if (property is null && phone is null) return;
+        await using var transaction = await db.Database.BeginTransactionAsync(token);
+        if (property is Guid target)
+        {
+            if (await Lock(target, token) is not { IsEnabled: true }) throw new UnauthorizedAccessException();
+            await Ensure(target, userId, token);
+        }
+        if (phone is not null)
+        {
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"profile:" + userId},0))", token);
+            if (await db.Set<MobileProfile>().IgnoreQueryFilters().AnyAsync(p => p.OwnerUserId == userId, token))
+                throw new HierarchyConflictException(ErrorCatalog.UserExists.Create());
+            var profile = new MobileProfile(userId);
+            profile.Edit(firstName, lastName, phone, null);
+            db.Add(profile);
+        }
+        await db.SaveChangesAsync(token);
+        await transaction.CommitAsync(token);
+    }
+
     public async Task EnsureMembershipAsync(Guid property, string userId, CancellationToken token)
     {
         await Ensure(property, userId, token);

@@ -39,6 +39,11 @@ public sealed class CentralPeopleStore(BuildingFlowDbContext db,ICurrentUserServ
   if(!await Allowed(tenant,true,token))return null;
   var prior=await db.Set<CentralPersonOperation>().IgnoreQueryFilters().SingleOrDefaultAsync(r=>r.TenantId==tenant && r.ActorIssuer==actor.Issuer && r.ActorSubject==actor.UserId && r.OperationId==operation,token);
   if(prior!=null){if(prior.IsDeleted || !prior.IsEnabled || prior.Fingerprint!=fingerprint)throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());var current=await Persons(tenant).AsNoTracking().SingleOrDefaultAsync(p=>p.Id==prior.PersonId,token);if(current==null)throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());return new(Detail(current),true,prior.AppliedVersion);}
+  // One person per identity number inside a tenant (user decision 22.10.2026); the tenant lock above serializes competing writes.
+  var identityKey=PersonDuplicates.IdentityKey(profile.IdentityNumber!);var self=person??Guid.Empty;
+  if(await Persons(tenant).AnyAsync(p=>p.Id!=self && p.Kind==profile.Kind && p.Citizenship==profile.Citizenship && p.CountryCode==profile.CountryCode && p.IdentityNumber.ToUpper()==identityKey,token))throw new HierarchyConflictException(ErrorCatalog.PersonDuplicateIdentity.Create());
+  var contacts=await Persons(tenant).Where(p=>p.Id!=self && p.IsEnabled && (p.PhoneNumber!=null || p.Email!=null)).Select(p=>new{p.PhoneNumber,p.Email}).ToArrayAsync(token);
+  if(PersonDuplicates.Contact(profile.PhoneNumber,profile.Email,contacts.Select(c=>(c.PhoneNumber,c.Email))) is {} duplicate)throw new HierarchyConflictException(duplicate.Create());
   CentralPerson record;
   if(person is Guid id){record=(await Persons(tenant).SingleOrDefaultAsync(p=>p.Id==id,token))!;if(record==null)return null;if(record.Version!=expectedVersion)throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
    if((!enabled || profile.Kind!="NATURAL") && await db.Set<CentralPersonAccountLink>().AnyAsync(l=>l.TenantId==tenant && l.PersonId==id && l.IsEnabled && l.EndedAt==null,token))throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
