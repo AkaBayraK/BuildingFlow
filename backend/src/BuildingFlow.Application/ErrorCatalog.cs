@@ -191,6 +191,44 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition PersonLinkUnavailable = new("BF_PERSON_LINK_UNAVAILABLE", "Bu kişi için bağlama kodu oluşturulamaz: kişi etkin gerçek kişi olmalı, yetkili alanda güncel ilişkisi veya görevi bulunmalı ve bağlı hesabı olmamalı.", "warning");
     public static readonly ErrorDefinition LeaseOverlap = new("BF_LEASE_OVERLAP", "Bu bağımsız bölümde aynı dönemde başka bir kira sözleşmesi var. Ortak kiracıyı mevcut sözleşmeye taraf olarak ekleyin.", "warning");
     public static readonly ErrorDefinition LeasePartyOutside = new("BF_LEASE_PARTY_OUTSIDE", "Kiracı dönemi sözleşme dönemi içinde olmalı; bitirilecek sözleşmenin daha geç biten veya sonra başlayan tarafı olamaz.", "warning");
+    public static readonly ErrorDefinition LatePenaltyInvalid = new("BF_LATE_PENALTY_INVALID", "Gecikme politikası alanlarını kontrol edin: geçerli tarih aralığı, kanuni aylık %5 oran, gün/30 yöntemi ve KMK m.20 dayanağı.", "error");
+    public static readonly ErrorDefinition LatePenaltyOverlap = new("BF_LATE_PENALTY_OVERLAP", "Bu tarih aralığında onaylı başka bir gecikme politikası var.", "warning");
+    public static readonly ErrorDefinition LatePenaltyApproval = new("BF_LATE_PENALTY_APPROVAL", "Kanuni orandan farklı oran için ayrı hukuki dayanak, onay belgesi ve taslağı oluşturandan farklı bir yetkilinin onayı gerekir.", "warning");
+    public static readonly ErrorDefinition LatePenaltyState = new("BF_LATE_PENALTY_STATE", "Gecikme politikası bu işlem için uygun durumda değil; güncel kaydı kontrol edin.", "warning");
+    public static readonly ErrorDefinition LatePenaltyCrystallized = new("BF_LATE_PENALTY_CRYSTALLIZED", "Bu tarih kesinleşmiş gecikme tahakkukunun içinde kalıyor; geçmiş tahakkuklar sessizce değiştirilemez.", "warning");
+    public static readonly ErrorDefinition LatePenaltySwitchInvalid = new("BF_LATE_PENALTY_SWITCH_INVALID", "Uygulama ayarı için bugünden önce olmayan yürürlük tarihi ve gerekçe girin.", "error");
+    public static readonly ErrorDefinition LatePenaltyRequestConflict = new("BF_LATE_PENALTY_REQUEST_CONFLICT", "Bu istek kimliği farklı bir gecikme işlemi için kullanılmış.", "warning");
+    public static readonly ErrorDefinition LatePenaltyRebuildBlocked = new("BF_LATE_PENALTY_REBUILD_BLOCKED", "Bu tarihten sonra ödenmiş veya muaf tutulmuş gecikme tahakkuku var; önce sonraki ödemeleri iptal edin.", "warning");
+    public static readonly ErrorDefinition LatePenaltyBalance = new("BF_LATE_PENALTY_BALANCE", "Gecikme tazminatı dağıtımı ödeme tarihindeki tazminat bakiyesini aşamaz.", "warning");
+    public static readonly ErrorDefinition LatePenaltyWaive = new("BF_LATE_PENALTY_WAIVE", "Yalnız ödenmemiş aktif gecikme tahakkuku gerekçeyle muaf tutulabilir.", "warning");
+    public static readonly ErrorDefinition LatePenaltyDate = new("BF_LATE_PENALTY_DATE", "Hesaplama tarihi geçerli olmalı ve bugünden sonra olamaz.", "error");
+    public static readonly ErrorDefinition LatePenaltyDocument = new("BF_LATE_PENALTY_DOCUMENT", "Onay belgesi bu yönetim alanına ait, silinmemiş bir belge olmalı.", "error");
+    public static readonly ErrorDefinition LatePenaltyChargePaid = new("BF_LATE_PENALTY_CHARGE_PAID", "Gecikme tazminatı tahsil edilmiş borç iptal edilemez; önce ilgili ödemeyi iptal edin.", "warning");
+    public static readonly ErrorDefinition DuesKindInvalid = new("BF_DUES_KIND_INVALID", "Borç türünü seçin; ek ödeme için kategori zorunludur, aidatta kategori olmaz.", "error");
+    public static readonly ErrorDefinition PaymentSettingsInvalid = new("BF_PAYMENT_SETTINGS_INVALID", "Ödeme ayarlarını kontrol edin: makbuz öneki 2–10 harf/rakam, komisyon politikası yalnız yönetimin üstlenmesi olabilir.", "error");
+    public static readonly ErrorDefinition PaymentBankAccountInvalid = new("BF_PAYMENT_BANK_ACCOUNT_INVALID", "Banka adı, hesap sahibi, amaç, blok ve geçerlilik tarihlerini kontrol edin.", "error");
+    public static readonly ErrorDefinition PaymentIbanInvalid = new("BF_PAYMENT_IBAN_INVALID", "IBAN geçersiz; TR ile başlayan 26 karakterlik ve kontrol basamağı doğru bir IBAN girin.", "error");
+    public static readonly ErrorDefinition PaymentIbanDuplicate = new("BF_PAYMENT_IBAN_DUPLICATE", "Bu IBAN bu yönetim alanında zaten açık veya onay bekleyen bir hesapta kayıtlı.", "warning");
+    public static readonly ErrorDefinition PaymentBankAccountState = new("BF_PAYMENT_BANK_ACCOUNT_STATE", "Banka hesabı bu işlem için uygun durumda değil; güncel kaydı kontrol edin.", "warning");
+    public static readonly ErrorDefinition PaymentSecondApprover = new("BF_PAYMENT_SECOND_APPROVER", "Bu işlem çift onaylıdır; talebi oluşturan kişiden farklı bir yetkili onaylamalıdır.", "warning");
+    public static readonly ErrorDefinition PaymentBankAccountUnusable = new("BF_PAYMENT_BANK_ACCOUNT_UNUSABLE", "Seçilen banka hesabı bu yönetim alanında ödeme tarihinde geçerli değil veya havale dışı bir yöntem seçildi.", "warning");
+    public static readonly ErrorDefinition PaymentMerchantInvalid = new("BF_PAYMENT_MERCHANT_INVALID", "Sağlayıcı, etiket, üye işyeri numarası ve gizli anahtar referansını kontrol edin; gizli anahtarın kendisini girmeyin.", "error");
+    public static readonly ErrorDefinition PaymentLiveDisabled = new("BF_PAYMENT_LIVE_DISABLED", "Canlı ödeme ortamı kapalıdır; yalnız sandbox kullanılabilir. Canlıya geçiş ayrı onay gerektirir.", "warning");
+    public static readonly ErrorDefinition PaymentProviderUnavailable = new("BF_PAYMENT_PROVIDER_UNAVAILABLE", "Ödeme sağlayıcısı entegre değil veya sistem yöneticisi tarafından kapatılmış.", "warning");
+    public static readonly ErrorDefinition PaymentProviderFailure = new("BF_PAYMENT_PROVIDER_FAILURE", "Ödeme sağlayıcısına şu anda ulaşılamadı; işlem yapılmadı. Daha sonra tekrar deneyin.", "warning");
+    public static readonly ErrorDefinition PaymentOnlineDisabled = new("BF_PAYMENT_ONLINE_DISABLED", "Bu yönetim alanında online ödeme açık değil veya geçerli bir üye işyeri tanımlı değil.", "warning");
+    public static readonly ErrorDefinition PaymentIntentInvalid = new("BF_PAYMENT_INTENT_INVALID", "Ödenecek borçları ve tutarı kontrol edin.", "error");
+    public static readonly ErrorDefinition PaymentIntentActive = new("BF_PAYMENT_INTENT_ACTIVE", "Seçilen borçlardan biri için devam eden bir online ödeme var; sonucunu bekleyin.", "warning");
+    public static readonly ErrorDefinition PaymentNothingDue = new("BF_PAYMENT_NOTHING_DUE", "Seçilen borçlarda ödenecek bakiye kalmadı; listeyi yenileyin.", "warning");
+    public static readonly ErrorDefinition PaymentPartialDisabled = new("BF_PAYMENT_PARTIAL_DISABLED", "Bu yönetim alanında kısmi online ödeme kapalıdır; borcun tamamını ödeyin.", "warning");
+    public static readonly ErrorDefinition PaymentPartialAmount = new("BF_PAYMENT_PARTIAL_AMOUNT", "Kısmi ödeme tutarı sıfırdan büyük olmalı ve seçilen borçların güncel toplamını aşmamalıdır.", "error");
+    public static readonly ErrorDefinition PaymentIntentState = new("BF_PAYMENT_INTENT_STATE", "Online ödeme bu işlem için uygun durumda değil; güncel durumu yenileyin.", "warning");
+    public static readonly ErrorDefinition PaymentWebhookInvalid = new("BF_PAYMENT_WEBHOOK_INVALID", "Ödeme bildirimi doğrulanamadı.", "error");
+    public static readonly ErrorDefinition PaymentRefundInvalid = new("BF_PAYMENT_REFUND_INVALID", "İade için istek kimliği ve gerekçe girin; yalnız tam iade desteklenir.", "error");
+    public static readonly ErrorDefinition PaymentRefundState = new("BF_PAYMENT_REFUND_STATE", "İade bu işlem için uygun durumda değil veya bu ödeme için açık bir iade talebi var.", "warning");
+    public static readonly ErrorDefinition PaymentOnlineCancel = new("BF_PAYMENT_ONLINE_CANCEL", "Online tahsilat elle iptal edilemez; iade talebi oluşturun.", "warning");
+    public static readonly ErrorDefinition PaymentReviewUnallocatable = new("BF_PAYMENT_REVIEW_UNALLOCATABLE", "Alınan tutar güncel borçlara tamamen dağıtılamıyor; iade talebi oluşturun veya borçları kontrol edin.", "warning");
+    public static readonly ErrorDefinition PaymentReconciliationState = new("BF_PAYMENT_RECONCILIATION_STATE", "Mutabakat kaydı zaten çözülmüş veya güncel değil.", "warning");
     public static readonly ErrorDefinition RecordChanged = new("BF_RECORD_CHANGED", "Kayıt değişti. Güncel bilgileri yükleyip yeniden deneyin.", "warning");
     public static readonly ErrorDefinition DuesErrorMoveOutReason = new("BF_DUES_ERROR_MOVE_OUT_REASON", "Kiracı taşınması iptal nedeni kullanılamıyor. Önizlemeyi yenileyin.", "warning");
     public static readonly ErrorDefinition PersonRequired = new("BF_PERSON_REQUIRED", "Kişi seçin.", "error");
@@ -401,6 +439,44 @@ public static class ErrorCatalog
         PaymentsErrorCancelled,
         DuesErrorReason,
         DuesChooseReason,
+        LatePenaltyInvalid,
+        LatePenaltyOverlap,
+        LatePenaltyApproval,
+        LatePenaltyState,
+        LatePenaltyCrystallized,
+        LatePenaltySwitchInvalid,
+        LatePenaltyRequestConflict,
+        LatePenaltyRebuildBlocked,
+        LatePenaltyBalance,
+        LatePenaltyWaive,
+        LatePenaltyDate,
+        LatePenaltyDocument,
+        LatePenaltyChargePaid,
+        DuesKindInvalid,
+        PaymentSettingsInvalid,
+        PaymentBankAccountInvalid,
+        PaymentIbanInvalid,
+        PaymentIbanDuplicate,
+        PaymentBankAccountState,
+        PaymentSecondApprover,
+        PaymentBankAccountUnusable,
+        PaymentMerchantInvalid,
+        PaymentLiveDisabled,
+        PaymentProviderUnavailable,
+        PaymentProviderFailure,
+        PaymentOnlineDisabled,
+        PaymentIntentInvalid,
+        PaymentIntentActive,
+        PaymentNothingDue,
+        PaymentPartialDisabled,
+        PaymentPartialAmount,
+        PaymentIntentState,
+        PaymentWebhookInvalid,
+        PaymentRefundInvalid,
+        PaymentRefundState,
+        PaymentOnlineCancel,
+        PaymentReviewUnallocatable,
+        PaymentReconciliationState,
         MobileSyncConflict,
         ValidationFailed,
         InvalidRequest,

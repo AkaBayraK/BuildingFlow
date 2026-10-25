@@ -1,3 +1,4 @@
+import {ContactVerificationCard} from '../contact-verification/ContactVerificationCard';
 import {Platform,ScrollView,StyleSheet,Text,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../auth/AuthProvider';
@@ -41,6 +42,7 @@ export function PersonModelScreen(){
   <Text accessibilityRole="header" style={s.title}>Çalışma alanlarım</Text><Text style={s.text}>{auth.offline?'Çevrimdışı · Cihazdaki yetki kopyası':'Çevrimiçi doğrulanmış yetki kopyası'}</Text>
   {snapshot&&<Text style={s.muted}>Son doğrulama: {new Date(snapshot.issuedAt).toLocaleString('tr-TR')}{'\n'}Geçerlilik: {new Date(snapshot.expiresAt).toLocaleString('tr-TR')}</Text>}
   {!snapshot?<Text accessibilityRole="alert" style={s.text}>Yetki modeli doğrulanamadı. Yeniden giriş yap.</Text>:snapshot.contexts.length===0?<Text style={s.text}>Hesabına bağlı güncel çalışma alanı yok.</Text>:<Portfolio/>}
+  <ContactVerificationCard key={auth.session?.userId} alwaysVisible/>
   <SelectedSummary/>
   {c&&<View style={s.card}><Text accessibilityRole="header" style={s.cardTitle}>Kendi bilgilerim</Text>{snapshot?.people.filter(p=>p.tenantId===c.tenantId).map(p=><Text key={p.id} style={s.text}>{p.displayName}</Text>)}<Text style={s.muted}>Kişi ve görev kayıtları bu ekranda salt okunurdur. Kesin finans işlemleri ve rol değişiklikleri çevrimiçi doğrulama gerektirir.</Text></View>}
   {syncEnabled&&<><Text accessibilityRole="header" style={s.cardTitle}>Hesap profili</Text><Text style={s.muted}>Bu kişisel uygulama profili, merkezi kişi veya görev kaydını değiştirmez. Değişiklikler sunucu onayına kadar taslaktır.</Text><ProfileEditor/>{c&&c.role!=='ACCOUNTANT'&&(auth.portfolio?.[auth.selected?contextKey(auth.selected):'']?.capabilities.includes('CREATE_REQUEST')??true)&&<View key={snapshot?.userId+':'+c.kind+':'+c.id} style={{gap:16}}><RequestForm/><SyncPanel/><RequestBoard/></View>}<Text style={s.muted}>Ödeme, kesin tahakkuk ve rol değişikliği çevrimiçi yetki ve sunucu onayı gerektirir; bu kuyruğa alınmaz.</Text></>}

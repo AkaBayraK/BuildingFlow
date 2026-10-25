@@ -78,6 +78,7 @@ internal sealed class SmsDispatchWorker(IServiceScopeFactory scopes, ILogger<Sms
             var processed = 0;
             try {
                 await using var scope = scopes.CreateAsyncScope();
+                await scope.ServiceProvider.GetRequiredService<PhoneOtpMaintenance>().ExpireAsync(stoppingToken);
                 processed = await scope.ServiceProvider.GetRequiredService<SmsDispatcher>().DispatchPendingAsync(stoppingToken);
                 if (processed > 0) logger.LogInformation("SMS dispatcher processed {Count} messages.", processed);
             } catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) {

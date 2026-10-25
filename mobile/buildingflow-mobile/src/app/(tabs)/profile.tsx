@@ -1,3 +1,4 @@
+import {ContactVerificationCard} from '../../contact-verification/ContactVerificationCard';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon, Screen, SectionTitle, styles } from '../../components/Screen';
 import {ProfileEditor} from '../../components/ProfileEditor';
@@ -10,6 +11,7 @@ export default function Profile() {
   const auth = useAuth();
   return <Screen title="Hesabım" subtitle="Mülklerin ve hesap bilgilerin">
     <ProfileEditor key={auth.session?.userId} />
+    <ContactVerificationCard key={auth.session?.userId}/>
     <SectionTitle title="Rızalarım" />
     <ConsentCenter />
     <SectionTitle title="Mülklerim ve rollerim" note={`${auth.session?.contexts.length ?? 0} bağlantı`} />

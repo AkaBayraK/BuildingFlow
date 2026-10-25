@@ -957,6 +957,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("amount");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("category");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -998,6 +1003,14 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("DUES")
+                        .HasColumnName("kind");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1042,6 +1055,8 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_assessments_debtor", "debtor_type IN ('UNIT','TENANT','OWNER')");
 
                             t.HasCheckConstraint("ck_assessments_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_assessments_kind", "(kind = 'DUES' AND category IS NULL) OR (kind = 'EXTRA' AND category IN ('FIXTURE','REPAIR','HEATING','UTILITY','INSURANCE','OTHER'))");
 
                             t.HasCheckConstraint("ck_assessments_values", "amount > 0 AND currency = 'TRY' AND EXTRACT(DAY FROM period) = 1 AND period >= DATE '2000-01-01' AND due_date >= period");
                         });
@@ -1224,6 +1239,11 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("cancelled_by_occupancy_id");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("category");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -1255,6 +1275,14 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("DUES")
+                        .HasColumnName("kind");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1308,13 +1336,15 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasIndex("PropertyId", "UnitId", "Period")
                         .IsUnique()
-                        .HasFilter("is_cancelled = false");
+                        .HasFilter("is_cancelled = false AND kind = 'DUES'");
 
                     b.ToTable("dues_charges", null, t =>
                         {
                             t.HasCheckConstraint("ck_charges_cancellation", "(is_cancelled = false AND cancellation_reason IS NULL AND cancelled_at IS NULL) OR (is_cancelled = true AND cancellation_reason IS NOT NULL AND length(trim(cancellation_reason)) > 0 AND cancelled_at IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_charges_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_charges_kind", "(kind = 'DUES' AND category IS NULL) OR (kind = 'EXTRA' AND category IN ('FIXTURE','REPAIR','HEATING','UTILITY','INSURANCE','OTHER'))");
 
                             t.HasCheckConstraint("ck_charges_paid", "paid_amount >= 0 AND paid_amount <= amount AND (is_cancelled = false OR paid_amount = 0)");
 
@@ -1542,6 +1572,415 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_expenses_history", "is_deleted = false AND is_enabled = true");
 
                             t.HasCheckConstraint("ck_expenses_values", "amount > 0 AND currency = 'TRY' AND occurred_date >= DATE '2000-01-01' AND category IN ('MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER') AND length(trim(description)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyAccrual", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("ChargeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("charge_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("FromDate")
+                        .HasColumnType("date")
+                        .HasColumnName("from_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("paid_amount");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("status_reason");
+
+                    b.Property<DateOnly>("ToDate")
+                        .HasColumnType("date")
+                        .HasColumnName("to_date");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChargeId", "FromDate")
+                        .IsUnique()
+                        .HasFilter("status <> 'SUPERSEDED'");
+
+                    b.HasIndex("PropertyId", "Status", "ToDate");
+
+                    b.HasIndex("PropertyId", "UnitId", "ChargeId");
+
+                    b.ToTable("late_penalty_accruals", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_late_penalty_accruals_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_late_penalty_accruals_status", "(status = 'ACTIVE' AND status_reason IS NULL AND status_changed_at IS NULL) OR (status <> 'ACTIVE' AND paid_amount = 0 AND status_reason IS NOT NULL AND length(trim(status_reason)) > 0 AND status_changed_at IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_late_penalty_accruals_values", "amount > 0 AND paid_amount >= 0 AND paid_amount <= amount AND to_date >= from_date AND status IN ('ACTIVE','WAIVED','SUPERSEDED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ApprovalDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approval_document_id");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("approved_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("LegalBasis")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("legal_basis");
+
+                    b.Property<string>("LegalReference")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("legal_reference");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("calculation_method");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<decimal>("MonthlyRate")
+                        .HasPrecision(7, 4)
+                        .HasColumnType("numeric(7,4)")
+                        .HasColumnName("monthly_rate");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("approval_status");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("status_reason");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalDocumentId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "Status", "ValidFrom");
+
+                    b.ToTable("late_penalty_policies", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_late_penalty_policies_approval", "(approval_status = 'APPROVED' AND approved_by IS NOT NULL AND approved_at IS NOT NULL) OR (approval_status IN ('DRAFT','CANCELLED') AND approved_by IS NULL AND approved_at IS NULL)");
+
+                            t.HasCheckConstraint("ck_late_penalty_policies_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_late_penalty_policies_legal", "approval_status <> 'APPROVED' OR (monthly_rate = 5 AND legal_basis = 'KMK_20') OR (legal_basis <> 'KMK_20' AND approval_document_id IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_late_penalty_policies_values", "monthly_rate > 0 AND monthly_rate <= 5 AND valid_from >= DATE '2000-01-01' AND (valid_to IS NULL OR valid_to >= valid_from) AND year = EXTRACT(YEAR FROM valid_from) AND calculation_method IN ('DAILY_30','DAILY_ACTUAL_MONTH') AND legal_basis IN ('KMK_20','MANAGEMENT_PLAN','GENERAL_ASSEMBLY','COURT_DECISION') AND length(trim(legal_reference)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltySegment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccrualId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accrual_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(16, 6)
+                        .HasColumnType("numeric(16,6)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("Days")
+                        .HasColumnType("integer")
+                        .HasColumnName("days");
+
+                    b.Property<DateOnly>("FromDate")
+                        .HasColumnType("date")
+                        .HasColumnName("from_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("calculation_method");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<decimal>("MonthlyRate")
+                        .HasPrecision(7, 4)
+                        .HasColumnType("numeric(7,4)")
+                        .HasColumnName("monthly_rate");
+
+                    b.Property<Guid?>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.Property<decimal>("Principal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("principal");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateOnly>("ToDate")
+                        .HasColumnType("date")
+                        .HasColumnName("to_date");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PolicyId");
+
+                    b.HasIndex("AccrualId", "FromDate")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "AccrualId");
+
+                    b.ToTable("late_penalty_segments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_late_penalty_segments_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_late_penalty_segments_values", "days > 0 AND to_date >= from_date AND principal > 0 AND monthly_rate > 0 AND monthly_rate <= 5 AND amount >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltySwitch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Apply")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_applied");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_from");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "EffectiveFrom")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("late_penalty_switches", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_late_penalty_switches_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_late_penalty_switches_values", "effective_from >= DATE '2000-01-01' AND length(trim(reason)) > 0");
                         });
                 });
 
@@ -3461,6 +3900,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("amount");
 
+                    b.Property<Guid?>("BankAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bank_account_id");
+
                     b.Property<string>("CancellationReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -3554,6 +3997,8 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PropertyId", "BankAccountId");
+
                     b.HasIndex("PropertyId", "PaidDate");
 
                     b.HasIndex("PropertyId", "Reference")
@@ -3569,7 +4014,7 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                             t.HasCheckConstraint("ck_payments_history", "is_deleted = false AND is_enabled = true");
 
-                            t.HasCheckConstraint("ck_payments_values", "amount > 0 AND currency = 'TRY' AND paid_date >= DATE '2000-01-01' AND method IN ('CASH','BANK_TRANSFER') AND (method <> 'BANK_TRANSFER' OR (reference IS NOT NULL AND length(trim(reference)) > 0 AND reference = upper(reference)))");
+                            t.HasCheckConstraint("ck_payments_values", "amount > 0 AND currency = 'TRY' AND paid_date >= DATE '2000-01-01' AND method IN ('CASH','BANK_TRANSFER','ONLINE_CARD') AND (method <> 'BANK_TRANSFER' OR (reference IS NOT NULL AND length(trim(reference)) > 0 AND reference = upper(reference))) AND (method <> 'ONLINE_CARD' OR (reference IS NOT NULL AND length(trim(reference)) > 0)) AND (bank_account_id IS NULL OR method = 'BANK_TRANSFER')");
                         });
                 });
 
@@ -3578,6 +4023,10 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("AccrualId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accrual_id");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(10, 2)
@@ -3605,6 +4054,14 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("PRINCIPAL")
+                        .HasColumnName("kind");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -3635,8 +4092,15 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PaymentId", "AccrualId")
+                        .IsUnique()
+                        .HasFilter("accrual_id IS NOT NULL");
+
                     b.HasIndex("PaymentId", "ChargeId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("kind = 'PRINCIPAL'");
+
+                    b.HasIndex("PropertyId", "AccrualId");
 
                     b.HasIndex("PropertyId", "ChargeId");
 
@@ -3648,7 +4112,1068 @@ namespace BuildingFlow.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("ck_allocations_history", "is_deleted = false AND is_enabled = true");
 
+                            t.HasCheckConstraint("ck_allocations_kind", "(kind = 'PRINCIPAL' AND accrual_id IS NULL) OR (kind = 'PENALTY' AND accrual_id IS NOT NULL)");
+
                             t.HasCheckConstraint("ck_allocations_values", "amount > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentBankAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountHolder")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("account_holder");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("bank_name");
+
+                    b.Property<Guid?>("BuildingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("building_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_at");
+
+                    b.Property<string>("DecidedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("decided_by");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("character varying(34)")
+                        .HasColumnName("iban");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("purpose");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("account_status");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("status_reason");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "Iban")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_payment_bank_accounts_open_iban")
+                        .HasFilter("account_status IN ('PENDING_APPROVAL','ACTIVE')");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "PropertyId", "BuildingId" }, "uidx_payment_bank_accounts_default_building")
+                        .IsUnique()
+                        .HasFilter("is_default = true AND building_id IS NOT NULL");
+
+                    b.HasIndex(new[] { "PropertyId" }, "uidx_payment_bank_accounts_default_property")
+                        .IsUnique()
+                        .HasFilter("is_default = true AND building_id IS NULL");
+
+                    b.ToTable("payment_bank_accounts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_bank_accounts_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_bank_accounts_status", "account_status IN ('PENDING_APPROVAL','ACTIVE','REJECTED','CLOSED') AND (is_default = false OR account_status = 'ACTIVE') AND (account_status = 'PENDING_APPROVAL' OR decided_by IS NOT NULL OR account_status = 'CLOSED')");
+
+                            t.HasCheckConstraint("ck_payment_bank_accounts_values", "currency = 'TRY' AND iban ~ '^TR[0-9]{24}$' AND purpose IN ('ALL','DUES','EXTRA') AND valid_from >= DATE '2000-01-01' AND (valid_to IS NULL OR valid_to >= valid_from) AND length(trim(bank_name)) > 0 AND length(trim(account_holder)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentIntent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("CheckoutUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("checkout_url");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("FailureCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("failure_code");
+
+                    b.Property<decimal?>("FeeAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("fee_amount");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid>("MerchantAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("merchant_account_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly?>("PaidDate")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_date");
+
+                    b.Property<string>("PayerRole")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("payer_role");
+
+                    b.Property<string>("PayerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("payer_user_id");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ProviderCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider_code");
+
+                    b.Property<string>("ProviderReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_reference");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_transaction_id");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("intent_status");
+
+                    b.Property<DateTimeOffset>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique()
+                        .HasFilter("payment_id IS NOT NULL");
+
+                    b.HasIndex("PropertyId", "CreatedAt");
+
+                    b.HasIndex("PropertyId", "MerchantAccountId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("ProviderCode", "ProviderReference")
+                        .IsUnique()
+                        .HasFilter("provider_reference IS NOT NULL");
+
+                    b.HasIndex("Status", "ExpiresAt");
+
+                    b.HasIndex("PropertyId", "UnitId", "PaymentId");
+
+                    b.ToTable("payment_intents", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_intents_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_intents_success", "(intent_status IN ('PENDING','FAILED','EXPIRED','CANCELLED') AND paid_date IS NULL AND payment_id IS NULL) OR (intent_status NOT IN ('PENDING','FAILED','EXPIRED','CANCELLED') AND provider_transaction_id IS NOT NULL AND paid_date IS NOT NULL AND fee_amount >= 0 AND (intent_status <> 'SUCCEEDED' OR payment_id IS NOT NULL))");
+
+                            t.HasCheckConstraint("ck_payment_intents_values", "amount > 0 AND currency = 'TRY' AND payer_role IN ('OWNER','TENANT') AND intent_status IN ('PENDING','SUCCEEDED','REVIEW','FAILED','EXPIRED','CANCELLED','REFUNDED','CHARGED_BACK')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentIntentLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("ChargeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("charge_id");
+
+                    b.Property<long>("ChargeVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("charge_version");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("IntentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intent_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "ChargeId");
+
+                    b.HasIndex("IntentId", "ChargeId", "Kind")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "UnitId", "ChargeId");
+
+                    b.HasIndex("PropertyId", "UnitId", "IntentId");
+
+                    b.ToTable("payment_intent_lines", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_intent_lines_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_intent_lines_values", "amount > 0 AND kind IN ('PRINCIPAL','PENALTY') AND charge_version > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentLedgerEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("IntentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intent_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("method");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("OccurredOn")
+                        .HasColumnType("date")
+                        .HasColumnName("occurred_on");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid?>("RefundId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("refund_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("entry_type");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IntentId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("RefundId");
+
+                    b.HasIndex("PropertyId", "OccurredOn");
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.ToTable("payment_ledger_entries", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_ledger_entries_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_ledger_entries_values", "occurred_on >= DATE '2000-01-01' AND ((entry_type IN ('COLLECTION','UNALLOCATED_RECEIPT') AND amount > 0) OR (entry_type IN ('COLLECTION_REVERSAL','ONLINE_REFUND','CHARGEBACK') AND amount < 0))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentMerchantAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BuildingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("building_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Environment")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("environment");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("label");
+
+                    b.Property<bool?>("LastCheckSucceeded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("last_check_succeeded");
+
+                    b.Property<DateTimeOffset?>("LastCheckedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_checked_at");
+
+                    b.Property<string>("MerchantId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("merchant_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ProviderCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider_code");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("SecretReference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("secret_reference");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "PropertyId", "BuildingId" }, "uidx_payment_merchant_accounts_default_building")
+                        .IsUnique()
+                        .HasFilter("is_default = true AND building_id IS NOT NULL");
+
+                    b.HasIndex(new[] { "PropertyId" }, "uidx_payment_merchant_accounts_default_property")
+                        .IsUnique()
+                        .HasFilter("is_default = true AND building_id IS NULL");
+
+                    b.ToTable("payment_merchant_accounts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_merchant_accounts_history", "is_deleted = false");
+
+                            t.HasCheckConstraint("ck_payment_merchant_accounts_values", "environment = 'SANDBOX' AND provider_code = upper(provider_code) AND secret_reference ~ '^[A-Za-z0-9_:-]{1,100}$' AND length(trim(merchant_id)) > 0 AND length(trim(label)) > 0 AND (is_default = false OR is_enabled = true)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_payment_providers_code");
+
+                    b.ToTable("payment_providers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_providers_code", "code = upper(code) AND length(trim(code)) > 0");
+
+                            t.HasCheckConstraint("ck_payment_providers_history", "is_deleted = false");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentProviderEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("event_id");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("event_type");
+
+                    b.Property<Guid?>("IntentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intent_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("outcome");
+
+                    b.Property<DateTimeOffset?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.Property<Guid?>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ProviderCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider_code");
+
+                    b.Property<string>("ProviderReference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_reference");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IntentId");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("ProviderCode", "EventId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_payment_provider_events_event");
+
+                    b.ToTable("payment_provider_events", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_provider_events_history", "is_deleted = false AND is_enabled = true");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("receipt_number");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence_number");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("receipt_year");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "Number")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "Year", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("payment_receipts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_receipts_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_receipts_values", "receipt_year >= 2000 AND sequence_number > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentReconciliationItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("detail");
+
+                    b.Property<Guid?>("IntentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intent_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ResolutionNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("resolution_note");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("resolved_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("issue_status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("issue_type");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IntentId", "Type")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_payment_reconciliation_items_open")
+                        .HasFilter("issue_status = 'OPEN' AND intent_id IS NOT NULL");
+
+                    b.HasIndex("PropertyId", "Status");
+
+                    b.ToTable("payment_reconciliation_items", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_reconciliation_items_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_reconciliation_items_values", "issue_type IN ('DEBT_CHANGED','CHARGEBACK_UNREVERSED','PROVIDER_MISMATCH','REFUND_UNCONFIRMED') AND ((issue_status = 'OPEN' AND resolved_by IS NULL) OR (issue_status = 'RESOLVED' AND resolved_by IS NOT NULL AND resolution_note IS NOT NULL))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentRefund", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_at");
+
+                    b.Property<string>("DecidedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("decided_by");
+
+                    b.Property<string>("DecisionNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("decision_note");
+
+                    b.Property<string>("FailureCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("failure_code");
+
+                    b.Property<Guid>("IntentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intent_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ProviderRefundId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_refund_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("refund_status");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IntentId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_payment_refunds_open_intent")
+                        .HasFilter("refund_status IN ('REQUESTED','SUCCEEDED')");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("payment_refunds", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_refunds_decision", "(refund_status = 'REQUESTED' AND decided_by IS NULL) OR (refund_status <> 'REQUESTED' AND decided_by IS NOT NULL AND decided_at IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_payment_refunds_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_payment_refunds_values", "amount > 0 AND length(trim(reason)) > 0 AND refund_status IN ('REQUESTED','REJECTED','SUCCEEDED','FAILED')");
                         });
                 });
 
@@ -4271,6 +5796,114 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.ToTable("person_user_accounts", (string)null);
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.PhoneOtpChallenge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("CodeMac")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("code_mac");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("IpHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ip_hash");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("ProtectedPayload")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("protected_payload");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_message_id");
+
+                    b.Property<DateTimeOffset>("ResendAfter")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resend_after");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TargetHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("target_hash");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IpHash", "CreatedAt");
+
+                    b.HasIndex("OwnerUserId", "CreatedAt");
+
+                    b.HasIndex("TargetHash", "CreatedAt");
+
+                    b.ToTable("phone_otp_challenges", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_phone_otp_attempts", "attempts BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("ck_phone_otp_lifetime", "expires_at > created_at");
+
+                            t.HasCheckConstraint("ck_phone_otp_status", "status IN ('RESERVED','ACCEPTED','UNKNOWN','FAILED','VERIFIED','CANCELLED','EXPIRED','LOCKED')");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ProcessedMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4789,6 +6422,91 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasFilter("is_deleted = false");
 
                     b.ToTable("property_memberships", (string)null);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PropertyPaymentSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CommissionPolicy")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("commission_policy");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<bool>("OnlineEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_online_enabled");
+
+                    b.Property<bool>("PartialAllowed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_partial_allowed");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("ReceiptPrefix")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("receipt_prefix");
+
+                    b.Property<bool>("RequireDualApproval")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_dual_approval_required");
+
+                    b.Property<bool>("ShowIbanToResidents")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_iban_visible_to_residents");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_property_payment_settings_property_id");
+
+                    b.ToTable("property_payment_settings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_property_payment_settings_history", "is_deleted = false AND is_enabled = true");
+
+                            t.HasCheckConstraint("ck_property_payment_settings_values", "commission_policy = 'ABSORBED' AND receipt_prefix ~ '^[A-Z0-9]{2,10}$'");
+                        });
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.RequestManagementEvent", b =>
@@ -7592,6 +9310,54 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyAccrual", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.DuesCharge", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId", "ChargeId")
+                        .HasPrincipalKey("PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyPolicy", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovalDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltySegment", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.LatePenaltyPolicy", null)
+                        .WithMany()
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.LatePenaltyAccrual", null)
+                        .WithMany("Segments")
+                        .HasForeignKey("PropertyId", "AccrualId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltySwitch", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.LeaseContract", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.PersonUserAccount", null)
@@ -7850,6 +9616,12 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.Payment", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.PaymentBankAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BankAccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.Unit", null)
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId")
@@ -7860,6 +9632,12 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.PaymentAllocation", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.LatePenaltyAccrual", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "AccrualId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.DuesCharge", null)
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId", "ChargeId")
@@ -7871,6 +9649,158 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .WithMany("Allocations")
                         .HasForeignKey("PropertyId", "UnitId", "PaymentId")
                         .HasPrincipalKey("PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentBankAccount", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Building", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BuildingId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentIntent", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PaymentMerchantAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "MerchantAccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId", "PaymentId")
+                        .HasPrincipalKey("PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentIntentLine", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.DuesCharge", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId", "ChargeId")
+                        .HasPrincipalKey("PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.PaymentIntent", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("PropertyId", "UnitId", "IntentId")
+                        .HasPrincipalKey("PropertyId", "UnitId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentLedgerEntry", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PaymentIntent", null)
+                        .WithMany()
+                        .HasForeignKey("IntentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.PaymentRefund", null)
+                        .WithMany()
+                        .HasForeignKey("RefundId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentMerchantAccount", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Building", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BuildingId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentProviderEvent", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PaymentIntent", null)
+                        .WithMany()
+                        .HasForeignKey("IntentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentReceipt", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentReconciliationItem", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PaymentIntent", null)
+                        .WithMany()
+                        .HasForeignKey("IntentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentRefund", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PaymentIntent", null)
+                        .WithMany()
+                        .HasForeignKey("IntentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -7994,6 +9924,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.PropertyMembership", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PropertyPaymentSettings", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.Property", null)
                         .WithMany()
@@ -8426,9 +10365,19 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.Navigation("Parties");
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyAccrual", b =>
+                {
+                    b.Navigation("Segments");
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.Payment", b =>
                 {
                     b.Navigation("Allocations");
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.PaymentIntent", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.Property", b =>

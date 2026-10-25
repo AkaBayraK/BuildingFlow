@@ -5,10 +5,13 @@ using Microsoft.Extensions.Configuration;
 namespace BuildingFlow.Infrastructure;
 
 // AES-GCM with a key derived from the server secret; protected SMS payloads are cleared once a message is final.
-public sealed class SmsPayloadProtector(IConfiguration configuration) : ISmsProtector
+public sealed class SmsPayloadProtector : ISmsProtector
 {
     private const string Prefix = "v1.";
-    private readonly byte[] key = HKDF.DeriveKey(HashAlgorithmName.SHA256, PersonCodeHasher.MasterKey(configuration), 32, info: Encoding.ASCII.GetBytes("buildingflow:sms-payload:v1"));
+    private readonly byte[] key;
+    public SmsPayloadProtector(IConfiguration configuration) : this(HKDF.DeriveKey(HashAlgorithmName.SHA256, PersonCodeHasher.MasterKey(configuration),32,info:Encoding.ASCII.GetBytes("buildingflow:sms-payload:v1"))) { }
+    private SmsPayloadProtector(byte[] key) => this.key=key;
+    public static SmsPayloadProtector ForPhoneOtp(byte[] masterKey) => new(HKDF.DeriveKey(HashAlgorithmName.SHA256,masterKey,32,info:Encoding.ASCII.GetBytes("buildingflow:phone-otp:delivery:v1")));
 
     public string Protect(string plain)
     {

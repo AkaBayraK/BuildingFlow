@@ -19,4 +19,6 @@ builder.Services.AddHostedService<MessageConsumerWorker>();
 builder.Services.AddHostedService<SmsDispatchWorker>();
 builder.Services.AddHostedService<WebsiteRetentionWorker>();
 builder.Services.AddHostedService<WebsiteDomainWorker>();
+builder.Services.AddHostedService<LatePenaltyWorker>();
+if(string.Equals(builder.Configuration["Payments:Reconciliation:WorkerEnabled"],"true",StringComparison.OrdinalIgnoreCase))builder.Services.AddHostedService<OnlinePaymentWorker>();
 await builder.Build().RunAsync();

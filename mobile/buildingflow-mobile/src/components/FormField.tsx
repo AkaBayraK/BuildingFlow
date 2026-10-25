@@ -1,6 +1,7 @@
+import type {Ref} from 'react';
 import {StyleSheet,Text,TextInput,View,type TextInputProps} from 'react-native';
 import {theme} from '../theme';
-export function FormField({label,error,help,...input}:TextInputProps&{label:string;error?:string;help?:string}){
+export function FormField({label,error,help,...input}:TextInputProps&{label:string;error?:string;help?:string;ref?:Ref<TextInput>}){
  return <View style={s.field}><Text style={s.label}>{label}</Text><TextInput accessibilityLabel={label} accessibilityHint={error??help} placeholderTextColor="#8593a6" style={[s.input,!!error&&s.invalid]} {...input}/>{error?<Text accessibilityLiveRegion="polite" style={s.error}>{error}</Text>:help?<Text style={s.help}>{help}</Text>:null}</View>;
 }
 const s=StyleSheet.create({

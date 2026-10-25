@@ -38,12 +38,14 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
         });
         // Preserve the fingerprint of existing UNIT requests; old UUID retries still replay.
         if (command.DebtorType != "UNIT") canonical += "\nDebtorType=" + command.DebtorType;
+        if (command.Kind != ChargeKind.DUES) canonical += "\nKind=" + command.Kind + ";Category=" + command.Category;
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
     private static AssessmentResponse Assessment(DuesAssessment value, bool replayed) =>
         new(value.Id, value.PropertyId, value.RequestId, value.Period.ToString("yyyy-MM", CultureInfo.InvariantCulture),
             DuesService.Money(value.Amount), value.Currency, value.DueDate, value.Description, value.Charges.Count,
-            DuesService.Money(value.Amount * value.Charges.Count), value.Charges.Select(charge => charge.UnitId).Order().ToArray(), replayed);
+            DuesService.Money(value.Amount * value.Charges.Count), value.Charges.Select(charge => charge.UnitId).Order().ToArray(), replayed,
+            value.Kind.ToString(), value.Category?.ToString());
 
     // Transactions serialize dues commands on the real Property row. Re-read after
     // waiting so concurrent identical requests replay the committed batch, rather
@@ -76,11 +78,12 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
         var buildings = await db.Buildings.Where(value => value.PropertyId == property && buildingIds.Contains(value.Id)).ToListAsync(token);
         if (buildings.Count != buildingIds.Length) throw new HierarchyConflictException(ErrorCatalog.DuesErrorBuilding.Create());
         foreach (var building in buildings) Active(building);
-        if (await db.DuesCharges.AnyAsync(value => value.PropertyId == property && command.UnitIds.Contains(value.UnitId) &&
-            value.Period == command.Period && !value.IsCancelled, token))
+        // Only monthly dues are unique per unit and period; several extra charges may share a month.
+        if (command.Kind == ChargeKind.DUES && await db.DuesCharges.AnyAsync(value => value.PropertyId == property && command.UnitIds.Contains(value.UnitId) &&
+            value.Period == command.Period && !value.IsCancelled && value.Kind == ChargeKind.DUES, token))
             throw new HierarchyConflictException(ErrorCatalog.DuesErrorDuplicate.Create());
         var assessment = new DuesAssessment(property, command.RequestId, fingerprint, command.Period,
-            command.Amount, command.Currency, command.DueDate, command.Description, command.DebtorType);
+            command.Amount, command.Currency, command.DueDate, command.Description, command.DebtorType, command.Kind, command.Category);
         var links = await (from link in db.UnitOccupancies.IgnoreQueryFilters().AsNoTracking()
                 .Where(value => !value.IsDeleted && value.IsEnabled && value.PropertyId == property && command.UnitIds.Contains(value.UnitId) &&
                     value.StartDate <= command.Period && (value.EndDate == null || value.EndDate >= command.Period))
@@ -122,6 +125,7 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
         public string? BuildingName { get; init; }
         public required string Description { get; init; }
         public required string DebtorType { get; init; }
+        public decimal PenaltyBalance { get; init; }
     }
     private IQueryable<Row> Rows(IQueryable<DuesCharge> charges, Guid property) =>
         from charge in charges
@@ -133,7 +137,9 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
             on unit.BuildingId equals (Guid?)building.Id into parents
         from building in parents.DefaultIfEmpty()
         select new Row { Charge = charge, UnitNumber = unit.Number, BuildingId = unit.BuildingId,
-            BuildingName = building == null ? null : building.Name, Description = assessment.Description, DebtorType = assessment.DebtorType };
+            BuildingName = building == null ? null : building.Name, Description = assessment.Description, DebtorType = assessment.DebtorType,
+            PenaltyBalance = db.LatePenaltyAccruals.Where(accrual => accrual.PropertyId == property && accrual.ChargeId == charge.Id &&
+                accrual.Status == LatePenaltyAccrualStatus.ACTIVE).Sum(accrual => (decimal?)(accrual.Amount - accrual.PaidAmount)) ?? 0m };
     private DuesChargeResponse Response(Row row, AccessScope access, IReadOnlyList<DuesPartyResponse> parties)
     {
         var charge = row.Charge;
@@ -141,7 +147,8 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
             row.BuildingName, charge.Period.ToString("yyyy-MM", CultureInfo.InvariantCulture), DuesService.Money(charge.Amount),
             DuesService.Money(charge.Balance), charge.Currency, charge.DueDate, row.Description,
             charge.Status(BusinessDate.Today(clock)), charge.Version, charge.CreatedAt, charge.CancellationReason, charge.CancelledAt,
-            charge.PartiesRecorded, access.ReadFinancialParties, row.DebtorType, parties, charge.CancellationReasonCode, charge.CancellationReasonName);
+            charge.PartiesRecorded, access.ReadFinancialParties, row.DebtorType, parties, charge.CancellationReasonCode, charge.CancellationReasonName,
+            DuesService.Money(row.PenaltyBalance), charge.Kind.ToString(), charge.Category?.ToString());
     }
     private async Task<IReadOnlyList<DuesPartyResponse>> PartyResponses(Guid property, Guid[] charges, AccessScope access, CancellationToken token)
     {
@@ -166,6 +173,7 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
         var today = BusinessDate.Today(clock);
         var charges = Charges(property, access);
         if (query.UnitId is not null) charges = charges.Where(value => value.UnitId == query.UnitId);
+        if (query.Kind is not null) { var kind = Enum.Parse<ChargeKind>(query.Kind); charges = charges.Where(value => value.Kind == kind); }
         var partyRole = query.PartyRole is null ? (OccupancyType?)null : Enum.Parse<OccupancyType>(query.PartyRole);
         if (query.PersonId is not null || partyRole is not null) charges = charges.Where(value => db.DuesChargeParties.Any(party =>
             party.PropertyId == property && party.ChargeId == value.Id && (query.PersonId == null || party.PersonId == query.PersonId) &&
@@ -200,8 +208,10 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
             OverdueCount = group.Count(value => !value.IsCancelled && value.PaidAmount < value.Amount && value.DueDate < today),
             CancelledCount = group.Count(value => value.IsCancelled)
         }).SingleOrDefaultAsync(token);
+        var penalty = await db.LatePenaltyAccruals.Where(accrual => accrual.PropertyId == property && accrual.Status == LatePenaltyAccrualStatus.ACTIVE &&
+            charges.Any(charge => charge.Id == accrual.ChargeId)).SumAsync(accrual => (decimal?)(accrual.Amount - accrual.PaidAmount), token) ?? 0m;
         var summary = new DuesSummary(DuesService.Money(sums?.Outstanding ?? 0m), DuesService.Money(sums?.Overdue ?? 0m),
-            DuesService.Money(sums?.Cancelled ?? 0m), sums?.OpenCount ?? 0, sums?.OverdueCount ?? 0, sums?.CancelledCount ?? 0, "TRY");
+            DuesService.Money(sums?.Cancelled ?? 0m), sums?.OpenCount ?? 0, sums?.OverdueCount ?? 0, sums?.CancelledCount ?? 0, "TRY", DuesService.Money(penalty));
         var rows = Rows(charges, property); var desc = query.SortDirection == "desc";
         var ordered = query.SortBy switch {
             "period" => desc ? rows.OrderByDescending(value => value.Charge.Period) : rows.OrderBy(value => value.Charge.Period),
@@ -224,6 +234,10 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
         if (value.Version != request.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if (value.IsCancelled) throw new HierarchyConflictException(ErrorCatalog.DuesErrorCancelled.Create());
         if (value.PaidAmount > 0) throw new HierarchyConflictException(ErrorCatalog.PaymentsDebtHasPayments.Create());
+        var accruals = await db.LatePenaltyAccruals.Where(item => item.PropertyId == property && item.ChargeId == charge &&
+            item.Status == LatePenaltyAccrualStatus.ACTIVE).ToListAsync(token);
+        if (accruals.Any(item => item.PaidAmount > 0)) throw new HierarchyConflictException(ErrorCatalog.LatePenaltyChargePaid.Create());
+        foreach (var accrual in accruals) accrual.Supersede("Ana borç iptal edildi.", clock.GetUtcNow());
         var reason = await db.DuesCancellationReasons.SingleOrDefaultAsync(item => item.Id == (request.ReasonId ?? DuesCancellationReason.OtherId) && item.IsEnabled, token);
         if (reason is null) throw new RequestValidationException(new() { ["reasonId"] = [ErrorCatalog.DuesChooseReason.Create()] });
         if (reason.RequiresExplanation && string.IsNullOrWhiteSpace(request.Reason))

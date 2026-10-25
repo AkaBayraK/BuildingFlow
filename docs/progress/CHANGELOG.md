@@ -1,3 +1,28 @@
+## BF-PAY FAZ 08 — 24.10.2026 — Web ödeme yönetim ekranları
+
+- Tahsilatlar modülüne sekmeler: Online ödemeler (detay, REVIEW dağıtımı, iade talebi/farklı yetkili onayı), Defter (ters kayıt, CSV), Mutabakat (günlük özet, kalemler), Banka ve ödeme ayarları (IBAN öner/onayla/kapat, çift onay, üye işyeri, bağlantı testi).
+- Makbuz görüntüleme/yazdırma; manuel havalede tahsilat hesabı seçimi; ONLINE_CARD yöntemi. Sistem ayarlarına sağlayıcı kataloğu (SUPER_ADMIN).
+- Yeni paket/migration yok. [Rapor](../payment/08-web.md).
+
+## 23.10.2026 — BF-VERIFY04 web iletişim doğrulaması
+
+- Ortak /account paneli:maskeli güncel e-posta/telefon,eski doğrulanmış/yeni bekleyen hedef,IdP VERIFY_EMAIL/UPDATE_EMAIL ve güvenli sabit dönüş;telefonSEND/VERIFY/CANCEL.
+- Sunucu sınırı/version,UUID retry,kodun bellekte tutulması,odak/görünürlük yenilemesi,409/429/kesinti ve ortak TR/EN/ikon/tema geri bildirimi. Kişisel e-posta staleJWT yerine güncel contact kaynağından.
+- Mevcut sharedUI,transport,profil veUsersyetkisi korundu;test-only gerçek PG/API köprüsü ve tarayıcı fixture’ı. Web250/250,API32+unit16,tarayıcıköprü1,IdP12;typecheck/build geçti. GerçekSMS #46’da açık;canlıdeğişim/commit/push yok. [Rapor](../refactor/contact-verification/04-report.md).
+
+## BF-LATE — 23.10.2026 — Gecikme tazminatı
+
+- Eklendi: LatePenaltySwitch/Policy/Accrual/Segment entity+mapping+migration; LatePenaltyCalculator/Engine/Store; `/late-penalties` API; Worker ay sonu job'ı; payment_allocations kind/accrual_id.
+- Değişti: ödeme oluşturma/iptali tazminatı kesinleştirir ve geri alır; borç iptali ödenmiş tazminatı korur; dues yanıtına penaltyBalance; mobil finans penalty/penaltyLines/kind.
+- Web: Aidat modülü sekmeleri (gecikme, politikalar, rapor), ödeme formunda tazminat; 13 hata kodu TR/EN. [Rapor](../refactor/late-penalty/REPORT.md).
+
+## BF-VERIFY03 — 23.10.2026 — Yerel OTP uygulaması
+
+- Eklendi:platform Netgsm XML/HTTPS taşıyıcı,RNG/HMAC/HKDF,PhoneOtpChallenge entity/mapping/migration/Designer/snapshot;SEND/VERIFY/CANCEL ortak API ve state DTO.
+- Yeniden kullanıldı:MobileOperationReceipt,profil/advisory kilitleri,AES-GCM yardımcı kodu,worker expiry döngüsü;Property kredisine bağlanmadı.
+- Korundu:aynı normalize aday/isim/fotoğraf;farklı telefon mevcut kodu iptal eder;VERIFY profile+proof tek transaction.
+- Kanıt:32PG/API/yerelHTTP+16unit,9webstandardı;Worker build. Gerçek SMS teslimi eksik,#46açık;PhoneEnabled=false. [Rapor](../refactor/contact-verification/03-report.md).
+
 - BF-VERIFY02 kapanışı: #45 Closed(completed)/Project3 Done son okumada doğrulandı;12/12 madde,3/3 resmi adım.
 
 ## BF-VERIFY FAZ02 — 22.10.2026

@@ -1,3 +1,53 @@
+## BF-PAY FAZ 08 — 24.10.2026 — TAMAMLANDI (tarayıcı kabulü BEKLIYOR)
+
+**[AKIŞ BF-PAY | 13 faz, 00–12] FAZ 08 resmi görev 9/10 = %90,00; akış 9/13 faz = %69,23 (00–08).** Web: Tahsilatlar sekmeleri (online ödemeler, defter, mutabakat, banka ve ödeme ayarları), makbuz, sistem ayarlarında sağlayıcı kataloğu. Web 260/260, typecheck, OnlinePayment entegrasyon 9/9 + unit 14/14. `npm run build` eşzamanlı iletişim doğrulama çalışmasının Turbopack kökü dışındaki `shared/` içe aktarımı yüzünden kırık. Yeni paket/migration yok, commit yok. Sonraki: FAZ 09 mobil, onay bekler. Token/kota: BİLGİ MEVCUT DEĞİL. [Rapor](../payment/08-web.md).
+
+## BF-VERIFY FAZ05 — Adım02 TAMAMLANDI / Adım03 DEVAM EDIYOR
+
+Mobil ortak doğrulama kartı hemlegacyHesabım hemcanonicalçalışmaalanında;strictDTOweb/mobilpaylaşıldı. Çevrimiçiscopewhitelist,IdP AIA/S256/aynısubject,epoch/late-response/UUID,CANCELchallenge,offline/background/logouttemizliği veprofilrefresholayı eklendi. Yeni bağımlılık yok. **Mobilcheck143/143+3platformexport;ilgiliweb18/18+typecheck;nativeAPItestprojesibuild0hata0uyarı.** BaşlangıçnativeAPI, eşzamanlıOnlinePayment.csIbanalan/sınıfçakışması yüzünden durdu;BAKIMolarakyalnız2çağrıglobaltypeilebelirtildi,ödemeişkuralıdeğişmedi. GeçiciiPhone17Prosimülatörüoluşturuldu,mevcutdevbinaryyalnızona kuruldu. GerçeknativeOIDC/API/PG/SMS-testdoublekabulüsürüyor;henüztamamlandıdeğil. Faz2/3=%66,67;plan4/8=%50,00. FAZ06başlatılmadı.
+
+## BF-VERIFY FAZ05 — 23.10.2026 — DEVAM EDIYOR
+
+Kullanıcı FAZ05/#48’i başlattı;liste6/08,3resmiadım. OrtakAuthProvider/profileRequest,profil ve canonicalPersonModelScreen doğrudan incelendi;Expo57/RN0.86.3 veversioneddocs doğrulandı;başlangıçprofile/registration testleri geçti. iOS26.5simülatörleri veöncedenderlenmişsimulatorapp mevcut;henüzbootedcihaz yok. #48Inprogress;04kapalıDone,03gerçekSMSaçık. Adım01 TAMAMLANDI,02 DEVAM EDIYOR;faz1/3=%33,33,plan4/8=%50,00. Üretim/nativeayar/dependency/canlıveri değişmedi;diğer çalışmalar korunur. SonCodexusage:300dk%58kullanılan/%42kalan,reset23.10.2026 21:42:33;10080dk%25/%75,reset30.10.2026 11:03:51 Europe/Istanbul. Giriş/çıkış/toplam token vekalancontext:BİLGİ MEVCUT DEĞİL.
+
+## BF-VERIFY FAZ04 — 23.10.2026 — TAMAMLANDI
+
+**#47 Closed(completed),Project3 Done;12/12 madde ve son uzak okuma doğrulandı. Faz3/3=%100,00;bu tur3/3=%100,00;tamamlanan BF-VERIFY00/01/02/04=4/8=%50,00.** Kullanıcı kararıyla03gerçekSMSaçıkken04uygulandı;#46açık kalır. Ortak/account paneli:maskeli taze e-posta/telefon,eski doğrulanmış/yeni bekleyen hedef,IdP VERIFY_EMAIL/UPDATE_EMAIL,sabit güvenli callback,kodSEND/VERIFY/CANCEL,version/UUID/limit/süre/deneme,409/429/outage veodak yenilemesi. İsim/fotoğraf/Usersyetkisi genişlemedi. **Son web250/250,typecheck/build;gerçekPG/APIbrowser1/1;API32/32+unit16/16;gerçekKeycloak/Mailpit12/12grup.** TR/EN,375/1440px,3tema,klavye,çifttıklama1istek ve gerçek mobilcontactAPI→web yenileme doğrulandı. Fizikselmobil/gerçekoperatörSMS iddiası yok. Yeni üretimAPI/migration/paket yok;test köprüsü yalnız test projesinde,opt-in ve loopback. [Rapor](../refactor/contact-verification/04-report.md).
+
+Eşzamanlı Next16.4.3 manifest/lock,BF-LATE,quality/Dockerfile/.nvmrc veindex korundu;bu faz install/restore yapmadı. Canlı.env/DB/realm/hesap/servis değişmedi,commit/push/deploy yok;yalnız kendi test kaynakları temizlendi. Sonraki:FAZ05/#48 mobilUI,yeni kapsam onayı bekler;bu tur başlatılmadı. FAZ03 gerçekSMS Netgsm hesabı/gönderici/OTP paketi ve yetkili test alıcısı sağlanınca ayrıca tamamlanır.
+
+Giriş token:BİLGİ MEVCUT DEĞİL. Çıkış token:BİLGİ MEVCUT DEĞİL. Toplam token:BİLGİ MEVCUT DEĞİL. Kalan context:BİLGİ MEVCUT DEĞİL. Son kaynak23.10.2026 Codex usage/rateLimitsByLimitId.codex:300dk%52kullanılan/%48kalan,reset23.10.2026 21:42:33;10080dk%24/%76,reset30.10.2026 11:03:51 Europe/Istanbul.Hesap kotası sohbet tüketimi değildir.
+
+## BF-VERIFY FAZ04 — Adım02 sonucu / Adım03 DEVAM EDIYOR
+
+Ortak AccountPage iletişim paneli,strict DTO,maskeli hedef,ikonlu durum,IdP e-posta aksiyonu,sunucu version/challenge/attempt/retry,süre/iptal/409 veodak yenileme uygulandı. İsim/fotoğraf yazarı değişmedi. İlk tarayıcıHTTP fixture: gönderim,yanlışkod4deneme,Enter/odak,başarılıdoğrulama GEÇTİ. İlk tam web249/249 ve typecheck/build geçti;son dar düzeltmeler sonrası kontroller tekrar edilecek. GerçekAPI/izolePG tarayıcı köprüsü hazırlanıyor. Resmi01/02 TAMAMLANDI,03 DEVAM EDIYOR;faz2/3=%66,67,plan3/8=%37,50. #47açık/In progress;03gerçekSMSaçık. BF-LATE/eşzamanlı değişiklikler bu kapsamda değildir ve korunur.
+
+## BF-LATE FAZ 00–07 — 23.10.2026 — TAMAMLANDI
+
+**[AKIŞ BF-LATE | 8 faz] 8/8 = %100,00.** Property bazlı uygula anahtarı (kayıt yoksa kapalı), tarihsel oran politikası (taslak/onay, ≤%5, kanuni dışı oran dayanak+belge+ikinci onay), gün/30 basit tazminat motoru, kesinleşen tahakkuk/kalem, ay sonu Worker job'ı, tahsilatta PRINCIPAL/PENALTY dağıtımı, geriye dönük ödeme/iptal yeniden hesabı, web Aidat sekmeleri ve ödeme formu, mobil ayrı tazminat gösterimi, yıllık rapor. Migration `20261023125757_LatePenalties`. Kullanıcı kararları: K1 gün/30; K2 operatörün girdiği dağıtım uygulanır (TBK m.100 öneri); K3 yalnız kanuni %5, farklı oran/yöntem kapalı. Bildirim kanalı ve muhasebe modülü mevcut değil. Test özeti TESTING.md. Commit yok. Token/kota: BİLGİ MEVCUT DEĞİL.
+
+## BF-VERIFY FAZ04 — 23.10.2026 — DEVAM EDIYOR
+
+Kullanıcı sıradaki fazı açıkça yetkilendirdi: #47, sıra5/08,3 resmi adım. FAZ03 gerçek SMS teslimi açıkken bu faza geçiş kullanıcı kararıdır;03 tamamlanmış sayılmaz. Ortak /account ekranı ve doğrudan API/auth bağımlılıkları incelendi;başlangıç account/contact testleri7/7 geçti. Adım01 TAMAMLANDI;02 DEVAM EDIYOR. Faz1/3=%33,33;plan3/8=%37,50. Yeni paket/canlı ayar/servis değişikliği yok. Son kota okuması23.10.2026 Codex usage:300dk%83kullanılan/%17kalan,reset16:03:51;10080dk%13/%87,reset30.10.2026 11:03:51 Europe/Istanbul. Giriş/çıkış/toplam token ve kalan context:BİLGİ MEVCUT DEĞİL.
+
+[KULLANIM] Son kaynak:Codex usage23.10.2026;hesap kotasıdır. 300dk%80kullanıldı/%20kaldı,reset23.10.2026 16:03:51;10080dk%12/%88,reset30.10.2026 11:03:51 Europe/Istanbul.
+Giriş token: BİLGİ MEVCUT DEĞİL.
+Çıkış token: BİLGİ MEVCUT DEĞİL.
+Toplam token: BİLGİ MEVCUT DEĞİL.
+Kalan context: BİLGİ MEVCUT DEĞİL.
+
+BF-VERIFY03 son ek kontrol (23.10.2026):başlık sonrası takılan HTTP gövdesine ortak süre/boyut sınırı eklendi;yalnız etkilenen taşıyıcı grubu3/3 geçti. Önceki32PG/API+16unit sonucu ayrıca korunur.
+
+## BF-VERIFY FAZ03 — 23.10.2026 — YEREL KABUL TAMAM / GERÇEK SMS AÇIK
+
+Kullanıcı Netgsm/platform maliyetini ve6hane/5dk/5deneme/60sn,hesap+hedef5saat/IP20saat/TRcep politikasını onayladı. Hesap şu anda yok;sağlayıcısız testleri açıkça istedi. **Son tekrar32/32 gerçek izole PG/API/yerelHTTP+16/16 unit,0skip;Worker build0hata0uyarı;web kanıt sözlüğü9/9.** Aynı bekleyen telefon+isim kaydı kodu korur;yanlışkod/replay/race/limit/expiry/cancel/UNKNOWN,JWT,şema ve migration ilk/yükseltme/tekrar/idempotentSQL/Down koruması test edildi. Netgsm taşıyıcı,yeni PhoneOtpChallenge tablosu ve20261023082825migration+Designer+snapshot;ortak account/mobile komutu,ayrı HMAC/şifreleme,mevcut makbuz/kilit/worker kullanıldı. **#46 açık/In progress;10/14 madde tamam,4açık(A1gerçek gönderici,A9gerçek teslim,K2/K4).** Resmi01/03 ve02/03 tamam;03/03 gerçek SMS içinBLOKE:Netgsm alt hesabı/OTP paketi/başlık ve yetkili test alıcısı yok. Faz2/3=%66,67;tamamlanan plan3/8=%37,50;bu tur2/3=%66,67. MOCK/yerel test gerçek operatör teslimi sayılmadı. [Rapor](../refactor/contact-verification/03-report.md). FAZ04 başlatılmadı.
+
+PhoneEnabled defaultfalse;canlı/env/DB/servis/keycloak ayarı veya deployment yapılmadı.Yeni paket/SDK/imaj/sürüm yok;geçici yalnız-kendi test DB/container/env temizlendi.Kaynaklar commit/push edilmedi.Quality/Dockerfile/.nvmrc/lisans/progress eşzamanlı değişiklikleri korundu.
+
+## BF-VERIFY FAZ03 — 23.10.2026 — DEVAM EDIYOR
+
+Kullanıcı FAZ03'ü başlattı;D4 onaylı:6hane/5dk/5deneme/60sn;hesap ve hedef5/saat,IP20/saat,Türkiye+90cep. D3:Netgsm,platform hesabı seçildi;gerçek hesap henüz yok. Kullanıcı sağlayıcı olmadan yerel testlerin yapılmasını açıkça istedi. Mevcut telefon domain regresyonu6/6 geçti. Netgsm HTTP sözleşmesi ve yerel OTP kabulü uygulanıyor;gerçek teslim ayrı kanıt olarak açık kalır. Faz0/3=%0,00;plan3/8=%37,50. Başka değişiklikler korunur.
+
 
 
 Son kota okuması: Codex usage /22.10.2026. 300dk kullanılan%98/kalan%2, reset22.10.2026 22:19:52;10080dk kullanılan%93/kalan%7, reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası bu sohbetin token tüketimi değildir.
@@ -984,3 +1034,6 @@ FAZ08 kabul edildi; #13 Done, mevcut #14 In progress. Canonical talep/arıza/fot
 
 ## PERSON FAZ10 —18.10.2026 — Devam ediyor
 FAZ09 kullanıcı kabulüyle #14 Done; mevcut #15 In progress. Güvenlik/lisans doğrulaması: web audit0, NuGet7projede bildirilmiş açık yok; mobil audit29kayıt(18high/11moderate),4kökadvisory — güvenlik kapısı GEÇMEDİ. Fortify/Semgrep/Gitleaks/TruffleHog/OSV/Trivy/Syft erişimi yok, kurulum yapılmadı. Gerçek runtime private-s3.json ignore olmasına rağmen HEAD/indexte takipliydi; disk içeriği ve .env korunarak yalnız git rm--cached yapıldı. Bu dosyanın staged deletion'ı bilinçlidir; commit/push/geçmiş değiştirme/anahtar rotasyonu yapılmadı. Geçmişteki erişim bilgileri ve rotasyon açık risk olarak kalır. Dört private runtime yolunun ignored/untracked kontrolü ve3negatif/pozitif fixture CI'ye eklendi. Native cihaz/MASVS ve dağıtım uyumu garanti edilmez. FAZ11 başlamadı. Shared checkout'taki website kaynak/migration değişimleri bu faza ait değildir.
+## BAKIM — 23.10.2026 — Node/JVM güvenlik güncellemesi
+
+Node `26.12.1` doğrulandı, web238/238 geçti; Docker/CI24.22.1 ve .nvmrc sabitlendi. JVM kısmı BLOKE: Oracle25.0.5 kurulumu sudo parolası nedeniyle tamamlanmadı; Keycloak JVM21.0.12.1 güncellenmedi. Bu tur2/3=%66,67; ürün fazı/yol haritası tiki değişmedi. Kanıt TESTING.md. Docker rebuild/CI yapılmadı.

@@ -1,8 +1,9 @@
+import {chargeCategories,type ChargeCategory,type ChargeKind} from "./charge-kinds.ts";
 export type ChargeStatus="OPEN"|"OVERDUE"|"CANCELLED"|"PARTIALLY_PAID"|"PAID";
 export type DuesParty={chargeId:string;personId:string;occupancyId:string;personName:string;type:"OWNER"|"TENANT"|"RESIDENT";startDate:string;endDate:string|null;isDebtor:boolean};
-export type DuesCharge={id:string;propertyId:string;assessmentId:string;unitId:string;buildingId:string|null;unitNumber:string;buildingName:string|null;period:string;amount:string;balance:string;currency:"TRY";dueDate:string;description:string;status:ChargeStatus;version:number;createdAt:string;cancellationReason:string|null;cancelledAt:string|null;partiesRecorded:boolean;partiesVisible:boolean;debtorType:"UNIT"|"TENANT"|"OWNER";parties:DuesParty[];cancellationReasonCode:string|null;cancellationReasonName:string|null};
-export type DuesPage={items:DuesCharge[];page:number;pageSize:number;totalCount:number;summary:{outstandingAmount:string;overdueAmount:string;cancelledAmount:string;openCount:number;overdueCount:number;cancelledCount:number;currency:"TRY"}};
-export type Assessment={id:string;propertyId:string;requestId:string;period:string;amount:string;currency:"TRY";dueDate:string;description:string;unitCount:number;totalAmount:string;unitIds:string[];replayed:boolean};
+export type DuesCharge={id:string;propertyId:string;assessmentId:string;unitId:string;buildingId:string|null;unitNumber:string;buildingName:string|null;period:string;amount:string;balance:string;currency:"TRY";dueDate:string;description:string;status:ChargeStatus;version:number;createdAt:string;cancellationReason:string|null;cancelledAt:string|null;partiesRecorded:boolean;partiesVisible:boolean;debtorType:"UNIT"|"TENANT"|"OWNER";parties:DuesParty[];cancellationReasonCode:string|null;cancellationReasonName:string|null;penaltyBalance?:string;kind?:ChargeKind;category?:ChargeCategory|null};
+export type DuesPage={items:DuesCharge[];page:number;pageSize:number;totalCount:number;summary:{outstandingAmount:string;overdueAmount:string;cancelledAmount:string;openCount:number;overdueCount:number;cancelledCount:number;currency:"TRY";penaltyOutstanding?:string}};
+export type Assessment={id:string;propertyId:string;requestId:string;period:string;amount:string;currency:"TRY";dueDate:string;description:string;unitCount:number;totalAmount:string;unitIds:string[];replayed:boolean;kind?:ChargeKind;category?:ChargeCategory|null};
 export type SubmissionKey={signature:string;id:string};
 export function submissionKey(previous:SubmissionKey|null,signature:string,createId:()=>string):SubmissionKey{
  return previous?.signature===signature?previous:{signature,id:createId()};
@@ -27,6 +28,11 @@ const nullableText=(v:unknown)=>v===null||text(v);
 const money=(v:unknown)=>text(v)&&/^[0-9]{1,18}\.[0-9]{2}$/.test(v);
 const integer=(v:unknown,min=0):v is number=>typeof v==="number"&&Number.isSafeInteger(v)&&v>=min;
 const cents=(value:string)=>BigInt(value.replace(".",""));
+// Older servers omit kind; extra charges always carry exactly one known category, dues none.
+export function validKind(kind:unknown,category:unknown):boolean{
+ if(kind===undefined)return category===undefined||category===null;
+ return kind==="DUES"?category===null||category===undefined:kind==="EXTRA"&&chargeCategories.includes(category as ChargeCategory);
+}
 export function isDuesCharge(value:unknown):value is DuesCharge{
  if(!object(value))return false;
  if(typeof value.partiesRecorded!=="boolean"||typeof value.partiesVisible!=="boolean"||!['UNIT','TENANT','OWNER'].includes(value.debtorType as string)||
@@ -39,7 +45,7 @@ export function isDuesCharge(value:unknown):value is DuesCharge{
  return ["id","propertyId","assessmentId","unitId"].every(k=>guid(value[k]))&&
   (value.buildingId===null||guid(value.buildingId))&&["unitNumber","period","dueDate","description","createdAt"].every(k=>text(value[k]))&&
   nullableText(value.buildingName)&&nullableText(value.cancellationReason)&&nullableText(value.cancelledAt)&&
-  money(value.amount)&&money(value.balance)&&value.currency==="TRY"&&
+  money(value.amount)&&money(value.balance)&&value.currency==="TRY"&&(value.penaltyBalance===undefined||money(value.penaltyBalance))&&validKind(value.kind,value.category)&&
   text(value.status)&&["OPEN","OVERDUE","CANCELLED","PARTIALLY_PAID","PAID"].includes(value.status)&&
   cents(value.amount as string)>BigInt(0)&&cents(value.amount as string)<=BigInt(9999999999)&&cents(value.balance as string)<=cents(value.amount as string)&&
   (value.status==="PAID"||value.status==="CANCELLED"?cents(value.balance as string)===BigInt(0):value.status==="PARTIALLY_PAID"?cents(value.balance as string)>BigInt(0)&&cents(value.balance as string)<cents(value.amount as string):value.status==="OPEN"?cents(value.balance as string)===cents(value.amount as string):cents(value.balance as string)>BigInt(0))&&integer(value.version,1);
@@ -98,7 +104,7 @@ export function readAssessment(value:unknown,propertyId:string):Assessment{
  if(!object(value)||!guid(value.id)||value.propertyId!==propertyId||!guid(value.requestId)||
   !["period","dueDate","description"].every(k=>text(value[k]))||!money(value.amount)||!money(value.totalAmount)||
   value.currency!=="TRY"||!integer(value.unitCount,1)||!Array.isArray(value.unitIds)||!value.unitIds.every(guid)||
-  value.unitIds.length!==value.unitCount||typeof value.replayed!=="boolean")throw new Error("Invalid assessment response");
+  value.unitIds.length!==value.unitCount||typeof value.replayed!=="boolean"||!validKind(value.kind,value.category))throw new Error("Invalid assessment response");
  return value as Assessment;
 }
 export type UnitChoicesPage={items:{id:string;buildingId:string|null;number:string;buildingName:string|null;isEnabled:boolean}[];page:number;pageSize:number;totalCount:number};

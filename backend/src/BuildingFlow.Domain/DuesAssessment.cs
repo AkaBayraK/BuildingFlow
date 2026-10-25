@@ -1,17 +1,23 @@
 namespace BuildingFlow.Domain;
 
+public enum ChargeKind { DUES, EXTRA }
+public enum ChargeCategory { FIXTURE, REPAIR, HEATING, UTILITY, INSURANCE, OTHER }
+
 public sealed class DuesAssessment : BaseEntity
 {
     private readonly List<DuesCharge> _charges = [];
     private DuesAssessment() { }
     public DuesAssessment(Guid propertyId, Guid requestId, string fingerprint, DateOnly period,
-        decimal amount, string currency, DateOnly dueDate, string description, string debtorType = "UNIT")
+        decimal amount, string currency, DateOnly dueDate, string description, string debtorType = "UNIT",
+        ChargeKind kind = ChargeKind.DUES, ChargeCategory? category = null)
     {
         if (propertyId == Guid.Empty || requestId == Guid.Empty) throw new ArgumentException("Valid identities are required.");
         if (string.IsNullOrWhiteSpace(fingerprint) || fingerprint.Length != 64 || fingerprint.Any(value => !Uri.IsHexDigit(value))) throw new ArgumentException("Invalid request fingerprint.");
         Validate(period, amount, currency, dueDate);
         if (debtorType is not ("UNIT" or "TENANT" or "OWNER")) throw new ArgumentException("Invalid debtor type.");
-        DebtorType = debtorType;
+        if (!Enum.IsDefined(kind) || (kind == ChargeKind.DUES) != (category is null) || (category is { } value && !Enum.IsDefined(value)))
+            throw new ArgumentException("Extra charges need a category; dues have none.");
+        DebtorType = debtorType; Kind = kind; Category = category;
         PropertyId = propertyId; RequestId = requestId; RequestFingerprint = fingerprint;
         Period = period; Amount = amount; Currency = currency; DueDate = dueDate;
         Description = Required(description, nameof(description), 500);
@@ -25,6 +31,8 @@ public sealed class DuesAssessment : BaseEntity
     public DateOnly DueDate { get; private set; }
     public string Description { get; private set; } = null!;
     public string DebtorType { get; private set; } = "UNIT";
+    public ChargeKind Kind { get; private set; }
+    public ChargeCategory? Category { get; private set; }
     public IReadOnlyCollection<DuesCharge> Charges => _charges.AsReadOnly();
     public DuesCharge AddCharge(Guid unitId)
     {
@@ -49,6 +57,7 @@ public sealed class DuesCharge : BaseEntity
     {
         PropertyId = assessment.PropertyId; AssessmentId = assessment.Id; UnitId = unitId;
         Period = assessment.Period; Amount = assessment.Amount; Currency = assessment.Currency; DueDate = assessment.DueDate;
+        Kind = assessment.Kind; Category = assessment.Category;
     }
     public Guid PropertyId { get; private set; }
     public Guid AssessmentId { get; private set; }
@@ -57,6 +66,8 @@ public sealed class DuesCharge : BaseEntity
     public decimal Amount { get; private set; }
     public string Currency { get; private set; } = null!;
     public DateOnly DueDate { get; private set; }
+    public ChargeKind Kind { get; private set; }
+    public ChargeCategory? Category { get; private set; }
     public bool IsCancelled { get; private set; }
     public decimal PaidAmount { get; private set; }
     public string? CancellationReason { get; private set; }

@@ -7,8 +7,8 @@ internal static class DuesEndpoints
         var root = app.MapGroup("/api/v1/properties/{propertyId:guid}/dues").WithTags("Dues").RequireAuthorization("CanManageDues");
         root.MapGet("", async (Guid propertyId, DuesService service, CancellationToken token,
             int page = 1, int pageSize = 10, string? search = null, Guid? unitId = null, string? period = null,
-            DateOnly? dueFrom = null, DateOnly? dueTo = null, string? status = null, string sortBy = "dueDate", string sortDirection = "desc", Guid? personId = null, string? partyRole = null) =>
-            Found(await service.ListAsync(propertyId, new(page, pageSize, search, unitId, period, dueFrom, dueTo, status, sortBy, sortDirection, personId, partyRole), token)));
+            DateOnly? dueFrom = null, DateOnly? dueTo = null, string? status = null, string sortBy = "dueDate", string sortDirection = "desc", Guid? personId = null, string? partyRole = null, string? kind = null) =>
+            Found(await service.ListAsync(propertyId, new(page, pageSize, search, unitId, period, dueFrom, dueTo, status, sortBy, sortDirection, personId, partyRole, kind), token)));
         root.MapGet("/person-choices", async (Guid propertyId,DuesService service,CancellationToken token,int page=1,int pageSize=20,string? search=null) => Found(await service.PersonChoicesAsync(propertyId,new(page,pageSize,search),token)));
         root.MapGet("/cancellation-reasons", async (Guid propertyId,DuesService service,CancellationToken token) => Found(await service.CancellationReasonsAsync(propertyId,token)));
         root.MapGet("/{chargeId:guid}", async (Guid propertyId, Guid chargeId, DuesService service, CancellationToken token) => Found(await service.GetAsync(propertyId, chargeId, token)));

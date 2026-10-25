@@ -1,7 +1,7 @@
 namespace BuildingFlow.Application;
 public sealed record OwnerUnit(string PropertyName,string Address,string City,string District,string? BuildingName,string Number,int Floor,string Area);
 public sealed record OwnerTenant(string Name,DateOnly StartDate,DateOnly? EndDate);
-public sealed record OwnerCharge(Guid Id,string Period,string Amount,string Paid,string Balance,DateOnly DueDate,string Status);
+public sealed record OwnerCharge(Guid Id,string Period,string Amount,string Paid,string Balance,DateOnly DueDate,string Status,string Penalty="0.00",string Kind="DUES",string? Category=null);
 public sealed record OwnerAnnouncement(Guid Id,string Title,string Content,DateTimeOffset PublishedAt);
 public sealed record OwnerRequest(Guid Id,string Description,DateTimeOffset ModifiedAt,string ManagementStatus="RECORDED",string? ManagementResponse=null);
 public sealed record OwnerPayment(Guid Id,string Amount,DateOnly PaidDate,bool Cancelled);

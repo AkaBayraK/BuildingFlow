@@ -11,6 +11,17 @@ internal static class ContactVerificationEndpoints
         {
             var group = app.MapGroup(path).RequireAuthorization().WithTags("Account contact verification");
             group.MapGet("", (IContactVerificationStore store, CancellationToken token) => store.ReadAsync(token));
+            group.MapPost("/phone/commands",async (HttpRequest request,IPhoneOtpStore store,CancellationToken token)=>{
+                if(!request.HasJsonContentType())return Results.StatusCode(415);
+                if(request.ContentLength>4096)return Results.StatusCode(413);
+                var limit=request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
+                if(limit is {IsReadOnly:false})limit.MaxRequestBodySize=4096;
+                PhoneOtpCommand? command;
+                try{command=await request.ReadFromJsonAsync<PhoneOtpCommand>(token);}
+                catch(JsonException){throw new RequestValidationException(new(){["phone"]=[ErrorCatalog.UserInvalid.Create()]});}
+                if(command is null)throw new RequestValidationException(new(){["phone"]=[ErrorCatalog.UserInvalid.Create()]});
+                return Results.Ok(await store.ExecuteAsync(command,request.HttpContext.Connection.RemoteIpAddress?.ToString()??"unknown",token));
+            });
             group.MapPost("/phone", async (HttpRequest request, IContactVerificationStore store, CancellationToken token) => {
                 if (!request.HasJsonContentType()) return Results.StatusCode(415);
                 if (request.ContentLength > 4096) return Results.StatusCode(413);

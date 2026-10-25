@@ -17,6 +17,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Dialog,DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog";
 import {formatDateTime} from "@/lib/format";
 import {personName} from "@/lib/person-names";
+import {ContactVerification} from "./ContactVerification";
 import {ConsentDialog} from "./ConsentDialog";
 import {accountChanged,useAccount} from "./useAccount";
 import {accountName,allows,approveCommand,parseConsents,parseProfile,profileCommand,withdrawCommand,type AccountConsent,type PhotoAction} from "./model";
@@ -33,6 +34,7 @@ export function AccountPage(){
  const [consents,setConsents]=useState<AccountConsent[]|null>(null),[consentError,setConsentError]=useState("");
  const [first,setFirst]=useState(""),[last,setLast]=useState(""),[phone,setPhone]=useState(""),[loadedVersion,setLoadedVersion]=useState(-1);
  const [busy,setBusy]=useState(false),[error,setError]=useState(""),[prompt,setPrompt]=useState<Prompt|null>(null),[promptError,setPromptError]=useState(""),[removing,setRemoving]=useState(false);
+ const [currentEmail,setCurrentEmail]=useState<string|null>(null);
  const file=useRef<HTMLInputElement>(null);
  const profile=account?.profile??null;
  // The form follows the stored profile whenever a newer version arrives (after a save here or on mobile).
@@ -116,11 +118,12 @@ export function AccountPage(){
      <div className="space-y-2"><Label htmlFor="account-last">{t("lastName")} *</Label><Input id="account-last" maxLength={80} autoComplete="family-name" value={last} onChange={e=>setLast(e.target.value)} onBlur={()=>setLast(v=>personName(first,v).lastName)}/></div>
      <p className="-mt-1 text-xs text-muted-foreground sm:col-span-2">{t("nameRule")}</p>
      <div className="space-y-2"><Label htmlFor="account-phone">{t("phone")}</Label><PhoneInput id="account-phone" value={phone} onValueChange={setPhone}/></div>
-     <div className="space-y-2"><Label htmlFor="account-email">{t("email")}</Label><Input id="account-email" type="email" readOnly value={account.email??""} placeholder={t("emailMissing")} aria-describedby="account-email-help" className="bg-muted/40"/><p id="account-email-help" className="text-xs text-muted-foreground">{t("emailReadOnly")}</p></div>
+     <div className="space-y-2"><Label htmlFor="account-email">{t("email")}</Label><Input id="account-email" type="email" readOnly value={currentEmail??""} placeholder={t("emailMissing")} aria-describedby="account-email-help" className="bg-muted/40"/><p id="account-email-help" className="text-xs text-muted-foreground">{t("emailReadOnly")}</p></div>
      {!!error&&<div className="sm:col-span-2"><MessageBanner presentation="inline">{error}</MessageBanner></div>}
      <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2"><small className="text-muted-foreground">{profile.modifiedAt?t("lastSaved",{date:formatDateTime(profile.modifiedAt,locale)}):t("neverSaved")}</small><Button type="submit" disabled={busy}>{busy?t("saving"):t("save")}</Button></div>
     </form>
    </section>
+   <ContactVerification key={userId} profileVersion={profile.version} onEmail={setCurrentEmail}/>
    <section aria-labelledby="account-info" className="rounded-2xl border bg-card p-5 shadow-sm">
     <h2 id="account-info" className="flex items-center gap-2 text-base font-semibold"><Building2 className="size-4"/>{t("accountTitle")}</h2>
     <dl className="mt-3 divide-y text-sm">

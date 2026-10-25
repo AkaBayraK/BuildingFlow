@@ -1,6 +1,6 @@
 namespace BuildingFlow.Domain;
 
-public enum PaymentMethod { CASH, BANK_TRANSFER }
+public enum PaymentMethod { CASH, BANK_TRANSFER, ONLINE_CARD }
 
 public sealed class Payment : BaseEntity
 {
@@ -14,7 +14,7 @@ public sealed class Payment : BaseEntity
         ValidateAmount(amount);
         if (currency != "TRY" || !Enum.IsDefined(method) || paidDate.Year < 2000) throw new ArgumentException("Invalid payment values.");
         reference = string.IsNullOrWhiteSpace(reference) ? null : reference.Trim();
-        if (reference?.Length > 100 || (method == PaymentMethod.BANK_TRANSFER && reference is null)) throw new ArgumentException("Bank reference is required.");
+        if (reference?.Length > 100 || (method != PaymentMethod.CASH && reference is null)) throw new ArgumentException("A reference is required.");
         PropertyId = propertyId; UnitId = unitId; RequestId = requestId; RequestFingerprint = fingerprint;
         Amount = amount; Currency = currency; PaidDate = paidDate; Method = method;
         Reference = method == PaymentMethod.BANK_TRANSFER ? reference!.ToUpperInvariant() : reference;
@@ -30,6 +30,7 @@ public sealed class Payment : BaseEntity
     public PaymentMethod Method { get; private set; }
     public string? Reference { get; private set; }
     public string Description { get; private set; } = null!;
+    public Guid? BankAccountId { get; private set; }
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
@@ -38,13 +39,44 @@ public sealed class Payment : BaseEntity
     {
         if (amount <= 0 || amount > 99999999.99m || decimal.Round(amount, 2) != amount) throw new ArgumentOutOfRangeException(nameof(amount));
     }
+    public void ReceivedInto(PaymentBankAccount account)
+    {
+        if (Method != PaymentMethod.BANK_TRANSFER || account.PropertyId != PropertyId || !account.UsableOn(PaidDate))
+            throw new InvalidOperationException("The bank account cannot receive this payment.");
+        BankAccountId = account.Id;
+    }
     public PaymentAllocation Allocate(DuesCharge charge, decimal amount)
     {
         ValidateAmount(amount);
-        if (IsCancelled || charge.PropertyId != PropertyId || charge.UnitId != UnitId || _allocations.Any(value => value.ChargeId == charge.Id)) throw new InvalidOperationException("Invalid allocation scope.");
-        if (_allocations.Count >= 100 || _allocations.Sum(value => value.Amount) + amount > Amount) throw new InvalidOperationException("Allocation exceeds payment.");
+        if (IsCancelled || charge.PropertyId != PropertyId || charge.UnitId != UnitId ||
+            _allocations.Any(value => value.ChargeId == charge.Id && value.Kind == AllocationKind.PRINCIPAL)) throw new InvalidOperationException("Invalid allocation scope.");
+        EnsureCapacity(amount);
         charge.ApplyPayment(amount);
         var allocation = new PaymentAllocation(this, charge.Id, amount); _allocations.Add(allocation); return allocation;
+    }
+    public IReadOnlyList<PaymentAllocation> AllocatePenalty(DuesCharge charge, IEnumerable<LatePenaltyAccrual> accruals, decimal amount)
+    {
+        ValidateAmount(amount);
+        if (IsCancelled || charge.PropertyId != PropertyId || charge.UnitId != UnitId ||
+            _allocations.Any(value => value.ChargeId == charge.Id && value.Kind == AllocationKind.PENALTY)) throw new InvalidOperationException("Invalid allocation scope.");
+        EnsureCapacity(amount);
+        var open = accruals.Where(value => value.ChargeId == charge.Id && value.Balance > 0).OrderBy(value => value.FromDate).ToArray();
+        if (open.Sum(value => value.Balance) < amount) throw new InvalidOperationException("Payment exceeds the penalty balance.");
+        List<PaymentAllocation> created = [];
+        var remaining = amount;
+        foreach (var accrual in open)
+        {
+            var part = Math.Min(remaining, accrual.Balance);
+            accrual.ApplyPayment(part);
+            created.Add(new PaymentAllocation(this, charge.Id, part, accrual.Id)); remaining -= part;
+            if (remaining == 0) break;
+        }
+        if (_allocations.Count + created.Count > 100) throw new InvalidOperationException("Allocation exceeds payment.");
+        _allocations.AddRange(created); return created;
+    }
+    private void EnsureCapacity(decimal amount)
+    {
+        if (_allocations.Count >= 100 || _allocations.Sum(value => value.Amount) + amount > Amount) throw new InvalidOperationException("Allocation exceeds payment.");
     }
     public void ValidateComplete()
     {
@@ -62,13 +94,16 @@ public sealed class Payment : BaseEntity
 public sealed class PaymentAllocation : BaseEntity
 {
     private PaymentAllocation() { }
-    internal PaymentAllocation(Payment payment, Guid charge, decimal amount)
+    internal PaymentAllocation(Payment payment, Guid charge, decimal amount, Guid? accrualId = null)
     {
         PropertyId = payment.PropertyId; UnitId = payment.UnitId; PaymentId = payment.Id; ChargeId = charge; Amount = amount;
+        Kind = accrualId is null ? AllocationKind.PRINCIPAL : AllocationKind.PENALTY; AccrualId = accrualId;
     }
     public Guid PropertyId { get; private set; }
     public Guid UnitId { get; private set; }
     public Guid PaymentId { get; private set; }
     public Guid ChargeId { get; private set; }
     public decimal Amount { get; private set; }
+    public AllocationKind Kind { get; private set; }
+    public Guid? AccrualId { get; private set; }
 }

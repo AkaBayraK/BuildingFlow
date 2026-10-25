@@ -1,23 +1,27 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
 public sealed record CreateAssessmentRequest(Guid RequestId, IReadOnlyList<Guid>? UnitIds, string? Period,
-    string? Amount, string? Currency, DateOnly? DueDate, string? Description, string DebtorType = "UNIT");
+    string? Amount, string? Currency, DateOnly? DueDate, string? Description, string DebtorType = "UNIT", string? Kind = null, string? Category = null);
 public sealed record AssessmentCommand(Guid RequestId, IReadOnlyList<Guid> UnitIds, DateOnly Period,
-    decimal Amount, string Currency, DateOnly DueDate, string Description, string DebtorType = "UNIT");
+    decimal Amount, string Currency, DateOnly DueDate, string Description, string DebtorType = "UNIT",
+    ChargeKind Kind = ChargeKind.DUES, ChargeCategory? Category = null);
 public sealed record AssessmentResponse(Guid Id, Guid PropertyId, Guid RequestId, string Period, string Amount,
-    string Currency, DateOnly DueDate, string Description, int UnitCount, string TotalAmount, IReadOnlyList<Guid> UnitIds, bool Replayed);
+    string Currency, DateOnly DueDate, string Description, int UnitCount, string TotalAmount, IReadOnlyList<Guid> UnitIds, bool Replayed,
+    string Kind = "DUES", string? Category = null);
 public sealed record DuesQuery(int Page = 1, int PageSize = 10, string? Search = null, Guid? UnitId = null,
     string? Period = null, DateOnly? DueFrom = null, DateOnly? DueTo = null, string? Status = null,
-    string SortBy = "dueDate", string SortDirection = "desc", Guid? PersonId = null, string? PartyRole = null);
+    string SortBy = "dueDate", string SortDirection = "desc", Guid? PersonId = null, string? PartyRole = null, string? Kind = null);
 public sealed record DuesSummary(string OutstandingAmount, string OverdueAmount, string CancelledAmount,
-    int OpenCount, int OverdueCount, int CancelledCount, string Currency);
+    int OpenCount, int OverdueCount, int CancelledCount, string Currency, string PenaltyOutstanding = "0.00");
 public sealed record DuesChargeResponse(Guid Id, Guid PropertyId, Guid AssessmentId, Guid UnitId,
     Guid? BuildingId, string UnitNumber, string? BuildingName, string Period, string Amount, string Balance,
     string Currency, DateOnly DueDate, string Description, string Status, long Version, DateTimeOffset CreatedAt,
     string? CancellationReason, DateTimeOffset? CancelledAt, bool PartiesRecorded = false, bool PartiesVisible = false,
-    string DebtorType = "UNIT", IReadOnlyList<DuesPartyResponse>? Parties = null, string? CancellationReasonCode = null, string? CancellationReasonName = null);
+    string DebtorType = "UNIT", IReadOnlyList<DuesPartyResponse>? Parties = null, string? CancellationReasonCode = null, string? CancellationReasonName = null,
+    string PenaltyBalance = "0.00", string Kind = "DUES", string? Category = null);
 public sealed record DuesPartyResponse(Guid ChargeId, Guid PersonId, Guid OccupancyId, string PersonName, string Type, DateOnly StartDate, DateOnly? EndDate, bool IsDebtor);
 public sealed record DuesPersonChoice(Guid Id, string Name, Guid PropertyId);
 public sealed record CancellationReasonResponse(Guid Id, string Code, string Name, bool RequiresExplanation);
@@ -47,6 +51,17 @@ public sealed class DuesService(IDuesStore store, ICurrentUserService user)
         period = default;
         return value is { Length: 7 } && DateOnly.TryParseExact(value + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out period) && period.Year >= 2000;
     }
+    private static (ChargeKind Kind, ChargeCategory? Category, bool Valid) Kind(string? kindText, string? categoryText)
+    {
+        var kind = ChargeKind.DUES; ChargeCategory? category = null;
+        if (kindText is not null && (!Enum.TryParse(kindText, false, out kind) || !Enum.IsDefined(kind))) return (kind, null, false);
+        if (categoryText is not null)
+        {
+            if (!Enum.TryParse<ChargeCategory>(categoryText, false, out var parsed) || !Enum.IsDefined(parsed)) return (kind, null, false);
+            category = parsed;
+        }
+        return (kind, category, (kind == ChargeKind.DUES) == (category is null));
+    }
     public static string Money(decimal value) => value.ToString("F2", CultureInfo.InvariantCulture);
     private static void Check(Dictionary<string, ApiErrorMessage[]> errors) { if (errors.Count > 0) throw new RequestValidationException(errors); }
     public Task<AssessmentResponse?> CreateAsync(Guid property, CreateAssessmentRequest request, CancellationToken token)
@@ -65,9 +80,11 @@ public sealed class DuesService(IDuesStore store, ICurrentUserService user)
         if (request.Currency != "TRY") errors["currency"] = [ErrorCatalog.DuesErrorCurrency.Create()];
         if (request.DueDate is null || request.DueDate < period) errors["dueDate"] = [ErrorCatalog.DuesErrorDue.Create()];
         if (string.IsNullOrWhiteSpace(request.Description) || request.Description.Trim().Length > 500) errors["description"] = [ErrorCatalog.DuesErrorDescription.Create()];
+        var (kind, category, validKind) = Kind(request.Kind, request.Category);
+        if (!validKind) errors["category"] = [ErrorCatalog.DuesKindInvalid.Create()];
         Check(errors);
         return store.CreateAsync(property, new(request.RequestId, request.UnitIds!.Order().ToArray(), period, amount,
-            request.Currency!, request.DueDate!.Value, request.Description!.Trim(), request.DebtorType), access, token);
+            request.Currency!, request.DueDate!.Value, request.Description!.Trim(), request.DebtorType, kind, category), access, token);
     }
     public Task<DuesPage?> ListAsync(Guid property, DuesQuery query, CancellationToken token)
     {
@@ -84,6 +101,7 @@ public sealed class DuesService(IDuesStore store, ICurrentUserService user)
         if (!string.IsNullOrEmpty(query.Status) && query.Status is not ("OPEN" or "OVERDUE" or "CANCELLED" or "PARTIALLY_PAID" or "PAID" or "OUTSTANDING")) errors["status"] = [ErrorCatalog.DuesErrorStatus.Create()];
         if (query.SortBy is not ("dueDate" or "period" or "amount" or "createdAt")) errors["sortBy"] = [ErrorCatalog.InvalidSortField.Create()];
         if (query.SortDirection is not ("asc" or "desc")) errors["sortDirection"] = [ErrorCatalog.InvalidSortDirection.Create()];
+        if (query.Kind is not null && query.Kind is not ("DUES" or "EXTRA")) errors["kind"] = [ErrorCatalog.DuesKindInvalid.Create()];
         Check(errors); return store.ListAsync(property, query, access, token);
     }
     public Task<DuesChargeResponse?> GetAsync(Guid property, Guid charge, CancellationToken token) => store.GetAsync(property, charge, Access(), token);

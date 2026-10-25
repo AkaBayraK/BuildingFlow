@@ -158,3 +158,11 @@ API istekleri sunucudan sabit şehir merkezi koordinatlarına yapılır. Buildin
 ## BF-VERIFY02 — 22.10.2026
 
 Projeye ait ContactNoticeFactory Java kaynağı ve e-posta metinleri yazıldı; harici kaynak kopyalanmadı. Derleme mevcut Keycloak26.7.5 API jar'larını yalnız classpath'te kullanır; çıktı yalnız projenin sınıfları/service kaydıdır, üçüncü taraf jar içermez. Yeni JDK/paket/SDK/imaj/sürüm eklenmedi; mevcut JDK, Keycloak26.7.5 ve Mailpit1.27.10 kullanıldı. Tema LICENSE/NOTICE korundu; manifest/lock/project farkı yok. Restore/install yapılmadığı için metadata envanteri yeniden üretilmedi. Yeni bir açık kaynak lisansı projeye atanmadı; üretim binary/NOTICE dağıtım denetimi FAZ07 kapsamındadır.
+## BAKIM — 23.10.2026
+
+Mevcut Node imaj ailesi korunarak Docker/CI24.22.1 sabitlendi; yeni npm paket/lock değişikliği yok. Oracle JDK aynı dağıtım25.0.5 yükseltmesi sudo engeliyle tamamlanmadı; yeni JDK sağlayıcısı eklenmedi. Resmî güvenlik kaynakları: https://nodejs.org/en/blog/release/v24.22.1 ve https://www.oracle.com/security-alerts/cpuoct2026.html . Konteyner yeniden oluşturulmadığından OS/JVM dağıtım kabulü açık.
+
+
+## BF-VERIFY03 — 23.10.2026
+
+Netgsm platform OTP sağlayıcısı kullanıcı tarafından seçildi. Ücretli SMS hizmetidir;SDK/kütüphane/asset lisansı eklenmedi. HTTPS/XML/HttpClient,RNG/HMAC/HKDF ve mevcut AES-GCM yardımcı kodu kullanılır;doküman örneklerinden üçüncü taraf paket/kod kopyalanmadı. Mevcut cached PostgreSQL18.6 yalnız geçici testte kullanıldı;imaj/sürüm eklenmedi. Manifest/lock/csproj farkı yok,restore/install yok;envanter yeniden üretilmedi. Mevcut LICENSE/NOTICE dosyaları korundu. Hesap/OTP paketi/onaylı gönderici ve gerçek kullanım sözleşmesi tamamlanmadan gerçek gönderim kabulü kapanmaz. [Sağlayıcı fiyat/koşulları](https://www.netgsm.com.tr/fiyatlar/otp-sms),[API](https://www.netgsm.com.tr/dokuman/).

@@ -5,6 +5,8 @@ namespace BuildingFlow.Infrastructure;
 
 internal sealed class DuesAssessmentConfiguration : IEntityTypeConfiguration<DuesAssessment>
 {
+    internal const string ChargeKindCheck = "(kind = 'DUES' AND category IS NULL) OR " +
+        "(kind = 'EXTRA' AND category IN ('FIXTURE','REPAIR','HEATING','UTILITY','INSURANCE','OTHER'))";
     public void Configure(EntityTypeBuilder<DuesAssessment> builder)
     {
         BaseEntityConfiguration.Configure(builder, "dues_assessments");
@@ -17,6 +19,8 @@ internal sealed class DuesAssessmentConfiguration : IEntityTypeConfiguration<Due
         builder.Property(value => value.DueDate).HasColumnName("due_date");
         builder.Property(value => value.Description).HasColumnName("description").HasMaxLength(500);
         builder.Property(value => value.DebtorType).HasColumnName("debtor_type").HasMaxLength(10).HasDefaultValue("UNIT");
+        builder.Property(value => value.Kind).HasColumnName("kind").HasConversion<string>().HasMaxLength(10).HasDefaultValue(ChargeKind.DUES).HasSentinel((ChargeKind)(-1));
+        builder.Property(value => value.Category).HasColumnName("category").HasConversion<string>().HasMaxLength(20);
         builder.HasOne<Property>().WithMany().HasForeignKey(value => value.PropertyId).OnDelete(DeleteBehavior.Restrict);
         builder.HasAlternateKey(value => new { value.PropertyId, value.Id });
         builder.HasIndex(value => new { value.PropertyId, value.RequestId }).IsUnique();
@@ -27,6 +31,7 @@ internal sealed class DuesAssessmentConfiguration : IEntityTypeConfiguration<Due
             table.HasCheckConstraint("ck_assessments_values", "amount > 0 AND currency = 'TRY' AND EXTRACT(DAY FROM period) = 1 AND period >= DATE '2000-01-01' AND due_date >= period");
             table.HasCheckConstraint("ck_assessments_history", "is_deleted = false AND is_enabled = true");
             table.HasCheckConstraint("ck_assessments_debtor", "debtor_type IN ('UNIT','TENANT','OWNER')");
+            table.HasCheckConstraint("ck_assessments_kind", ChargeKindCheck);
         });
     }
 }
@@ -57,17 +62,20 @@ internal sealed class DuesChargeConfiguration : IEntityTypeConfiguration<DuesCha
             .HasPrincipalKey(value => new {value.PropertyId,value.UnitId,value.Id}).OnDelete(DeleteBehavior.Restrict);
         builder.Navigation(value => value.Parties).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Property(value => value.PaidAmount).HasColumnName("paid_amount").HasPrecision(10, 2).HasDefaultValue(0m);
+        builder.Property(value => value.Kind).HasColumnName("kind").HasConversion<string>().HasMaxLength(10).HasDefaultValue(ChargeKind.DUES).HasSentinel((ChargeKind)(-1));
+        builder.Property(value => value.Category).HasColumnName("category").HasConversion<string>().HasMaxLength(20);
         builder.HasAlternateKey(value => new { value.PropertyId, value.UnitId, value.Id });
         builder.Ignore(value => value.Balance);
         builder.HasOne<Unit>().WithMany().HasForeignKey(value => new { value.PropertyId, value.UnitId })
             .HasPrincipalKey(value => new { value.PropertyId, value.Id }).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(value => new { value.PropertyId, value.UnitId, value.Period }).IsUnique().HasFilter("is_cancelled = false");
+        builder.HasIndex(value => new { value.PropertyId, value.UnitId, value.Period }).IsUnique().HasFilter("is_cancelled = false AND kind = 'DUES'");
         builder.HasIndex(value => new { value.PropertyId, value.DueDate });
         builder.ToTable(table => {
             table.HasCheckConstraint("ck_charges_values", "amount > 0 AND currency = 'TRY' AND EXTRACT(DAY FROM period) = 1 AND period >= DATE '2000-01-01' AND due_date >= period");
             table.HasCheckConstraint("ck_charges_cancellation", "(is_cancelled = false AND cancellation_reason IS NULL AND cancelled_at IS NULL) OR (is_cancelled = true AND cancellation_reason IS NOT NULL AND length(trim(cancellation_reason)) > 0 AND cancelled_at IS NOT NULL)");
             table.HasCheckConstraint("ck_charges_paid", "paid_amount >= 0 AND paid_amount <= amount AND (is_cancelled = false OR paid_amount = 0)");
             table.HasCheckConstraint("ck_charges_history", "is_deleted = false AND is_enabled = true");
+            table.HasCheckConstraint("ck_charges_kind", DuesAssessmentConfiguration.ChargeKindCheck);
             table.HasCheckConstraint("ck_charges_reason_metadata", "(cancellation_reason_id IS NULL AND cancellation_reason_code IS NULL AND cancellation_reason_name IS NULL AND cancelled_by_occupancy_id IS NULL) OR (is_cancelled = true AND cancellation_reason_id IS NOT NULL AND cancellation_reason_code IS NOT NULL AND cancellation_reason_name IS NOT NULL)");
         });
     }

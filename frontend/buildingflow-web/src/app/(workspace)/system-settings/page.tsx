@@ -1,2 +1,3 @@
 import {SystemStatusWorkspace} from "@/features/system-status/SystemStatusWorkspace";
-export default function Page(){return <SystemStatusWorkspace/>;}
+import {ProvidersPanel} from "@/features/online-payments/ProvidersPanel";
+export default function Page(){return <><SystemStatusWorkspace/><ProvidersPanel/></>;}

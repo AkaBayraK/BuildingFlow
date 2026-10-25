@@ -3,17 +3,19 @@ using System.Text.RegularExpressions;
 using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
-public sealed record AllocationRequest(Guid ChargeId, string? Amount, long Version);
+public sealed record AllocationRequest(Guid ChargeId, string? Amount, long Version, string? Kind = null);
 public sealed record CreatePaymentRequest(Guid RequestId, Guid UnitId, string? Amount, string? Currency,
-    DateOnly? PaidDate, string? Method, string? Reference, string? Description, IReadOnlyList<AllocationRequest>? Allocations);
-public sealed record AllocationCommand(Guid ChargeId, decimal Amount, long Version);
+    DateOnly? PaidDate, string? Method, string? Reference, string? Description, IReadOnlyList<AllocationRequest>? Allocations, Guid? BankAccountId = null);
+public sealed record AllocationCommand(Guid ChargeId, decimal Amount, long Version, AllocationKind Kind = AllocationKind.PRINCIPAL);
 public sealed record PaymentCommand(Guid RequestId, Guid UnitId, decimal Amount, DateOnly PaidDate,
-    PaymentMethod Method, string? Reference, string Description, IReadOnlyList<AllocationCommand> Allocations);
-public sealed record PaymentAllocationResponse(Guid Id, Guid ChargeId, string Period, string Amount);
+    PaymentMethod Method, string? Reference, string Description, IReadOnlyList<AllocationCommand> Allocations, Guid? BankAccountId = null);
+public sealed record PaymentAllocationResponse(Guid Id, Guid ChargeId, string Period, string Amount, string Kind = "PRINCIPAL", Guid? AccrualId = null,
+    string ChargeKind = "DUES", string? ChargeCategory = null);
 public sealed record PaymentResponse(Guid Id, Guid PropertyId, Guid UnitId, Guid? BuildingId, string UnitNumber,
     string? BuildingName, Guid RequestId, string Amount, string Currency, DateOnly PaidDate, string Method,
     string? Reference, string Description, string Status, long Version, DateTimeOffset CreatedAt,
-    string? CancellationReason, DateTimeOffset? CancelledAt, IReadOnlyList<PaymentAllocationResponse> Allocations, bool Replayed);
+    string? CancellationReason, DateTimeOffset? CancelledAt, IReadOnlyList<PaymentAllocationResponse> Allocations, bool Replayed,
+    string? ReceiptNumber = null, Guid? BankAccountId = null, string? BankAccountIban = null);
 public sealed record PaymentQuery(int Page = 1, int PageSize = 10, string? Search = null, Guid? UnitId = null,
     Guid? ChargeId = null, DateOnly? From = null, DateOnly? To = null, string? Status = null, string? Method = null,
     string SortBy = "paidDate", string SortDirection = "desc");
@@ -51,22 +53,26 @@ public sealed class PaymentService(IPaymentStore store, ICurrentUserService user
         var validMethod = request.Method is "CASH" or "BANK_TRANSFER";
         if (!validMethod) errors["method"] = [ErrorCatalog.PaymentsErrorMethod.Create()];
         if (request.Reference?.Trim().Length > 100 || (request.Method == "BANK_TRANSFER" && string.IsNullOrWhiteSpace(request.Reference))) errors["reference"] = [ErrorCatalog.PaymentsReferenceRequired.Create()];
+        if (request.BankAccountId == Guid.Empty || (request.BankAccountId is not null && request.Method != "BANK_TRANSFER")) errors["bankAccountId"] = [ErrorCatalog.PaymentBankAccountUnusable.Create()];
         if (string.IsNullOrWhiteSpace(request.Description) || request.Description.Trim().Length > 500) errors["description"] = [ErrorCatalog.DuesErrorDescription.Create()];
         List<AllocationCommand> allocations = [];
         if (request.Allocations is null || request.Allocations.Count is < 1 or > 100 || request.Allocations.Any(value => value is null)) errors["allocations"] = [ErrorCatalog.PaymentsErrorAllocations.Create()];
         else
         {
             foreach (var value in request.Allocations)
-                if (value.ChargeId == Guid.Empty || value.Version < 1 || !Money(value.Amount, out var part)) errors["allocations"] = [ErrorCatalog.PaymentsErrorAllocations.Create()];
-                else allocations.Add(new(value.ChargeId, part, value.Version));
-            if (allocations.Select(value => value.ChargeId).Distinct().Count() != allocations.Count) errors["allocations"] = [ErrorCatalog.PaymentsErrorAllocations.Create()];
+                if (value.ChargeId == Guid.Empty || value.Version < 1 || !Money(value.Amount, out var part) || value.Kind is not (null or "PRINCIPAL" or "PENALTY"))
+                    errors["allocations"] = [ErrorCatalog.PaymentsErrorAllocations.Create()];
+                else allocations.Add(new(value.ChargeId, part, value.Version, value.Kind == "PENALTY" ? AllocationKind.PENALTY : AllocationKind.PRINCIPAL));
+            if (allocations.Select(value => (value.ChargeId, value.Kind)).Distinct().Count() != allocations.Count ||
+                allocations.GroupBy(value => value.ChargeId).Any(group => group.Select(value => value.Version).Distinct().Count() > 1))
+                errors["allocations"] = [ErrorCatalog.PaymentsErrorAllocations.Create()];
             if (allocations.Sum(value => value.Amount) != amount) errors["amount"] = [ErrorCatalog.PaymentsErrorTotal.Create()];
         }
         Check(errors);
         var method = Enum.Parse<PaymentMethod>(request.Method!);
         var reference = string.IsNullOrWhiteSpace(request.Reference) ? null : request.Reference.Trim();
         if (method == PaymentMethod.BANK_TRANSFER) reference = reference!.ToUpperInvariant();
-        return store.CreateAsync(property, new(request.RequestId, request.UnitId, amount, request.PaidDate!.Value, method, reference, request.Description!.Trim(), allocations.OrderBy(value => value.ChargeId).ToArray()), access, token);
+        return store.CreateAsync(property, new(request.RequestId, request.UnitId, amount, request.PaidDate!.Value, method, reference, request.Description!.Trim(), allocations.OrderBy(value => value.ChargeId).ThenBy(value => value.Kind).ToArray(), request.BankAccountId), access, token);
     }
     public Task<PaymentPage?> ListAsync(Guid property, PaymentQuery query, CancellationToken token)
     {
@@ -76,7 +82,7 @@ public sealed class PaymentService(IPaymentStore store, ICurrentUserService user
         if (query.UnitId == Guid.Empty || query.ChargeId == Guid.Empty) errors["unitId"] = [ErrorCatalog.DuesErrorUnit.Create()];
         if (query.From > query.To) errors["to"] = [ErrorCatalog.PaymentsErrorDateRange.Create()];
         if (!string.IsNullOrEmpty(query.Status) && query.Status is not ("RECORDED" or "CANCELLED")) errors["status"] = [ErrorCatalog.PaymentsErrorStatus.Create()];
-        if (!string.IsNullOrEmpty(query.Method) && query.Method is not ("CASH" or "BANK_TRANSFER")) errors["method"] = [ErrorCatalog.PaymentsErrorMethod.Create()];
+        if (!string.IsNullOrEmpty(query.Method) && query.Method is not ("CASH" or "BANK_TRANSFER" or "ONLINE_CARD")) errors["method"] = [ErrorCatalog.PaymentsErrorMethod.Create()];
         if (query.SortBy is not ("paidDate" or "amount" or "createdAt") || query.SortDirection is not ("asc" or "desc")) errors["sortBy"] = [ErrorCatalog.InvalidSortField.Create()];
         Check(errors); return store.ListAsync(property, query, access, token);
     }

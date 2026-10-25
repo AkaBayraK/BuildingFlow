@@ -36,7 +36,7 @@ public sealed class MyUnitStore(BuildingFlowDbContext db,IMyPortfolioStore portf
         var s=await Resolve(q,PortfolioCapabilities.ViewDues,token);if(s==null)return null;var today=Today;var charges=Charges(s,q);var open=charges.Where(c=>!c.IsCancelled);
         var summary=new MobileFinanceSummary(Money(await open.SumAsync(c=>(decimal?)c.Amount,token)??0m),Money(await open.SumAsync(c=>(decimal?)c.PaidAmount,token)??0m),Money(await open.SumAsync(c=>(decimal?)(c.Amount-c.PaidAmount),token)??0m),Money(await open.Where(c=>c.DueDate<today).SumAsync(c=>(decimal?)(c.Amount-c.PaidAmount),token)??0m));
         var total=await charges.CountAsync(token);var rows=await charges.OrderByDescending(c=>c.Period).ThenBy(c=>c.Id).Skip((q.Page-1)*q.PageSize).Take(q.PageSize).ToArrayAsync(token);await tx.CommitAsync(token);
-        return new(s.Context.ContextKey,summary,Paged(rows.Select(c=>new OwnerCharge(c.Id,c.Period.ToString("yyyy-MM",CultureInfo.InvariantCulture),Money(c.Amount),Money(c.PaidAmount),Money(c.Balance),c.DueDate,c.Status(today))).ToArray(),q,total));
+        return new(s.Context.ContextKey,summary,Paged(rows.Select(c=>new OwnerCharge(c.Id,c.Period.ToString("yyyy-MM",CultureInfo.InvariantCulture),Money(c.Amount),Money(c.PaidAmount),Money(c.Balance),c.DueDate,c.Status(today),"0.00",c.Kind.ToString(),c.Category?.ToString())).ToArray(),q,total));
     }
     public async Task<MyUnitPage<MyPaymentRow>?> PaymentsAsync(MyUnitQuery q,CancellationToken token)
     {

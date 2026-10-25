@@ -31,7 +31,7 @@ public sealed class AccountPhoneVerification : BaseEntity
         return true;
     }
 
-    // Only a trusted server-side proof handler may call this (OTP transport is a later phase).
+    // Only a trusted server-side proof handler may call this.
     public void Confirm(string expectedKey, DateTimeOffset at)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedKey);

@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace BuildingFlow.IntegrationTests;
 internal static class TestToken
 {
-    public static HttpClient Client(SiteApiTests.SiteApiFactory factory,string? actor,string role)
+    public static HttpClient Client(Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory,string? actor,string role)
     {
         var client=factory.CreateClient();if(actor is null)return client;
         var key=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(new string('s',64))){KeyId="sites-test-only"};

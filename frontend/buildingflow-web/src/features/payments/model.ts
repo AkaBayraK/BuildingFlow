@@ -1,5 +1,5 @@
-export type PaymentMethod="CASH"|"BANK_TRANSFER";
-export type PaymentRecord={id:string;propertyId:string;unitId:string;buildingId:string|null;unitNumber:string;buildingName:string|null;requestId:string;amount:string;currency:"TRY";paidDate:string;method:PaymentMethod;reference:string|null;description:string;status:"RECORDED"|"CANCELLED";version:number;createdAt:string;cancellationReason:string|null;cancelledAt:string|null;allocations:{id:string;chargeId:string;period:string;amount:string}[];replayed:boolean};
+export type PaymentMethod="CASH"|"BANK_TRANSFER"|"ONLINE_CARD";
+export type PaymentRecord={id:string;propertyId:string;unitId:string;buildingId:string|null;unitNumber:string;buildingName:string|null;requestId:string;amount:string;currency:"TRY";paidDate:string;method:PaymentMethod;reference:string|null;description:string;status:"RECORDED"|"CANCELLED";version:number;createdAt:string;cancellationReason:string|null;cancelledAt:string|null;allocations:{id:string;chargeId:string;period:string;amount:string;kind?:"PRINCIPAL"|"PENALTY";accrualId?:string|null}[];replayed:boolean;receiptNumber?:string|null;bankAccountId?:string|null;bankAccountIban?:string|null};
 export type PaymentPage={items:PaymentRecord[];page:number;pageSize:number;totalCount:number;summary:{recordedAmount:string;cancelledAmount:string;recordedCount:number;cancelledCount:number;currency:"TRY"}};
 const object=(v:unknown):v is Record<string,unknown>=>v!==null&&typeof v==="object"&&!Array.isArray(v);
 const guid=(v:unknown):v is string=>typeof v==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v);
@@ -19,14 +19,15 @@ export function readPayment(value:unknown,propertyId:string):PaymentRecord{
  if(!object(value)||!["id","propertyId","unitId","requestId"].every(k=>guid(value[k]))||value.propertyId!==propertyId||
   !(value.buildingId===null||guid(value.buildingId))||!text(value.unitNumber)||!nullableText(value.buildingName)||
   !money(value.amount)||moneyCents(value.amount)<=BigInt(0)||moneyCents(value.amount)>BigInt(9999999999)||value.currency!=="TRY"||!date(value.paidDate)||
-  !text(value.method)||!["CASH","BANK_TRANSFER"].includes(value.method)||!nullableText(value.reference)||(value.method==="BANK_TRANSFER"&&(!text(value.reference)||!value.reference.trim()))||
+  !text(value.method)||!["CASH","BANK_TRANSFER","ONLINE_CARD"].includes(value.method)||!nullableText(value.reference)||(value.method!=="CASH"&&(!text(value.reference)||!value.reference.trim()))||
+  !(value.receiptNumber==null||text(value.receiptNumber))||!(value.bankAccountId==null||guid(value.bankAccountId))||!(value.bankAccountIban==null||text(value.bankAccountIban))||(value.bankAccountId!=null&&value.method!=="BANK_TRANSFER")||
   !text(value.description)||!value.description.trim()||!integer(value.version,1)||!timestamp(value.createdAt)||!nullableText(value.cancellationReason)||!nullableText(value.cancelledAt)||
   !text(value.status)||!["RECORDED","CANCELLED"].includes(value.status)||typeof value.replayed!=="boolean"||!Array.isArray(value.allocations)||value.allocations.length<1||value.allocations.length>100)
   throw new Error("Invalid payment response");
  if(value.status==="CANCELLED"?(!text(value.cancellationReason)||!value.cancellationReason.trim()||!timestamp(value.cancelledAt)):(value.cancellationReason!==null||value.cancelledAt!==null))throw new Error("Invalid cancellation history");
- if(!value.allocations.every(part=>object(part)&&guid(part.id)&&guid(part.chargeId)&&text(part.period)&&/^[2-9][0-9]{3}-(?:0[1-9]|1[0-2])$/.test(part.period)&&money(part.amount)&&moneyCents(part.amount)>BigInt(0)))throw new Error("Invalid allocations");
+ if(!value.allocations.every(part=>object(part)&&guid(part.id)&&guid(part.chargeId)&&text(part.period)&&/^[2-9][0-9]{3}-(?:0[1-9]|1[0-2])$/.test(part.period)&&money(part.amount)&&moneyCents(part.amount)>BigInt(0)&&(part.kind===undefined||part.kind==="PRINCIPAL"?part.accrualId===null||part.accrualId===undefined:part.kind==="PENALTY"&&guid(part.accrualId))))throw new Error("Invalid allocations");
  const parts=value.allocations as PaymentRecord["allocations"];
- if(new Set(parts.map(part=>part.id)).size!==parts.length||new Set(parts.map(part=>part.chargeId)).size!==parts.length||allocationTotal(parts.map(part=>part.amount))!==value.amount)throw new Error("Invalid allocation total");
+ if(new Set(parts.map(part=>part.id)).size!==parts.length||new Set(parts.map(part=>part.kind==="PENALTY"?"P:"+part.accrualId:part.chargeId)).size!==parts.length||allocationTotal(parts.map(part=>part.amount))!==value.amount)throw new Error("Invalid allocation total");
  return value as PaymentRecord;
 }
 export function readPaymentPage(value:unknown,propertyId:string):PaymentPage{

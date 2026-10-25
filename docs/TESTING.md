@@ -1,3 +1,25 @@
+## BF-VERIFY05 — kabul planı / 23.10.2026
+
+P05.A1–A9:kendi hesap/alan bağımsızlığı,OIDC S256 veaynısubject dönüşü,appfocus/screenopen sunucuGET,wrong/expiry/attempt/retry/version/409/429/outage,offline mutation yok veönbellekkanıtı yok,logout/hesap/aday temizliği,profilfotoğraf/rıza uyumu. İlgilitestler önce;son `npm run check`/`npm run build`;nativecihaz/emülatördeekran+e-posta dönüşü/ağ/hesapdeğişimi gerçekkanıtı ayrı. Tarayıcısimülasyonu nativekabul sayılmaz.
+
+## BF-VERIFY04 — 23.10.2026 — GEÇTİ
+
+**Web250/250,0skip;typecheck/buildGEÇTİ(sonkuruluNext16.4.3);gerçek izole API/PostgreSQL tarayıcı1/1;OTP/JWT/şema/migration32/32entegrasyon+16/16unit,0skip;gerçek izole Keycloak26.7.5/Mailpit12/12grup.** Komutlar:`npm test`,`npm run typecheck`,`npm run build`,`python3 scripts/test-contact-web.py`,`python3 scripts/test-phone-otp.py`,`python3 scripts/test-contact-identity.py`. CUA gerçekAccountPage+ortaktransport:member/Property olmadan erişim,SEND,yanlışkod4deneme,409/profilegüncellik,mobilcontactAPI→webVERIFIED,aynıtelefonkanıtı veeski/yenihedef. SentetikHTTPnegatifleri ayrıca:çifttıklama1istek,CANCEL,expiry,429,UNKNOWN,rate3595sn,outage,odak;TR/EN,1440(1425/1425) ve375(360/360),üçtema,Enter/focus. Fizikselmobil/operatörSMSkanıtı değildir. Yeni üretimAPI/şema/paket yok;yalnız testprojesinde opt-in loopbackköprü. 24yerelbağlantı ve diffcheckGEÇTİ. [Madde/dosya/komut/görsel ve sınırlar](refactor/contact-verification/04-report.md). #46gerçekSMSaçık;FAZ05başlatılmadı.
+
+## BF-VERIFY04 — 23.10.2026 — kabul senaryoları
+
+Kapsam P04.A1–A8: kendi hesap/Property bağımsızlığı,IdP AIA güvenli callback,maskeli eski/yeni hedef,send/verify/cancel,replay/çift tıklama,server retry/expiry/attempt/version,409/429/outage,odak/sekme yenileme ve mobil→web durum;TR/EN/ikon/tema/klavye375/1440. Gerçek uygulama bileşeni+HTTP fixture,ayrıca gerçekAPI/izolePG bağlantısı ayrı kanıtlanacak. Sonuç teslim raporunda;önceki faz kanıtı yeniden çalışmış sayılmaz.
+
+BF-VERIFY03 son ek kontrol (23.10.2026):başlık sonrası takılan HTTP gövdesine ortak süre/boyut sınırı eklendi;yalnız etkilenen taşıyıcı grubu3/3 geçti. Önceki32PG/API+16unit sonucu ayrıca korunur.
+
+## BF-VERIFY03 — 23.10.2026 — Yerel kabul GEÇTİ / gerçek SMS DOĞRULANAMADI
+
+**python3 scripts/test-phone-otp.py:32/32 entegrasyon+16/16 unit,0skip.** Yeni7OTPAPI+3taşıyıcı/kripto+1migration;JWT,kontak,şema/EFmigration/audit ve eski SMS regresyonları dahil. Gerçek PostgreSQL ve gerçek loopbackHTTP,yalnız test sunucusu;Netgsm'e/telefon alıcısına SMS gönderilmedi. Kod/telefon makbuzda yok;expiry/cancel/kilit temizlik,5yanlış,5/saat account+target,20/saat IP,UUIDreplay,409race,same-candidate/name,foreign actual challenge/SUPER_ADMIN ve disabled-negatifler geçti. Son aynı aday/isim düzeltmesi sonrası tekrar32+16başarılı. Worker build0hata0uyarı;9/9 sözlük/yolharitası standardı. UI kodu değişmedi;web/mobil build/cihaz çalıştırılmadı. Migration20261023082825yalnız izole DB'ye uygulandı. **Gerçek sağlayıcı hesabı/gönderici/alıcı yok;#46açık ve FAZ03tamamlandı sayılmaz.** [Ayrıntı](refactor/contact-verification/03-report.md).
+
+## BF-VERIFY FAZ03 — 23.10.2026 — Kabul planı
+
+Başlangıç AccountPhoneVerificationTests6/6 GEÇTİ. Hedef:Netgsm yerel HTTP sözleşmesi (başarı,hata,bozukXML,timeout),RNG/HMAC/şifreleme,izole PostgreSQL account/hedef/IP limitleri,replay/TTL/yanlışkod/iptal/race ve eski profil koruması. Gerçek SMS hesabı yok;yerel kabul gerçek operatör teslimi sayılmaz. Yeni paket yok.
+
 ## BF-VERIFY FAZ02 — 22.10.2026 — E-posta kabulü GEÇTİ
 
 **12/12 gerçek izole Keycloak26.7.5/Mailpit kabul grubu:** VERIFY_EMAIL ilk giriş, normal+geçici parola tek daveti, UPDATE_EMAIL eski adres/pending, taze re-auth, eski adrese bildirim ve replay, expired/resend, legacy UPDATE_PASSWORD gerçek semantiği, eski JWT, mobil S256 code exchange, redirect/PKCE reddi, SMTP kesintisi ve log gizliliği. **8/8 politika unit;15/15 JWT/adaptör;20/20 ilgili web;19/19 ilgili mobil.** Web typecheck/build; .NET build0hata0uyarı. Atlanan test yok. Tam suite/cihaz/UI/harici posta kutusu/SMS/üretim testi yapılmadı; uygulama şeması değişmediği için PostgreSQL şema testleri tekrarlanmadı. SMTP kabulü gerçek kullanıcı teslimi değildir. Canlı politika defaultfalse. [Komutlar/kanıt/sınırlar](refactor/contact-verification/02-report.md).
@@ -1656,3 +1678,20 @@ Senaryolar: Portföyüm gruplu daire kartları ve rozetler, yönetim görevleri 
 [ek-04-duplicates](refactor/multi-property/ek-04-duplicates.md). Senaryolar: aynı müşteride (yeni model) / aynı alanda (eski ekran) aynı T.C./vergi/yabancı kimlik no, aynı normalize cep telefonu, aynı küçük harf e-posta 409; başka müşteride/alanda serbest; soft-delete edilmiş kişi engel değil; pasif kişide kimlik engel, telefon/e-posta değil; tüzel vergi no, yabancı pasaport büyük/küçük harf; eşzamanlı iki kayıttan biri; yanıt diğer kişiyi sızdırmaz.
 
 **Bu tur (ayrı geçici PostgreSQL):** unit **302/302**; kişi suite'leri (CentralPeople, PeopleApi, LegacyPersonDuplicate) **41/41** + SMS **11/11**; tam entegrasyon tek iş parçacığıyla 557 geçti, 133 başarısız (132 paylaşılan sunucu bağlantı kotası 53300, 1 SMS fixture → düzeltildi); bağlantıdan düşen 17 sınıfın yeniden koşusu **142 geçti / 1 bilinen S3 fotoğraf / 7 atlandı**. Web **237/237**, typecheck, build PASS. Mevcut veride mükerrer sayısı canlı DB'de ölçülmedi (yalnız sayı veren sorgu belgede).
+## BAKIM — 23.10.2026 — Node/JVM güvenlik güncellemesi
+
+Node yerel `26.12.1` doğrulandı; web `npm test`: 238/238 geçti, atlanan yok; `git diff --check` geçti. Docker iki aşaması ve CI `24.22.1` sabitlendi; kök `.nvmrc` eklendi. Docker rebuild/CI çalıştırılmadı. Keycloak konteyneri salt okunur `java -version`: Red Hat OpenJDK `21.0.12.1`; bu JVM güncellenmedi. Oracle JDK `25.0.4.1` → `25.0.5` Homebrew yükseltmesi indirildi fakat sudo interaktif parola istediğinden başarısız; tamamlandı sayılmaz. Ek JDK/GraalVM kurulumları güncellenmedi. Yeni npm bağımlılığı/restore yok.
+
+## BF-LATE FAZ 00–07 — 23.10.2026 — Gecikme tazminatı
+
+[Analiz](refactor/late-penalty/PHASE_00_ANALYSIS.md) · [Rapor](refactor/late-penalty/REPORT.md) · [API](api/late-penalties.md). Senaryolar: vadesinde ödeme, 1/30 gün, yıl geçişi, aynı yıl oran değişimi, geçmiş yıl, kısmi/çoklu kısmi/tam ödeme, uygula anahtarı kapalı/sonradan açık, gerçek ay yöntemi, yuvarlama, %5 üstü ret, kanuni dışı oran onayı, dönem çakışması, kesinleşmiş döneme oran, idempotent kesinleştirme ve tekrar çalışan ay sonu job'ı, ödeme+iptal tazminat geri alımı, geriye dönük tahsilat yeniden hesabı ve ödenmiş tahakkuk engeli, eşzamanlı tazminat ödemesi, rol/tenant izolasyonu, muafiyet, tazminatı ödenmiş borç iptal engeli, mobil finans alanları, migration yükseltme/tekrar/Down koruması.
+**Bu tur (ayrı geçici PostgreSQL):** unit **337/337** (gecikme 17); gecikme entegrasyon **11/11**; tam entegrasyon 759: ilk koşu 625 geçti / 91 başarısız (89'u paylaşılan sunucu bağlantı kotası 53300) / 43 atlandı (S3/RabbitMQ ortamı yok); başarısız 17 sınıf yeni DB'de 130/135 geçti, 3 atlandı, 2 başarısız (S3 olmadan fotoğraf 503 ve PersonPortfolio fotoğraf işaretçisi; gecikme koduyla ilgisiz). Web `npm test` 249/249 (yeni 7), `tsc` yalnız paralel işin izlenmeyen `tests/fixtures/verification-entry.tsx` hatası; bu yüzden `npm run build` tamamlanmadı. Mobil `npm run check` 132/132 + typecheck/lint, `npm run build` geçti. EF model check fark yok; lisans kontrolü PASS, yeni paket yok. Canlı tarayıcı kabulü yapılmadı.
+
+**BF-LATE ek (23.10.2026, kullanıcı kararı yalnız kanuni yöntem):** politika yalnız %5/DAILY_30/KMK_20 kabul eder; 3.000 TL örneği (30 gün 150, 60 gün 300, toplam 3.300) unit testi. Gecikme unit **20/20**, gecikme + hata sözleşmesi entegrasyon **19/19**, web **249/249**.
+
+## BF-PAY FAZ 08 — 24.10.2026 — Web ödeme yönetim ekranları
+
+Senaryolar: IBAN mod-97 (TR, boşluk/küçük harf normalize, hatalı kontrol basamağı/uzunluk/yabancı ülke ret); banka hesabı DTO (geçersiz IBAN, pasif varsayılan, ters geçerlilik, bilinmeyen amaç/durum/para birimi ret); çift onayda öneren onaylayamaz, tek onayda onaylayabilir; üye işyeri yalnız SANDBOX ve güvenli referans; ayarlar property kapsamı ve yalnız ABSORBED; adaptörsüz sağlayıcı etkin olamaz; online ödeme EXTRA kategori + PENALTY satırı, SUCCEEDED için paymentId zorunlu; tam iade yalnız SUCCEEDED/REVIEW ve açık/başarılı iade yokken; defter negatif ters kayıt, mutabakat property kapsamı; makbuz ve manuel tahsilat ONLINE_CARD/receiptNumber/bankAccountId (yalnız havalede); TR/EN anahtar eşliği, BF_PAYMENT_* çevirileri, ikon eşlemeleri, kart/localStorage/console yokluğu.
+
+**Bu tur:** `tests/online-payments.test.mjs` **10/10**, web `npm test` **260/260**, `tsc --noEmit` geçti. Backend ayrı geçici PostgreSQL (`scripts/test-payments.py OnlinePayment`): entegrasyon **9/9**, unit **14/14**. Lisans `check-licenses.py` 329/329 PASS. `npm run build` başarısız: `features/account/contact-verification.ts` → `../../../../../shared/contact-verification.ts` Turbopack kökü dışında (iletişim doğrulama çalışması, bu fazın kapsamı dışında). Tarayıcıda gerçek API kabulü **çalıştırılmadı**. [Rapor](payment/08-web.md).
+

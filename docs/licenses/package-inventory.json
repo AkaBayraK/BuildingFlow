@@ -1024,63 +1024,63 @@
   {
     "ecosystem": "npm",
     "name": "@next/env",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-darwin-arm64",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-darwin-x64",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-linux-arm64-gnu",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-linux-arm64-musl",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-linux-x64-gnu",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-linux-x64-musl",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-win32-arm64-msvc",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
   {
     "ecosystem": "npm",
     "name": "@next/swc-win32-x64-msvc",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },
@@ -2102,7 +2102,7 @@
   {
     "ecosystem": "npm",
     "name": "next",
-    "version": "16.4.0",
+    "version": "16.4.3",
     "license": "MIT",
     "source": "package-lock.json"
   },

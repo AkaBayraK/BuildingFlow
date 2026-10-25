@@ -185,3 +185,13 @@ Kullanıcı sıradaki fazı başlattı; #45 In progress. D1/D2 açık onayı: ye
 ## Son doğrulanan durum — BF-VERIFY02
 
 FAZ00/01/02 tamamlandı; #45 Closed(completed), Project3 Done,12/12 madde son uzak okumada doğrulandı. Faz3/3=%100,00;plan3/8=%37,50. FAZ03–07 başlatılmadı. Kanıt: `docs/refactor/contact-verification/02-report.md`. Önceki kapsam paragrafları tarihsel kayıttır.
+
+
+## Güncel BF-VERIFY03 yetkisi — 23.10.2026
+
+Kullanıcı FAZ03'ü başlattı;Netgsm/platform hesabı ve D4güvenlik politikasını onayladı,mevcut sağlayıcı yokken yerel test istedi. Yerel kod/kabul32+16geçti;#46açık/In progress. Gerçek gönderici/operatör teslimi yok,4madde açık;faz2/3=%66,67,plan3/8=%37,50. FAZ04–07başlatılmadı. Önceki kapsam paragrafları tarihçedir;güncel kanıt `docs/refactor/contact-verification/03-report.md`.
+
+
+## Güncel kullanıcı kapsamı — BF-VERIFY04 / 23.10.2026
+
+Kullanıcı FAZ03 gerçek SMS teslimi açıkken FAZ04/#47 web ekranlarına geçişi açıkça onayladı. FAZ03 kapanmış sayılmaz. FAZ04 kanıtı `docs/refactor/contact-verification/04-report.md`;FAZ05–07 henüz başlatılmadı. Önceki başlatılmadı/bağımlılık ifadeleri tarihçedir;güncel yetki bu kayıttır.

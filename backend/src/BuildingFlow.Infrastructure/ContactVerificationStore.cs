@@ -6,7 +6,7 @@ using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class ContactVerificationStore(BuildingFlowDbContext db, ICurrentUserService actor, IKeycloakAdmin identity, TimeProvider clock) : IContactVerificationStore
+public sealed class ContactVerificationStore(BuildingFlowDbContext db, ICurrentUserService actor, IKeycloakAdmin identity, TimeProvider clock, IPhoneOtpSender sender, IPhoneOtpSecrets secrets) : IContactVerificationStore
 {
     private string User() => actor.IsAuthenticated && !string.IsNullOrWhiteSpace(actor.UserId) ? actor.UserId : throw new UnauthorizedAccessException();
     private static HierarchyConflictException Conflict() => new(ErrorCatalog.MobileSyncConflict.Create());
@@ -29,8 +29,12 @@ public sealed class ContactVerificationStore(BuildingFlowDbContext db, ICurrentU
         var pending = proof?.PendingPhone;
         var status = proof is null ? (string.IsNullOrWhiteSpace(profile?.Phone) ? "MISSING" : "UNVERIFIED") :
             pending is not null ? "PENDING" : proof.VerifiedKey is not null ? "VERIFIED" : "MISSING";
-        return new(proof?.Version ?? 0, email, new(status, profile?.Phone, proof?.VerifiedPhone,
-            proof is null ? profile?.Phone : pending, proof?.VerifiedAt));
+        var challenge=await db.Set<PhoneOtpChallenge>().IgnoreQueryFilters().AsNoTracking().Where(x=>x.OwnerUserId==owner&&!x.IsDeleted&&x.IsEnabled).OrderByDescending(x=>x.CreatedAt).FirstOrDefaultAsync(token);
+        var delivery=challenge is null ? "NOT_REQUESTED" : clock.GetUtcNow()>=challenge.ExpiresAt&&!challenge.Terminal ? "EXPIRED" : challenge.Status=="RESERVED" ? "UNKNOWN" : challenge.Status;
+        var candidate=proof is null ? profile?.Phone : pending;
+        return new(proof?.Version ?? 0, email, new(status, profile?.Phone, proof?.VerifiedPhone,candidate,proof?.VerifiedAt,
+            sender.Available&&secrets.Available&&PhoneOtpPolicy.Normalize(candidate)!=null,delivery,challenge?.Id,challenge?.ExpiresAt,
+            challenge is null ? null : Math.Max(0,PhoneOtpPolicy.MaxAttempts-challenge.Attempts),challenge is null?0:Math.Max(0,(int)Math.Ceiling((challenge.ResendAfter-clock.GetUtcNow()).TotalSeconds))));
     }
 
     public async Task<StagePhoneResult> StagePhoneAsync(StagePhoneRequest request, CancellationToken token)
@@ -58,6 +62,7 @@ public sealed class ContactVerificationStore(BuildingFlowDbContext db, ICurrentU
         }
         if ((proof?.Version ?? 0) != request.ExpectedVersion) throw Conflict();
         if (proof is null) { proof = new(owner); db.Add(proof); }
+        if(proof.PendingKey!=PhoneContactKey.FromLegacy(phone))await PhoneOtpStore.CancelPendingAsync(db,owner,token);
         proof.Stage(phone);
         // No OTP, provider call or claim of ownership is made in the foundation phase.
         db.Add(new MobileOperationReceipt(owner, request.OperationId, fingerprint, "{\"kind\":\"CONTACT_STAGE_PHONE\"}"));
@@ -72,6 +77,7 @@ public sealed class ContactVerificationStore(BuildingFlowDbContext db, ICurrentU
         var proof = await db.Set<AccountPhoneVerification>().IgnoreQueryFilters().SingleOrDefaultAsync(x => x.OwnerUserId == owner, token);
         Active(proof);
         if (proof is null) { proof = new(owner); db.Add(proof); }
+        if((proof.PendingKey??proof.VerifiedKey)!=PhoneContactKey.FromLegacy(after))await PhoneOtpStore.CancelPendingAsync(db,owner,token);
         proof.Stage(after);
     }
 }

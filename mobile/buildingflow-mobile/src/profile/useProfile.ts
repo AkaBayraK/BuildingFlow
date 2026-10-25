@@ -1,3 +1,4 @@
+import {changed,subscribe} from '../contact-verification/events';
 import {useEffect,useRef,useState} from 'react';
 import {AppState,Platform} from 'react-native';
 import * as Crypto from 'expo-crypto';
@@ -59,6 +60,8 @@ export function useProfile(){
   }finally{lock.current=false;if(active(id))setBusy(false);}
   void runner.current();
  };
+ useEffect(()=>{if(profile?.userId===user&&user)changed(user,'CONTACT');},[profile?.version,profile?.userId,user]);
+ useEffect(()=>subscribe(event=>{if(event.user===user&&event.kind==='PROFILE')void runner.current();}),[user]);
  const changeJob=async(retry:boolean)=>{if(!user||lock.current)return;
   if(Platform.OS==='web'){const current=webJob.current;if(!current || (retry?!queue.canRetry(current):!queue.canDiscard(current)))throw Error('İşlem değiştirilemez.');if(retry){webJob.current={...current,status:'retry'};setJob(webJob.current);}else{webDraft.current=null;webJob.current=null;setJob(null);}}
   else{await auth.profileCache((db,files)=>retry?queue.retry(db,user,Date.now()):queue.discard(db,files,user));await readLocal(user);}void runner.current();};

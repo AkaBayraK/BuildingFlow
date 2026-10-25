@@ -46,3 +46,15 @@ test('contradictory paid/cancelled/open states cannot masquerade as confirmed se
  for(const status of ['PAID','CANCELLED','OPEN'])assert.throws(()=>parseFinance({...data,charges:[{charge:{...charge,status},unitNumber:'1'}]},user,c,q));
  assert.doesNotThrow(()=>parseFinance({...data,charges:[{charge:{...charge,paid:'100.10',balance:'0.00',status:'PAID'},unitNumber:'1'}]},user,c,q));
 });
+test('late penalty is shown from server values only, separately from principal and detail lines',()=>{
+ const withPenalty={...data,summary:{...data.summary,penalty:'12.50'},charges:[{charge:{...charge,penalty:'14.17'},unitNumber:'1'}]};
+ const parsed=parseFinance(withPenalty,user,c,q);assert.equal(parsed.summary.penalty,'12.50');assert.equal(parsed.charges[0].charge.penalty,'14.17');assert.equal(parsed.charges[0].charge.balance,'70.05');
+ assert.equal(parseFinance(data,user,c,q).charges[0].charge.penalty,'0.00');
+ assert.throws(()=>parseFinance({...withPenalty,charges:[{charge:{...charge,penalty:'1.5'},unitNumber:'1'}]},user,c,q));
+ const line={from:'2026-10-11',to:'2026-10-15',days:5,principal:'70.05',monthlyRate:'5.00',amount:'0.58',status:'PENDING'};
+ const detail={...data,chargeId:id,penaltyLines:[line]};assert.equal(parseFinance(detail,user,c,{...q,chargeId:id}).penaltyLines[0].status,'PENDING');
+ assert.throws(()=>parseFinance({...data,penaltyLines:[line]},user,c,q));
+ assert.throws(()=>parseFinance({...detail,penaltyLines:[{...line,monthlyRate:'6.00'}]},user,c,{...q,chargeId:id}));
+ const penaltyPayment={...history,payments:[{...payment,kind:'PENALTY'}]};assert.equal(parseFinance(penaltyPayment,user,c,{...q,view:'payments'}).payments[0].kind,'PENALTY');
+ assert.throws(()=>parseFinance({...history,payments:[{...payment,kind:'FEE'}]},user,c,{...q,view:'payments'}));
+});

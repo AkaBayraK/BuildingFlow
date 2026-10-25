@@ -38,3 +38,16 @@ GET `/api/v1/account/contact-verification` ve mobilde GET `/api/v1/mobile/contac
 ## BF-VERIFY02 — E-posta sahipliği
 
 E-posta otoritesi yine güncel Keycloak kaydıdır; eski JWT değeri kanıt değildir. Opt-in yeni hesapta ilk giriş IdP VERIFY_EMAIL akışında tamamlanır. Native UPDATE_EMAIL yeni adres doğrulanana kadar eski adresi korur; force verification/max-auth-age0 ve eski adrese güvenlik bildirimi izole kabulde doğrulandı. Uygulama profil komutu e-posta yazmaz; sahiplik Person/Property yetkisi üretmez. Canlı politika kapalı; ortak hesap ekranındaki doğrulama eylemleri FAZ04/05'tedir. [Kanıt ve kurulum sınırı](../refactor/contact-verification/02-report.md).
+
+## BF-VERIFY03 — Telefon OTP komutları (kapalı varsayılan)
+
+POST `/api/v1/account/contact-verification/phone/commands` ve `/api/v1/mobile/contact-verification/phone/commands`: `{operationId,expectedVersion,action:SEND|VERIFY|CANCEL,challengeId?,code?}`. Yalnız kendi JWT sub;Property seçilmez. Önce mevcut `/phone` endpoint'i aday hazırlar;eski profile kayıtlı doğrulanmamış telefon da SEND'de aday olur. Türkiye+90cep,kod6hane/5dk/5yanlış/60sn;hesap/hedef5saat,IP20saat.
+
+Yanıt `PhoneOtpResult {operationId,replayed,outcome,contact,retryAfterSeconds}`. Outcome bounded workflow durumudur:ACCEPTED/UNKNOWN/FAILED/UNAVAILABLE/TOO_SOON/RATE_LIMITED/REJECTED/LOCKED/EXPIRED/CANCELLED/VERIFIED/ALREADY_VERIFIED. Geçerli bir komutun iş sonucu HTTP200 ile döner;**yalnız VERIFIED sahiplik onayıdır**,SEND ACCEPTED veyaHTTP200 doğrulama değildir. İstemci outcome'u açıkça işlemelidir. JSON/format400 BF_USER_INVALID(phone),version/UUID çatışması409 BF_MOBILE_SYNC_CONFLICT;anonim401,başka challenge/hesap403. Limit/bekleme outcome'ları sunucu retryAfterSeconds taşır;otomatik mutation retry yapılmaz.
+
+PhoneVerificationDto ek optional alanları:expiresAt,attemptsRemaining,retryAfterSeconds. challengeId/deliveryStatus/canSendCode artık gerçek sunucu durumu taşır;ham kod/MAC/payload dönmez. Kanıt tamamlandığında aynı transaction'da v1 profil telefonu/version'ı güncellenir. Aynı aday/isim/fotoğraf kaydı kanıtı bozmaz;farklı telefon açık kodu iptal eder. SEND kapalı/anahtarsızsa UNAVAILABLE;mevcut kodun VERIFY/CANCEL işlemi yeni SMS gerektirmez. [Testler ve sınırlamalar](../refactor/contact-verification/03-report.md).
+
+
+### BF-VERIFY04 web tüketicisi
+
+Ortak `/account` paneli güncel contact GET sonucunu kullanır; JWT e-posta iddiası doğrulama kaynağı değildir. E-posta VERIFY_EMAIL/UPDATE_EMAIL native IdP aksiyonu ve sabit origin+/account dönüşüdür;bekleyen e-posta auth-session’da kalır. Telefon eski doğrulanmış/bekleyen hedefleri maskeler;SEND kabulü doğrulama değildir. CANCEL challengeId taşır;409 reload,429/workflow bildirimi,server retry/attempt/expiry,manuel aynı UUID retry vefocus/visibility yenileme vardır. Yeni API/şema/rol/Property yetkisi eklenmedi. [Kanıt](../refactor/contact-verification/04-report.md).

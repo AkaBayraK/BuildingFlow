@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class PaymentStore(BuildingFlowDbContext db, TimeProvider clock) : IPaymentStore
+public sealed class PaymentStore(BuildingFlowDbContext db, LatePenaltyEngine penalties, TimeProvider clock) : IPaymentStore
 {
     private IQueryable<Property> Properties(AccessScope access)
     {
@@ -35,8 +35,14 @@ public sealed class PaymentStore(BuildingFlowDbContext db, TimeProvider clock) :
         var content = JsonSerializer.Serialize(new {
             command.UnitId, amount = DuesService.Money(command.Amount), date = command.PaidDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             method = command.Method.ToString(), command.Reference, command.Description,
-            allocations = command.Allocations.OrderBy(value => value.ChargeId).Select(value => new { value.ChargeId, amount = DuesService.Money(value.Amount), value.Version })
+            allocations = command.Allocations.Where(value => value.Kind == AllocationKind.PRINCIPAL).OrderBy(value => value.ChargeId)
+                .Select(value => new { value.ChargeId, amount = DuesService.Money(value.Amount), value.Version })
         });
+        // Requests without penalty lines keep their original fingerprint, so old UUID retries still replay.
+        var penalty = command.Allocations.Where(value => value.Kind == AllocationKind.PENALTY).OrderBy(value => value.ChargeId)
+            .Select(value => new { value.ChargeId, amount = DuesService.Money(value.Amount), value.Version }).ToArray();
+        if (penalty.Length > 0) content += "\nPenalty=" + JsonSerializer.Serialize(penalty);
+        if (command.BankAccountId is not null) content += "\nBankAccount=" + command.BankAccountId;
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
     }
     public async Task<PaymentResponse?> CreateAsync(Guid property, PaymentCommand command, AccessScope access, CancellationToken token)
@@ -53,25 +59,81 @@ public sealed class PaymentStore(BuildingFlowDbContext db, TimeProvider clock) :
         }
         Active(parent);
         if (command.PaidDate > BusinessDate.Today(clock)) throw new RequestValidationException(new() { ["paidDate"] = [ErrorCatalog.PaymentsErrorFutureDate.Create()] });
-        // Historical charges of disabled/deleted units can be settled. Property scope remains explicit.
-        if (!await db.Units.IgnoreQueryFilters().AnyAsync(value => value.PropertyId == property && value.Id == command.UnitId, token)) return null;
-        var ids = command.Allocations.Select(value => value.ChargeId).ToArray();
-        var charges = await db.DuesCharges.Where(value => value.PropertyId == property && value.UnitId == command.UnitId && ids.Contains(value.Id)).ToListAsync(token);
-        if (charges.Count != ids.Length) return null;
-        foreach (var allocation in command.Allocations)
-        {
-            var charge = charges.Single(value => value.Id == allocation.ChargeId);
-            if (charge.Version != allocation.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
-            if (charge.IsCancelled || allocation.Amount > charge.Balance) throw new HierarchyConflictException(ErrorCatalog.PaymentsErrorBalance.Create());
-        }
-        var payment = new Payment(property, command.UnitId, command.RequestId, fingerprint, command.Amount, "TRY", command.PaidDate, command.Method, command.Reference, command.Description);
-        foreach (var allocation in command.Allocations) payment.Allocate(charges.Single(value => value.Id == allocation.ChargeId), allocation.Amount);
-        payment.ValidateComplete(); db.Payments.Add(payment); Touch(parent);
+        var payment = await RecordAsync(parent, command, fingerprint, true, PaymentLedgerType.COLLECTION, null, token);
+        if (payment is null) return null;
         try { await db.SaveChangesAsync(token); }
         catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         { throw new HierarchyConflictException(ErrorCatalog.PaymentsErrorUnique.Create()); }
         await transaction.CommitAsync(token);
         return await GetAsync(property, payment.Id, access, token);
+    }
+    public static string FingerprintOf(PaymentCommand command) => Fingerprint(command);
+    // Shared by manual and verified online collections. The caller holds the Property lock and saves.
+    // `checkVersions` is false for online settlement: the server, not a stale client form, chose the lines.
+    internal async Task<Payment?> RecordAsync(Property parent, PaymentCommand command, string fingerprint, bool checkVersions,
+        PaymentLedgerType? ledger, Guid? intentId, CancellationToken token)
+    {
+        var property = parent.Id;
+        // Historical charges of disabled/deleted units can be settled. Property scope remains explicit.
+        if (!await db.Units.IgnoreQueryFilters().AnyAsync(value => value.PropertyId == property && value.Id == command.UnitId, token)) return null;
+        var ids = command.Allocations.Select(value => value.ChargeId).Distinct().ToArray();
+        var charges = await db.DuesCharges.Where(value => value.PropertyId == property && value.UnitId == command.UnitId && ids.Contains(value.Id)).ToListAsync(token);
+        if (charges.Count != ids.Length) return null;
+        foreach (var allocation in command.Allocations)
+        {
+            var charge = charges.Single(value => value.Id == allocation.ChargeId);
+            if (checkVersions && charge.Version != allocation.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+            if (charge.IsCancelled || (allocation.Kind == AllocationKind.PRINCIPAL && allocation.Amount > charge.Balance))
+                throw new HierarchyConflictException(ErrorCatalog.PaymentsErrorBalance.Create());
+        }
+        PaymentBankAccount? account = null;
+        if (command.BankAccountId is not null)
+        {
+            account = await db.PaymentBankAccounts.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == command.BankAccountId, token);
+            if (account is null || !account.UsableOn(command.PaidDate)) throw new HierarchyConflictException(ErrorCatalog.PaymentBankAccountUnusable.Create());
+        }
+        var states = await SettlePenaltiesAsync(property, command, charges, token);
+        var payment = new Payment(property, command.UnitId, command.RequestId, fingerprint, command.Amount, "TRY", command.PaidDate, command.Method, command.Reference, command.Description);
+        if (account is not null) payment.ReceivedInto(account);
+        foreach (var allocation in command.Allocations)
+        {
+            var charge = charges.Single(value => value.Id == allocation.ChargeId);
+            if (allocation.Kind == AllocationKind.PRINCIPAL) { payment.Allocate(charge, allocation.Amount); continue; }
+            try { payment.AllocatePenalty(charge, states[charge.Id].Accruals, allocation.Amount); }
+            catch (InvalidOperationException) { throw new HierarchyConflictException(ErrorCatalog.LatePenaltyBalance.Create()); }
+        }
+        payment.ValidateComplete(); db.Payments.Add(payment); Touch(parent);
+        await IssueReceiptAsync(payment, token);
+        if (ledger is not null)
+            db.PaymentLedgerEntries.Add(new(property, payment.UnitId, ledger.Value, payment.Amount, payment.PaidDate, payment.Method.ToString(), payment.Id, intentId));
+        return payment;
+    }
+    // Numbers are sequential per Property and year; the Property lock held by every caller serializes them.
+    private async Task IssueReceiptAsync(Payment payment, CancellationToken token)
+    {
+        var prefix = await db.PropertyPaymentSettings.Where(value => value.PropertyId == payment.PropertyId).Select(value => value.ReceiptPrefix).SingleOrDefaultAsync(token) ?? "BF";
+        var year = BusinessDate.Today(clock).Year;
+        var last = await db.PaymentReceipts.Where(value => value.PropertyId == payment.PropertyId && value.Year == year).MaxAsync(value => (int?)value.Sequence, token) ?? 0;
+        last = Math.Max(last, db.PaymentReceipts.Local.Where(value => value.PropertyId == payment.PropertyId && value.Year == year).Select(value => value.Sequence).DefaultIfEmpty().Max());
+        db.PaymentReceipts.Add(new(payment, prefix, year, last + 1));
+    }
+    // Penalty up to the payment date is crystallized before principal changes. A back-dated
+    // principal payment recalculates later unpaid accruals instead of leaving them stale.
+    private async Task<Dictionary<Guid, LatePenaltyEngine.ChargeState>> SettlePenaltiesAsync(Guid property, PaymentCommand command, List<DuesCharge> charges, CancellationToken token)
+    {
+        var inputs = await penalties.InputsAsync(property, token);
+        var states = await penalties.StatesAsync(property, charges, null, true, token);
+        foreach (var state in states.Values)
+        {
+            var principal = command.Allocations.Where(value => value.ChargeId == state.Charge.Id && value.Kind == AllocationKind.PRINCIPAL).Sum(value => value.Amount);
+            if (principal > 0)
+            {
+                state.Events.Add(new(command.PaidDate, principal));
+                await penalties.RebuildAsync(state, inputs, command.PaidDate, "Geriye dönük tahsilat ile yeniden hesaplandı.", token);
+            }
+            penalties.Accrue(state, inputs, command.PaidDate);
+        }
+        return states;
     }
     private sealed class Row
     {
@@ -79,26 +141,34 @@ public sealed class PaymentStore(BuildingFlowDbContext db, TimeProvider clock) :
         public required string UnitNumber { get; init; }
         public Guid? BuildingId { get; init; }
         public string? BuildingName { get; init; }
+        public string? ReceiptNumber { get; init; }
+        public string? BankAccountIban { get; init; }
     }
     private IQueryable<Row> Rows(IQueryable<Payment> payments, Guid property) =>
         from payment in payments
         join unit in db.Units.IgnoreQueryFilters().AsNoTracking().Where(value => value.PropertyId == property) on payment.UnitId equals unit.Id
         join building in db.Buildings.IgnoreQueryFilters().AsNoTracking().Where(value => value.PropertyId == property) on unit.BuildingId equals (Guid?)building.Id into parents
         from building in parents.DefaultIfEmpty()
-        select new Row { Payment = payment, UnitNumber = unit.Number, BuildingId = unit.BuildingId, BuildingName = building == null ? null : building.Name };
-    private sealed record AllocationRow(Guid PaymentId, Guid Id, Guid ChargeId, DateOnly Period, decimal Amount);
+        select new Row { Payment = payment, UnitNumber = unit.Number, BuildingId = unit.BuildingId, BuildingName = building == null ? null : building.Name,
+            ReceiptNumber = db.PaymentReceipts.Where(receipt => receipt.PaymentId == payment.Id).Select(receipt => receipt.Number).FirstOrDefault(),
+            BankAccountIban = db.PaymentBankAccounts.Where(account => account.PropertyId == property && account.Id == payment.BankAccountId).Select(account => account.Iban).FirstOrDefault() };
+    private sealed record AllocationRow(Guid PaymentId, Guid Id, Guid ChargeId, DateOnly Period, decimal Amount, AllocationKind Kind, Guid? AccrualId,
+        ChargeKind ChargeKind, ChargeCategory? ChargeCategory);
     private async Task<List<AllocationRow>> Allocations(Guid property, Guid[] payments, CancellationToken token) => await (
         from allocation in db.PaymentAllocations.AsNoTracking().Where(value => value.PropertyId == property && payments.Contains(value.PaymentId))
         join charge in db.DuesCharges.AsNoTracking().Where(value => value.PropertyId == property) on allocation.ChargeId equals charge.Id
-        select new AllocationRow(allocation.PaymentId, allocation.Id, allocation.ChargeId, charge.Period, allocation.Amount)).ToListAsync(token);
+        select new AllocationRow(allocation.PaymentId, allocation.Id, allocation.ChargeId, charge.Period, allocation.Amount, allocation.Kind, allocation.AccrualId,
+            charge.Kind, charge.Category)).ToListAsync(token);
     private static PaymentResponse Response(Row row, IEnumerable<AllocationRow> allocations)
     {
         var value = row.Payment;
         return new(value.Id, value.PropertyId, value.UnitId, row.BuildingId, row.UnitNumber, row.BuildingName, value.RequestId,
             DuesService.Money(value.Amount), value.Currency, value.PaidDate, value.Method.ToString(), value.Reference, value.Description,
             value.IsCancelled ? "CANCELLED" : "RECORDED", value.Version, value.CreatedAt, value.CancellationReason, value.CancelledAt,
-            allocations.Where(part => part.PaymentId == value.Id).OrderBy(part => part.Period).ThenBy(part => part.ChargeId)
-                .Select(part => new PaymentAllocationResponse(part.Id, part.ChargeId, part.Period.ToString("yyyy-MM", CultureInfo.InvariantCulture), DuesService.Money(part.Amount))).ToArray(), false);
+            allocations.Where(part => part.PaymentId == value.Id).OrderBy(part => part.Period).ThenBy(part => part.ChargeId).ThenBy(part => part.Kind).ThenBy(part => part.Id)
+                .Select(part => new PaymentAllocationResponse(part.Id, part.ChargeId, part.Period.ToString("yyyy-MM", CultureInfo.InvariantCulture),
+                    DuesService.Money(part.Amount), part.Kind.ToString(), part.AccrualId, part.ChargeKind.ToString(), part.ChargeCategory?.ToString())).ToArray(), false,
+            row.ReceiptNumber, value.BankAccountId, row.BankAccountIban);
     }
     public async Task<PaymentResponse?> GetAsync(Guid property, Guid payment, AccessScope access, CancellationToken token)
     {
@@ -153,11 +223,31 @@ public sealed class PaymentStore(BuildingFlowDbContext db, TimeProvider clock) :
         if (value is null) return null;
         if (value.Version != request.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if (value.IsCancelled) throw new HierarchyConflictException(ErrorCatalog.PaymentsErrorCancelled.Create());
-        var ids = value.Allocations.Select(part => part.ChargeId).ToArray();
-        var charges = await db.DuesCharges.Where(charge => charge.PropertyId == property && charge.UnitId == value.UnitId && ids.Contains(charge.Id)).ToListAsync(token);
-        foreach (var part in value.Allocations) charges.Single(charge => charge.Id == part.ChargeId).ReversePayment(part.Amount);
-        value.Cancel(request.Reason!, clock.GetUtcNow()); Touch(parent);
+        if (value.Method == PaymentMethod.ONLINE_CARD) throw new HierarchyConflictException(ErrorCatalog.PaymentOnlineCancel.Create());
+        await ReverseAsync(parent, value, request.Reason!, token);
+        db.PaymentLedgerEntries.Add(new(property, value.UnitId, PaymentLedgerType.COLLECTION_REVERSAL, -value.Amount, BusinessDate.Today(clock), value.Method.ToString(), value.Id));
         await db.SaveChangesAsync(token); await transaction.CommitAsync(token);
         return await GetAsync(property, payment, access, token);
+    }
+    // Reverses allocations and rebuilds late penalty; used by manual cancellation, online refunds and chargebacks.
+    internal async Task ReverseAsync(Property parent, Payment value, string reason, CancellationToken token)
+    {
+        var property = parent.Id;
+        if (!db.Entry(value).Collection(item => item.Allocations).IsLoaded) await db.Entry(value).Collection(item => item.Allocations).LoadAsync(token);
+        var ids = value.Allocations.Select(part => part.ChargeId).ToArray();
+        var charges = await db.DuesCharges.Where(charge => charge.PropertyId == property && charge.UnitId == value.UnitId && ids.Contains(charge.Id)).ToListAsync(token);
+        var accrualIds = value.Allocations.Where(part => part.AccrualId != null).Select(part => part.AccrualId!.Value).ToArray();
+        var accruals = await db.LatePenaltyAccruals.Where(item => item.PropertyId == property && accrualIds.Contains(item.Id)).ToListAsync(token);
+        foreach (var part in value.Allocations)
+            if (part.Kind == AllocationKind.PRINCIPAL) charges.Single(charge => charge.Id == part.ChargeId).ReversePayment(part.Amount);
+            else accruals.Single(item => item.Id == part.AccrualId).ReversePayment(part.Amount);
+        value.Cancel(reason, clock.GetUtcNow()); Touch(parent);
+        var principalCharges = charges.Where(charge => value.Allocations.Any(part => part.ChargeId == charge.Id && part.Kind == AllocationKind.PRINCIPAL)).ToArray();
+        if (principalCharges.Length > 0)
+        {
+            var inputs = await penalties.InputsAsync(property, token);
+            foreach (var state in (await penalties.StatesAsync(property, principalCharges, value.Id, true, token)).Values)
+                await penalties.RebuildAsync(state, inputs, value.PaidDate, "Ödeme iptali ile yeniden hesaplandı.", token);
+        }
     }
 }

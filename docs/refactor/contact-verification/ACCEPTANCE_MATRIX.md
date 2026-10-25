@@ -1,6 +1,6 @@
 # BF-VERIFY — Zorunlu kabul senaryoları
 
-Bu **32 senaryo test planıdır; henüz uygulama testleri çalıştırılmış değildir**.
+Bu **32 senaryo kanonik test planıdır; gerçekleşen sonuçlar ilgili faz raporlarında kayıtlıdır**. Bütün senaryoların tüm istemcilerde tamamlandığı anlamına gelmez.
 Kanonik fazlar [PHASES.md](../../../buildingflow-contact-verification-prompts/PHASES.md); gerçek checkbox ve kanıt ilgili GitHub görevi/faz raporundadır.
 Her zorunlu senaryo GEÇTİ olmalı; DOĞRULANAMADI/BAŞARISIZ/skip ilgili görevi kapatmaz. Tasarım kararıyla UYGULANMAZ ise kullanıcı kapsam kararı ve gerekçe kaydedilir; test eksikliğini gizlemek için kullanılmaz.
 
@@ -41,3 +41,6 @@ Her zorunlu senaryo GEÇTİ olmalı; DOĞRULANAMADI/BAŞARISIZ/skip ilgili göre
 
 Gönderim sonucunun başarılı olması, alıcının iletişim sahipliğini doğruladığı anlamına gelmez. E-posta sahiplik otoritesi Keycloak; telefon kanıtı sunucu doğrulama akışıdır. Tüm test verileri sentetik/izinli fixture; gerçek alıcı testleri ayrıca yetkilidir.
 
+
+
+BF-VERIFY04 web kanıtı23.10.2026:[04-report](04-report.md). CV05’in mobil ortakAPI→web yenileme kısmı, CV08/09 profil/aday ayrımı,CV11 UIhataları,CV18 tazeAPI/IdPkesintisi veTR/EN/tema/erişilebilirlik webkısmı bu tur doğrulandı. FizikselmobilUI/cihazçiftleri FAZ05/06;gerçekoperatörSMS FAZ03/#46 açık kalır.
