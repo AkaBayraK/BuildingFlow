@@ -23,6 +23,12 @@ internal static class SmsConsentEndpoints
             Found(await service.SetPreferenceAsync(senderId, command, token)));
         account.MapGet("/{senderId:guid}/history", async (Guid senderId, SmsConsentService service, CancellationToken token, int page = 1, int pageSize = 10) =>
             Found(await service.PreferenceHistoryAsync(senderId, page, pageSize, token)));
+
+        // The mobile client only issues GET/POST through its whitelisted transport; decisions made there are recorded as MOBILE.
+        var mobile = app.MapGroup("/api/v1/mobile/communication-preferences").RequireAuthorization().WithTags("Mobile");
+        mobile.MapGet("", async (SmsConsentService service, CancellationToken token) => Results.Ok(await service.PreferencesAsync(token)));
+        mobile.MapPost("/{senderId:guid}", async (Guid senderId, CommunicationPreferenceCommand command, SmsConsentService service, CancellationToken token) =>
+            Found(await service.SetPreferenceAsync(senderId, command with { Channel = "MOBILE" }, token)));
     }
     private static IResult Found<T>(T? value) where T : class => value is null ? Results.NotFound() : Results.Ok(value);
 }

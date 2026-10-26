@@ -88,6 +88,7 @@ export const errorCodes = {
   "BF_SMS_ACCOUNT_REQUIRED": {"status": 409, "severity": "warning", "parameters": []},
   "BF_SMS_CREDIT_INSUFFICIENT": {"status": 409, "severity": "warning", "parameters": []},
   "BF_SMS_TEMPLATE_CONFLICT": {"status": 409, "severity": "warning", "parameters": []},
+  "BF_SMS_PHONE_NOT_VERIFIED": {"status": 409, "severity": "warning", "parameters": []},
   "BF_USER_INVALID": {"status": 400, "severity": "error", "parameters": []},
   "BF_USER_PASSWORD_WEAK": {"status": 400, "severity": "error", "parameters": []},
   "BF_USER_EXISTS": {"status": 409, "severity": "warning", "parameters": []},

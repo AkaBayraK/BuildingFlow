@@ -4,7 +4,8 @@ import {PhoneInput} from "@/components/forms/ContactInputs";
 import {formatPhone,validPhone} from "@/lib/contact";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {MessageSquareText,Send,Pencil,Plus,RefreshCw,RotateCcw,Coins,Settings,FileText} from "lucide-react";
+import {MessageSquareText,Send,Pencil,Plus,RefreshCw,RotateCcw,Coins,Settings,FileText,ShieldCheck,Eye,ListChecks} from "lucide-react";
+import {ConsentsTab,PreviewTab,SenderTab} from "./SmsComplianceTabs";
 import {useIdentity} from "@/auth/AuthGate";
 import {usePropertyScope} from "@/features/navigation/PropertyScope";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
@@ -22,13 +23,14 @@ import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {formatDateTime,formatNumber} from "@/lib/format";
 import {readOverview,readAccount,readCredit,readTemplate,readMessage,readPage,segments,placeholders,preview,type SmsOverview,type SmsAccount,type SmsTemplate,type SmsType,type SmsMessage,type SmsCredit,type Page} from "./model";
 
-type Tab="account"|"templates"|"messages";
-const tabIcon={account:Settings,templates:FileText,messages:MessageSquareText} as const satisfies Record<Tab,unknown>;
+type Tab="account"|"templates"|"messages"|"sender"|"preview"|"consents";
+const tabs:Tab[]=["account","templates","messages","sender","preview","consents"];
+const tabIcon={account:Settings,templates:FileText,messages:MessageSquareText,sender:ShieldCheck,preview:Eye,consents:ListChecks} as const satisfies Record<Tab,unknown>;
 const statusVariant={QUEUED:"secondary",SENT:"default",FAILED:"destructive"} as const;
 
 export function SmsWorkspace({propertyId}:{propertyId:string}){
  const t=useTranslations("sms"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),scope=usePropertyScope(),identity=useIdentity();
- const manager=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r)),admin=identity.hasRealmRole("SUPER_ADMIN");
+ const manager=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r)),admin=identity.hasRealmRole("SUPER_ADMIN"),siteAdmin=["SUPER_ADMIN","SITE_ADMIN"].some(r=>identity.hasRealmRole(r));
  const [tab,setTab]=useState<Tab>("account"),[overview,setOverview]=useState<SmsOverview|null>(null),[error,setError]=useState(""),[revision,setRevision]=useState(0),[send,setSend]=useState(false);
  const root=`/api/v1/properties/${propertyId}/sms`;const refresh=()=>setRevision(n=>n+1);
  useEffect(()=>{const c=new AbortController();setError("");if(manager)void api<unknown>(root,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setOverview(readOverview(v,propertyId));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));});return()=>c.abort();},[api,root,propertyId,revision,locale,manager]);
@@ -36,11 +38,14 @@ export function SmsWorkspace({propertyId}:{propertyId:string}){
  const writable=!!scope.property?.isEnabled&&!scope.error;
  return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("help")} scope={scope.property?.name??ui("loading")} icon={MessageSquareText} action={<Button disabled={!writable||!overview?.account?.isEnabled} onClick={()=>setSend(true)}><Send/>{t("send")}</Button>}/>
   {error&&<MessageBanner className="mb-4" action={<Button variant="view" onClick={refresh}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}
-  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{(["account","templates","messages"] as Tab[]).map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{t(`tab_${value}`)}</Button>;})}</div>
+  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{tabs.map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{t(`tab_${value}`)}</Button>;})}</div>
   {!overview&&!error?<p role="status">{ui("loading")}</p>:overview&&<div role="tabpanel">
    {tab==="account"&&<AccountTab root={root} propertyId={propertyId} account={overview.account} admin={admin&&writable} onChanged={refresh}/>}
    {tab==="templates"&&<TemplatesTab root={root} types={overview.types} writable={writable}/>}
    {tab==="messages"&&<MessagesTab root={root} revision={revision}/>}
+   {tab==="sender"&&<SenderTab root={root} propertyId={propertyId} admin={siteAdmin&&writable}/>}
+   {tab==="preview"&&<PreviewTab root={root}/>}
+   {tab==="consents"&&<ConsentsTab root={root}/>}
   </div>}
   {send&&overview?.account&&<SendDialog root={root} balance={overview.account.creditBalance} onClose={()=>setSend(false)} onSent={()=>{setTab("messages");refresh();}}/>}
  </div>;

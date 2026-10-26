@@ -1,4 +1,5 @@
 import {isContactRequest,type EmailAction} from '../contact-verification/contracts';
+import {isCommunicationRequest} from '../communication/contracts';
 import {deviceAccess} from '../person-authorization/device';
 import {portfolioAccess,readableOffline,type ContextAccess} from '../person-authorization/model';
 import {readPortfolio,writePortfolio,type Snapshot} from '../offline/database';
@@ -327,7 +328,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return withProfileCache(cacheScope,session.userId,task,()=>epoch===generation.current);
   };
   const profileRequest = async (path:string,body?:unknown):Promise<Response> => {
-    const ownContact=isContactRequest(path,body);
+    const ownContact=isContactRequest(path,body)||isCommunicationRequest(path,body);
     if(!ownContact&&canonicalMode&&(!canonicalSync||!(/^\/api\/v1\/mobile\/(?:profile(?:\/.*)?|consents(?:\/commands)?|sync\/requests\/[a-f0-9-]{36}\/photo(?:\?.*)?)$/.test(path))))throw Error('Bu işlem yeni yetki modelinde kapalı.');
     if(!(ownContact||/^\/api\/v1\/mobile\/notices\/(?:read|preference)$/.test(path)&&body!==undefined || /^\/api\/v1\/mobile\/notices\?propertyId=[a-f0-9-]{36}&role=(?:SUPER_ADMIN|SITE_ADMIN|MANAGER|ACCOUNTANT|OWNER|TENANT|RESIDENT)&kind=(?:ANNOUNCEMENT|MESSAGE)&page=[0-9]{1,5}(?:&unitId=[a-f0-9-]{36})?(?:&itemId=[a-f0-9-]{36})?$/.test(path)&&body===undefined || /^\/api\/v1\/mobile\/sync\/requests\/[a-f0-9-]{36}\/photo(?:\?contextKind=(?:PLATFORM|MANAGEMENT|OWNER|TENANT|RESIDENT)&contextId=[a-f0-9-]{36})?$/.test(path)&&body===undefined || /^\/api\/v1\/mobile\/profile(?:\/commands|\/photo\/[a-f0-9-]{36})?$/.test(path) || path==='/api/v1/mobile/consents'&&body===undefined || path==='/api/v1/mobile/consents/commands'&&body!==undefined || path==='/api/v1/mobile/person-links'&&body!==undefined || /^\/api\/v1\/mobile\/(?:owner|tenant)\?propertyId=[a-f0-9-]{36}&unitId=[a-f0-9-]{36}$/.test(path)&&body===undefined || /^\/api\/v1\/mobile\/manager\?propertyId=[a-f0-9-]{36}&role=(?:SUPER_ADMIN|SITE_ADMIN|MANAGER)&section=(?:overview|buildings|units|residents|finance|announcements|requests)&page=[0-9]{1,5}$/.test(path)&&body===undefined || /^\/api\/v1\/mobile\/finance\?propertyId=[a-f0-9-]{36}&role=(?:SUPER_ADMIN|SITE_ADMIN|MANAGER|ACCOUNTANT|OWNER|TENANT)&view=(?:charges|payments)&page=[0-9]{1,5}(?:&unitId=[a-f0-9-]{36})?(?:&chargeId=[a-f0-9-]{36})?$/.test(path)&&body===undefined) || !session || state!=='signedIn' || offline || !config)throw Error('Çevrimiçi profil oturumu gerekli.');
     const epoch=generation.current;

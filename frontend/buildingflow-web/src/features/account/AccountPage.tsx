@@ -19,6 +19,7 @@ import {formatDateTime} from "@/lib/format";
 import {personName} from "@/lib/person-names";
 import {ContactVerification} from "./ContactVerification";
 import {ConsentDialog} from "./ConsentDialog";
+import {CommunicationPreferences} from "./CommunicationPreferences";
 import {accountChanged,useAccount} from "./useAccount";
 import {accountName,allows,approveCommand,parseConsents,parseProfile,profileCommand,withdrawCommand,type AccountConsent,type PhotoAction} from "./model";
 import {PhotoError,photoTypes,preparePhoto} from "./photo";
@@ -154,6 +155,7 @@ export function AccountPage(){
        {!info&&(c.state==="ACTIVE"||c.state==="OUTDATED")&&<Button size="sm" variant="danger" disabled={busy} onClick={()=>void withdraw(c)}><Undo2/>{t("withdraw")}</Button>}</span>
      </li>;})}</ul>}
    </section>
+   <CommunicationPreferences/>
   </div>
   {prompt&&<ConsentDialog consent={prompt.consent} purpose={prompt.purpose} busy={busy} error={promptError} onApprove={()=>void approvePrompt()} onClose={()=>{if(!busy){setPrompt(null);if(prompt.purpose)setError(t("photoNotAdded"));}}}/>}
   {removing&&<Dialog open onOpenChange={open=>{if(!open&&!busy)setRemoving(false);}}><DialogContent><DialogHeader><DialogTitle>{t("removePhoto")}</DialogTitle><DialogDescription>{t("removePhotoHelp")}</DialogDescription></DialogHeader>

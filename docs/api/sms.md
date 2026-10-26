@@ -72,3 +72,22 @@ Migration `20261026142437_SmsCommercialConsents` iki BaseEntity tablosu ekler; t
 - Alt bilgi: `\n{unvan}\nSMS almak istemiyorsanız {RET kelimesi} yazıp {kısa numara} numarasına ücretsiz gönderiniz.` + `\nMERSIS: {numara}` (tacir değilse `\n{iletişim bilgisi}`). Alt bilgi gövdeye ve maskeli geçmişe eklenir; segment/kontör alt bilgi dahil hesaplanır, 10 segmenti aşan ileti `TOO_LONG`.
 - `SmsText.Measure` kodlama (`GSM7`/`UCS2`), karakter ve segment döndürür; Türkçe ı/ş/ğ/İ UCS-2'ye geçirir (70/67). Kontör maliyeti = segment.
 - Henüz yok: MARKETING tipi `SmsTypes.All` içinde yayınlanmadı (web tip doğrulaması FAZ 05'te genişletilecek); operasyonel tercih (`SmsPreferenceRule.OPERATIONAL`) ve operasyonel şablonda tanıtım içeriği denetimi uygulanmıyor.
+
+## BF-SMS 05 — İletişim tercihleri ekranları ve API
+
+| Uç | Rol | Açıklama |
+| --- | --- | --- |
+| `GET/PUT /api/v1/properties/{id}/sms/legal-sender` | okuma SUPER_ADMIN/SITE_ADMIN/MANAGER + üyelik; yazma SUPER_ADMIN/SITE_ADMIN | Property göndericisi; `{sender:null}` tanımsız; `version` ile 409 |
+| `GET/PUT /api/v1/sms/platform-sender` | SUPER_ADMIN | Platform göndericisi |
+| `POST /api/v1/properties/{id}/sms/preview` | yönetici | `typeCode` (`MANUAL`, `PERSON_REGISTERED`, `MARKETING`), metin, opsiyonel telefon → son metin, alt bilgi, `GSM7/UCS2`, karakter, segment, `allowed/blockedCode` |
+| `GET /api/v1/properties/{id}/sms/commercial-consents` | yönetici | Etkin göndericinin onay/ret kayıtları, sayfalı, maskeli telefon |
+| `POST /api/v1/properties/{id}/sms/opt-outs` | yönetici | `operationId` + telefon → `REJECTED/ADMIN`, anında geçerli |
+| `GET /api/v1/account/communication-preferences` | kimlikli | Maskeli doğrulanmış telefon, güncel onay metni (sürüm+SHA-256), platform + aktif üyelikli Property göndericileri |
+| `PUT /api/v1/account/communication-preferences/{senderId}` | kimlikli | `{operationId, approved, textVersion, textSha256, channel WEB}`; onay doğrulanmış telefon (`BF_SMS_PHONE_NOT_VERIFIED`) ve güncel metin (`BF_CONSENT_TEXT_OUTDATED`) ister |
+| `GET .../{senderId}/history` | kimlikli | Kendi geçmişi |
+| `GET /api/v1/mobile/communication-preferences`, `POST .../{senderId}` | kimlikli | Mobil eşdeğeri; kanal sunucuda `MOBILE` |
+
+- Onay metni `CommercialConsentTexts` (sürüm 1) kodda sürümlenir; istemci metnin SHA-256'sını doğrulamadan onay düğmesi açılmaz. İzin önceden işaretli değildir ve hizmet şartı değildir.
+- Web: SMS çalışma alanında **Yasal gönderici**, **Önizleme**, **Ticari izinler** (ret kaydı dahil) sekmeleri; Hesabım'da **İletişim tercihlerim** kartı (izin ver/geri çek, geçmiş).
+- Mobil: Hesabım'da **İletişim tercihlerim** kartı; yalnız çevrimiçi, önbelleğe/kuyruğa yazmaz, sunucu yanıtı gelmeden tercih değişmiş sayılmaz. Taşıma beyaz listesi yalnız bu iki yolu açar.
+- Sınırlar: kişi listesi hesabın aktif `PropertyMembership` kayıtlarına ve platforma dayanır; yalnız kişi bağıyla (PropertyMembership olmadan) bağlı sakinlerin site göndericisi henüz listelenmez. Operasyonel SMS tercihi ve gönderim raporu grafikleri yoktur.

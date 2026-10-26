@@ -74,6 +74,10 @@ public sealed class SmsConsentApiTests(SiteApiTests.SiteApiFactory factory) : IC
         Assert.DoesNotContain("5551234567", report); Assert.Contains("+90********67", report);
         var optOut = await admin.PostAsJsonAsync(Root(x.Property) + "/opt-outs", new AdminOptOutRequest(Guid.NewGuid(), "0555 999 88 77"));
         Assert.Equal("ADMIN", (await optOut.Content.ReadFromJsonAsync<CommercialConsentState>())!.Source);
+        var mobile = await me.PostAsJsonAsync($"/api/v1/mobile/communication-preferences/{sender.Id}", new CommunicationPreferenceCommand(Guid.NewGuid(), true, text.Version, text.BodySha256, "WEB"));
+        Assert.Equal("APPROVED", (await mobile.Content.ReadFromJsonAsync<CommunicationPreferenceItem>())!.Status);
+        Assert.Equal("MOBILE", (await me.GetFromJsonAsync<PagedRows<CommercialConsentState>>($"{Prefs}/{sender.Id}/history"))!.Items[0].Source);
+        Assert.Equal("APPROVED", (await me.GetFromJsonAsync<CommunicationPreferences>("/api/v1/mobile/communication-preferences"))!.Items.Single(i => i.SenderId == sender.Id).Status);
         using var other = TestToken.Client(factory, Guid.NewGuid().ToString(), "RESIDENT");
         Assert.DoesNotContain((await other.GetFromJsonAsync<CommunicationPreferences>(Prefs))!.Items, i => i.SenderId == sender.Id);
         Assert.Equal(HttpStatusCode.NotFound, (await other.PutAsJsonAsync($"{Prefs}/{sender.Id}", new CommunicationPreferenceCommand(Guid.NewGuid(), false))).StatusCode);
