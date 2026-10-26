@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
-import {BellRing,BookOpenCheck,Building2,CheckCircle2,CircleDashed,History,Smartphone,Undo2,XCircle,type LucideIcon} from "lucide-react";
+import {BellRing,BellOff,Wrench,BookOpenCheck,Building2,CheckCircle2,CircleDashed,History,Smartphone,Undo2,XCircle,type LucideIcon} from "lucide-react";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {useNotification} from "@/components/feedback/Notifications";
 import {MessageBanner} from "@/components/feedback/MessageBanner";
@@ -11,7 +11,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Dialog,DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog";
 import {formatDateTime} from "@/lib/format";
 import {readPage} from "@/features/sms/model";
-import {approveCommand,readPreferenceItem,readPreferences,readRecord,textMatches,withdrawCommand,type ConsentRecord,type PreferenceItem,type Preferences} from "@/features/sms/compliance";
+import {approveCommand,readOperational,readPreferenceItem,readPreferences,readRecord,textMatches,withdrawCommand,type ConsentRecord,type PreferenceItem,type Preferences} from "@/features/sms/compliance";
 import {sha256Hex} from "./photo";
 
 const root="/api/v1/account/communication-preferences";
@@ -30,12 +30,18 @@ export function CommunicationPreferences(){
    const saved=readPreferenceItem(await api(`${root}/${item.senderId}`,{method:"PUT",body:JSON.stringify(approved?approveCommand(data.text,id):withdrawCommand(id))}));
    operations.current.delete(item.senderId);setData({...data,items:data.items.map(i=>i.senderId===saved.senderId?saved:i)});notify.success(t(approved?"marketingApproved":"marketingWithdrawn"));return true;}
   catch(reason){notify.error(errorMessage(reason,locale));setRevision(n=>n+1);return false;}finally{setBusy(false);}}
+ async function operational(enabled:boolean){if(!data||busy)return;setBusy(true);
+  try{const saved=readOperational(await api(`${root}/operational`,{method:"PUT",body:JSON.stringify({enabled})}));setData({...data,operationalSmsEnabled:saved});notify.success(t(saved?"operationalOn":"operationalOff"));}
+  catch(reason){notify.error(errorMessage(reason,locale));setRevision(n=>n+1);}finally{setBusy(false);}}
  return <section aria-labelledby="account-communication" className="rounded-2xl border bg-card p-5 shadow-sm lg:col-span-2">
   <h2 id="account-communication" className="flex items-center gap-2 text-base font-semibold"><BellRing className="size-4" aria-hidden="true"/>{t("communicationTitle")}</h2>
   <p className="mt-2 text-sm text-muted-foreground">{t("communicationHint")}</p>
   {error&&<div className="mt-3"><MessageBanner presentation="inline" action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{t("retry")}</Button>}>{error}</MessageBanner></div>}
   {!data&&!error&&<Skeleton className="mt-3 h-16"/>}
   {data&&<>{!data.verifiedPhoneMasked?<div className="mt-3"><MessageBanner presentation="inline">{t("marketingNeedsPhone")}</MessageBanner></div>:<p className="mt-3 flex items-center gap-2 text-sm"><Smartphone className="size-4" aria-hidden="true"/>{t("marketingPhone",{phone:data.verifiedPhoneMasked})}</p>}
+   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3"><span className="flex items-center gap-2"><Wrench className="size-4" aria-hidden="true"/><span><span className="block font-medium">{t("operationalTitle")}</span><small className="text-muted-foreground">{t("operationalHint")}</small></span></span>
+    <span className="flex items-center gap-2"><ToneBadge tone={data.operationalSmsEnabled?"success":"warning"} icon={data.operationalSmsEnabled?CheckCircle2:BellOff}>{t(data.operationalSmsEnabled?"operationalEnabled":"operationalDisabled")}</ToneBadge>
+     <Button size="sm" variant={data.operationalSmsEnabled?"warn":"default"} disabled={busy||!data.verifiedPhoneMasked} onClick={()=>void operational(!data.operationalSmsEnabled)}>{data.operationalSmsEnabled?<><BellOff/>{t("operationalTurnOff")}</>:<><BellRing/>{t("operationalTurnOn")}</>}</Button></span></div>
    {data.items.length===0?<p className="mt-3 text-sm text-muted-foreground">{t("marketingNoSenders")}</p>:<ul className="mt-3 grid gap-2 md:grid-cols-2">{data.items.map(item=>{const s=statusStyle[item.status];
     return <li key={item.senderId} className="flex flex-col gap-2 rounded-lg border p-3">
      <span className="flex flex-wrap items-center justify-between gap-2"><span className="flex items-center gap-2 font-medium"><Building2 className="size-4" aria-hidden="true"/>{item.senderTitle}</span><ToneBadge tone={s.tone} icon={s.icon}>{t(`marketing_${item.status}`)}</ToneBadge></span>

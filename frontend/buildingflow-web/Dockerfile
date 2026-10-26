@@ -1,7 +1,8 @@
 FROM node:24.22.1-alpine AS build
-WORKDIR /app
+WORKDIR /app/frontend/buildingflow-web
 COPY frontend/buildingflow-web/package*.json ./
 RUN npm ci
+COPY shared/ /app/shared/
 COPY frontend/buildingflow-web/ ./
 ARG BUILDINGFLOW_SESSION_CONTEXTS_ENABLED=false
 ENV BUILDINGFLOW_SESSION_CONTEXTS_ENABLED=$BUILDINGFLOW_SESSION_CONTEXTS_ENABLED
@@ -21,12 +22,12 @@ ENV BUILDINGFLOW_SESSION_CONTEXTS_ENABLED=$BUILDINGFLOW_SESSION_CONTEXTS_ENABLED
 ARG BUILDINGFLOW_PERSON_CENTER_ENABLED=false
 ENV BUILDINGFLOW_PERSON_CENTER_ENABLED=$BUILDINGFLOW_PERSON_CENTER_ENABLED
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
-COPY --from=build --chown=node:node /app/.next/standalone ./
-COPY --from=build --chown=node:node /app/.next/static ./.next/static
-COPY --from=build --chown=node:node /app/public ./public
-COPY --from=build --chown=node:node /app/LICENSES ./LICENSES
-COPY --from=build --chown=node:node /app/src/components/ui/LICENSE.md ./LICENSES/shadcn-ui-LICENSE.md
-COPY --from=build --chown=node:node /app/src/components/ui/NOTICE.md ./LICENSES/shadcn-ui-NOTICE.md
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/.next/standalone/frontend/buildingflow-web ./
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/public ./public
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/LICENSES ./LICENSES
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/src/components/ui/LICENSE.md ./LICENSES/shadcn-ui-LICENSE.md
+COPY --from=build --chown=node:node /app/frontend/buildingflow-web/src/components/ui/NOTICE.md ./LICENSES/shadcn-ui-NOTICE.md
 USER node
 EXPOSE 3000
 CMD ["node", "server.js"]

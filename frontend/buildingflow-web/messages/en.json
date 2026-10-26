@@ -1994,7 +1994,8 @@
     "iys_FAILED": "Failed",
     "optOutRecord": "Record opt-out",
     "optOutHelp": "Record an opt-out given by phone or in writing. It applies immediately and promotional SMS stops.",
-    "optOutSaved": "Opt-out recorded."
+    "optOutSaved": "Opt-out recorded.",
+    "blocked_OPERATIONAL_OPTED_OUT": "Recipient turned off service SMS"
   },
   "users": {
     "phone": "Mobile phone",
@@ -2360,7 +2361,15 @@
     "marketingApproved": "Promotional SMS allowed.",
     "marketingWithdrawn": "Promotional SMS withdrawn.",
     "marketingTextVersion": "Text version {version} · {sender}",
-    "marketingTick": "I have read the text and agree to receive promotional SMS."
+    "marketingTick": "I have read the text and agree to receive promotional SMS.",
+    "operationalTitle": "Service SMS",
+    "operationalHint": "Dues, maintenance and reservation notices. Security and emergency SMS are always sent.",
+    "operationalEnabled": "On",
+    "operationalDisabled": "Off",
+    "operationalTurnOff": "Turn off",
+    "operationalTurnOn": "Turn on",
+    "operationalOn": "Service SMS turned on.",
+    "operationalOff": "Service SMS turned off."
   },
   "personCenter": {
     "title": "People",

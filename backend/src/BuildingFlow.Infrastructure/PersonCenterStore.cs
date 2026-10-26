@@ -115,7 +115,7 @@ public sealed class PersonCenterStore(BuildingFlowDbContext db,ManagementAccess 
         var page=await (from p in sorted.ThenBy(p=>p.Id).Skip((q.Page-1)*q.PageSize).Take(q.PageSize) join t in db.Set<PersonTenant>() on p.TenantId equals t.Id select new{p.Id,p.TenantId,Tenant=t.Name,Name=(p.FirstName+" "+p.LastName).Trim(),p.Kind,p.IdentityNumber,p.IsEnabled,p.Version,p.CreatedAt}).ToArrayAsync(token);
         var photos=await PhotosAsync(page.Select(p=>p.Id).ToArray(),token);
         await tx.CommitAsync(token);
-        return new(page.Select(p=>new PersonDirectoryRow(p.Id,p.TenantId,p.Tenant,p.Name,p.Kind,Mask(p.IdentityNumber),p.IsEnabled,p.Version,p.CreatedAt,photos.GetValueOrDefault(p.Id))).ToArray(),q.Page,q.PageSize,count);
+        return new(page.Select(p=>new PersonDirectoryRow(p.Id,p.TenantId,p.Tenant,p.Name,p.Kind,Mask(p.IdentityNumber),p.IsEnabled,p.Version,p.CreatedAt,photos.TryGetValue(p.Id,out var photo)?photo:null)).ToArray(),q.Page,q.PageSize,count);
     }
     public async Task<string?> PhotoAccountAsync(Guid tenant,Guid person,CancellationToken token)=>
         await PersonAllowed(tenant,person,token) && (await PhotoAccountsAsync([person],token)).TryGetValue(person,out var user)?user:null;

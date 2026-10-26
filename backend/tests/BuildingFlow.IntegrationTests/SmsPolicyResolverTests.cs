@@ -14,13 +14,32 @@ public sealed class SmsPolicyResolverTests(SiteApiTests.SiteApiFactory factory) 
     private static readonly Dictionary<string, string> Body = new() { ["message"] = "Yeni hizmetimiz" };
 
     [Theory]
-    [InlineData(SmsCategory.SECURITY_OTP)] [InlineData(SmsCategory.PASSWORD_RESET)] [InlineData(SmsCategory.ACCOUNT_VERIFICATION)] [InlineData(SmsCategory.DUES_NOTIFICATION)]
-    [InlineData(SmsCategory.MAINTENANCE_NOTIFICATION)] [InlineData(SmsCategory.RESERVATION_NOTIFICATION)] [InlineData(SmsCategory.EMERGENCY_NOTIFICATION)]
-    public async Task NonCommercialSmsNeverGetsAFooterOrDatabaseLookup(SmsCategory category)
+    [InlineData(SmsCategory.SECURITY_OTP)] [InlineData(SmsCategory.PASSWORD_RESET)] [InlineData(SmsCategory.ACCOUNT_VERIFICATION)] [InlineData(SmsCategory.EMERGENCY_NOTIFICATION)]
+    public async Task SecurityAndEmergencySmsNeverGetAFooterOrDatabaseLookup(SmsCategory category)
     {
         var resolver = new SmsPolicyResolver(null!, SmsPolicyCatalog.Default, null!);
         var type = new SmsTypeDefinition("X", SmsPolicyCatalog.Default.Get(category).Purpose, ["message"], [], "{{message}}", category);
         Assert.Same(SmsResolution.Plain, await resolver.ResolveAsync(Guid.NewGuid(), type, Phone, default));
+    }
+
+    [PostgresFact] public async Task OperationalOptOutStopsServiceSmsButNeverSecurityOrEmergency()
+    {
+        var property = await NewProperty();
+        await factory.WithDb(async db =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            var resolver = new SmsPolicyResolver(db, SmsPolicyCatalog.Default, new CommercialConsentStore(db, TimeProvider.System));
+            SmsTypeDefinition Type(SmsCategory c) => new("X", SmsPolicyCatalog.Default.Get(c).Purpose, ["message"], [], "{{message}}", c);
+            Assert.True((await resolver.ResolveAsync(property, Type(SmsCategory.DUES_NOTIFICATION), Phone, default)).Allowed);
+            db.Add(new SmsOperationalPreference(Guid.NewGuid().ToString(), Phone, false)); await db.SaveChangesAsync();
+            foreach (var c in new[] { SmsCategory.DUES_NOTIFICATION, SmsCategory.MAINTENANCE_NOTIFICATION, SmsCategory.RESERVATION_NOTIFICATION })
+                Assert.Equal(SmsPolicyErrors.OperationalOptedOut, (await resolver.ResolveAsync(property, Type(c), Phone, default)).ErrorCode);
+            foreach (var c in new[] { SmsCategory.SECURITY_OTP, SmsCategory.PASSWORD_RESET, SmsCategory.ACCOUNT_VERIFICATION, SmsCategory.EMERGENCY_NOTIFICATION })
+                Assert.True((await resolver.ResolveAsync(property, Type(c), Phone, default)).Allowed);
+            Assert.True((await resolver.ResolveAsync(property, Type(SmsCategory.DUES_NOTIFICATION), "+905559999999", default)).Allowed);
+            Assert.Equal(SmsPolicyErrors.OperationalOptedOut, (await Queue(db).EnqueueAsync(property, SmsTypes.Manual, "0555 123 45 67", new Dictionary<string, string> { ["message"] = "Su kesintisi" }, null, null, default)).ErrorCode);
+            await transaction.RollbackAsync();
+        });
     }
 
     [PostgresFact] public async Task CommercialSmsIsBlockedUntilSenderOptOutAndApprovalExist()

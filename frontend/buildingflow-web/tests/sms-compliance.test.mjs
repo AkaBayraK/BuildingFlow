@@ -32,11 +32,12 @@ test('consent rows never carry a readable phone number or unknown source',()=>{
  assert.throws(()=>readRecord({...record,status:'MAYBE'}));
 });
 test('preferences require masked phone, hashed text and scope/property agreement',()=>{
- const prefs={verifiedPhoneMasked:'+90********67',text:{version:1,title:'T',body,bodySha256:sha},items:[{senderId:id,scope:'PLATFORM',propertyId:null,senderTitle:'BF',status:'NONE',occurredAt:null,textVersion:null}]};
+ const prefs={verifiedPhoneMasked:'+90********67',operationalSmsEnabled:true,text:{version:1,title:'T',body,bodySha256:sha},items:[{senderId:id,scope:'PLATFORM',propertyId:null,senderTitle:'BF',status:'NONE',occurredAt:null,textVersion:null}]};
  assert.equal(readPreferences(prefs).items.length,1);
  assert.throws(()=>readPreferences({...prefs,verifiedPhoneMasked:'+905551234567'}));
  assert.throws(()=>readPreferences({...prefs,items:[{...prefs.items[0],propertyId:property}]}));
  assert.throws(()=>readPreferences({...prefs,text:{...prefs.text,bodySha256:'x'}}));
+ assert.throws(()=>readPreferences({...prefs,operationalSmsEnabled:'yes'}));
 });
 test('approval sends the exact text version and hash; withdrawal sends none',async()=>{
  const text={version:1,title:'T',body,bodySha256:sha};

@@ -1994,7 +1994,8 @@
     "iys_FAILED": "Hata",
     "optOutRecord": "Ret kaydet",
     "optOutHelp": "Kişi telefonla veya yazılı olarak ret bildirdiyse kaydedin. Kayıt anında geçerli olur ve tanıtım SMS'leri durur.",
-    "optOutSaved": "Ret kaydedildi."
+    "optOutSaved": "Ret kaydedildi.",
+    "blocked_OPERATIONAL_OPTED_OUT": "Alıcı hizmet SMS'lerini kapatmış"
   },
   "users": {
     "phone": "Cep telefonu",
@@ -2360,7 +2361,15 @@
     "marketingApproved": "Tanıtım SMS izni verildi.",
     "marketingWithdrawn": "Tanıtım SMS izni geri çekildi.",
     "marketingTextVersion": "Metin sürümü {version} · {sender}",
-    "marketingTick": "Metni okudum; tanıtım SMS'i almayı kabul ediyorum."
+    "marketingTick": "Metni okudum; tanıtım SMS'i almayı kabul ediyorum.",
+    "operationalTitle": "Hizmet SMS'leri",
+    "operationalHint": "Aidat, bakım ve rezervasyon bildirimleri. Güvenlik ve acil durum SMS'leri her zaman gönderilir.",
+    "operationalEnabled": "Açık",
+    "operationalDisabled": "Kapalı",
+    "operationalTurnOff": "Kapat",
+    "operationalTurnOn": "Aç",
+    "operationalOn": "Hizmet SMS'leri açıldı.",
+    "operationalOff": "Hizmet SMS'leri kapatıldı."
   },
   "personCenter": {
     "title": "Kişiler",

@@ -17,7 +17,9 @@ public sealed record SmsOptOutCallback(string? PhoneNumber, string? Text, string
 public sealed record SmsOptOutCallbackResult(int MatchedSenders);
 public sealed record CommercialConsentText(int Version, string Title, string Body, string BodySha256);
 public sealed record CommunicationPreferenceItem(Guid SenderId, string Scope, Guid? PropertyId, string SenderTitle, string Status, DateTimeOffset? OccurredAt, int? TextVersion);
-public sealed record CommunicationPreferences(string? VerifiedPhoneMasked, CommercialConsentText Text, IReadOnlyList<CommunicationPreferenceItem> Items);
+public sealed record CommunicationPreferences(string? VerifiedPhoneMasked, CommercialConsentText Text, IReadOnlyList<CommunicationPreferenceItem> Items, bool OperationalSmsEnabled = true);
+public sealed record OperationalPreferenceCommand(bool Enabled);
+public sealed record OperationalPreference(bool OperationalSmsEnabled);
 public sealed record CommunicationPreferenceCommand(Guid OperationId, bool Approved, int? TextVersion = null, string? TextSha256 = null, string? Channel = "WEB");
 
 public static class CommercialConsentTexts
@@ -40,6 +42,7 @@ public interface ISmsConsentStore
     Task<CommunicationPreferences> PreferencesAsync(string userId, CancellationToken token);
     Task<CommunicationPreferenceItem?> SetPreferenceAsync(string userId, Guid sender, CommunicationPreferenceCommand command, CancellationToken token);
     Task<PagedRows<CommercialConsentState>?> PreferenceHistoryAsync(string userId, Guid sender, int page, int pageSize, CancellationToken token);
+    Task<OperationalPreference> SetOperationalAsync(string userId, bool enabled, CancellationToken token);
     Task<int> InboundOptOutAsync(string phone, string text, string shortCode, string providerMessageId, CancellationToken token);
 }
 
@@ -97,6 +100,7 @@ public sealed class SmsConsentService(ISmsConsentStore store, ICurrentUserServic
     }
 
     public Task<CommunicationPreferences> PreferencesAsync(CancellationToken token) => store.PreferencesAsync(Self(), token);
+    public Task<OperationalPreference> SetOperationalAsync(OperationalPreferenceCommand command, CancellationToken token) => store.SetOperationalAsync(Self(), command.Enabled, token);
 
     public Task<CommunicationPreferenceItem?> SetPreferenceAsync(Guid sender, CommunicationPreferenceCommand command, CancellationToken token)
     {

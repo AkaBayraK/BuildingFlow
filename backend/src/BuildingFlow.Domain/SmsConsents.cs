@@ -95,3 +95,22 @@ public sealed class CommercialConsentRecord : BaseEntity
     public void MarkIysFailed(string errorCode) { IysPending(); IysStatus = IysSyncStatus.FAILED; IysErrorCode = Required(errorCode, nameof(errorCode), 50); }
     private void IysPending() { if (IysStatus is not (IysSyncStatus.PENDING or IysSyncStatus.FAILED)) throw new InvalidOperationException("IYS sync is not pending."); }
 }
+
+// The account's choice for service SMS (dues, maintenance, reservation). Security and emergency SMS ignore it by policy.
+public sealed class SmsOperationalPreference : BaseEntity
+{
+    private SmsOperationalPreference() { }
+    public SmsOperationalPreference(string ownerUserId, string recipient, bool enabled)
+    {
+        OwnerUserId = Required(ownerUserId, nameof(ownerUserId), 200);
+        Set(recipient, enabled);
+    }
+    public string OwnerUserId { get; private set; } = null!;
+    public string Recipient { get; private set; } = null!;
+    public bool OperationalEnabled { get; private set; }
+    public void Set(string recipient, bool enabled)
+    {
+        if (recipient is not { Length: >= 9 and <= 16 } || recipient[0] != '+' || recipient[1] == '0' || !recipient[1..].All(char.IsAsciiDigit)) throw new ArgumentException("Recipient must be E.164.", nameof(recipient));
+        Recipient = recipient; OperationalEnabled = enabled;
+    }
+}

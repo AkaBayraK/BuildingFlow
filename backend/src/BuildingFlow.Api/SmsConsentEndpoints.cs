@@ -22,6 +22,7 @@ internal static class SmsConsentEndpoints
 
         var account = app.MapGroup("/api/v1/account/communication-preferences").RequireAuthorization().WithTags("Account");
         account.MapGet("", async (SmsConsentService service, CancellationToken token) => Results.Ok(await service.PreferencesAsync(token)));
+        account.MapPut("/operational", async (OperationalPreferenceCommand command, SmsConsentService service, CancellationToken token) => Results.Ok(await service.SetOperationalAsync(command, token)));
         account.MapPut("/{senderId:guid}", async (Guid senderId, CommunicationPreferenceCommand command, SmsConsentService service, CancellationToken token) =>
             Found(await service.SetPreferenceAsync(senderId, command, token)));
         account.MapGet("/{senderId:guid}/history", async (Guid senderId, SmsConsentService service, CancellationToken token, int page = 1, int pageSize = 10) =>
@@ -30,6 +31,7 @@ internal static class SmsConsentEndpoints
         // The mobile client only issues GET/POST through its whitelisted transport; decisions made there are recorded as MOBILE.
         var mobile = app.MapGroup("/api/v1/mobile/communication-preferences").RequireAuthorization().WithTags("Mobile");
         mobile.MapGet("", async (SmsConsentService service, CancellationToken token) => Results.Ok(await service.PreferencesAsync(token)));
+        mobile.MapPost("/operational", async (OperationalPreferenceCommand command, SmsConsentService service, CancellationToken token) => Results.Ok(await service.SetOperationalAsync(command, token)));
         mobile.MapPost("/{senderId:guid}", async (Guid senderId, CommunicationPreferenceCommand command, SmsConsentService service, CancellationToken token) =>
             Found(await service.SetPreferenceAsync(senderId, command with { Channel = "MOBILE" }, token)));
     }

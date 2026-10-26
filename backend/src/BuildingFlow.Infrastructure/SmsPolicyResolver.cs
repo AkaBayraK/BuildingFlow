@@ -8,6 +8,9 @@ public sealed class SmsPolicyResolver(BuildingFlowDbContext db, ISmsPolicyCatalo
     public async Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string? phone, CancellationToken token)
     {
         var policy = catalog.Get(type.Category);
+        if (policy.Preference == SmsPreferenceRule.OPERATIONAL && phone is not null &&
+            await db.SmsOperationalPreferences.AnyAsync(x => x.Recipient == phone && !x.OperationalEnabled, token))
+            return SmsResolution.Blocked(SmsPolicyErrors.OperationalOptedOut);
         if (policy.Footer == SmsFooterPolicy.NONE && !policy.RequiresCommercialConsent) return SmsResolution.Plain;
         // The Property's own legal sender wins; otherwise the platform company sends in its own name.
         var sender = await db.SmsLegalSenders.AsNoTracking().Where(x => x.IsEnabled && (x.PropertyId == property || x.PropertyId == null))

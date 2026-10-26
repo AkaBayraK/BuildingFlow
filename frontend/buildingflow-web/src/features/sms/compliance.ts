@@ -4,7 +4,7 @@ export type ConsentDecision="APPROVED"|"REJECTED";
 export type ConsentRecord={recordId:string;senderId:string;recipientMasked:string;status:ConsentDecision;source:string;occurredAt:string;textVersion:number|null;iysStatus:string;replayed:boolean};
 export type ConsentText={version:number;title:string;body:string;bodySha256:string};
 export type PreferenceItem={senderId:string;scope:"PLATFORM"|"PROPERTY";propertyId:string|null;senderTitle:string;status:ConsentDecision|"NONE";occurredAt:string|null;textVersion:number|null};
-export type Preferences={verifiedPhoneMasked:string|null;text:ConsentText;items:PreferenceItem[]};
+export type Preferences={verifiedPhoneMasked:string|null;text:ConsentText;items:PreferenceItem[];operationalSmsEnabled:boolean};
 export const consentSources=["WEB","MOBILE","ADMIN","SMS_REPLY","PROVIDER_CALLBACK","IYS"] as const;
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const guid=(v:unknown):v is string=>typeof v==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v);
@@ -34,8 +34,8 @@ export function readPreferenceItem(v:unknown):PreferenceItem{
  return v as PreferenceItem;
 }
 export function readPreferences(v:unknown):Preferences{
- if(!obj(v)||!(v.verifiedPhoneMasked===null||masked(v.verifiedPhoneMasked))||!obj(v.text)||!int(v.text.version,1)||!str(v.text.title)||!str(v.text.body)||typeof v.text.bodySha256!=="string"||!/^[0-9a-f]{64}$/.test(v.text.bodySha256)||!Array.isArray(v.items))fail("preferences");
- return {verifiedPhoneMasked:v.verifiedPhoneMasked as string|null,text:v.text as ConsentText,items:v.items.map(readPreferenceItem)};
+ if(!obj(v)||!(v.verifiedPhoneMasked===null||masked(v.verifiedPhoneMasked))||!obj(v.text)||!int(v.text.version,1)||!str(v.text.title)||!str(v.text.body)||typeof v.text.bodySha256!=="string"||!/^[0-9a-f]{64}$/.test(v.text.bodySha256)||!Array.isArray(v.items)||typeof v.operationalSmsEnabled!=="boolean")fail("preferences");
+ return {verifiedPhoneMasked:v.verifiedPhoneMasked as string|null,text:v.text as ConsentText,items:v.items.map(readPreferenceItem),operationalSmsEnabled:v.operationalSmsEnabled};
 }
 export const senderKeyword=(value:string)=>/^RET[A-Z0-9 ]{0,17}$/.test(value)&&value.length>=3;
 export const senderShortCode=(value:string)=>/^[0-9]{3,15}$/.test(value);
@@ -43,4 +43,5 @@ export const senderMersis=(value:string)=>value===""||/^[0-9]{16}$/.test(value);
 // The text shown is the text approved: the server rejects an approval whose hash differs from its current text.
 export async function textMatches(text:ConsentText,hash:(value:string)=>Promise<string>){return await hash(text.body)===text.bodySha256;}
 export const approveCommand=(text:ConsentText,operationId:string)=>({operationId,approved:true,textVersion:text.version,textSha256:text.bodySha256,channel:"WEB"});
+export const readOperational=(v:unknown)=>{if(!obj(v)||typeof v.operationalSmsEnabled!=="boolean")fail("operational preference");return v.operationalSmsEnabled;};
 export const withdrawCommand=(operationId:string)=>({operationId,approved:false,channel:"WEB"});

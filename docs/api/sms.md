@@ -119,3 +119,9 @@ Migration `20261026142437_SmsCommercialConsents` iki BaseEntity tablosu ekler; t
 | İYS senkron hatası | `IYS_NOT_SYNCED` hem `PENDING` hem `FAILED` için; `SYNCED` sonrası gönderilir |
 | Eşzamanlı izin değişikliği | `CommercialConsentStoreTests` 6 eşzamanlı karar gönderici kilidiyle sıralı, operationId replay/409 |
 | Mobil ve masaüstü görünüm | Web/mobil sözleşme testleri ve mobil export geçti; gerçek tarayıcı/cihaz görsel kontrolü **yapılmadı** |
+
+## BAKIM — 26.10.2026 (görevler #66–#70)
+
+- **#69 Sakin göndericileri:** iletişim tercihleri platform + aktif `PropertyMembership` + hesabın oturum bağlamlarındaki (malik/kiracı/sakin, `IMobileSessionStore`) Property göndericilerini listeler. Katı oturum modunda kanonik bağı olmayan hesap yalnız üyelik/platform görür.
+- **#70 Hizmet SMS tercihi:** `sms_operational_preferences` (hesap başına tek, doğrulanmış telefon). Kapalıyken `DUES/MAINTENANCE/RESERVATION` kategorileri (MANUAL dahil) `OPERATIONAL_OPTED_OUT` ile kuyruğa alınmaz; güvenlik, hesap doğrulama ve acil durum etkilenmez. `PUT /api/v1/account/communication-preferences/operational` ve mobil `POST .../operational` `{enabled}`; doğrulanmamış telefon 409. Overview yanıtında `operationalSmsEnabled` (kayıt yoksa `true`). Dolu tabloda Down engellenir.
+- **#66 Web build:** `turbopack.root` ve `outputFileTracingRoot` depo kökü; standalone çıktı `.next/standalone/frontend/buildingflow-web/server.js`. Dockerfile `/app/shared` kopyalar ve bu yolu kullanır.

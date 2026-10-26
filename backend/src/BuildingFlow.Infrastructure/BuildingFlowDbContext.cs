@@ -53,6 +53,7 @@ public sealed class BuildingFlowDbContext : DbContext
     public DbSet<SmsMessage> SmsMessages => Set<SmsMessage>();
     public DbSet<SmsLegalSender> SmsLegalSenders => Set<SmsLegalSender>();
     public DbSet<CommercialConsentRecord> CommercialConsentRecords => Set<CommercialConsentRecord>();
+    public DbSet<SmsOperationalPreference> SmsOperationalPreferences => Set<SmsOperationalPreference>();
     public DbSet<MobileRegistration> MobileRegistrations => Set<MobileRegistration>();
     public DbSet<PersonLinkAttempt> PersonLinkAttempts => Set<PersonLinkAttempt>();
 

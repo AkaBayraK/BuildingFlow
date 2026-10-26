@@ -66,7 +66,7 @@ public interface ISmsPolicyResolver
 public static class SmsPolicyErrors
 {
     public const string LegalSenderMissing = "LEGAL_SENDER_MISSING", OptOutUnavailable = "OPT_OUT_UNAVAILABLE", CommercialConsentRequired = "COMMERCIAL_CONSENT_REQUIRED",
-        OptedOut = "OPTED_OUT", IysNotSynced = "IYS_NOT_SYNCED";
+        OptedOut = "OPTED_OUT", IysNotSynced = "IYS_NOT_SYNCED", OperationalOptedOut = "OPERATIONAL_OPTED_OUT";
 }
 
 public static class SmsLegalFooter

@@ -62,3 +62,15 @@ internal sealed class CommercialConsentRecordConfiguration : IEntityTypeConfigur
         });
     }
 }
+internal sealed class SmsOperationalPreferenceConfiguration : IEntityTypeConfiguration<SmsOperationalPreference>
+{
+    public void Configure(EntityTypeBuilder<SmsOperationalPreference> b)
+    {
+        BaseEntityConfiguration.Configure(b, "sms_operational_preferences");
+        b.Property(x => x.OwnerUserId).HasColumnName("owner_user_id").HasMaxLength(200);
+        b.Property(x => x.Recipient).HasColumnName("recipient").HasMaxLength(16);
+        b.Property(x => x.OperationalEnabled).HasColumnName("is_operational_enabled");
+        b.HasIndex(x => x.OwnerUserId).IsUnique().HasDatabaseName("uidx_sms_operational_preferences_owner_user_id").HasFilter("is_deleted = false");
+        b.HasIndex(x => x.Recipient).HasDatabaseName("idx_sms_operational_preferences_recipient").HasFilter("is_deleted = false AND NOT is_operational_enabled");
+    }
+}

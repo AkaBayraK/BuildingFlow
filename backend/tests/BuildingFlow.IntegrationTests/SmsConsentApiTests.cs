@@ -78,7 +78,14 @@ public sealed class SmsConsentApiTests(SiteApiTests.SiteApiFactory factory) : IC
         Assert.Equal("APPROVED", (await mobile.Content.ReadFromJsonAsync<CommunicationPreferenceItem>())!.Status);
         Assert.Equal("MOBILE", (await me.GetFromJsonAsync<PagedRows<CommercialConsentState>>($"{Prefs}/{sender.Id}/history"))!.Items[0].Source);
         Assert.Equal("APPROVED", (await me.GetFromJsonAsync<CommunicationPreferences>("/api/v1/mobile/communication-preferences"))!.Items.Single(i => i.SenderId == sender.Id).Status);
+        Assert.True((await me.GetFromJsonAsync<CommunicationPreferences>(Prefs))!.OperationalSmsEnabled);
+        Assert.False((await (await me.PutAsJsonAsync($"{Prefs}/operational", new OperationalPreferenceCommand(false))).Content.ReadFromJsonAsync<OperationalPreference>())!.OperationalSmsEnabled);
+        Assert.False((await me.GetFromJsonAsync<CommunicationPreferences>(Prefs))!.OperationalSmsEnabled);
+        Assert.Equal(SmsPolicyErrors.OperationalOptedOut, (await Preview(admin, x.Property, new("MANUAL", "Su kesintisi", "0555 123 45 67"))).BlockedCode);
+        await me.PostAsJsonAsync("/api/v1/mobile/communication-preferences/operational", new OperationalPreferenceCommand(true));
+        Assert.True((await Preview(admin, x.Property, new("MANUAL", "Su kesintisi", "0555 123 45 67"))).Allowed);
         using var other = TestToken.Client(factory, Guid.NewGuid().ToString(), "RESIDENT");
+        Assert.Equal(HttpStatusCode.Conflict, (await other.PutAsJsonAsync($"{Prefs}/operational", new OperationalPreferenceCommand(false))).StatusCode);
         Assert.DoesNotContain((await other.GetFromJsonAsync<CommunicationPreferences>(Prefs))!.Items, i => i.SenderId == sender.Id);
         Assert.Equal(HttpStatusCode.NotFound, (await other.PutAsJsonAsync($"{Prefs}/{sender.Id}", new CommunicationPreferenceCommand(Guid.NewGuid(), false))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"{Prefs}/{sender.Id}/history")).StatusCode);

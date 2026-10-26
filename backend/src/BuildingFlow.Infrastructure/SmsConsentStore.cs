@@ -3,7 +3,7 @@ using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver resolver, ICommercialConsentStore consents) : ISmsConsentStore
+public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver resolver, ICommercialConsentStore consents, IMobileSessionStore sessions, ICurrentUserService actor) : ISmsConsentStore
 {
     private const long PlatformSenderLock = 0x5B5_C0DE;
     private Task<bool> Visible(Guid property, AccessScope access, CancellationToken token) => db.Properties.AnyAsync(p => p.Id == property && (access.ReadAll ||
@@ -74,7 +74,8 @@ public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver
             var current = phone is null ? null : await consents.CurrentAsync(sender.Id, phone, token);
             items.Add(Item(sender, current));
         }
-        return new(phone is null ? null : SmsText.MaskPhone(phone), CommercialConsentTexts.Current, items);
+        var operational = await db.SmsOperationalPreferences.AsNoTracking().Where(x => x.OwnerUserId == userId).Select(x => (bool?)x.OperationalEnabled).SingleOrDefaultAsync(token);
+        return new(phone is null ? null : SmsText.MaskPhone(phone), CommercialConsentTexts.Current, items, operational ?? true);
     }
 
     public async Task<CommunicationPreferenceItem?> SetPreferenceAsync(string userId, Guid senderId, CommunicationPreferenceCommand c, CancellationToken token)
@@ -96,6 +97,23 @@ public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver
         return phone is null ? new([], page, pageSize, 0) : await consents.HistoryAsync(senderId, phone, page, pageSize, token);
     }
 
+    public async Task<OperationalPreference> SetOperationalAsync(string userId, bool enabled, CancellationToken token)
+    {
+        var phone = await VerifiedPhone(userId, token) ?? throw new HierarchyConflictException(ErrorCatalog.SmsPhoneNotVerified.Create());
+        var row = await db.SmsOperationalPreferences.SingleOrDefaultAsync(x => x.OwnerUserId == userId, token);
+        var created = row is null;
+        if (row is null) db.SmsOperationalPreferences.Add(new SmsOperationalPreference(userId, phone, enabled)); else row.Set(phone, enabled);
+        try { await db.SaveChangesAsync(token); }
+        catch (DbUpdateException) when (created)
+        {
+            // A parallel first save won the unique index; apply this choice on top of it.
+            db.ChangeTracker.Clear();
+            var existing = await db.SmsOperationalPreferences.SingleAsync(x => x.OwnerUserId == userId, token);
+            existing.Set(phone, enabled); await db.SaveChangesAsync(token);
+        }
+        return new(enabled);
+    }
+
     public async Task<int> InboundOptOutAsync(string phone, string text, string shortCode, string providerMessageId, CancellationToken token)
     {
         var keyword = SmsOptOutKeyword.Normalize(text);
@@ -108,10 +126,18 @@ public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver
         return matched.Count;
     }
 
-    // The platform sender plus the senders of Properties where the account holds an active membership.
-    private async Task<List<SmsLegalSender>> Senders(string userId, CancellationToken token) => await db.SmsLegalSenders.AsNoTracking()
-        .Where(x => x.IsEnabled && (x.PropertyId == null || db.PropertyMemberships.Any(m => m.PropertyId == x.PropertyId && m.UserId == userId && m.IsEnabled)))
-        .OrderBy(x => x.PropertyId != null).ThenBy(x => x.Title).ToListAsync(token);
+    // The platform sender plus the senders of Properties the account manages or lives in (owner/tenant/resident contexts).
+    private async Task<List<SmsLegalSender>> Senders(string userId, CancellationToken token)
+    {
+        Guid[] lived;
+        // Strict session mode refuses accounts without a canonical link; such an account simply has no resident contexts here.
+        try { lived = (await sessions.ReadAsync(userId, actor.UserId == userId ? actor.Username : null, [], token)).Contexts.Select(c => c.PropertyId).Distinct().ToArray(); }
+        catch (UnauthorizedAccessException) { lived = []; }
+        return await db.SmsLegalSenders.AsNoTracking()
+            .Where(x => x.IsEnabled && (x.PropertyId == null || lived.Contains(x.PropertyId.Value) ||
+                db.PropertyMemberships.Any(m => m.PropertyId == x.PropertyId && m.UserId == userId && m.IsEnabled)))
+            .OrderBy(x => x.PropertyId != null).ThenBy(x => x.Title).ToListAsync(token);
+    }
     private async Task<string?> VerifiedPhone(string userId, CancellationToken token) => SmsText.NormalizePhone(await db.Set<AccountPhoneVerification>().AsNoTracking()
         .Where(x => x.OwnerUserId == userId && x.VerifiedKey != null).Select(x => x.VerifiedKey).SingleOrDefaultAsync(token));
     private static CommunicationPreferenceItem Item(SmsLegalSender sender, CommercialConsentState? current) => new(sender.Id, sender.PropertyId is null ? "PLATFORM" : "PROPERTY",

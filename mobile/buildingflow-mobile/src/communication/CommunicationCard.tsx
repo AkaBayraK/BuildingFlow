@@ -5,7 +5,7 @@ import {useAuth} from '../auth/AuthProvider';
 import {Icon} from '../components/Screen';
 import {Action} from '../components/Action';
 import {theme} from '../theme';
-import {approve,decisionPath,parseItem,parsePreferences,preferenceError,preferencesPath,statusLabels,withdraw,type Item,type Preferences} from './contracts';
+import {approve,decisionPath,operationalPath,parseItem,parseOperational,parsePreferences,preferenceError,preferencesPath,statusLabels,withdraw,type Item,type Preferences} from './contracts';
 
 // Nothing here is cached or queued offline: a preference counts only once the server has recorded it.
 export function CommunicationCard(){
@@ -25,6 +25,9 @@ export function CommunicationCard(){
   try{const r=await auth.profileRequest(decisionPath(item.senderId),approved?approve(data.text,id):withdraw(id));if(!r.ok){if(r.status<500)pending.current.delete(item.senderId);throw r.status;}
    const saved=parseItem(await r.json());pending.current.delete(item.senderId);setData({...data,items:data.items.map(i=>i.senderId===saved.senderId?saved:i)});setReading(null);setTicked(false);}
   catch(e){setError(preferenceError(typeof e==='number'?e:0));}finally{lock.current=false;setBusy(false);}}
+ async function operational(enabled:boolean){if(!data||lock.current||!online)return;lock.current=true;setBusy(true);setError('');
+  try{const r=await auth.profileRequest(operationalPath,{enabled});if(!r.ok)throw r.status;setData({...data,operationalSmsEnabled:parseOperational(await r.json())});}
+  catch(e){setError(preferenceError(typeof e==='number'?e:0));}finally{lock.current=false;setBusy(false);}}
  return <View style={s.card} accessibilityLabel="İletişim tercihlerim">
   <View style={s.row}><Icon name="notifications-outline"/><Text accessibilityRole="header" style={s.title}>İletişim tercihlerim</Text></View>
   <Text style={s.help}>{'Tanıtım ve kampanya SMS\'leri isteğe bağlıdır. Aidat, bakım ve güvenlik SMS\'leri bu tercihten etkilenmez.'}</Text>
@@ -32,6 +35,9 @@ export function CommunicationCard(){
   {!!error&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={s.error}>{error}</Text>}
   {online&&data&&<>
    <Text style={s.help}>{data.verifiedPhoneMasked?`Doğrulanmış telefon: ${data.verifiedPhoneMasked}`:'Tanıtım SMS izni için önce telefonunuzu doğrulayın.'}</Text>
+   <View style={s.item}><View style={s.row}><Icon name="construct-outline"/><Text style={[s.heading,s.flex]}>{'Hizmet SMS\'leri'}</Text>
+    <Switch accessibilityLabel="Aidat, bakım ve rezervasyon SMS'leri" value={data.operationalSmsEnabled} disabled={busy||!data.verifiedPhoneMasked} onValueChange={v=>void operational(v)}/></View>
+    <Text style={s.help}>{'Aidat, bakım ve rezervasyon bildirimleri. Güvenlik ve acil durum SMS\'leri her zaman gönderilir.'}</Text></View>
    {data.items.length===0&&<Text style={s.help}>{'Size tanıtım SMS\'i gönderebilecek bir gönderici yok.'}</Text>}
    {data.items.map(item=><View key={item.senderId} style={s.item}>
     <View style={s.row}><Icon name="business-outline"/><Text style={[s.heading,s.flex]}>{item.senderTitle}</Text></View>
