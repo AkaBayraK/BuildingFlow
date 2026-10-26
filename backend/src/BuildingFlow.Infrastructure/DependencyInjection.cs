@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddSingleton<BuildingFlow.Application.ISmsPolicyCatalog>(BuildingFlow.Application.SmsPolicyCatalog.Default);
         services.AddScoped<BuildingFlow.Application.ISmsQueue, SmsQueue>();
         services.AddScoped<BuildingFlow.Application.ISmsStore, SmsStore>();
+        services.AddScoped<BuildingFlow.Application.ICommercialConsentStore, CommercialConsentStore>();
         services.AddScoped<BuildingFlow.Application.IConsentStore, ConsentStore>();
         services.AddScoped<BuildingFlow.Application.IMobileConsentStore, MobileConsentStore>();
         services.AddScoped<SmsDispatcher>();

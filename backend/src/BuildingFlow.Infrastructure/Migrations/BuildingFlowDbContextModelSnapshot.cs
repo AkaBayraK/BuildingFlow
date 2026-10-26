@@ -745,6 +745,156 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.CommercialConsentRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("EvidenceSha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("evidence_sha256");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("IysErrorCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("iys_error_code");
+
+                    b.Property<string>("IysReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("iys_reference");
+
+                    b.Property<string>("IysStatus")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("iys_status");
+
+                    b.Property<DateTimeOffset?>("IysSyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("iys_synced_at");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<Guid?>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("recipient");
+
+                    b.Property<bool>("RecipientVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_recipient_verified");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sender_id");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TextSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("text_sha256");
+
+                    b.Property<int?>("TextVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("text_version");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IysStatus")
+                        .HasDatabaseName("idx_commercial_consent_records_iys_status")
+                        .HasFilter("iys_status IN ('PENDING', 'FAILED')");
+
+                    b.HasIndex("OperationId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_commercial_consent_records_operation_id");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("SenderId", "Channel", "Recipient", "OccurredAt")
+                        .HasDatabaseName("idx_commercial_consent_records_sender_id_recipient");
+
+                    b.ToTable("commercial_consent_records", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_commercial_consent_records_approval", "status <> 'APPROVED' OR (is_recipient_verified AND text_version > 0 AND text_sha256 IS NOT NULL AND source NOT IN ('SMS_REPLY', 'PROVIDER_CALLBACK'))");
+
+                            t.HasCheckConstraint("chk_commercial_consent_records_iys", "(iys_status = 'SYNCED') = (iys_reference IS NOT NULL AND iys_synced_at IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ConsentText", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6802,6 +6952,111 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SmsLegalSender", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContactInformation")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("contact_information");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("IysBrandCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("iys_brand_code");
+
+                    b.Property<bool>("IysIntegrationEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_iys_integration_enabled");
+
+                    b.Property<string>("MersisNumber")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("mersis_number");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<bool>("OptOutEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_opt_out_enabled");
+
+                    b.Property<string>("OptOutKeyword")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("opt_out_keyword");
+
+                    b.Property<string>("OptOutShortCode")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("opt_out_short_code");
+
+                    b.Property<Guid?>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_sms_legal_senders_platform")
+                        .HasFilter("is_deleted = false AND property_id IS NULL");
+
+                    b.HasIndex("PropertyId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_sms_legal_senders_property_id")
+                        .HasFilter("is_deleted = false AND property_id IS NOT NULL");
+
+                    b.ToTable("sms_legal_senders", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_sms_legal_senders_iys", "NOT is_iys_integration_enabled OR iys_brand_code IS NOT NULL");
+
+                            t.HasCheckConstraint("chk_sms_legal_senders_mersis", "mersis_number IS NULL OR mersis_number ~ '^[0-9]{16}$'");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SmsMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9231,6 +9486,20 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.CommercialConsentRecord", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Person", null)
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SmsLegalSender", null)
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ConsentText", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.ConsentType", null)
@@ -9967,6 +10236,14 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SmsLegalSender", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.SmsMessage", b =>

@@ -52,3 +52,13 @@ Her `SmsTypes` türü bir `SmsCategory` taşır; politika `ISmsPolicyCatalog` (`
 | `MARKETING` | MARKETING | COMMERCIAL_CONSENT (6563 m.6) | ticari onay | evet | zorunlu (MERSİS/unvan/ücretsiz RET) | serbest |
 
 Mevcut eşleme: `PERSON_REGISTERED` → `ACCOUNT_VERIFICATION`, `MANUAL` → `MAINTENANCE_NOTIFICATION`. Platform OTP hattı (`NetgsmPhoneOtpSender`) `SECURITY_OTP` kapsamındadır ve alt bilgi almaz. Ticari onay ve alt bilgi motoru BF-SMS 03/04'te gelene kadar `RequiresCommercialConsent` olan bir tür kuyruğa alınmaz (`SKIPPED COMMERCIAL_CONSENT_REQUIRED`, satır yazılmaz). Operasyonel tercih ve tanıtım içeriği kontrolü henüz uygulanmaz; politika alanı tanımlıdır. Şema değişmedi (`purpose` string kolon).
+
+## BF-SMS 03 — Ticari ileti onay/ret veri modeli
+
+Migration `20261026142437_SmsCommercialConsents` iki BaseEntity tablosu ekler; ticari ileti onayı KVKK `user_consents` kaydından ayrıdır (6563 m.6 ≠ KVKK açık rıza).
+
+- `sms_legal_senders`: ticari iletinin hukuki hizmet sağlayıcısı. `property_id` NULL ise platform, dolu ise site/yönetim (tenant bazlı; her kapsamda tek aktif kayıt). Unvan, MERSİS (16 hane, opsiyonel; tacir değilse boş), iletişim bilgisi, `RET` ile başlayan ret kelimesi, rakamlı ret kısa numarası, `is_opt_out_enabled`, `is_iys_integration_enabled` + `iys_brand_code` (İYS açıksa zorunlu).
+- `commercial_consent_records`: append-only onay/ret olayları. Gönderici, kanal (SMS), E.164 alıcı, doğrulanmış telefon bayrağı, `APPROVED/REJECTED`, kaynak (`WEB/MOBILE/ADMIN/SMS_REPLY/PROVIDER_CALLBACK/IYS`), `occurred_at`, opsiyonel `owner_user_id`/`person_id`, metin sürümü + SHA-256, `operation_id` (tekil) ve kanıt SHA-256, İYS durumu (`NOT_REQUIRED/PENDING/SYNCED/FAILED`) + referans/zaman/hata kodu.
+- Kurallar: onay SMS cevabı/sağlayıcı geri bildirimiyle alınamaz; onay doğrulanmış telefon ve metin kanıtı ister (domain + `chk_commercial_consent_records_approval`). Güncel durum gönderici/kanal/alıcı için en yeni kayıttır; ret kaydı anında geçerli olur. Karar kolonları ve `is_deleted` trigger ile değiştirilemez, satır silinemez; yalnız İYS alanları ilerler. Dolu tabloda Down engellenir.
+- `ICommercialConsentStore` (yalnız sunucu içi; yetki çağıran katmanda): `RecordAsync` gönderici satırını `FOR UPDATE` kilitler, aynı `operationId` + aynı içerik replay, farklı içerik `BF_CONSENT_OPERATION_CONFLICT`; `CurrentAsync`, `HistoryAsync` (sayfalı, maskeli telefon).
+- Henüz yok: HTTP uçları ve ekranlar (FAZ 05), gönderim kapısında onay kontrolü ve alt bilgi (FAZ 04), RET/İYS entegrasyonu (FAZ 06). Onay metni kataloğu FAZ 05'te; şimdilik kayıt metin sürümü ve hash'ini taşır.
