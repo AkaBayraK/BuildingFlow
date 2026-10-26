@@ -55,7 +55,10 @@ public sealed class SmsPolicyResolverTests(SiteApiTests.SiteApiFactory factory) 
             var sender = new SmsLegalSender(property, "Gül", "0123456789012345", "c", "RET GUL", "4567", true, true, "GUL"); db.Add(sender); await db.SaveChangesAsync();
             var approval = await new CommercialConsentStore(db, TimeProvider.System).RecordAsync(new(sender.Id, Phone, true, CommercialConsentStatus.APPROVED, CommercialConsentSource.MOBILE, Guid.NewGuid(), "u", null, 1, Sha), default);
             Assert.Equal(SmsPolicyErrors.IysNotSynced, (await Queue(db).EnqueueAsync(property, Marketing, Phone, Body, null, null, default)).ErrorCode);
-            (await db.CommercialConsentRecords.SingleAsync(x => x.Id == approval.RecordId)).MarkIysSynced("IYS-9", DateTimeOffset.UtcNow); await db.SaveChangesAsync();
+            var record = await db.CommercialConsentRecords.SingleAsync(x => x.Id == approval.RecordId);
+            record.MarkIysFailed("IYS_TIMEOUT"); await db.SaveChangesAsync();
+            Assert.Equal(SmsPolicyErrors.IysNotSynced, (await Queue(db).EnqueueAsync(property, Marketing, Phone, Body, null, null, default)).ErrorCode);
+            record.MarkIysSynced("IYS-9", DateTimeOffset.UtcNow); await db.SaveChangesAsync();
             Assert.NotNull((await Queue(db).EnqueueAsync(property, Marketing, Phone, Body, null, null, default)).MessageId);
         });
     }

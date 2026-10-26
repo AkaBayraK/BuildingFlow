@@ -105,3 +105,17 @@ Migration `20261026142437_SmsCommercialConsents` iki BaseEntity tablosu ekler; t
 - Hizmet SMS'leri (OTP, aidat, bakım, rezervasyon, acil) ticari ileti olmadığı için İYS onayı gerektirmez; bu modelde `Footer=NONE`, İYS kontrolü yapılmaz.
 - Modelde hazır olan: gönderici başına `is_iys_integration_enabled` + marka kodu, kayıt başına `iys_status` (`PENDING/SYNCED/FAILED`), referans ve hata kodu; İYS açık göndericide `SYNCED` olmayan onayla gönderim `IYS_NOT_SYNCED` ile durur (fail-closed).
 - Eksik olan (gerçek entegrasyon fazı): İYS hesabı ve API erişimi (hizmet sağlayıcı/aracı kurum), `PENDING` kayıtları yükleyen ve İYS'den gelen retleri `IYS` kaynağıyla yazan worker, imzalı İYS geri bildirimi. Hesap olmadan doğrulanamayacağı için bu fazda kodlanmadı. Gönderici başına İYS'yi açmak, entegrasyon gelene kadar o göndericinin tanıtım SMS'ini durdurur.
+
+## BF-SMS 07 — Kabul matrisi
+
+| Senaryo | Kanıt |
+| --- | --- |
+| Tenant izolasyonu | `SmsConsentApiTests` yabancı SITE_ADMIN/RESIDENT 404/403, başka hesabın göndericisi 404; `SmsApiTests` mevcut kapsam |
+| İzinsiz pazarlama SMS'i | `SmsPolicyResolverTests` `COMMERCIAL_CONSENT_REQUIRED`, satır yazılmaz |
+| İzin geri çekme / ret | Hesap geri çekme, yönetici reti, imzalı SMS reti; kuyruktaki ileti gönderimde `OPTED_OUT` (`SmsSecurityTests`) |
+| Eksik MERSİS / RET | Ret kanalı kapalı `OPT_OUT_UNAVAILABLE`, gönderici yok `LEGAL_SENDER_MISSING`; MERSİS'siz gönderici iletişim bilgisiyle alt bilgi (`SmsFooterTests`) |
+| OTP | Ticari olmayan 7 kategori alt bilgisiz ve DB'siz; `PhoneOtp*` testleri ayrı hattı korur |
+| Sağlayıcı hatası | `SmsApiTests` geçici/kalıcı sağlayıcı hatası, kontör düşmez |
+| İYS senkron hatası | `IYS_NOT_SYNCED` hem `PENDING` hem `FAILED` için; `SYNCED` sonrası gönderilir |
+| Eşzamanlı izin değişikliği | `CommercialConsentStoreTests` 6 eşzamanlı karar gönderici kilidiyle sıralı, operationId replay/409 |
+| Mobil ve masaüstü görünüm | Web/mobil sözleşme testleri ve mobil export geçti; gerçek tarayıcı/cihaz görsel kontrolü **yapılmadı** |
