@@ -35,3 +35,20 @@ Segment hesabı GSM-7 (160/153) ve UCS-2 (70/67); Türkçe ı/ş/ğ UCS-2'ye ge�
 Not: Faz09 RabbitMQ outbox'ı kayıtlı payload'ı yayından sonra da sakladığı için kişi kodu ve telefon outbox'a yazılmaz; SMS kendi şifreli tablo kuyruğunu kullanır. Teslim en-az-bir-kezdir: sağlayıcı çağrısı ile commit arasında çökme olursa mesaj tekrar gönderilebilir (gerçek sağlayıcıda sağlayıcı tarafı tekilleştirme gerekir).
 
 Yerel: `bash scripts/dev.sh worker` dispatcher'ı da çalıştırır; worker'a `PersonCode__HmacKey` verilmelidir (compose ve dev.sh ayarlı).
+
+## BF-SMS 02 — SMS kategori politikası
+
+Her `SmsTypes` türü bir `SmsCategory` taşır; politika `ISmsPolicyCatalog` (`Application/SmsPolicies.cs`) arkasındadır, ileride Aka Integration Hub'a taşınabilir. Overview yanıtındaki tür satırına `category` alanı eklendi.
+
+| Kategori | Purpose | Hukuki dayanak | Kullanıcı tercihi | Ticari onay | RET/alt bilgi | Tanıtım içeriği |
+| --- | --- | --- | --- | --- | --- | --- |
+| `SECURITY_OTP` | TRANSACTIONAL | SECURITY | kapatılamaz | hayır | yok | yasak |
+| `PASSWORD_RESET` | TRANSACTIONAL | SECURITY | kapatılamaz | hayır | yok | yasak |
+| `ACCOUNT_VERIFICATION` | TRANSACTIONAL | SECURITY | kapatılamaz | hayır | yok | yasak |
+| `DUES_NOTIFICATION` | OPERATIONAL | SERVICE | operasyonel tercih | hayır | yok | yasak |
+| `MAINTENANCE_NOTIFICATION` | OPERATIONAL | SERVICE | operasyonel tercih | hayır | yok | yasak |
+| `RESERVATION_NOTIFICATION` | OPERATIONAL | SERVICE | operasyonel tercih | hayır | yok | yasak |
+| `EMERGENCY_NOTIFICATION` | OPERATIONAL | VITAL_INTEREST | kapatılamaz | hayır | yok | yasak |
+| `MARKETING` | MARKETING | COMMERCIAL_CONSENT (6563 m.6) | ticari onay | evet | zorunlu (MERSİS/unvan/ücretsiz RET) | serbest |
+
+Mevcut eşleme: `PERSON_REGISTERED` → `ACCOUNT_VERIFICATION`, `MANUAL` → `MAINTENANCE_NOTIFICATION`. Platform OTP hattı (`NetgsmPhoneOtpSender`) `SECURITY_OTP` kapsamındadır ve alt bilgi almaz. Ticari onay ve alt bilgi motoru BF-SMS 03/04'te gelene kadar `RequiresCommercialConsent` olan bir tür kuyruğa alınmaz (`SKIPPED COMMERCIAL_CONSENT_REQUIRED`, satır yazılmaz). Operasyonel tercih ve tanıtım içeriği kontrolü henüz uygulanmaz; politika alanı tanımlıdır. Şema değişmedi (`purpose` string kolon).

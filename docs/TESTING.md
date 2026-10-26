@@ -1,3 +1,7 @@
+## BF-SMS02 — 26.10.2026 — SMS kategori politikası GEÇTİ
+
+**`~Sms` 33/33 unit (yeni SmsPolicyTests 11 dahil), tüm unit 365/365, fixture koşusunda seçili 43/43 unit; izole PostgreSQL 18.6 `Sms|PeopleApiTests|PhoneOtp|MigrationTests` 44/44 integration, 0 skip.** .NET build 0 hata/0 uyarı. Kapsam: 8 kategori tek politika, yalnız MARKETING ticari onay/RET/tanıtım, güvenlik/acil kapatılamaz, mevcut türlerin purpose uyumu, bilinmeyen kategori reddi; migration/şema sözleşmesi değişmedi. Web/mobil test çalıştırılmadı (istemci kodu değişmedi; overview'a eklenen `category` alanı mevcut FE doğrulamasını bozmaz, çalıştırılarak doğrulanmadı). Yeni paket yok. Komut: izole PostgreSQL fixture ile `dotnet test backend/BuildingFlow.sln --filter "FullyQualifiedName~Sms|FullyQualifiedName~PeopleApiTests|FullyQualifiedName~PhoneOtp|FullyQualifiedName~BuildingFlow.IntegrationTests.MigrationTests"`. [Politika](api/sms.md).
+
 ## BF-VERIFY05 — kabul planı / 23.10.2026
 
 P05.A1–A9:kendi hesap/alan bağımsızlığı,OIDC S256 veaynısubject dönüşü,appfocus/screenopen sunucuGET,wrong/expiry/attempt/retry/version/409/429/outage,offline mutation yok veönbellekkanıtı yok,logout/hesap/aday temizliği,profilfotoğraf/rıza uyumu. İlgilitestler önce;son `npm run check`/`npm run build`;nativecihaz/emülatördeekran+e-posta dönüşü/ağ/hesapdeğişimi gerçekkanıtı ayrı. Tarayıcısimülasyonu nativekabul sayılmaz.

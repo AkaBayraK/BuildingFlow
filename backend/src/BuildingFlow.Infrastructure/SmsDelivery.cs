@@ -7,15 +7,18 @@ namespace BuildingFlow.Infrastructure;
 
 internal sealed record SmsPayload(string PhoneNumber, string Body);
 
-public sealed class SmsQueue(BuildingFlowDbContext db, ISmsProtector protector, TimeProvider clock) : ISmsQueue
+public sealed class SmsQueue(BuildingFlowDbContext db, ISmsProtector protector, TimeProvider clock, ISmsPolicyCatalog? policies = null) : ISmsQueue
 {
     public const string Queued = "QUEUED", Failed = "FAILED", Skipped = "SKIPPED";
-    public const string NoAccount = "NO_ACCOUNT", InsufficientCredit = "INSUFFICIENT_CREDIT", PhoneInvalid = "PHONE_INVALID", TemplateDisabled = "TEMPLATE_DISABLED", TooLong = "TOO_LONG";
+    public const string NoAccount = "NO_ACCOUNT", InsufficientCredit = "INSUFFICIENT_CREDIT", PhoneInvalid = "PHONE_INVALID", TemplateDisabled = "TEMPLATE_DISABLED", TooLong = "TOO_LONG",
+        CommercialConsentRequired = "COMMERCIAL_CONSENT_REQUIRED";
 
     public async Task<SmsQueueResult> EnqueueAsync(Guid property, string typeCode, string? phoneNumber, IReadOnlyDictionary<string, string> parameters,
         Guid? personId, Guid? requestId, CancellationToken token)
     {
         var type = SmsTypes.Find(typeCode) ?? throw new ArgumentException("Unknown SMS type.", nameof(typeCode));
+        // Commercial approval and the legal footer arrive in BF-SMS 03/04; until then a commercial type must never reach a provider.
+        if ((policies ?? SmsPolicyCatalog.Default).Get(type.Category).RequiresCommercialConsent) return new(null, Skipped, CommercialConsentRequired);
         var template = await db.SmsTemplates.AsNoTracking().SingleOrDefaultAsync(x => x.PropertyId == property && x.TypeCode == type.Code, token);
         if (template is { IsEnabled: false }) return new(null, Skipped, TemplateDisabled);
         var phone = SmsText.NormalizePhone(phoneNumber);

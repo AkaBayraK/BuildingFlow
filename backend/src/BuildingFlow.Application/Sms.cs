@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
-public sealed record SmsTypeDefinition(string Code, [property: JsonConverter(typeof(JsonStringEnumConverter))] SmsPurpose Purpose, IReadOnlyList<string> Parameters, IReadOnlyList<string> SecretParameters, string DefaultContent);
+public sealed record SmsTypeDefinition(string Code, [property: JsonConverter(typeof(JsonStringEnumConverter))] SmsPurpose Purpose, IReadOnlyList<string> Parameters, IReadOnlyList<string> SecretParameters, string DefaultContent,
+    [property: JsonConverter(typeof(JsonStringEnumConverter))] SmsCategory Category);
 public sealed record SmsAccountResponse(Guid Id, Guid PropertyId, string Name, string Provider, string SenderHeader, string? Username, bool HasSecret,
     string? ApiUrl, int CreditBalance, int LowCreditThreshold, bool IsLowCredit, bool IsEnabled, long Version);
 public sealed record SmsOverview(Guid PropertyId, SmsAccountResponse? Account, IReadOnlyList<SmsTypeDefinition> Types);
@@ -59,8 +60,8 @@ public static class SmsTypes
     public static IReadOnlyList<SmsTypeDefinition> All { get; } = Array.AsReadOnly(new[]
     {
         new SmsTypeDefinition(PersonRegistered, SmsPurpose.TRANSACTIONAL, ["code", "fullName", "propertyName"], ["code"],
-            "Sayın {{fullName}}, {{code}} kod ile kişi kaydınız kayıt altına alınmıştır. {{propertyName}}"),
-        new SmsTypeDefinition(Manual, SmsPurpose.OPERATIONAL, ["message"], [], "{{message}}")
+            "Sayın {{fullName}}, {{code}} kod ile kişi kaydınız kayıt altına alınmıştır. {{propertyName}}", SmsCategory.ACCOUNT_VERIFICATION),
+        new SmsTypeDefinition(Manual, SmsPurpose.OPERATIONAL, ["message"], [], "{{message}}", SmsCategory.MAINTENANCE_NOTIFICATION)
     });
     public static SmsTypeDefinition? Find(string? code) => All.SingleOrDefault(type => type.Code == code);
 }

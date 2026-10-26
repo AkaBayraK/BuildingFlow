@@ -1,7 +1,7 @@
 namespace BuildingFlow.Domain;
 
 public enum SmsProvider { MOCK }
-public enum SmsPurpose { TRANSACTIONAL, OPERATIONAL }
+public enum SmsPurpose { TRANSACTIONAL, OPERATIONAL, MARKETING }
 public enum SmsMessageStatus { QUEUED, SENT, FAILED }
 public enum SmsCreditTransactionType { LOAD, CONSUME, REFUND, ADJUST }
 
