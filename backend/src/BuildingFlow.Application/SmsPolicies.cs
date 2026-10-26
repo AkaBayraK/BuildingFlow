@@ -77,3 +77,15 @@ public static class SmsLegalFooter
         (sender.MersisNumber is { } mersis ? $"\nMERSIS: {mersis}" : $"\n{sender.ContactInformation}");
     public static bool CanOptOut(SmsLegalSender sender) => sender.IsEnabled && sender.OptOutEnabled && sender.OptOutKeyword.Length > 0 && sender.OptOutShortCode.Length > 0;
 }
+
+public static class SmsOptOutKeyword
+{
+    public static string Normalize(string? text) => string.Join(' ', (text ?? "").ToUpperInvariant().Replace('İ', 'I').Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+    public static bool IsOptOut(string? text) => Normalize(text) is var value && (value == "RET" || value.StartsWith("RET ", StringComparison.Ordinal));
+    // Provider retries of the same inbound message map to the same operation, so a reply is recorded once per sender.
+    public static Guid OperationId(Guid sender, string providerMessageId)
+    {
+        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"sms-opt-out-v1:{sender:N}:{providerMessageId}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+}

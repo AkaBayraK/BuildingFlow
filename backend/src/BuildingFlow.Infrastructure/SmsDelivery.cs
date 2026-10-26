@@ -49,7 +49,7 @@ public sealed class MockSmsProvider : ISmsProvider
 }
 
 // One message per transaction: the account row stays locked while the provider call runs so balance checks and debits cannot race.
-public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protector, IEnumerable<ISmsProvider> providers, TimeProvider clock)
+public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protector, IEnumerable<ISmsProvider> providers, TimeProvider clock, ISmsPolicyResolver? resolver = null)
 {
     public const int BatchSize = 20;
     public const string ProviderUnavailable = "PROVIDER_UNAVAILABLE", PayloadUnreadable = "PAYLOAD_UNREADABLE", ProviderError = "PROVIDER_ERROR";
@@ -89,6 +89,14 @@ public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protec
         SmsPayload payload;
         try { payload = JsonSerializer.Deserialize<SmsPayload>(protector.Unprotect(message.ProtectedPayload!)) ?? throw new CryptographicException(); }
         catch (Exception error) when (error is CryptographicException or FormatException or JsonException) { message.Reject(PayloadUnreadable); return; }
+        // An opt-out may arrive while a commercial SMS waits in the queue; the decision is checked again right before the provider call.
+        if (message.Purpose == SmsPurpose.MARKETING)
+        {
+            var type = SmsTypes.Find(message.TypeCode) ?? SmsTypes.Marketing.SingleOrDefault(x => x.Code == message.TypeCode);
+            var policy = type is null ? SmsResolution.Blocked(SmsPolicyErrors.CommercialConsentRequired)
+                : await (resolver ?? new SmsPolicyResolver(db, SmsPolicyCatalog.Default, new CommercialConsentStore(db, clock))).ResolveAsync(message.PropertyId, type, payload.PhoneNumber, token);
+            if (!policy.Allowed) { message.Reject(policy.ErrorCode!); return; }
+        }
         SmsSendResult result;
         try { result = await provider.SendAsync(new(account, payload.PhoneNumber, payload.Body), token); }
         catch (Exception error) when (error is HttpRequestException or TimeoutException) { result = new(false, null, ProviderError, false); }

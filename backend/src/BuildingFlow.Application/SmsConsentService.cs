@@ -13,6 +13,8 @@ public sealed record SmsPreviewRequest(string? TypeCode, string? Body, string? P
 public sealed record SmsPreviewResponse(string TypeCode, string Category, string Body, string Footer, string Encoding, int Characters, int Segments,
     bool Allowed, string? BlockedCode, Guid? LegalSenderId);
 public sealed record AdminOptOutRequest(Guid OperationId, string? PhoneNumber);
+public sealed record SmsOptOutCallback(string? PhoneNumber, string? Text, string? ShortCode, string? ProviderMessageId);
+public sealed record SmsOptOutCallbackResult(int MatchedSenders);
 public sealed record CommercialConsentText(int Version, string Title, string Body, string BodySha256);
 public sealed record CommunicationPreferenceItem(Guid SenderId, string Scope, Guid? PropertyId, string SenderTitle, string Status, DateTimeOffset? OccurredAt, int? TextVersion);
 public sealed record CommunicationPreferences(string? VerifiedPhoneMasked, CommercialConsentText Text, IReadOnlyList<CommunicationPreferenceItem> Items);
@@ -38,6 +40,7 @@ public interface ISmsConsentStore
     Task<CommunicationPreferences> PreferencesAsync(string userId, CancellationToken token);
     Task<CommunicationPreferenceItem?> SetPreferenceAsync(string userId, Guid sender, CommunicationPreferenceCommand command, CancellationToken token);
     Task<PagedRows<CommercialConsentState>?> PreferenceHistoryAsync(string userId, Guid sender, int page, int pageSize, CancellationToken token);
+    Task<int> InboundOptOutAsync(string phone, string text, string shortCode, string providerMessageId, CancellationToken token);
 }
 
 public sealed class SmsConsentService(ISmsConsentStore store, ICurrentUserService user)
@@ -103,6 +106,19 @@ public sealed class SmsConsentService(ISmsConsentStore store, ICurrentUserServic
         if (command.Approved && (command.TextVersion != CommercialConsentTexts.Version || command.TextSha256 != CommercialConsentTexts.Current.BodySha256))
             throw new HierarchyConflictException(ErrorCatalog.ConsentTextOutdated.Create());
         return store.SetPreferenceAsync(self, sender, command, token);
+    }
+
+    // Called only after the provider signature is verified; it never needs a signed-in user.
+    public async Task<SmsOptOutCallbackResult> InboundOptOutAsync(SmsOptOutCallback callback, CancellationToken token)
+    {
+        var phone = SmsText.NormalizePhone(callback.PhoneNumber);
+        if (phone is null) Invalid("phoneNumber", ErrorCatalog.SmsPhoneInvalid);
+        var code = callback.ShortCode?.Trim() ?? "";
+        if (code.Length is < 3 or > 15 || !code.All(char.IsAsciiDigit)) Invalid("shortCode");
+        var id = callback.ProviderMessageId?.Trim() ?? "";
+        if (id.Length is < 1 or > 100 || id.Any(char.IsControl)) Invalid("providerMessageId");
+        if (callback.Text is not { Length: <= 160 } || !SmsOptOutKeyword.IsOptOut(callback.Text)) return new(0);
+        return new(await store.InboundOptOutAsync(phone, callback.Text, code, id, token));
     }
 
     public Task<PagedRows<CommercialConsentState>?> PreferenceHistoryAsync(Guid sender, int page, int pageSize, CancellationToken token)

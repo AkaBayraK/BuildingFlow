@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using BuildingFlow.Application;
 namespace BuildingFlow.Api;
 internal static class SmsConsentEndpoints
@@ -30,5 +33,35 @@ internal static class SmsConsentEndpoints
         mobile.MapPost("/{senderId:guid}", async (Guid senderId, CommunicationPreferenceCommand command, SmsConsentService service, CancellationToken token) =>
             Found(await service.SetPreferenceAsync(senderId, command with { Channel = "MOBILE" }, token)));
     }
+    public const string SignatureHeader = "X-BuildingFlow-Signature";
+    public const int MaxCallbackBytes = 4096;
+
+    public static void MapSmsOptOutCallback(this WebApplication app)
+    {
+        // Provider forwards an inbound "RET ..." reply. Off unless a shared HMAC key is configured; the phone number is never logged.
+        app.MapPost("/api/v1/sms/opt-out-callbacks", async (HttpRequest request, IConfiguration config, SmsConsentService service, ILoggerFactory logs, CancellationToken token) =>
+        {
+            var key = config["Sms:OptOutCallbackKey"];
+            if (string.IsNullOrEmpty(key) || key.Length < 32) return Results.NotFound();
+            if (request.ContentLength is > MaxCallbackBytes) return Results.StatusCode(StatusCodes.Status413PayloadTooLarge);
+            using var buffer = new MemoryStream();
+            await request.Body.CopyToAsync(buffer, token);
+            if (buffer.Length > MaxCallbackBytes) return Results.StatusCode(StatusCodes.Status413PayloadTooLarge);
+            var body = buffer.ToArray();
+            var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), body);
+            var supplied = request.Headers[SignatureHeader].ToString();
+            byte[] given;
+            try { given = Convert.FromHexString(supplied); } catch (FormatException) { given = []; }
+            var log = logs.CreateLogger("BuildingFlow.Sms.OptOutCallback");
+            if (!CryptographicOperations.FixedTimeEquals(expected, given)) { log.LogWarning("Rejected SMS opt-out callback with an invalid signature."); return Results.Unauthorized(); }
+            SmsOptOutCallback? callback;
+            try { callback = JsonSerializer.Deserialize<SmsOptOutCallback>(body, JsonSerializerOptions.Web); } catch (JsonException) { callback = null; }
+            if (callback is null) return Results.BadRequest();
+            var result = await service.InboundOptOutAsync(callback, token);
+            log.LogInformation("SMS opt-out callback recorded for {Senders} sender(s).", result.MatchedSenders);
+            return Results.Ok(result);
+        }).AllowAnonymous().WithTags("SMS");
+    }
+
     private static IResult Found<T>(T? value) where T : class => value is null ? Results.NotFound() : Results.Ok(value);
 }

@@ -96,6 +96,18 @@ public sealed class SmsConsentStore(BuildingFlowDbContext db, ISmsPolicyResolver
         return phone is null ? new([], page, pageSize, 0) : await consents.HistoryAsync(senderId, phone, page, pageSize, token);
     }
 
+    public async Task<int> InboundOptOutAsync(string phone, string text, string shortCode, string providerMessageId, CancellationToken token)
+    {
+        var keyword = SmsOptOutKeyword.Normalize(text);
+        var senders = await db.SmsLegalSenders.AsNoTracking().Where(x => x.OptOutEnabled && x.OptOutShortCode == shortCode).ToListAsync(token);
+        // A bare "RET" to a shared short code opts out of every sender on it; stopping too much is the safe side.
+        var matched = senders.Where(x => keyword == "RET" || SmsOptOutKeyword.Normalize(x.OptOutKeyword) == keyword).ToList();
+        foreach (var sender in matched)
+            await consents.RecordAsync(new(sender.Id, phone, false, CommercialConsentStatus.REJECTED, CommercialConsentSource.SMS_REPLY,
+                SmsOptOutKeyword.OperationId(sender.Id, providerMessageId)), token);
+        return matched.Count;
+    }
+
     // The platform sender plus the senders of Properties where the account holds an active membership.
     private async Task<List<SmsLegalSender>> Senders(string userId, CancellationToken token) => await db.SmsLegalSenders.AsNoTracking()
         .Where(x => x.IsEnabled && (x.PropertyId == null || db.PropertyMemberships.Any(m => m.PropertyId == x.PropertyId && m.UserId == userId && m.IsEnabled)))

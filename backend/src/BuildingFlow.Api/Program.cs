@@ -143,6 +143,7 @@ app.MapPersonCenterEndpoints();
 app.MapSessionContextEndpoints();
 app.MapSmsEndpoints();
 app.MapSmsConsentEndpoints();
+app.MapSmsOptOutCallback();
 app.MapConsentEndpoints();
 app.MapMobileConsentEndpoints();
 app.MapRequestManagementEndpoints();
