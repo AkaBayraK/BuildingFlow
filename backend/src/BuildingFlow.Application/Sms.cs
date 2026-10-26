@@ -21,6 +21,7 @@ public sealed record SmsMessageResponse(Guid Id, string TypeCode, string Purpose
     string Status, string? Provider, string? ProviderMessageId, string? ErrorCode, int Attempts, DateTimeOffset CreatedAt, DateTimeOffset? SentAt, string CreatedBy);
 public sealed record SendSmsRequest(Guid RequestId, Guid? PersonId, string? PhoneNumber, string? Body);
 public sealed record SmsQueueResult(Guid? MessageId, string Status, string? ErrorCode);
+public sealed record SmsLength(string Encoding, int Characters, int Segments);
 public sealed record SmsSendRequest(SmsAccount Account, string PhoneNumber, string Body);
 public sealed record SmsSendResult(bool Success, string? ProviderMessageId, string? ErrorCode, bool Permanent);
 
@@ -82,6 +83,9 @@ public static partial class SmsText
         Placeholder().Replace(content, match => values.TryGetValue(match.Groups[1].Value, out var value) ? value : match.Value);
     public static string Mask(string content, SmsTypeDefinition type, IReadOnlyDictionary<string, string> values) =>
         Render(content, values.ToDictionary(pair => pair.Key, pair => type.SecretParameters.Contains(pair.Key) ? new string('*', pair.Value.Length) : pair.Value));
+
+    public static SmsLength Measure(string text) => new(IsGsm(text) ? "GSM7" : "UCS2", text.Length, Segments(text));
+    public static bool IsGsm(string text) => text.All(c => GsmBasic.Contains(c) || GsmExtended.Contains(c));
 
     public static int Segments(string text)
     {

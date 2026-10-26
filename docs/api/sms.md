@@ -62,3 +62,13 @@ Migration `20261026142437_SmsCommercialConsents` iki BaseEntity tablosu ekler; t
 - Kurallar: onay SMS cevabı/sağlayıcı geri bildirimiyle alınamaz; onay doğrulanmış telefon ve metin kanıtı ister (domain + `chk_commercial_consent_records_approval`). Güncel durum gönderici/kanal/alıcı için en yeni kayıttır; ret kaydı anında geçerli olur. Karar kolonları ve `is_deleted` trigger ile değiştirilemez, satır silinemez; yalnız İYS alanları ilerler. Dolu tabloda Down engellenir.
 - `ICommercialConsentStore` (yalnız sunucu içi; yetki çağıran katmanda): `RecordAsync` gönderici satırını `FOR UPDATE` kilitler, aynı `operationId` + aynı içerik replay, farklı içerik `BF_CONSENT_OPERATION_CONFLICT`; `CurrentAsync`, `HistoryAsync` (sayfalı, maskeli telefon).
 - Henüz yok: HTTP uçları ve ekranlar (FAZ 05), gönderim kapısında onay kontrolü ve alt bilgi (FAZ 04), RET/İYS entegrasyonu (FAZ 06). Onay metni kataloğu FAZ 05'te; şimdilik kayıt metin sürümü ve hash'ini taşır.
+
+## BF-SMS 04 — Politika çözümleyici ve yasal alt bilgi
+
+`ISmsPolicyResolver` (`Infrastructure/SmsPolicyResolver.cs`) her SMS kuyruğa girmeden `SmsQueue.EnqueueAsync` içinde çağrılır; Hub'a taşınırken yalnız bu uygulama değişir.
+
+- Ticari olmayan kategoriler (OTP, şifre sıfırlama, hesap doğrulama, aidat, bakım, rezervasyon, acil) veritabanına bakmadan aynen geçer; alt bilgi eklenmez. Platform OTP hattı (`NetgsmPhoneOtpSender`) kuyruğu hiç kullanmaz.
+- Ticari (MARKETING) SMS sırası: Property'nin etkin göndericisi, yoksa platform göndericisi → yoksa `LEGAL_SENDER_MISSING`; ret kapalı/pasif gönderici `OPT_OUT_UNAVAILABLE`; alıcının bu göndericide kaydı yoksa `COMMERCIAL_CONSENT_REQUIRED`; en son karar ret ise `OPTED_OUT` (ret kaydı yazıldığı anda sonraki gönderim durur); İYS açık ve onay `SYNCED` değilse `IYS_NOT_SYNCED`. Engellenen SMS için satır yazılmaz, `SKIPPED` + kod döner.
+- Alt bilgi: `\n{unvan}\nSMS almak istemiyorsanız {RET kelimesi} yazıp {kısa numara} numarasına ücretsiz gönderiniz.` + `\nMERSIS: {numara}` (tacir değilse `\n{iletişim bilgisi}`). Alt bilgi gövdeye ve maskeli geçmişe eklenir; segment/kontör alt bilgi dahil hesaplanır, 10 segmenti aşan ileti `TOO_LONG`.
+- `SmsText.Measure` kodlama (`GSM7`/`UCS2`), karakter ve segment döndürür; Türkçe ı/ş/ğ/İ UCS-2'ye geçirir (70/67). Kontör maliyeti = segment.
+- Henüz yok: MARKETING tipi `SmsTypes.All` içinde yayınlanmadı (web tip doğrulaması FAZ 05'te genişletilecek); operasyonel tercih (`SmsPreferenceRule.OPERATIONAL`) ve operasyonel şablonda tanıtım içeriği denetimi uygulanmıyor.

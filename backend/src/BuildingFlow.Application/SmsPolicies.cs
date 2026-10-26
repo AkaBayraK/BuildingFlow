@@ -50,3 +50,29 @@ public sealed class SmsPolicyCatalog : ISmsPolicyCatalog
     private static SmsCategoryPolicy Service(SmsCategory category, SmsPurpose purpose, SmsLegalBasis basis, SmsPreferenceRule preference) =>
         new(category, purpose, basis, preference, false, SmsFooterPolicy.NONE, false);
 }
+
+public sealed record SmsResolution(bool Allowed, string? ErrorCode, string Footer, Guid? LegalSenderId)
+{
+    public static SmsResolution Plain { get; } = new(true, null, "", null);
+    public static SmsResolution Blocked(string errorCode, Guid? sender = null) => new(false, errorCode, "", sender);
+}
+// Decides per SMS whether it may be sent and which legal footer it carries; the Hub can later provide this behind the same contract.
+public interface ISmsPolicyResolver
+{
+    Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string phone, CancellationToken token);
+}
+
+public static class SmsPolicyErrors
+{
+    public const string LegalSenderMissing = "LEGAL_SENDER_MISSING", OptOutUnavailable = "OPT_OUT_UNAVAILABLE", CommercialConsentRequired = "COMMERCIAL_CONSENT_REQUIRED",
+        OptedOut = "OPTED_OUT", IysNotSynced = "IYS_NOT_SYNCED";
+}
+
+public static class SmsLegalFooter
+{
+    // A tradesman identifies itself by MERSIS in short messages; a non-trader sender falls back to its contact information.
+    public static string Build(SmsLegalSender sender) =>
+        $"\n{sender.Title}\nSMS almak istemiyorsanız {sender.OptOutKeyword} yazıp {sender.OptOutShortCode} numarasına ücretsiz gönderiniz." +
+        (sender.MersisNumber is { } mersis ? $"\nMERSIS: {mersis}" : $"\n{sender.ContactInformation}");
+    public static bool CanOptOut(SmsLegalSender sender) => sender.IsEnabled && sender.OptOutEnabled && sender.OptOutKeyword.Length > 0 && sender.OptOutShortCode.Length > 0;
+}

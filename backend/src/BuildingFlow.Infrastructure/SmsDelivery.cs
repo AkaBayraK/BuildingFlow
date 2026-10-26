@@ -7,29 +7,31 @@ namespace BuildingFlow.Infrastructure;
 
 internal sealed record SmsPayload(string PhoneNumber, string Body);
 
-public sealed class SmsQueue(BuildingFlowDbContext db, ISmsProtector protector, TimeProvider clock, ISmsPolicyCatalog? policies = null) : ISmsQueue
+public sealed class SmsQueue(BuildingFlowDbContext db, ISmsProtector protector, TimeProvider clock, ISmsPolicyResolver? resolver = null) : ISmsQueue
 {
     public const string Queued = "QUEUED", Failed = "FAILED", Skipped = "SKIPPED";
-    public const string NoAccount = "NO_ACCOUNT", InsufficientCredit = "INSUFFICIENT_CREDIT", PhoneInvalid = "PHONE_INVALID", TemplateDisabled = "TEMPLATE_DISABLED", TooLong = "TOO_LONG",
-        CommercialConsentRequired = "COMMERCIAL_CONSENT_REQUIRED";
+    public const string NoAccount = "NO_ACCOUNT", InsufficientCredit = "INSUFFICIENT_CREDIT", PhoneInvalid = "PHONE_INVALID", TemplateDisabled = "TEMPLATE_DISABLED", TooLong = "TOO_LONG";
 
-    public async Task<SmsQueueResult> EnqueueAsync(Guid property, string typeCode, string? phoneNumber, IReadOnlyDictionary<string, string> parameters,
+    public Task<SmsQueueResult> EnqueueAsync(Guid property, string typeCode, string? phoneNumber, IReadOnlyDictionary<string, string> parameters,
+        Guid? personId, Guid? requestId, CancellationToken token) =>
+        EnqueueAsync(property, SmsTypes.Find(typeCode) ?? throw new ArgumentException("Unknown SMS type.", nameof(typeCode)), phoneNumber, parameters, personId, requestId, token);
+
+    public async Task<SmsQueueResult> EnqueueAsync(Guid property, SmsTypeDefinition type, string? phoneNumber, IReadOnlyDictionary<string, string> parameters,
         Guid? personId, Guid? requestId, CancellationToken token)
     {
-        var type = SmsTypes.Find(typeCode) ?? throw new ArgumentException("Unknown SMS type.", nameof(typeCode));
-        // Commercial approval and the legal footer arrive in BF-SMS 03/04; until then a commercial type must never reach a provider.
-        if ((policies ?? SmsPolicyCatalog.Default).Get(type.Category).RequiresCommercialConsent) return new(null, Skipped, CommercialConsentRequired);
         var template = await db.SmsTemplates.AsNoTracking().SingleOrDefaultAsync(x => x.PropertyId == property && x.TypeCode == type.Code, token);
         if (template is { IsEnabled: false }) return new(null, Skipped, TemplateDisabled);
         var phone = SmsText.NormalizePhone(phoneNumber);
         if (phone is null) return new(null, Failed, PhoneInvalid);
+        var policy = await (resolver ?? new SmsPolicyResolver(db, SmsPolicyCatalog.Default, new CommercialConsentStore(db, clock))).ResolveAsync(property, type, phone, token);
+        if (!policy.Allowed) return new(null, Skipped, policy.ErrorCode);
         var content = template?.Content ?? type.DefaultContent;
-        var body = SmsText.Render(content, parameters);
+        var body = SmsText.Render(content, parameters) + policy.Footer;
         var segments = SmsText.Segments(body);
         if (segments is < 1 or > SmsText.MaxSegments) return new(null, Failed, TooLong);
         var account = await db.SmsAccounts.AsNoTracking().SingleOrDefaultAsync(x => x.PropertyId == property, token);
         var now = clock.GetUtcNow();
-        var message = new SmsMessage(property, account?.Id, personId, requestId, type.Code, type.Purpose, SmsText.MaskPhone(phone), SmsText.Mask(content, type, parameters), segments, Trim(now));
+        var message = new SmsMessage(property, account?.Id, personId, requestId, type.Code, type.Purpose, SmsText.MaskPhone(phone), SmsText.Mask(content, type, parameters) + policy.Footer, segments, Trim(now));
         if (account is null || !account.IsEnabled) message.Reject(NoAccount);
         else if (account.CreditBalance < segments) message.Reject(InsufficientCredit);
         else message.Protect(protector.Protect(JsonSerializer.Serialize(new SmsPayload(phone, body))));
