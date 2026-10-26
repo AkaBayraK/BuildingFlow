@@ -65,6 +65,11 @@ public static class SmsTypes
         new SmsTypeDefinition(Manual, SmsPurpose.OPERATIONAL, ["message"], [], "{{message}}", SmsCategory.MAINTENANCE_NOTIFICATION)
     });
     public static SmsTypeDefinition? Find(string? code) => All.SingleOrDefault(type => type.Code == code);
+    // Commercial types are only previewable until the campaign sending flow is published; they are not part of the operational overview.
+    public static IReadOnlyList<SmsTypeDefinition> Marketing { get; } = Array.AsReadOnly(new[]
+    {
+        new SmsTypeDefinition("MARKETING", SmsPurpose.MARKETING, ["message"], [], "{{message}}", SmsCategory.MARKETING)
+    });
 }
 
 public static partial class SmsText

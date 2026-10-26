@@ -47,6 +47,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SmsAccountRequired = new("BF_SMS_ACCOUNT_REQUIRED", "Bu yönetim alanında etkin bir SMS hesabı yok.", "warning");
     public static readonly ErrorDefinition SmsCreditInsufficient = new("BF_SMS_CREDIT_INSUFFICIENT", "SMS kontörü yetersiz.", "warning");
     public static readonly ErrorDefinition SmsTemplateConflict = new("BF_SMS_TEMPLATE_CONFLICT", "Bu SMS tipi için zaten bir şablon var.", "warning");
+    public static readonly ErrorDefinition SmsPhoneNotVerified = new("BF_SMS_PHONE_NOT_VERIFIED", "Pazarlama SMS izni için önce telefon numaranızı doğrulayın.", "warning");
     public static readonly ErrorDefinition ConsentInvalid = new("BF_CONSENT_INVALID", "Rıza alanlarını kontrol edin.", "error");
     public static readonly ErrorDefinition ConsentTextInvalid = new("BF_CONSENT_TEXT_INVALID", "Metin boş, çok uzun ya da gizli/kontrol karakteri içeriyor.", "error");
     public static readonly ErrorDefinition ConsentLinkInvalid = new("BF_CONSENT_LINK_INVALID", "Metindeki bağlantılar yalnız https:// veya mailto: ile başlayabilir.", "error");
@@ -292,7 +293,7 @@ public static class ErrorCatalog
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,
-        SmsInvalid, SmsPhoneInvalid, SmsTemplateParameterInvalid, SmsAccountRequired, SmsCreditInsufficient, SmsTemplateConflict,
+        SmsInvalid, SmsPhoneInvalid, SmsTemplateParameterInvalid, SmsAccountRequired, SmsCreditInsufficient, SmsTemplateConflict, SmsPhoneNotVerified,
         ConsentInvalid, ConsentTextInvalid, ConsentLinkInvalid, ConsentTypeConflict, ConsentSystemType, ConsentTypeInUse, ConsentOperationConflict, ConsentTypeDisabled, ConsentRequired, ConsentTextOutdated, ConsentNotWithdrawable,
         ConstructionYearInvalid,
         HeatingTypeInvalid,

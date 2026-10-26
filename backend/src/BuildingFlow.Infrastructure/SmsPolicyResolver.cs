@@ -5,7 +5,7 @@ namespace BuildingFlow.Infrastructure;
 
 public sealed class SmsPolicyResolver(BuildingFlowDbContext db, ISmsPolicyCatalog catalog, ICommercialConsentStore consents) : ISmsPolicyResolver
 {
-    public async Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string phone, CancellationToken token)
+    public async Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string? phone, CancellationToken token)
     {
         var policy = catalog.Get(type.Category);
         if (policy.Footer == SmsFooterPolicy.NONE && !policy.RequiresCommercialConsent) return SmsResolution.Plain;
@@ -14,7 +14,7 @@ public sealed class SmsPolicyResolver(BuildingFlowDbContext db, ISmsPolicyCatalo
             .OrderBy(x => x.PropertyId == null).FirstOrDefaultAsync(token);
         if (sender is null) return SmsResolution.Blocked(SmsPolicyErrors.LegalSenderMissing);
         if (!SmsLegalFooter.CanOptOut(sender)) return SmsResolution.Blocked(SmsPolicyErrors.OptOutUnavailable, sender.Id);
-        if (policy.RequiresCommercialConsent)
+        if (policy.RequiresCommercialConsent && phone is not null)
         {
             var current = await consents.CurrentAsync(sender.Id, phone, token);
             if (current is null) return SmsResolution.Blocked(SmsPolicyErrors.CommercialConsentRequired, sender.Id);

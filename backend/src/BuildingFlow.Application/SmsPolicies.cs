@@ -59,7 +59,8 @@ public sealed record SmsResolution(bool Allowed, string? ErrorCode, string Foote
 // Decides per SMS whether it may be sent and which legal footer it carries; the Hub can later provide this behind the same contract.
 public interface ISmsPolicyResolver
 {
-    Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string phone, CancellationToken token);
+    // A null phone previews the sender and footer without a recipient's consent decision.
+    Task<SmsResolution> ResolveAsync(Guid property, SmsTypeDefinition type, string? phone, CancellationToken token);
 }
 
 public static class SmsPolicyErrors

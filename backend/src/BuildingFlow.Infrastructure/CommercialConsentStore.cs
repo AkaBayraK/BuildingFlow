@@ -57,6 +57,7 @@ public sealed class CommercialConsentStore(BuildingFlowDbContext db, TimeProvide
     private static string Fingerprint(CommercialConsentCommand c) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes("commercial-consent-v1:" +
         JsonSerializer.Serialize(new { c.SenderId, c.Recipient, c.RecipientVerified, Status = c.Status.ToString(), Source = c.Source.ToString(), c.OwnerUserId, c.PersonId, c.TextVersion, c.TextSha256 }))));
 
+    internal static CommercialConsentState Map(CommercialConsentRecord x) => Map(x, false);
     private static CommercialConsentState Map(CommercialConsentRecord x, bool replayed) => new(x.Id, x.SenderId, SmsText.MaskPhone(x.Recipient), x.Status.ToString(),
         x.Source.ToString(), x.OccurredAt, x.TextVersion, x.IysStatus.ToString(), replayed);
 }
