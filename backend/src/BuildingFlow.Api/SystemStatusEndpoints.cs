@@ -109,6 +109,9 @@ public sealed class SystemStatusService(IServiceScopeFactory scopes, IConfigurat
     {
         if (!configuration.GetValue("Telemetry:Enabled", false))
             return Task.FromResult(Component("otel-collector", "OpenTelemetry Collector", "INFRASTRUCTURE", "DISABLED", null, "Telemetri kapalı"));
+        // health_check eklentisi pipeline'lar ayağa kalkınca 200 döner; OTLP kökü yalnız yedek olarak herhangi bir yanıtı kabul eder.
+        if (configuration["SystemStatus:CollectorHealthUrl"] is { Length: > 0 } health)
+            return Http("otel-collector", "OpenTelemetry Collector", "INFRASTRUCTURE", health.TrimEnd('/') + "/", "Telemetri toplayıcı hazır", token);
         return Http("otel-collector", "OpenTelemetry Collector", "INFRASTRUCTURE", configuration["Telemetry:Endpoint"], "Telemetri toplayıcı yanıt veriyor", token, anyResponse: true);
     }
 

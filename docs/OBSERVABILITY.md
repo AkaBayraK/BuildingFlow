@@ -25,6 +25,7 @@ Yerel worker teslim kanalı yapılandırılmazsa mail göndermez; compose worker
 |http://localhost:19090|Prometheus query/targets|
 |http://localhost:13100/ready|Loki readiness; sorgular Grafana Explore'dan|
 |http://localhost:14318|Collector OTLP HTTP alıcısı; tarayıcı sayfası değildir|
+|http://localhost:13133|Collector `health_check` eklentisi; Sistem Durumu ekranı bunu okur (OTLP_HEALTH_PORT)|
 
 Portlar .env.example'daki OTLP_PORT/PROMETHEUS_PORT/LOKI_PORT ile override edilir; varsayılanlar bilgisayardaki TraceFlow3100'ü kullanmaz. Tüm yayınlanan portlar loopback. Collector/Prometheus/Loki kimliksiz iç servislerdir; internete açılmaz. API üzerinde anonim `/metrics` endpointi eklenmedi. Docker içi datasource adresleri container isimleri/standart portları kullanır.
 
@@ -39,6 +40,8 @@ OTLP log provider yalnız BuildingFlow.* kategorisini Information+ aktarır. Fra
 Trace ActivitySource `BuildingFlow.Operations`; manuel güvenli span'lar HTTP/outbox/consume. `Telemetry:ExportTraces=false` varsayılan; true olursa Collector debug/basic hedefine gönderilir. Tempo depolaması ve tam RabbitMQ traceparent propagation bu teslimde yok; uçtan uca trace deposu/dashboards varmış gibi gösterilmez. Log correlation çalışır. Yerel Loki7 gün retention, Prometheus7 gün; kalıcı volume'ları silmeyin.
 
 Geliştirmede `BUILDINGFLOW_TELEMETRY_ENABLED=false` aktarımı kapatır. `Telemetry:Endpoint` credential/query/path içermeyen OTLP HTTP base URI olmalı. API/Worker compose endpointi http://otel-collector:4318; host endpoint14318.
+
+Sistem Durumu ekranı Collector'ı `SystemStatus:CollectorHealthUrl` (compose: http://otel-collector:13133, yerel `scripts/dev.sh api`: http://localhost:13133) üzerinden denetler; ayar yoksa OTLP köküne herhangi bir HTTP yanıtı gelmesini yeterli sayar. Yerel API için Web/Loki/Prometheus/Grafana/Mailpit adresleri de `dev.sh` içinde localhost portlarıyla verilir, aksi halde bu bileşenler UNKNOWN görünür. Altyapı servisleri `restart: unless-stopped` ile Docker yeniden başlayınca kendiliğinden açılır. Proje klasörü taşınır/yeniden adlandırılırsa eski konteynerler eski bind-mount yolunu tutar ve açılamaz; `bash scripts/dev.sh infrastructure` sonrası gerekirse `docker compose --env-file .env -f deploy/docker-compose.yml up -d --force-recreate <servis>` ile yeniden oluşturun.
 
 ## Smoke testi
 

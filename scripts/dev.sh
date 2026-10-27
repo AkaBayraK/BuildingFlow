@@ -31,6 +31,12 @@ backend_env() {
   export ASPNETCORE_URLS="http://localhost:${API_PORT}"
   export Telemetry__Enabled="${BUILDINGFLOW_TELEMETRY_ENABLED:-true}"
   export Telemetry__Endpoint="http://localhost:${OTLP_PORT:-14318}"
+  export SystemStatus__CollectorHealthUrl="http://localhost:${OTLP_HEALTH_PORT:-13133}"
+  export SystemStatus__WebUrl="http://localhost:${WEB_PORT:-3003}"
+  export SystemStatus__LokiUrl="http://localhost:${LOKI_PORT:-13100}"
+  export SystemStatus__PrometheusUrl="http://localhost:${PROMETHEUS_PORT:-19090}"
+  export SystemStatus__GrafanaUrl="http://localhost:${GRAFANA_PORT:-3002}"
+  export SystemStatus__MailUrl="http://localhost:${MAILPIT_PORT:-8025}"
   unset Authentication__MetadataAddress
 }
 api_listeners() {

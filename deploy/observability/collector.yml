@@ -18,7 +18,11 @@ exporters:
     endpoint: http://loki:3100/otlp
   debug:
     verbosity: basic
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 service:
+  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp]
