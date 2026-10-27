@@ -1,10 +1,10 @@
 "use client";
-import Link from "next/link";
 import {useEffect,useMemo,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
-import {ArrowLeft,Printer} from "lucide-react";
+import {Printer} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
+import {BackButton} from "@/components/navigation/BackButton";
 import {Button} from "@/components/ui/button";
 import {DetailField} from "@/components/management/WorkspacePresentation";
 import {MessageBanner} from "@/components/feedback/MessageBanner";
@@ -22,7 +22,7 @@ export function ConsentDocumentPage({recordId}:{recordId:string}){
  useEffect(()=>{const c=new AbortController();setError("");if(manager)void api<unknown>(`/api/v1/consents/records/${recordId}`,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setData(readDocument(v,recordId));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));});return()=>c.abort();},[api,recordId,retry,locale,manager]);
  const parsed=useMemo(()=>data?parseMarkup(data.body):null,[data]);
  if(!manager)return <div className="py-10"><MessageBanner>{ui("aManagementRoleIsRequiredToViewPersonalInformation")}</MessageBanner></div>;
- const back=<Button asChild variant="outline"><Link href="/consents"><ArrowLeft/>{t("backToConsents")}</Link></Button>;
+ const back=<BackButton href="/consents" label={t("backToConsents")}/>;
  if(error)return <div className="space-y-4 py-8">{back}<MessageBanner action={<Button variant="view" onClick={()=>setRetry(n=>n+1)}>{ui("tryAgain")}</Button>}>{error}</MessageBanner></div>;
  if(!data||!parsed)return <p role="status" className="py-8">{ui("loading")}</p>;
  const r=data.record,intact=data.bodyIntact&&data.evidenceIntact;

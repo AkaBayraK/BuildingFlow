@@ -1727,3 +1727,9 @@ Senaryolar: IBAN mod-97 (TR, boşluk/küçük harf normalize, hatalı kontrol ba
 
 **Bu tur:** `tests/online-payments.test.mjs` **10/10**, web `npm test` **260/260**, `tsc --noEmit` geçti. Backend ayrı geçici PostgreSQL (`scripts/test-payments.py OnlinePayment`): entegrasyon **9/9**, unit **14/14**. Lisans `check-licenses.py` 329/329 PASS. `npm run build` başarısız: `features/account/contact-verification.ts` → `../../../../../shared/contact-verification.ts` Turbopack kökü dışında (iletişim doğrulama çalışması, bu fazın kapsamı dışında). Tarayıcıda gerçek API kabulü **çalıştırılmadı**. [Rapor](payment/08-web.md).
 
+
+## BAKIM — 27.10.2026 — Alt ekranlarda ortak Geri butonu
+
+Senaryolar: yönetim alanı altındaki modül ekranları (daireler, binalar, kişiler, aidat, tahsilat, gider, duyuru, belge, anket, sayaç, bakım, talep, web sitesi, rapor, SMS) "Yönetim alanına dön" ile `/properties/{id}`'ye; kişi detayı "Kişi listesine dön" ile kişi listesine döner. Kendi dönüşü olan alan detayı, bina detayı ve bina altı daireler ikinci buton almaz. Mevcut dönüşler (tüm alanlar, bina, açık rıza, merkezi kişi detayı "Kişilere dön", bağlam değiştir, bina değiştir) ortak ikonlu `components/navigation/BackButton` kullanır; metinler mevcut TR/EN anahtarlarından gelir.
+
+**Bu tur:** `tests/back-navigation.test.mjs` **4/4**, web `npm test` **270/270**, `tsc --noEmit` geçti, `npm run build` geçti. Tarayıcıda gerçek API ile görsel kabul **çalıştırılmadı**.

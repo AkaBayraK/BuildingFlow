@@ -3,9 +3,9 @@ import {formatDate} from "@/lib/format";
 import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
 import {useLocale,useTranslations} from "next-intl";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, ChevronLeft, MapPin, Pencil, Trash2, Users } from "lucide-react";
+import { Building2, MapPin, Pencil, Trash2, Users } from "lucide-react";
+import {BackButton} from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIdentity } from "@/auth/AuthGate";
@@ -30,7 +30,7 @@ export function PropertyDetail({id}:{id:string}) {
     return()=>controller.abort();
   },[api,id,revision]);
   const current=site?.id===id?site:null;
-  return <div className="py-10"><Button asChild variant="outline" size="sm" className="mb-6 -ml-3 text-muted-foreground"><Link href="/properties"><ChevronLeft className="size-4"/>{t("allProperties")}</Link></Button>
+  return <div className="py-10"><BackButton className="mb-6" href="/properties" label={t("allProperties")}/>
     <div className="mb-8 flex flex-wrap items-center justify-between gap-5"><div className="flex min-w-0 items-center gap-4"><span className="grid size-14 shrink-0 place-items-center rounded-2xl border border-blue-100 bg-blue-50 text-primary"><Building2 className="size-7"/></span><div className="min-w-0"><span className="text-[11px] font-bold tracking-[.18em] text-primary">{t("managementAREA")}</span><h1 className="mt-2 mb-0 text-3xl font-bold tracking-tight wrap-anywhere">{current?.name ?? t("propertyDetails")}</h1></div></div>{current && canManage && <div className="flex gap-2"><Button variant="edit" disabled={loading || !!error} onClick={()=>setEdit(true)}><Pencil className="size-4"/>{t("editProperty")}</Button><Button variant="danger" disabled={loading || !!error} aria-label={t("deleteProperty")} className="text-slate-500 hover:text-destructive" onClick={()=>setDeleting(true)}><Trash2 className="size-4"/></Button></div>}</div>
     {notice && <MessageBanner className="my-4 text-left" kind="success" announce={false}>{notice}</MessageBanner>}
     <section className="overflow-hidden rounded-2xl border bg-white shadow-sm"><div className="flex items-center justify-between border-b px-7 py-5"><h2 className="m-0 text-base font-semibold">{t("generalInformation")}</h2>{current && <div className="flex gap-2"><span className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-semibold text-primary">{t(propertyTypeNames[current.type])}</span><StatusBadge enabled={current.isEnabled}/></div>}</div>

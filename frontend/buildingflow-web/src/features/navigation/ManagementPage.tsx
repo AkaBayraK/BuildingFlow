@@ -8,10 +8,11 @@ import {HierarchyRows} from "@/features/hierarchy/HierarchyRows";
 import {useRows,useSearch} from "@/features/people/useRows";
 import {RecordList} from "@/components/management/RecordList";
 import {Input} from "@/components/ui/input";
+import {BackButton} from "@/components/navigation/BackButton";
 import {Button} from "@/components/ui/button";
 import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {Skeleton} from "@/components/ui/skeleton";
-import {Building2,DoorOpen,Layers,MapPin,ChevronLeft,ArrowUpRight} from "lucide-react";
+import {Building2,DoorOpen,Layers,MapPin,ArrowUpRight} from "lucide-react";
 import {WorkspaceHeading,SummaryCard} from "@/components/management/WorkspacePresentation";
 import type {UnitFilter} from "@/features/people/unit-links";
 import {formatNumber} from "@/lib/format";
@@ -23,7 +24,7 @@ export function ManagementPage({section,buildingId,unitFilter}:{section:"buildin
  if(!scope.property)return <div className="py-10" role="status"><span className="sr-only">{t("loading")}</span><Skeleton className="h-24"/></div>;
  if(section==="buildings"&&scope.property.type==="APARTMENT")return <div className="py-10"><MessageBanner kind="info" action={<Button asChild><Link href={`/properties/${scope.propertyId}/units`}>{t("openApartments")}</Link></Button>}>{t("apartmentHasDirectUnits")}</MessageBanner></div>;
  return <div className="py-8">{section==="units"?<>
- <WorkspaceHeading title={title} description={t("unitsPageDescription")} scope={`${scope.property.name}${building?` / ${building.name}`:""}`} icon={DoorOpen} action={buildingId?<Button asChild variant="outline"><Link href={`/properties/${scope.propertyId}/units`}><ChevronLeft/>{t("changeBuilding")}</Link></Button>:undefined}/>
+ <WorkspaceHeading title={title} description={t("unitsPageDescription")} scope={`${scope.property.name}${building?` / ${building.name}`:""}`} icon={DoorOpen} action={buildingId?<BackButton href={`/properties/${scope.propertyId}/units`} label={t("changeBuilding")}/>:undefined}/>
  <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
  <SummaryCard title={building?m("selectedUnits"):t("numberOfUnits")} value={buildingId&&!building?"—":formatNumber(building?.unitCount??scope.property.unitCount,locale)} note={building?m("selectedBuildingUnits"):m("selectedPropertyUnits")} icon={DoorOpen}/>
  <SummaryCard title={t("numberOfFloors")} value={(building?.floorCount??(scope.property.type==="APARTMENT"?scope.property.floorCount:null))==null?"—":formatNumber((building?.floorCount??scope.property.floorCount)!,locale)} note={building||scope.property.type==="APARTMENT"?m("floorMetadata"):m("selectBuildingForFloors")} icon={Layers}/>
