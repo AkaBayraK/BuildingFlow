@@ -99,12 +99,12 @@ public sealed class PersonCenterStore(BuildingFlowDbContext db,ManagementAccess 
         await using var tx=await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token);
         var tenants=access.PersonTenants().Where(t=>q.TenantId==null || t.Id==q.TenantId);var scopes=access.PropertyScopes().Where(s=>q.PropertyId==null || s.PropertyId==q.PropertyId);var today=Today;
         var rows=db.Set<CentralPerson>().AsNoTracking().Where(p=>tenants.Any(t=>t.Id==p.TenantId));
+        var owners=db.Set<UnitOwnership>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
+        var tenancies=db.Set<UnitTenancy>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
+        var residents=db.Set<UnitResidency>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
         if(q.PropertyId!=null || q.Relation!=null)
         {
             // EXISTS keeps one row per person however many units or capacities match.
-            var owners=db.Set<UnitOwnership>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
-            var tenancies=db.Set<UnitTenancy>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
-            var residents=db.Set<UnitResidency>().Where(r=>r.IsEnabled && r.VerificationStatus!=RelationVerificationStatus.REJECTED && r.StartDate<=today && (r.EndDate==null || r.EndDate>=today) && scopes.Any(s=>s.TenantId==r.TenantId && s.PropertyId==r.PropertyId));
             bool owner=q.Relation is null or "OWNER",tenant=q.Relation is null or "TENANT",resident=q.Relation is null or "RESIDENT",duty=q.Relation==null;
             rows=rows.Where(p=>owner && owners.Any(r=>r.TenantId==p.TenantId && r.PersonId==p.Id) || tenant && tenancies.Any(r=>r.TenantId==p.TenantId && r.PersonId==p.Id) || resident && residents.Any(r=>r.TenantId==p.TenantId && r.PersonId==p.Id) ||
                 duty && db.Set<ManagementAssignment>().Any(a=>a.TenantId==p.TenantId && a.PersonId==p.Id && a.IsEnabled && a.CancelledAt==null && (a.EndDate==null || a.EndDate>=today) && scopes.Any(s=>s.TenantId==a.TenantId && s.PropertyId==a.PropertyId)));
@@ -113,9 +113,23 @@ public sealed class PersonCenterStore(BuildingFlowDbContext db,ManagementAccess 
         var count=await rows.CountAsync(token);var desc=q.SortDirection=="desc";
         var sorted=q.SortBy=="createdAt"?(desc?rows.OrderByDescending(p=>p.CreatedAt):rows.OrderBy(p=>p.CreatedAt)):(desc?rows.OrderByDescending(p=>p.LastName).ThenByDescending(p=>p.FirstName):rows.OrderBy(p=>p.LastName).ThenBy(p=>p.FirstName));
         var page=await (from p in sorted.ThenBy(p=>p.Id).Skip((q.Page-1)*q.PageSize).Take(q.PageSize) join t in db.Set<PersonTenant>() on p.TenantId equals t.Id select new{p.Id,p.TenantId,Tenant=t.Name,Name=(p.FirstName+" "+p.LastName).Trim(),p.Kind,p.IdentityNumber,p.IsEnabled,p.Version,p.CreatedAt}).ToArrayAsync(token);
-        var photos=await PhotosAsync(page.Select(p=>p.Id).ToArray(),token);
+        var ids=page.Select(p=>p.Id).ToArray();var photos=await PhotosAsync(ids,token);
+        var units=await UnitSummariesAsync(ids,owners,tenancies,residents,token);
         await tx.CommitAsync(token);
-        return new(page.Select(p=>new PersonDirectoryRow(p.Id,p.TenantId,p.Tenant,p.Name,p.Kind,Mask(p.IdentityNumber),p.IsEnabled,p.Version,p.CreatedAt,photos.TryGetValue(p.Id,out var photo)?photo:null)).ToArray(),q.Page,q.PageSize,count);
+        return new(page.Select(p=>{var own=units.TryGetValue(p.Id,out var list)?list:[];return new PersonDirectoryRow(p.Id,p.TenantId,p.Tenant,p.Name,p.Kind,Mask(p.IdentityNumber),p.IsEnabled,p.Version,p.CreatedAt,photos.TryGetValue(p.Id,out var photo)?photo:null,own.Take(DirectoryUnitLimit).ToArray(),own.Length);}).ToArray(),q.Page,q.PageSize,count);
+    }
+    private const int DirectoryUnitLimit=5;
+    // Four fixed queries per page; the caller's scoped relation sets keep the summary inside authorized areas.
+    private async Task<Dictionary<Guid,DirectoryUnitSummary[]>> UnitSummariesAsync(Guid[] ids,IQueryable<UnitOwnership> owners,IQueryable<UnitTenancy> tenancies,IQueryable<UnitResidency> residents,CancellationToken token)
+    {
+        var links=(await owners.Where(r=>ids.Contains(r.PersonId)).Select(r=>new{r.PersonId,r.UnitId,Kind="OWNER"}).AsNoTracking().ToArrayAsync(token))
+            .Concat(await tenancies.Where(r=>ids.Contains(r.PersonId)).Select(r=>new{r.PersonId,r.UnitId,Kind="TENANT"}).AsNoTracking().ToArrayAsync(token))
+            .Concat(await residents.Where(r=>ids.Contains(r.PersonId)).Select(r=>new{r.PersonId,r.UnitId,Kind="RESIDENT"}).AsNoTracking().ToArrayAsync(token)).ToArray();
+        var unitIds=links.Select(l=>l.UnitId).Distinct().ToArray();
+        var names=(await (from u in db.Units.AsNoTracking() where unitIds.Contains(u.Id) join p in db.Properties.AsNoTracking() on u.PropertyId equals p.Id select new{u.Id,u.Number,u.PropertyId,PropertyName=p.Name}).ToArrayAsync(token)).ToDictionary(n=>n.Id);
+        string[] order=["OWNER","TENANT","RESIDENT"];
+        return links.Where(l=>names.ContainsKey(l.UnitId)).GroupBy(l=>l.PersonId).ToDictionary(g=>g.Key,g=>g.GroupBy(l=>l.UnitId).Select(u=>{var n=names[u.Key];return new DirectoryUnitSummary(n.PropertyId,n.PropertyName,u.Key,n.Number,u.Select(l=>l.Kind).Distinct().OrderBy(k=>Array.IndexOf(order,k)).ToArray());})
+            .OrderBy(u=>u.PropertyName,StringComparer.CurrentCulture).ThenBy(u=>u.UnitNumber.Length).ThenBy(u=>u.UnitNumber,StringComparer.CurrentCulture).ToArray());
     }
     public async Task<string?> PhotoAccountAsync(Guid tenant,Guid person,CancellationToken token)=>
         await PersonAllowed(tenant,person,token) && (await PhotoAccountsAsync([person],token)).TryGetValue(person,out var user)?user:null;

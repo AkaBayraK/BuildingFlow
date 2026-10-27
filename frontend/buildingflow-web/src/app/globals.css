@@ -725,7 +725,6 @@ a.dashboard-next-item:hover{border-color:var(--action-view-border);background:va
 .workspace-sidebar .sidebar-tree-items a,.workspace-mobile-menu .sidebar-tree-items a,.sidebar-tree-items .sidebar-planned{min-height:44px;padding:8px 10px;font-size:var(--shell-menu-font-size);border-radius:10px;gap:10px;}
 .workspace-sidebar .sidebar-tree-items a>svg,.workspace-mobile-menu .sidebar-tree-items a>svg,.sidebar-tree-items .sidebar-planned>svg{width:17px;height:17px;}
 .workspace-sidebar .sidebar-tree-items a.active,.workspace-mobile-menu .sidebar-tree-items a.active{background:#88bff31a;box-shadow:none;}
-.sidebar-direct-properties a::after,.sidebar-direct-people a::after,.sidebar-direct-reports a::after,.sidebar-direct-website a::after{content:"›";font-size:19px;margin-left:auto;font-weight:400;}
 .workspace-sidebar .sidebar-end,.workspace-mobile-menu .sidebar-end{margin-top:10px;padding-top:8px;border-top:1px solid #98bde51a;}
 .navigation-footer{margin-top:8px;padding-top:12px;border-top:1px solid #99c6eb26;}
 .navigation-footer .workspace-profile{min-height:64px;padding:10px;border:1px solid #87bdeb24;border-radius:16px;background:linear-gradient(110deg,#143857,#17344f);box-shadow:inset 0 1px 0 #d6edff09;}
@@ -735,7 +734,6 @@ a.dashboard-next-item:hover{border-color:var(--action-view-border);background:va
 .shell-collapsed .workspace-sidebar .sidebar-search-trigger{justify-content:center;padding:10px;}
 .shell-collapsed .workspace-sidebar .sidebar-search-trigger>span,.shell-collapsed .workspace-sidebar .sidebar-search-trigger kbd,.shell-collapsed .workspace-sidebar .sidebar-tree-toggle{display:none;}
 .shell-collapsed .workspace-sidebar .sidebar-tree-items{margin:0;padding:0;border:0;}.shell-collapsed .workspace-sidebar .sidebar-tree-group.is-open{background:transparent;}
-.shell-collapsed .workspace-sidebar .sidebar-primary a::after{display:none;}
 .shell-collapsed .workspace-sidebar .sidebar-group+.sidebar-group{margin-top:0;padding-top:0;border:0;}
 .shell-collapsed .workspace-sidebar .navigation-footer .workspace-profile{padding:6px;justify-content:center;}
 [data-slot="dialog-content"].workspace-mobile-menu{border-radius:0 24px 24px 0;border:1px solid #0b83b177;box-shadow:inset 2px 0 12px #02b9fa2b;}

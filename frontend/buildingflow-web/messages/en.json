@@ -2483,7 +2483,10 @@
     "regenerateCode": "Create new code",
     "endLink": "End account link",
     "endLinkHelp": "The person's owner/tenant/resident contexts and app access close immediately. History is kept.",
-    "linkEnded": "Account link ended."
+    "linkEnded": "Account link ended.",
+    "activeUnits": "Active units",
+    "noActiveUnits": "No active unit relation",
+    "moreUnits": "+{count} more units"
   },
   "sessionWorkspaces": {
     "scope": "Session",

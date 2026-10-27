@@ -2483,7 +2483,10 @@
     "regenerateCode": "Yeni kod oluştur",
     "endLink": "Hesap bağını sonlandır",
     "endLinkHelp": "Kişinin malik/kiracı/sakin bağlamları ve uygulama erişimi hemen kapanır. Geçmiş kayıt korunur.",
-    "linkEnded": "Hesap bağı sonlandırıldı."
+    "linkEnded": "Hesap bağı sonlandırıldı.",
+    "activeUnits": "Aktif bağımsız bölümler",
+    "noActiveUnits": "Aktif bölüm ilişkisi yok",
+    "moreUnits": "+{count} bölüm daha"
   },
   "sessionWorkspaces": {
     "scope": "Oturum",

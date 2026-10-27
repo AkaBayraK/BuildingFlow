@@ -5,7 +5,7 @@ const D5='d1111111-1111-4111-8111-111111111111',D12='d2222222-2222-4222-8222-222
 const L5='e1111111-1111-4111-8111-111111111111',L12='e2222222-2222-4222-8222-222222222222',L7='e3333333-3333-4333-8333-333333333333';
 const id=(n:number)=>`f0000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const page=(items:unknown[])=>({items,page:1,pageSize:20,totalCount:items.length});
-const row=(i:string,tenantId:string,tenantName:string,name:string,mask:string)=>({id:i,tenantId,tenantName,displayName:name,kind:'NATURAL',maskedIdentity:mask,isEnabled:true,version:1,createdAt:'2026-10-20T10:00:00Z'});
+const row=(i:string,tenantId:string,tenantName:string,name:string,mask:string)=>({id:i,tenantId,tenantName,displayName:name,kind:'NATURAL',maskedIdentity:mask,isEnabled:true,version:1,createdAt:'2026-10-20T10:00:00Z',units:[],unitCount:0});
 const people=[row(AHMET,T,'Örnek Müşteri A','Ahmet Örnek','*******8901'),row(MEHMET,T,'Örnek Müşteri A','Mehmet Örnek','*******4321'),row(id(3),T2,'Örnek Müşteri B','Ayşe Deneme','*******5555')];
 const lease=(contractId:string,startDate:string,endDate:string|null)=>({contractId,startDate,endDate,contractReference:null,verificationStatus:'VERIFIED'});
 const rel=(relationId:string,kind:string,startDate:string,verificationStatus='VERIFIED',l:unknown=null)=>({relationId,kind,startDate,endDate:null,verificationStatus,lease:l});

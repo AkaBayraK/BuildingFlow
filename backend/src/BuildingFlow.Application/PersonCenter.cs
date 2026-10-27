@@ -8,7 +8,8 @@ public sealed record PersonUnitChoice(Guid Id,string Name,Guid? BuildingId=null)
 public sealed record PersonBuildingChoice(Guid Id,string Name);
 public sealed record PersonUnitRelationRow(Guid Id,Guid TenantId,Guid PropertyId,string PropertyName,Guid UnitId,string UnitNumber,Guid PersonId,string Kind,DateOnly StartDate,DateOnly? EndDate,bool IsPrimaryContact,string? ShareNumerator,string? ShareDenominator,long Version,string Status,bool CanEnd,string VerificationStatus="LEGACY",Guid? LeaseContractId=null);
 public sealed record PersonUnitRelationMutation(PersonUnitRelationRow Record,bool Replayed,long AppliedVersion);
-public sealed record PersonDirectoryRow(Guid Id,Guid TenantId,string TenantName,string DisplayName,string Kind,string MaskedIdentity,bool IsEnabled,long Version,DateTimeOffset CreatedAt,Guid? PhotoId=null);
+public sealed record DirectoryUnitSummary(Guid PropertyId,string PropertyName,Guid UnitId,string UnitNumber,string[] Capacities);
+public sealed record PersonDirectoryRow(Guid Id,Guid TenantId,string TenantName,string DisplayName,string Kind,string MaskedIdentity,bool IsEnabled,long Version,DateTimeOffset CreatedAt,Guid? PhotoId=null,IReadOnlyList<DirectoryUnitSummary>? Units=null,int UnitCount=0);
 public sealed record PersonDirectoryQuery(int Page=1,int PageSize=20,string? Search=null,string SortBy="name",string SortDirection="asc",Guid? TenantId=null,Guid? PropertyId=null,string? Relation=null);
 public sealed record PersonPortfolioView(Guid TenantId,Guid PersonId,DateOnly AsOf,IReadOnlyList<PortfolioProperty> Properties);
 public sealed record PersonDutyRow(ManagementAssignmentRow Assignment,string PropertyName,bool CanManage);

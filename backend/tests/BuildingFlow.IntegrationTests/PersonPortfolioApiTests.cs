@@ -92,6 +92,17 @@ public sealed class PersonPortfolioApiTests(SiteApiTests.SiteApiFactory factory)
         foreach(var url in new[]{"/api/v2/people?pageSize=101","/api/v2/people?sortBy=identity","/api/v2/people?relation=MANAGER","/api/v2/people?search="+new string('a',201)})Assert.Equal(HttpStatusCode.BadRequest,(await manager.GetAsync(url)).StatusCode);
         foreach(var role in new[]{"OWNER","TENANT","RESIDENT","ACCOUNTANT"}){using var denied=Client(w.User,role);Assert.Equal(HttpStatusCode.Forbidden,(await denied.GetAsync("/api/v2/people")).StatusCode);}
     }
+    [PostgresFact]public async Task DirectoryRowsSummarizeActiveScopedUnitsWithCapacities()
+    {
+        var w=await Seed();await Relations(w);using var manager=Client(w.User);
+        var rows=(await Ok<PagedRows<PersonDirectoryRow>>(await manager.GetAsync($"/api/v2/people?tenantId={w.Tenant}&search={w.Token}"))).Items.ToDictionary(r=>r.Id);
+        var ahmet=rows[w.Ahmet];Assert.Equal(4,ahmet.UnitCount);Assert.Equal(new[]{w.D3,w.D7,w.D5,w.D12},ahmet.Units!.Select(u=>u.UnitId));
+        Assert.Equal(new[]{"OWNER","RESIDENT"},ahmet.Units!.Single(u=>u.UnitId==w.D3).Capacities);Assert.Equal(new[]{"TENANT"},ahmet.Units!.Single(u=>u.UnitId==w.D7).Capacities);
+        Assert.Equal(new[]{"TENANT","RESIDENT"},ahmet.Units!.Single(u=>u.UnitId==w.D12).Capacities);Assert.All(ahmet.Units!.Where(u=>u.PropertyId==w.Site),u=>Assert.StartsWith("Örnek Sitesi",u.PropertyName));
+        var mehmet=rows[w.Mehmet];Assert.Equal(w.D5,Assert.Single(mehmet.Units!).UnitId);Assert.Equal(new[]{"TENANT","RESIDENT"},mehmet.Units![0].Capacities);
+        var scoped=(await Ok<PagedRows<PersonDirectoryRow>>(await manager.GetAsync($"/api/v2/people?propertyId={w.Site}&search=Ahmet {w.Token}"))).Items.Single();
+        Assert.Equal(2,scoped.UnitCount);Assert.All(scoped.Units!,u=>Assert.Equal(w.Site,u.PropertyId));
+    }
     [PostgresFact]public async Task DependentChoicesFollowAreaBuildingUnitAndRejectForeignBuildings()
     {
         var w=await Seed();var other=await Seed();using var c=Client(w.User);var root=$"/api/v2/tenants/{w.Tenant}/properties";
