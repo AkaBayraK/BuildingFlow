@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {propertySubpageBack} from '../src/features/navigation/back-target.ts';
 const p='9b962f3e-8812-459f-a42f-45ec6e3c6eba',x='24d39d57-021b-4705-87d3-98a091c95f23';
-test('property module screens return to the management area',()=>{
- for(const s of ['units','buildings','people','dues','payments','expenses','announcements','documents','surveys','meters','maintenance','requests','website','reports','sms'])assert.deepEqual(propertySubpageBack(`/properties/${p}/${s}`),{href:`/properties/${p}`,label:'backToProperty2'},s);
+test('module screens return to the first screen of their menu',()=>{
+ for(const s of ['units','people','dues','payments','expenses','announcements','documents','surveys','meters','maintenance','requests','website','reports','sms','common-areas','parking'])assert.deepEqual(propertySubpageBack(`/properties/${p}/${s}`),{href:`/${s}`,label:'back'},s);
+});
+test('screens without a module list return to the management area',()=>{
+ assert.deepEqual(propertySubpageBack(`/properties/${p}/buildings`),{href:`/properties/${p}`,label:'back'});
 });
 test('person detail returns to the people list',()=>{
  assert.deepEqual(propertySubpageBack(`/properties/${p}/people/${x}`),{href:`/properties/${p}/people`,label:'backToPeople'});
@@ -20,6 +23,6 @@ test('back controls share the icon BackButton and its translations',()=>{
  assert.doesNotMatch(center,/variant="link"><Link href=\{`\/people\/\$\{tenant\}`\}>/,'people link is no longer a bare text link');
  assert.match(readFileSync('src/app/(workspace)/properties/[id]/layout.tsx','utf8'),/<PropertySubpageBack\/>/);
  const tr=JSON.parse(readFileSync('messages/tr.json','utf8')),en=JSON.parse(readFileSync('messages/en.json','utf8'));
- for(const k of ['backToProperty2','backToPeople'])assert.ok(tr.ui[k]&&en.ui[k],k);
+ for(const k of ['back','backToPeople'])assert.ok(tr.ui[k]&&en.ui[k],k);
  assert.ok(tr.personCenter.back&&en.personCenter.back);
 });
