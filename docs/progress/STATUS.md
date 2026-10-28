@@ -1,3 +1,7 @@
+## QA FAZ 12 — Kalite kapısı ve GitHub otomasyonu — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#108.** `scripts/qa_github.py` gate/bugs/close-phase (varsayılan dry-run, kanıtsız kategori INCOMPLETE, yalnız PASS kapatır), manuel `qa-gate.yml`; fixture 15/15. Gerçek rapor: RED (regresyon 2 FAIL #87, güvenlik 1 SKIPPED, finans 176 PASS, performans kanıt yok). Rapor `qa-center/reports/phase-12.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 11 — Kanıt ve raporlama — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#107.** `scripts/qa_report.py`: web/kimlik/TRX kanıtlarını JSON/MD/CSV/HTML/PDF'e birleştirir, tekrar koşum önceliği, geçmiş karşılaştırma, issue bağlantısı; fixture 7/7. Gerçek konsolide rapor 1082 kalem PASS1068/FAIL2(#87)/SKIPPED12; web karşılaştırması düzelen 4. Video BLOKE (ffmpeg yok), trace korelasyonu kısmi. Rapor `qa-center/reports/phase-11.md`. Token: BİLGİ MEVCUT DEĞİL.

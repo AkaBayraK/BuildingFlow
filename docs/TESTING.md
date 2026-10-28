@@ -1,3 +1,7 @@
+## QA-12 — Kalite kapısı — 28.10.2026 — TEKNİK TESLİM
+
+`test_qa_github.py` 15/15 (gh kayıtçı, ağ yok). Gerçek konsolide rapor kapısı RED/çıkış 1; bugs ve close-phase dry-run. qa-gate.yml GitHub'da çalıştırılmadı.
+
 ## QA-11 — Kanıt raporu — 28.10.2026 — TEKNİK TESLİM
 
 `test_qa_report.py` 7/7. `qa_report.py` gerçek koşumlar: konsolide 1082 kalem PASS1068/FAIL2/SKIPPED12, PDF 8 sayfa; ParkingMigration/QaCenterMigration/QaDataMigration TRX tekrar 5/5.
