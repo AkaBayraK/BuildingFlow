@@ -49,6 +49,10 @@ export const errorCodes = {
   "BF_PAYMENT_ONLINE_CANCEL":{"status":409,"severity":"warning","parameters":[]},
   "BF_PAYMENT_REVIEW_UNALLOCATABLE":{"status":409,"severity":"warning","parameters":[]},
   "BF_PAYMENT_RECONCILIATION_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_RUN_ACTIVE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_RUN_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_REQUEST_REUSED":{"status":409,"severity":"error","parameters":[]},
+  "BF_QA_RETRY_LIMIT":{"status":409,"severity":"warning","parameters":[]},
 
   "BF_INQUIRY_REJECTED": {"status":400,"severity":"error","parameters":[]},
   "BF_INQUIRY_UNAVAILABLE": {"status":409,"severity":"warning","parameters":[]},

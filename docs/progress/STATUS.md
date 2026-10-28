@@ -1,3 +1,7 @@
+## QA FAZ 03 — Test Merkezi UI ve orkestrasyon — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#84.** QaRun/QaRunStep + `QaCenterRuns` migration (Down guard), SUPER_ADMIN `CanManageQaCenter`, `QaCenter:Enabled` varsayılan kapalı/Production yasak, sıralı runner (timeout, iptal, INTERRUPTED), 3 salt okunur senaryo, 4 hata kodu; web `/system-settings/qa-center` ikonlu sekmeler, başlat/durdur/yeniden dene, polling izleme. **Integration31/31+Unit156/156 (guard GEÇTİ), web300/300+typecheck+build, lisans329 PASS.** Migration yerel DB'ye uygulanmadı; canlı UI/responsive kanıtı BLOKE (onay bekliyor). Rapor `qa-center/reports/phase-03.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 02 — Ekran/API keşfi ve test matrisi — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#82, bulgular #83.** Çalışma zamanı endpoint dökümü (`QaEndpointInventoryTests`, public prefix dışında işaretsiz route FAIL) ve `scripts/qa_inventory.py`: **API398 (yetkili385/anonim5/public8), web55 sayfa, mobil9 ekran, tablo108; web tam eşleşme131, mobil20, tüketicisiz12.** Testler: envanter1/1, eşleştirici11/11, deterministik çıktı; lisans329 PASS. Mobil ekran içi rol dalları kısmi (FAZ07). Yeni paket/migration yok; push yok. Rapor `qa-center/reports/phase-02.md`. Token: BİLGİ MEVCUT DEĞİL.

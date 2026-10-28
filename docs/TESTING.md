@@ -1,3 +1,7 @@
+## QA-03 — Test Merkezi orkestrasyonu — 28.10.2026 — TEKNİK TESLİM
+
+`bash scripts/test.sh --filter QaCenter|QaRunTests|QaEndpointInventoryTests|ErrorContract|PersistenceTests|MigrationTests|AutoMigrationTests|DomainTests`: guard GEÇTİ, Integration 31/31, Unit 156/156, atlanan 0. Kapsam: SUPER_ADMIN dışı 401/403, kapalıyken 404, UUID replay/başka senaryo 409, bilinmeyen senaryo 404, aktif koşum 409, stale version 409, iptal, timeout→retry (attempt 2), başarısız adım, sayfa/durum filtresi 400, migration upgrade/tekrar/audit kolonları/unique/check/Down guard. Web `npm test` 300/300, typecheck, build. Canlı tarayıcı responsive/erişilebilirlik kontrolü çalıştırılmadı (BLOKE).
+
 ## QA-02 — Ekran/API envanteri — 28.10.2026 — TEKNİK TESLİM
 
 `dotnet test backend/tests/BuildingFlow.IntegrationTests --filter QaEndpointInventoryTests` 1/1 PASS (398 endpoint; ilk koşum 8 işaretsiz public route ile FAIL, public prefix sınıflandırmasıyla düzeltildi). `python3 scripts/test_qa_inventory.py` 11/11 PASS; `qa_inventory.py` iki çalıştırma byte-aynı. `check-licenses.py` 329 PASS. Tam regresyon bu tur çalıştırılmadı.

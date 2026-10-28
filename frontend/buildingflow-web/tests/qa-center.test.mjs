@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {canRetry,isActive,qaPlannedTabs,qaRunStatuses,qaStepStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey} from '../src/features/qa-center/model.ts';
+import {qaPlannedIcon,qaRunStatusIcon,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from '../src/features/qa-center/qa-style.ts';
+import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
+const tr=JSON.parse(readFileSync(new URL('../messages/tr.json',import.meta.url))).qaCenter;
+const en=JSON.parse(readFileSync(new URL('../messages/en.json',import.meta.url))).qaCenter;
+const run={id:'11111111-1111-4111-8111-111111111111',code:'qa-20261028T173000Z-abcdef',scenarioKey:'db.migrations',status:'FAILED',attempt:1,retryOfId:null,cancelRequested:false,
+ queuedAt:'2026-10-28T17:30:00Z',startedAt:'2026-10-28T17:30:01Z',finishedAt:'2026-10-28T17:30:02Z',resultCode:'STEP_FAILED',passedSteps:1,failedSteps:1,timeoutSeconds:60,version:3};
+
+test('QA run parsers accept the API contract and reject unknown statuses',()=>{
+ assert.deepEqual(readRun(run),run);
+ assert.throws(()=>readRun({...run,status:'DONE'}));
+ assert.throws(()=>readRun({...run,version:-1}));
+ const detail=readDetail({run,steps:[{sequence:1,stepKey:'database.connect',status:'PASSED',expected:'true',actual:'true',durationMs:4}]});
+ assert.equal(detail.steps[0].status,'PASSED');
+ assert.throws(()=>readDetail({run,steps:[{sequence:1,stepKey:'x',status:'BROKEN',expected:'a',actual:'b',durationMs:1}]}));
+ assert.equal(readPage({items:[run],total:1,page:1,pageSize:10}).items.length,1);
+ assert.deepEqual(readScenarios([{key:'db.migrations',timeoutSeconds:60,access:'READ_ONLY'}]),[{key:'db.migrations',timeoutSeconds:60,access:'READ_ONLY'}]);
+ const overview=readOverview({environment:'Development',scenarioCount:3,endpointCount:405,activeRuns:0,runCounts:{PASSED:2},lastRun:null});
+ assert.equal(overview.runCounts.PASSED,2);assert.equal(overview.runCounts.FAILED,0);
+});
+
+test('run actions follow the backend state machine and retry limit',()=>{
+ assert.equal(isActive({...run,status:'QUEUED'}),true);assert.equal(isActive({...run,status:'RUNNING'}),true);assert.equal(isActive(run),false);
+ for(const status of ['FAILED','CANCELLED','TIMED_OUT'])assert.equal(canRetry({...run,status}),true);
+ for(const status of ['QUEUED','RUNNING','PASSED'])assert.equal(canRetry({...run,status}),false);
+ assert.equal(canRetry({...run,attempt:5}),false);
+ assert.equal(runsQuery(2,'ALL'),'/api/v1/qa-center/runs?page=2&pageSize=10');
+ assert.equal(runsQuery(1,'TIMED_OUT'),'/api/v1/qa-center/runs?page=1&pageSize=10&status=TIMED_OUT');
+});
+
+test('every tab, status and scenario has an icon and TR/EN text',()=>{
+ assert.deepEqual(Object.keys(tr).sort(),Object.keys(en).sort());
+ for(const tab of qaTabs){assert.ok(qaTabIcon[tab]);assert.ok(tr[`tab_${tab}`]);}
+ for(const [tab,phase] of qaPlannedTabs){assert.ok(qaPlannedIcon[tab]);assert.ok(tr[`tab_${tab}`]);assert.match(phase,/^\d{2}$/);}
+ for(const status of qaRunStatuses){assert.ok(qaRunStatusIcon[status]);assert.ok(tr[`status_${status}`]);assert.ok(en[`status_${status}`]);}
+ for(const status of qaStepStatuses){assert.ok(qaStepStatusIcon[status]);assert.ok(tr[`step_${status}`]);}
+ for(const key of ['system.health','api.authorization','db.migrations']){assert.ok(qaScenarioIcon[key]);assert.ok(tr[scenarioMessageKey(key)]);assert.ok(en[scenarioMessageKey(key)+'_hint']);}
+});
+
+test('QA centre route is a safe OIDC return path',()=>{
+ assert.equal(isWorkspaceReturnPath('/system-settings/qa-center'),true);
+ assert.equal(isWorkspaceReturnPath('/system-settings'),true);
+ for(const path of ['/system-settings/qa-center/x','/system-settings/qa-center?token=x'])assert.equal(isWorkspaceReturnPath(path),false);
+});

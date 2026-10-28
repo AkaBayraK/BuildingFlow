@@ -1,0 +1,51 @@
+export const qaCenterPath="/api/v1/qa-center";
+export const qaCenterHref="/system-settings/qa-center";
+export const qaCenterRoles=["SUPER_ADMIN"] as const;
+export const qaRunStatuses=["QUEUED","RUNNING","PASSED","FAILED","CANCELLED","TIMED_OUT"] as const;
+export const qaStepStatuses=["PASSED","FAILED","SKIPPED"] as const;
+export const qaTabs=["overview","inventory","scenarios","runs","live"] as const;
+export const qaPlannedTabs=[["assistant","09"],["data","10"],["results","11"],["defects","12"],["cleanup","10"],["settings","12"]] as const;
+export type QaRunStatus=typeof qaRunStatuses[number];
+export type QaStepStatus=typeof qaStepStatuses[number];
+export type QaTab=typeof qaTabs[number];
+export type QaScenario={key:string;timeoutSeconds:number;access:string};
+export type QaRun={id:string;code:string;scenarioKey:string;status:QaRunStatus;attempt:number;retryOfId:string|null;cancelRequested:boolean;queuedAt:string;startedAt:string|null;finishedAt:string|null;resultCode:string|null;passedSteps:number;failedSteps:number;timeoutSeconds:number;version:number};
+export type QaStep={sequence:number;stepKey:string;status:QaStepStatus;expected:string;actual:string;durationMs:number};
+export type QaRunDetail={run:QaRun;steps:QaStep[]};
+export type QaRunPage={items:QaRun[];total:number;page:number;pageSize:number};
+export type QaOverview={environment:string;scenarioCount:number;endpointCount:number;activeRuns:number;runCounts:Record<QaRunStatus,number>;lastRun:QaRun|null};
+
+type Value=Record<string,unknown>;
+const object=(value:unknown):Value=>{if(!value||typeof value!=="object"||Array.isArray(value))throw new Error("Invalid QA response");return value as Value;};
+const text=(value:unknown)=>{if(typeof value!=="string")throw new Error("Invalid QA response");return value;};
+const optionalText=(value:unknown)=>value===null||value===undefined?null:text(value);
+const count=(value:unknown)=>{if(typeof value!=="number"||!Number.isInteger(value)||value<0)throw new Error("Invalid QA response");return value;};
+const member=<T extends string>(values:readonly T[],value:unknown):T=>{if(!values.includes(value as T))throw new Error("Invalid QA response");return value as T;};
+
+export function readRun(value:unknown):QaRun{
+ const v=object(value);
+ return {id:text(v.id),code:text(v.code),scenarioKey:text(v.scenarioKey),status:member(qaRunStatuses,v.status),attempt:count(v.attempt),retryOfId:optionalText(v.retryOfId),
+  cancelRequested:v.cancelRequested===true,queuedAt:text(v.queuedAt),startedAt:optionalText(v.startedAt),finishedAt:optionalText(v.finishedAt),resultCode:optionalText(v.resultCode),
+  passedSteps:count(v.passedSteps),failedSteps:count(v.failedSteps),timeoutSeconds:count(v.timeoutSeconds),version:count(v.version)};
+}
+export function readDetail(value:unknown):QaRunDetail{
+ const v=object(value);if(!Array.isArray(v.steps))throw new Error("Invalid QA response");
+ return {run:readRun(v.run),steps:v.steps.map(item=>{const s=object(item);return {sequence:count(s.sequence),stepKey:text(s.stepKey),status:member(qaStepStatuses,s.status),expected:text(s.expected),actual:text(s.actual),durationMs:count(s.durationMs)};})};
+}
+export function readPage(value:unknown):QaRunPage{
+ const v=object(value);if(!Array.isArray(v.items))throw new Error("Invalid QA response");
+ return {items:v.items.map(readRun),total:count(v.total),page:count(v.page),pageSize:count(v.pageSize)};
+}
+export function readScenarios(value:unknown):QaScenario[]{
+ if(!Array.isArray(value))throw new Error("Invalid QA response");
+ return value.map(item=>{const v=object(item);return {key:text(v.key),timeoutSeconds:count(v.timeoutSeconds),access:text(v.access)};});
+}
+export function readOverview(value:unknown):QaOverview{
+ const v=object(value),counts=object(v.runCounts);
+ return {environment:text(v.environment),scenarioCount:count(v.scenarioCount),endpointCount:count(v.endpointCount),activeRuns:count(v.activeRuns),
+  runCounts:Object.fromEntries(qaRunStatuses.map(status=>[status,count(counts[status]??0)])) as Record<QaRunStatus,number>,lastRun:v.lastRun?readRun(v.lastRun):null};
+}
+export const isActive=(run:QaRun)=>run.status==="QUEUED"||run.status==="RUNNING";
+export const canRetry=(run:QaRun)=>(run.status==="FAILED"||run.status==="CANCELLED"||run.status==="TIMED_OUT")&&run.attempt<5;
+export const runsQuery=(page:number,status:QaRunStatus|"ALL")=>`${qaCenterPath}/runs?page=${page}&pageSize=10${status==="ALL"?"":`&status=${status}`}`;
+export const scenarioMessageKey=(key:string)=>"scenario_"+key.replace(/[^a-z0-9]/gi,"_");

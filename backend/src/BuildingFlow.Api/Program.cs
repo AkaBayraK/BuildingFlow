@@ -38,6 +38,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CanManageDues", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT"));
     options.AddPolicy("CanManageWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
     options.AddPolicy("CanPublishWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
+    options.AddPolicy("CanManageQaCenter", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN"));
 });
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<HierarchyService>();
@@ -77,6 +78,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithHeaders("Authorization", "Content-Type")));
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgres", tags: ["ready"]);
 builder.Services.AddSystemStatus();
+builder.Services.AddQaCenter(builder.Configuration);
 builder.Services.AddWeather(builder.Configuration);
 
 var app = builder.Build();
@@ -166,6 +168,7 @@ app.MapReportEndpoints();
 app.MapDashboardEndpoints();
 app.MapWeatherEndpoints();
 app.MapSystemStatusEndpoints();
+app.MapQaCenterEndpoints();
 app.MapCommunicationEndpoints();
 app.MapWebsiteInquiryEndpoints();
 app.MapListingEndpoints();

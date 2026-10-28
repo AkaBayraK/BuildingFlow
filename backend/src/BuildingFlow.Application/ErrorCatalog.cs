@@ -247,6 +247,10 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition PaymentOnlineCancel = new("BF_PAYMENT_ONLINE_CANCEL", "Online tahsilat elle iptal edilemez; iade talebi oluşturun.", "warning");
     public static readonly ErrorDefinition PaymentReviewUnallocatable = new("BF_PAYMENT_REVIEW_UNALLOCATABLE", "Alınan tutar güncel borçlara tamamen dağıtılamıyor; iade talebi oluşturun veya borçları kontrol edin.", "warning");
     public static readonly ErrorDefinition PaymentReconciliationState = new("BF_PAYMENT_RECONCILIATION_STATE", "Mutabakat kaydı zaten çözülmüş veya güncel değil.", "warning");
+    public static readonly ErrorDefinition QaRunActive = new("BF_QA_RUN_ACTIVE", "Bu senaryo için kuyrukta veya çalışan bir koşum var.", "warning");
+    public static readonly ErrorDefinition QaRunState = new("BF_QA_RUN_STATE", "Test koşumu bu işlem için uygun durumda değil; listeyi yenileyin.", "warning");
+    public static readonly ErrorDefinition QaRequestReused = new("BF_QA_REQUEST_REUSED", "Bu istek kimliği farklı bir test koşumu için kullanıldı.", "error");
+    public static readonly ErrorDefinition QaRetryLimit = new("BF_QA_RETRY_LIMIT", "Bu koşum için en fazla 5 deneme yapılabilir.", "warning");
     public static readonly ErrorDefinition RecordChanged = new("BF_RECORD_CHANGED", "Kayıt değişti. Güncel bilgileri yükleyip yeniden deneyin.", "warning");
     public static readonly ErrorDefinition DuesErrorMoveOutReason = new("BF_DUES_ERROR_MOVE_OUT_REASON", "Kiracı taşınması iptal nedeni kullanılamıyor. Önizlemeyi yenileyin.", "warning");
     public static readonly ErrorDefinition PersonRequired = new("BF_PERSON_REQUIRED", "Kişi seçin.", "error");
@@ -505,6 +509,10 @@ public static class ErrorCatalog
         PaymentOnlineCancel,
         PaymentReviewUnallocatable,
         PaymentReconciliationState,
+        QaRunActive,
+        QaRunState,
+        QaRequestReused,
+        QaRetryLimit,
         MobileSyncConflict,
         ValidationFailed,
         InvalidRequest,
