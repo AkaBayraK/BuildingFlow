@@ -53,6 +53,10 @@ export const errorCodes = {
   "BF_QA_RUN_STATE":{"status":409,"severity":"warning","parameters":[]},
   "BF_QA_REQUEST_REUSED":{"status":409,"severity":"error","parameters":[]},
   "BF_QA_RETRY_LIMIT":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_AI_UNAVAILABLE":{"status":503,"severity":"warning","parameters":[]},
+  "BF_QA_AI_PLAN_INVALID":{"status":502,"severity":"warning","parameters":[]},
+  "BF_QA_AI_BUDGET":{"status":429,"severity":"warning","parameters":[]},
+  "BF_QA_AI_PROMPT_INVALID":{"status":400,"severity":"error","parameters":[]},
 
   "BF_INQUIRY_REJECTED": {"status":400,"severity":"error","parameters":[]},
   "BF_INQUIRY_UNAVAILABLE": {"status":409,"severity":"warning","parameters":[]},

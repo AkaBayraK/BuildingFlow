@@ -1,3 +1,7 @@
+## QA FAZ 09 — AkaAI AI Test Asistanı — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#105.** AkaAI deposu değişmeden mevcut entegrasyon API'si: kapalı şema + allowlist plan, onaysız koşum yok, açıklama sonucu değiştirmez, bütçe/503 fallback, 4 hata kodu; web AI Test Asistanı sekmesi. **Integration27/27 (5 injection/uydurma plan reddi), web307/307+typecheck+build, lisans329 PASS.** Gerçek AkaAI uçtan uca bağlantı yapılandırma bekliyor. Rapor `qa-center/reports/phase-09.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 08 — Diğer modüller — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#104.** Modül paketleri ilk koşum 281/302; 20 FAIL paylaşılan PG bağlantı sınırı (53300) flaky, tek başına tekrar PASS; ParkingMigrationTests retention testi QaCenterRuns sonrası `migrations[^2]` varsayımıyla kırılmıştı, isimle bağlandı (4/4 PASS). Yeni `qa_coverage_gate.py` ratchet + CI; paralel tedarikçi kodundaki 2 testsiz endpoint'i yakaladı. Rapor `qa-center/reports/phase-08.md`. Token: BİLGİ MEVCUT DEĞİL.

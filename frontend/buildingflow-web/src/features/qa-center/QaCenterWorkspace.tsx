@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useState} from "react";
 import Link from "next/link";
 import {useLocale,useTranslations} from "next-intl";
-import {FlaskConical,RefreshCw,RotateCcw,Square,Play} from "lucide-react";
+import {FlaskConical,RefreshCw,RotateCcw,Square,Play,Sparkles} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {ApiError,useAuthorizedApi} from "@/services/api";
 import {Button} from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {BackButton} from "@/components/navigation/BackButton";
 import {WorkspaceHeading} from "@/components/management/WorkspacePresentation";
 import {cn} from "@/lib/utils";
-import {canRetry,isActive,qaCenterPath,qaCenterRoles,qaPlannedTabs,qaRunStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey,type QaOverview,type QaRun,type QaRunDetail,type QaRunPage,type QaRunStatus,type QaScenario,type QaTab} from "./model";
+import {canRetry,isActive,qaCenterPath,qaCenterRoles,qaPlannedTabs,qaPromptLimit,qaRunStatuses,qaTabs,readAiExplanation,readAiPlan,readAiStatus,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey,type QaAiExplanation,type QaAiPlan,type QaAiStatus,type QaOverview,type QaRun,type QaRunDetail,type QaRunPage,type QaRunStatus,type QaScenario,type QaTab} from "./model";
 import {qaDefaultScenarioIcon,qaPlannedIcon,qaRunStatusIcon,qaRunStatusTone,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from "./qa-style";
 
 const panel="min-w-0 rounded-2xl border bg-card p-4 shadow-sm sm:p-5";
@@ -24,11 +24,13 @@ export function QaCenterWorkspace(){
  const [tab,setTab]=useState<QaTab>("overview"),[overview,setOverview]=useState<QaOverview|null>(null),[scenarios,setScenarios]=useState<QaScenario[]>([]);
  const [page,setPage]=useState<QaRunPage|null>(null),[pageNumber,setPageNumber]=useState(1),[filter,setFilter]=useState<QaRunStatus|"ALL">("ALL");
  const [selected,setSelected]=useState<QaRunDetail|null>(null),[disabled,setDisabled]=useState(false),[error,setError]=useState(false),[busy,setBusy]=useState("");
+ const [aiStatus,setAiStatus]=useState<QaAiStatus|null>(null),[prompt,setPrompt]=useState(""),[plan,setPlan]=useState<QaAiPlan|null>(null),[explanation,setExplanation]=useState<QaAiExplanation|null>(null);
 
  const load=useCallback(async(signal?:AbortSignal)=>{
   try{
    const [o,s,p]=await Promise.all([api<unknown>(`${qaCenterPath}/overview`,{signal},"json",[404]),api<unknown>(`${qaCenterPath}/scenarios`,{signal},"json",[404]),api<unknown>(runsQuery(pageNumber,filter),{signal},"json",[404])]);
    if(!signal?.aborted){setOverview(readOverview(o));setScenarios(readScenarios(s));setPage(readPage(p));setError(false);setDisabled(false);}
+   const a=await api<unknown>(`${qaCenterPath}/ai/status`,{signal},"json",[404]).catch(()=>null);if(!signal?.aborted&&a)setAiStatus(readAiStatus(a));
   }catch(e){if(!signal?.aborted){if(e instanceof ApiError&&e.status===404)setDisabled(true);else setError(true);}}
  },[api,pageNumber,filter]);
  const loadRun=useCallback(async(id:string,signal?:AbortSignal)=>{try{const d=readDetail(await api<unknown>(`${qaCenterPath}/runs/${id}`,{signal}));if(!signal?.aborted)setSelected(d);}catch{if(!signal?.aborted)setError(true);}},[api]);
@@ -37,6 +39,9 @@ export function QaCenterWorkspace(){
  useEffect(()=>{if(!watching)return;const timer=window.setInterval(()=>{void loadRun(watching);void load();},2000);return()=>window.clearInterval(timer);},[watching,loadRun,load]);
 
  const act=async(key:string,request:()=>Promise<unknown>)=>{setBusy(key);try{const run=readRun(await request());await loadRun(run.id);setTab("live");await load();}catch{}finally{setBusy("");}};
+ const askPlan=async()=>{setBusy("ai-plan");setPlan(null);try{setPlan(readAiPlan(await api(`${qaCenterPath}/ai/plans`,json({prompt}))));}catch{}finally{setBusy("");void load();}};
+ const runPlan=async(value:QaAiPlan)=>{for(const key of value.scenarios)await start(key);setPlan(null);};
+ const explain=async(run:QaRun)=>{setBusy("ai-explain");setExplanation(null);try{setExplanation(readAiExplanation(await api(`${qaCenterPath}/ai/runs/${run.id}/explanation`,{method:"POST"})));}catch{}finally{setBusy("");}};
  const start=(scenario:string)=>act(scenario,()=>api(`${qaCenterPath}/runs`,json({scenarioKey:scenario,requestId:crypto.randomUUID()})));
  const retry=(run:QaRun)=>act(run.id,()=>api(`${qaCenterPath}/runs/${run.id}/retry`,json({requestId:crypto.randomUUID(),version:run.version})));
  const cancel=(run:QaRun)=>act(run.id,()=>api(`${qaCenterPath}/runs/${run.id}/cancel`,{...json({version:run.version}),method:"PUT"}));
@@ -77,6 +82,19 @@ export function QaCenterWorkspace(){
     <p className="text-sm text-muted-foreground">{t.has(scenarioMessageKey(s.key)+"_hint")?t(scenarioMessageKey(s.key)+"_hint"):s.key}</p>
     <div className="flex flex-wrap gap-2 text-xs"><Badge variant="outline">{t("readOnly")}</Badge><Badge variant="outline">{t("timeout",{seconds:s.timeoutSeconds})}</Badge></div>
     <Button className="mt-auto" disabled={busy===s.key} onClick={()=>void start(s.key)}><Play aria-hidden="true"/>{t("start")}</Button></div>;})}</div>}
+   {tab==="assistant"&&<div className={cn(panel,"flex flex-col gap-3")}>
+    <div className="flex flex-wrap items-center gap-2"><Sparkles aria-hidden="true" className="size-5 text-primary"/><h2 className="font-semibold">{t("tab_assistant")}</h2>{aiStatus&&<Badge variant="outline">{aiStatus.enabled?t("aiUsage",{used:aiStatus.usedToday,limit:aiStatus.dailyLimit}):t("aiDisabled")}</Badge>}</div>
+    <p className="text-sm text-muted-foreground">{t("aiIntro")}</p>
+    <label htmlFor="qa-ai-prompt" className="text-sm font-medium">{t("aiPrompt")}</label>
+    <textarea id="qa-ai-prompt" className="min-h-28 rounded-lg border bg-background p-3 text-sm" maxLength={qaPromptLimit} value={prompt} onChange={event=>setPrompt(event.target.value)} placeholder={t("aiPlaceholder")}/>
+    <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-muted-foreground">{prompt.length}/{qaPromptLimit}</span>
+     <Button disabled={!aiStatus?.enabled||!prompt.trim()||busy==="ai-plan"} onClick={()=>void askPlan()}><Sparkles aria-hidden="true"/>{t("aiAsk")}</Button></div>
+    {plan&&<div className="rounded-xl border border-dashed border-amber-400 bg-amber-50 p-3 text-sm dark:bg-amber-950/30" aria-live="polite">
+     <p className="font-semibold">{t("aiProposal")}</p><p className="mt-1">{plan.summary}</p>
+     <ul className="mt-2 list-disc ps-5">{plan.scenarios.map(key=><li key={key}>{scenarioName(key)} <code className="text-xs">{key}</code></li>)}</ul>
+     {plan.risks.length>0&&<><p className="mt-2 font-medium">{t("aiRisks")}</p><ul className="list-disc ps-5">{plan.risks.map(risk=><li key={risk}>{risk}</li>)}</ul></>}
+     <div className="mt-3 flex flex-wrap gap-2"><Button onClick={()=>void runPlan(plan)}><Play aria-hidden="true"/>{t("aiApprove")}</Button><Button variant="outline" onClick={()=>setPlan(null)}>{t("aiReject")}</Button></div></div>}
+   </div>}
    {tab==="runs"&&page&&<div className={panel}>
     <div role="group" aria-label={t("statusFilter")} className="mb-3 flex flex-wrap gap-2">{(["ALL",...qaRunStatuses] as const).map(value=>{const I=value==="ALL"?qaTabIcon.runs:qaRunStatusIcon[value];return <Button key={value} size="sm" aria-pressed={filter===value} variant={filter===value?"default":"outline"} onClick={()=>{setFilter(value);setPageNumber(1);}}><I aria-hidden="true"/>{value==="ALL"?t("all"):t(`status_${value}`)}</Button>;})}</div>
     {page.items.length===0?<p className="text-sm text-muted-foreground">{t("noRuns")}</p>:<ul className="divide-y">{page.items.map(run=><li key={run.id} className="flex flex-col gap-2 py-3 md:flex-row md:items-center md:justify-between">
@@ -92,7 +110,9 @@ export function QaCenterWorkspace(){
     {selected.steps.length===0?<p className="text-sm text-muted-foreground">{t("noSteps")}</p>:<ol className="flex flex-col gap-2">{selected.steps.map(step=>{const I=qaStepStatusIcon[step.status];return <li key={step.sequence} className="rounded-xl border p-3 text-sm">
      <div className="flex flex-wrap items-center gap-2 font-medium"><I aria-hidden="true" className={cn("size-4",step.status==="PASSED"?"text-emerald-600":step.status==="FAILED"?"text-red-600":"text-muted-foreground")}/>{step.sequence}. <code className="break-all">{step.stepKey}</code><span className="sr-only">{t(`step_${step.status}`)}</span><span className="ms-auto text-xs text-muted-foreground">{step.durationMs} ms</span></div>
      <p className="mt-1 break-words">{t("stepResult",{expected:step.expected,actual:step.actual})}</p></li>;})}</ol>}
-    <p className="mt-3 text-xs text-muted-foreground">{t("evidenceNote")}</p></>}</div>}
+    <p className="mt-3 text-xs text-muted-foreground">{t("evidenceNote")}</p>
+    {!isActive(selected.run)&&aiStatus?.enabled&&<Button className="mt-3" size="sm" variant="view" disabled={busy==="ai-explain"} onClick={()=>void explain(selected.run)}><Sparkles aria-hidden="true"/>{t("aiExplain")}</Button>}
+    {explanation&&explanation.runId===selected.run.id&&<div className="mt-3 rounded-xl border border-dashed border-amber-400 bg-amber-50 p-3 text-sm dark:bg-amber-950/30" aria-live="polite"><p className="font-semibold">{t("aiExplanationTitle")}</p><p className="mt-1 whitespace-pre-line">{explanation.explanation}</p></div>}</>}</div>}
   </div>}
  </div>;
 }

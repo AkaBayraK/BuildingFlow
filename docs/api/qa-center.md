@@ -19,3 +19,15 @@ Hata kodları (409): `BF_QA_RUN_ACTIVE` (aynı senaryoda aktif koşum), `BF_QA_R
 Senaryolar: `system.health` (SystemStatus bileşenleri UP), `api.authorization` (public prefix dışındaki her endpoint'te açık yetki kararı), `db.migrations` (bağlantı, bekleyen migration 0). Senaryolar kullanıcı girdisinden komut/SQL/script çalıştırmaz.
 
 Tablolar `qa_runs`, `qa_run_steps` (BaseEntity, migration `QaCenterRuns`, dolu tabloda Down reddedilir).
+
+## AI Test Asistanı (QA FAZ 09)
+
+AkaAI'ya yalnız mevcut entegrasyon API'si (`POST /api/v1/integrations/chat/completions`, client-credentials JWT, `X-Actor-Ref` = kullanıcı `sub` SHA-256 ilk 32 hex, `X-Request-Id`) üzerinden gidilir; AkaAI deposu değişmedi. Ayarlar `QaCenter:AkaAi:{BaseUrl,TokenUrl,ClientId,ClientSecret,Model,DailyRequestLimit=20,TimeoutSeconds=60}`; secret yalnız ortam/secret store'dan, loglanmaz. Eksik ayar = kapalı.
+
+| Method | Route | Açıklama |
+|---|---|---|
+| GET | `/api/v1/qa-center/ai/status` | `enabled`, günlük limit, bugünkü kullanım |
+| POST | `/api/v1/qa-center/ai/plans` `{prompt}` | 1-1000 karakter, kontrol karakteri yok. Yanıt yalnız `{scenarios,summary,risks}` kapalı şeması, en fazla 5 benzersiz allowlist senaryosu; `requiresApproval=true`, hiçbir koşum başlatmaz |
+| POST | `/api/v1/qa-center/ai/runs/{id}/explanation` | Bitmiş koşumun kayıtlı adımlarını açıklar; `runStatus` DB'den gelir, AI değiştiremez |
+
+Hatalar: `BF_QA_AI_PROMPT_INVALID` 400, `BF_QA_AI_BUDGET` 429 (süreç içi günlük sayaç; çoklu örnekte paylaşılmaz), `BF_QA_AI_PLAN_INVALID` 502 (bilinmeyen senaryo, fazla alan, mükerrer, boş, JSON dışı), `BF_QA_AI_UNAVAILABLE` 503 (kapalı, token/bağlantı/zaman aşımı hatası; UI katalogdan elle seçime döner). Kullanıcı metni `<kullanici_istegi>` içinde veri olarak gönderilir; asıl koruma çıktı doğrulamasıdır.

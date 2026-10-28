@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {canRetry,isActive,qaPlannedTabs,qaRunStatuses,qaStepStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey} from '../src/features/qa-center/model.ts';
+import {canRetry,isActive,qaPlannedTabs,readAiExplanation,readAiPlan,readAiStatus,qaRunStatuses,qaStepStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey} from '../src/features/qa-center/model.ts';
 import {qaPlannedIcon,qaRunStatusIcon,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from '../src/features/qa-center/qa-style.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 const tr=JSON.parse(readFileSync(new URL('../messages/tr.json',import.meta.url))).qaCenter;
@@ -50,4 +50,15 @@ test('property SMS screen survives a reload (QA FAZ 04 finding)',()=>{
  const p='11111111-1111-4111-8111-111111111111';
  assert.equal(isWorkspaceReturnPath(`/properties/${p}/sms`),true);
  assert.equal(isWorkspaceReturnPath(`/properties/${p}/sms/extra`),false);
+});
+
+test('AI plan is only accepted as an approval-required proposal and explanations keep run status',()=>{
+ assert.deepEqual(readAiStatus({enabled:true,dailyLimit:20,usedToday:3}),{enabled:true,dailyLimit:20,usedToday:3});
+ const plan=readAiPlan({scenarios:['db.migrations'],summary:'Şema',risks:[],source:'AKAAI',requiresApproval:true});
+ assert.equal(plan.requiresApproval,true);
+ assert.throws(()=>readAiPlan({scenarios:['db.migrations'],summary:'Şema',risks:[],source:'AKAAI',requiresApproval:false}));
+ assert.throws(()=>readAiPlan({scenarios:[1],summary:'x',risks:[],source:'AKAAI',requiresApproval:true}));
+ assert.equal(readAiExplanation({runId:'r',runStatus:'FAILED',explanation:'x',source:'AKAAI'}).runStatus,'FAILED');
+ assert.throws(()=>readAiExplanation({runId:'r',runStatus:'GREEN',explanation:'x',source:'AKAAI'}));
+ for(const key of ['aiProposal','aiApprove','aiExplain','aiExplanationTitle'])assert.ok(tr[key]&&en[key]);
 });

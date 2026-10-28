@@ -1,3 +1,7 @@
+## QA-09 — AI Test Asistanı — 28.10.2026 — TEKNİK TESLİM
+
+`test.sh` QaAiAssistantApiTests|QaCenterApiTests|ErrorContract|QaEndpointInventoryTests|QaCenterMigrationTests: 27/27, guard GEÇTİ. Sahte AkaAI; gerçek AkaAI çağrılmadı. Web `npm test` 307/307, typecheck, build.
+
 ## QA-08 — Diğer modüller — 28.10.2026 — TEKNİK TESLİM
 
 Modül filtresi Integration 281/302 + Unit 237/237; 21 FAIL tekrarı 20/21 (53300 bağlantı sınırı flaky); Parking+QaCenter migration düzeltmesi sonrası 4/4. `test_qa_coverage_gate.py` 3/3; kapı HEAD envanterinde GEÇTİ, çalışma ağacında paralel tedarikçi endpoint'leriyle RED (beklenen).

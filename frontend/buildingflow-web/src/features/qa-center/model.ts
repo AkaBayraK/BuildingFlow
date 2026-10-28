@@ -3,8 +3,8 @@ export const qaCenterHref="/system-settings/qa-center";
 export const qaCenterRoles=["SUPER_ADMIN"] as const;
 export const qaRunStatuses=["QUEUED","RUNNING","PASSED","FAILED","CANCELLED","TIMED_OUT"] as const;
 export const qaStepStatuses=["PASSED","FAILED","SKIPPED"] as const;
-export const qaTabs=["overview","inventory","scenarios","runs","live"] as const;
-export const qaPlannedTabs=[["assistant","09"],["data","10"],["results","11"],["defects","12"],["cleanup","10"],["settings","12"]] as const;
+export const qaTabs=["overview","inventory","scenarios","assistant","runs","live"] as const;
+export const qaPlannedTabs=[["data","10"],["results","11"],["defects","12"],["cleanup","10"],["settings","12"]] as const;
 export type QaRunStatus=typeof qaRunStatuses[number];
 export type QaStepStatus=typeof qaStepStatuses[number];
 export type QaTab=typeof qaTabs[number];
@@ -45,6 +45,14 @@ export function readOverview(value:unknown):QaOverview{
  return {environment:text(v.environment),scenarioCount:count(v.scenarioCount),endpointCount:count(v.endpointCount),activeRuns:count(v.activeRuns),
   runCounts:Object.fromEntries(qaRunStatuses.map(status=>[status,count(counts[status]??0)])) as Record<QaRunStatus,number>,lastRun:v.lastRun?readRun(v.lastRun):null};
 }
+export type QaAiStatus={enabled:boolean;dailyLimit:number;usedToday:number};
+export type QaAiPlan={scenarios:string[];summary:string;risks:string[];source:string;requiresApproval:boolean};
+export type QaAiExplanation={runId:string;runStatus:QaRunStatus;explanation:string;source:string};
+export const qaPromptLimit=1000;
+const texts=(value:unknown)=>{if(!Array.isArray(value))throw new Error("Invalid QA response");return value.map(text);};
+export function readAiStatus(value:unknown):QaAiStatus{const v=object(value);return {enabled:v.enabled===true,dailyLimit:count(v.dailyLimit),usedToday:count(v.usedToday)};}
+export function readAiPlan(value:unknown):QaAiPlan{const v=object(value);if(v.requiresApproval!==true)throw new Error("Invalid QA response");return {scenarios:texts(v.scenarios),summary:text(v.summary),risks:texts(v.risks),source:text(v.source),requiresApproval:true};}
+export function readAiExplanation(value:unknown):QaAiExplanation{const v=object(value);return {runId:text(v.runId),runStatus:member(qaRunStatuses,v.runStatus),explanation:text(v.explanation),source:text(v.source)};}
 export const isActive=(run:QaRun)=>run.status==="QUEUED"||run.status==="RUNNING";
 export const canRetry=(run:QaRun)=>(run.status==="FAILED"||run.status==="CANCELLED"||run.status==="TIMED_OUT")&&run.attempt<5;
 export const runsQuery=(page:number,status:QaRunStatus|"ALL")=>`${qaCenterPath}/runs?page=${page}&pageSize=10${status==="ALL"?"":`&status=${status}`}`;

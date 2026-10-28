@@ -304,6 +304,10 @@ internal static class QaCenterEndpoints
         services.AddSingleton<IQaScenario, ApiAuthorizationScenario>();
         services.AddSingleton<IQaScenario, DatabaseMigrationScenario>();
         services.AddScoped<QaCenterService>();
+        services.AddSingleton(QaAkaAiOptions.From(configuration));
+        services.AddSingleton<QaAiAssistant>();
+        services.AddHttpClient(QaAiAssistant.ClientName, client => client.Timeout = TimeSpan.FromSeconds(300))
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false });
         services.AddSingleton<QaRunner>();
         services.AddHostedService(provider => provider.GetRequiredService<QaRunner>());
         return services;
@@ -325,8 +329,28 @@ internal static class QaCenterEndpoints
         root.MapPost("/runs", async (StartQaRunRequest request, QaCenterService service, CancellationToken token) => Accepted(await service.Start(request, token)));
         root.MapPost("/runs/{runId:guid}/retry", async (Guid runId, RetryQaRunRequest request, QaCenterService service, CancellationToken token) =>
             Accepted(await service.Retry(runId, request, token)));
+        var ai = root.MapGroup("/ai");
+        ai.MapGet("/status", (QaAiAssistant assistant, ICurrentUserService user) => Results.Ok(assistant.Status(user.UserId!)));
+        ai.MapPost("/plans", async (QaAiPlanRequest request, QaAiAssistant assistant, ICurrentUserService user, CancellationToken token) =>
+            await Ai(async () => Results.Ok(await assistant.Plan(user.UserId!, request, token))));
+        ai.MapPost("/runs/{runId:guid}/explanation", async (Guid runId, QaAiAssistant assistant, BuildingFlowDbContext db, ICurrentUserService user, CancellationToken token) =>
+            await Ai(async () => await assistant.Explain(user.UserId!, db, runId, token) is { } explanation ? Results.Ok(explanation) : Results.NotFound()));
         root.MapPut("/runs/{runId:guid}/cancel", async (Guid runId, CancelQaRunRequest request, QaCenterService service, CancellationToken token) =>
             await service.Cancel(runId, request, token) is { } run ? Results.Ok(run) : Results.NotFound());
+    }
+
+    private static async Task<IResult> Ai(Func<Task<IResult>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (QaAiException error)
+        {
+            var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = error.Status };
+            ApiProblems.Apply(problem, error.Error);
+            return Results.Problem(problem);
+        }
     }
 
     private static IResult Accepted((QaRunResponse Run, bool Created)? result) => result switch
