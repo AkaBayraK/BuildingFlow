@@ -1,0 +1,5635 @@
+{
+ "api": [
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/domains/{host}",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/preview",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/preview/media/{id:guid}/{sha}",
+   "web": null
+  },
+  {
+   "access": "ANONYMOUS",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/inquiries/",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/inquiries/challenge",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/listings/",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/listings/{id:guid}",
+   "web": null
+  },
+  {
+   "access": "ANONYMOUS",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/media/{id:guid}/{sha}.{ext}",
+   "web": null
+  },
+  {
+   "access": "PUBLIC_IMPLICIT",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/public/v1/sites/{siteKey}/primary-domain",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/communication-preferences/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/communication-preferences/operational",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/communication-preferences/{senderId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/communication-preferences/{senderId:guid}/history",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/consents",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/consents/commands",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/contact-verification/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/contact-verification/phone",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/contact-verification/phone/commands",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/profile/commands",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/account/profile/photo/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/records",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/records/{recordId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/texts/{textId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/types",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/consents/types",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/consents/types/{typeId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/consents/types/{typeId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/types/{typeId:guid}/texts",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/consents/types/{typeId:guid}/texts",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/consents/users/{userId}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/communication-preferences/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/communication-preferences/operational",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/communication-preferences/{senderId:guid}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/consents/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/consents/commands",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/contact-verification/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/contact-verification/phone",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/contact-verification/phone/commands",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/finance",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/manager",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/notices/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/notices/preference",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/notices/read",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/owner",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/mobile/parking/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/mobile/parking/guests",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/mobile/parking/guests/{id:guid}/{action}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/mobile/parking/vehicles",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/intents",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/intents",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/intents/{intentId:guid}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/intents/{intentId:guid}/cancel",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/options",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/payments/receipts/{paymentId:guid}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/person-links",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/profile/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/profile/commands",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/profile/photo/{id:guid}",
+   "web": null
+  },
+  {
+   "access": "ANONYMOUS",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [],
+   "route": "/api/v1/mobile/registrations",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/session",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/surveys/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/surveys/{surveyId:guid}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/surveys/{surveyId:guid}/responses",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/sync/commands",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/sync/requests",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/sync/requests/{id:guid}/photo",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/mobile/tenant",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/notifications",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/notifications/{id:guid}/read",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/parking/my-vehicles/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/parking/my-vehicles/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/parking/my-vehicles/{vehicleId:guid}/deactivate",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/payment-providers/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/payment-providers/{code}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "ANONYMOUS",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/v1/payment-webhooks/{provider}",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}/archive",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}/publish",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/bank-accounts",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/bank-accounts",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/close",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/decision",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/default",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/budgets",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/budgets/{budgetId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures/{closureId:guid}/release",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}/download",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/report",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations/{reservationId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations/{reservationId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/schedule",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dashboard",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/documents",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/documents",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/documents/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/documents/{id:guid}/download",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/assessments",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/assessments/{assessmentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/cancellation-reasons",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/person-choices",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/unit-choices",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/{chargeId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/dues/{chargeId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/expenses",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/expenses",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/expenses/{expenseId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/expenses/{expenseId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/finance-summary",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/accruals/run",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/accruals/{accrualId:guid}/waive",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/charges/{chargeId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/overdue",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/approve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/preview",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/report",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/settings",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/late-penalties/switches",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/unit-options",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/approve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/events",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/owner-consent",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/owner-consent",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/photos",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/publish",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/reject",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/submit",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/withdraw",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/upcoming",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/merchant-accounts",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/merchant-accounts",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/deactivate",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/default",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/test",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/meters/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/meters/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues",
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings/{readingId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/occupancies",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/occupancies",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}/end-preview",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/online-payments",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}/refunds",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}/settle",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/allocations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/allocations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/allocations/{id:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/closures",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/closures",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/closures/{id:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/facilities",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/facilities",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/facilities/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/facilities/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guest-policy",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guest-spaces",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guests",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guests",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/arrive",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/depart",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/levels",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/levels/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/levels/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/plates",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/policy",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/policy",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/report",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/spaces",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/spaces",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/spaces/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/spaces/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/units",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/units/{unitId:guid}/residents",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/approve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/deactivate",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/reject",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-ledger",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/items",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/items/{itemId:guid}/resolve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/run",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/settlement",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-refunds/{refundId:guid}/decision",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-settings",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payment-settings",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payments/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payments/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}/receipt",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/account-choices",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/code",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/messages",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/messages",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/photo",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/reports",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/requests/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/requests/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/requests/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/requests/{id:guid}/management",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/account",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/account/credits",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople",
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/account/credits",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/commercial-consents",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/legal-sender",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/legal-sender",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/messages",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/messages",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/opt-outs",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/preview",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/templates",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/templates",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/templates/{templateId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/sms/templates/{templateId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/overview",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/close",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/copy",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/publish",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/results",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/schedule",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/unit-choices",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/unit-parties",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/units/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/units/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/approve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/disable",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/primary",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/rotate",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/verify",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/inquiries/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/inquiries/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/media/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/media/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}/content",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/order",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/order",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/{sectionId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/{sectionId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/preview",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/preview-token",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/publications",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/publications",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite",
+    "CanPublishWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/publications/{publicationId:guid}/restore",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties",
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/status",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageWebsite"
+   ],
+   "route": "/api/v1/properties/{propertyId:guid}/website/theme",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy",
+    "CanReadProperties"
+   ],
+   "route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "ANONYMOUS",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [],
+   "route": "/api/v1/sms/opt-out-callbacks",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/sms/platform-sender/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageProperties"
+   ],
+   "route": "/api/v1/sms/platform-sender/",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v1/status",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageHierarchy"
+   ],
+   "route": "/api/v1/system/status",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/password-reset",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "DELETE",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/people/{personId:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/photo",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/photo/commands",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageUsers"
+   ],
+   "route": "/api/v1/users/{userId}/photo/state",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v1/weather",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/active-context",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/finance-summary",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/person-links",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/portfolio",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/announcements",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/common-areas/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/photos",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}/download",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/schedule",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/documents",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/documents/{documentId:guid}/download",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/dues",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/leases",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/me/units/{unitId:guid}/payments",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/mobile/authorization",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/person-workspaces",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/session/contexts/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/session/contexts/website/{siteKey}/{audience}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/session/contexts/{kind}/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/me/person",
+   "web": null
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-link-codes",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-link/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-status",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/center",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/management-duties",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/photo",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/portfolio",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations/{kind}/{id:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations/{kind}/{id:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/person-properties",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/person-workspace",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-access",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople",
+    "CanManageUsers"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople",
+    "CanManageUsers"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople",
+    "CanManageUsers"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "AUTHENTICATED",
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/history",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-building-choices",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/apply",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/comparison",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/people/{legacyPersonId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/preview",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-unit-choices",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/attach",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/end",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": false,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/parties",
+   "web": "BASE_PREFIX"
+  }
+ ],
+ "mobileModules": {
+  "auth": [
+   "/api/v1/mobile",
+   "/api/v1/mobile/consents",
+   "/api/v1/mobile/consents/commands",
+   "/api/v1/mobile/finance",
+   "/api/v1/mobile/manager",
+   "/api/v1/mobile/notices",
+   "/api/v1/mobile/notices/preference",
+   "/api/v1/mobile/notices/read",
+   "/api/v1/mobile/person-links",
+   "/api/v1/mobile/session",
+   "/api/v1/mobile/sync/requests",
+   "/api/v2/me/portfolio",
+   "/api/v2/me/units",
+   "/api/v2/mobile/authorization"
+  ],
+  "communication": [
+   "/api/v1/mobile/communication-preferences"
+  ],
+  "consents": [
+   "/api/v1/mobile/consents",
+   "/api/v1/mobile/consents/commands"
+  ],
+  "contact-verification": [
+   "/api/v1/mobile/contact-verification",
+   "/api/v1/mobile/contact-verification/phone",
+   "/api/v1/mobile/contact-verification/phone/commands"
+  ],
+  "offline": [
+   "/api/v1/mobile/session"
+  ],
+  "parking": [
+   "/api/v1/mobile/parking"
+  ],
+  "person-authorization": [
+   "/api/v2/me/units/{}"
+  ],
+  "profile": [
+   "/api/v1/mobile/profile",
+   "/api/v1/mobile/profile/commands",
+   "/api/v1/mobile/profile/photo"
+  ],
+  "sync": [
+   "/api/v1/mobile/session",
+   "/api/v1/mobile/sync/commands",
+   "/api/v1/mobile/sync/requests",
+   "/api/v2/mobile/authorization"
+  ]
+ },
+ "mobileScreens": [
+  "/(tabs)/announcements",
+  "/(tabs)/common-areas",
+  "/(tabs)/finance",
+  "/(tabs)/index",
+  "/(tabs)/parking",
+  "/(tabs)/profile",
+  "/(tabs)/requests",
+  "/auth",
+  "/invalid-link"
+ ],
+ "mobileTabs": [
+  {
+   "tab": "index",
+   "visibility": "ALWAYS"
+  },
+  {
+   "tab": "common-areas",
+   "visibility": "LINKED_CONTEXT"
+  },
+  {
+   "tab": "finance",
+   "visibility": "LINKED_CONTEXT"
+  },
+  {
+   "tab": "announcements",
+   "visibility": "LINKED_CONTEXT"
+  },
+  {
+   "tab": "requests",
+   "visibility": "LINKED_CONTEXT"
+  },
+  {
+   "tab": "parking",
+   "visibility": "HIDDEN"
+  },
+  {
+   "tab": "profile",
+   "visibility": "ALWAYS"
+  }
+ ],
+ "navigation": [
+  {
+   "key": "account",
+   "pageExists": true,
+   "route": "/account"
+  },
+  {
+   "key": "consents",
+   "pageExists": true,
+   "route": "/consents"
+  },
+  {
+   "key": "dashboard",
+   "pageExists": true,
+   "route": "/dashboard"
+  },
+  {
+   "key": "home",
+   "pageExists": true,
+   "route": "/"
+  },
+  {
+   "key": "home",
+   "pageExists": true,
+   "route": "/workspaces"
+  },
+  {
+   "key": "properties",
+   "pageExists": true,
+   "route": "/properties"
+  },
+  {
+   "key": "settings",
+   "pageExists": true,
+   "route": "/system-settings"
+  },
+  {
+   "key": "users",
+   "pageExists": true,
+   "route": "/users"
+  }
+ ],
+ "plannedNavigation": [
+  "definitions",
+  "suppliers"
+ ],
+ "tables": [
+  "account_phone_verifications",
+  "announcements",
+  "budget_revisions",
+  "buildings",
+  "commercial_consent_records",
+  "common_area_closures",
+  "common_area_photos",
+  "common_area_reservations",
+  "common_areas",
+  "consent_texts",
+  "consent_types",
+  "dues_assessments",
+  "dues_cancellation_reasons",
+  "dues_charge_parties",
+  "dues_charges",
+  "expenses",
+  "guest_vehicles",
+  "late_penalty_accruals",
+  "late_penalty_policies",
+  "late_penalty_segments",
+  "late_penalty_switches",
+  "lease_contract_operations",
+  "lease_contracts",
+  "legacy_occupancy_maps",
+  "legacy_person_maps",
+  "listing_events",
+  "listing_photos",
+  "maintenance_plans",
+  "management_assignment_events",
+  "management_assignment_operations",
+  "management_assignments",
+  "meter_reading_revisions",
+  "meter_readings",
+  "meters",
+  "mobile_announcement_reads",
+  "mobile_notice_preferences",
+  "mobile_operation_receipts",
+  "mobile_profile_photos",
+  "mobile_profiles",
+  "mobile_registrations",
+  "mobile_request_photos",
+  "mobile_requests",
+  "outbox_messages",
+  "parking_allocations",
+  "parking_closures",
+  "parking_facilities",
+  "parking_levels",
+  "parking_policies",
+  "parking_spaces",
+  "payment_allocations",
+  "payment_bank_accounts",
+  "payment_intent_lines",
+  "payment_intents",
+  "payment_ledger_entries",
+  "payment_merchant_accounts",
+  "payment_provider_events",
+  "payment_providers",
+  "payment_receipts",
+  "payment_reconciliation_items",
+  "payment_refunds",
+  "payments",
+  "people",
+  "person_account_links",
+  "person_link_attempts",
+  "person_link_codes",
+  "person_messages",
+  "person_operation_receipts",
+  "person_property_scopes",
+  "person_tenant_memberships",
+  "person_tenants",
+  "person_unit_operations",
+  "person_user_accounts",
+  "persons",
+  "phone_otp_challenges",
+  "processed_messages",
+  "properties",
+  "property_budgets",
+  "property_listings",
+  "property_memberships",
+  "property_payment_settings",
+  "request_management_events",
+  "sms_accounts",
+  "sms_credit_transactions",
+  "sms_legal_senders",
+  "sms_messages",
+  "sms_operational_preferences",
+  "sms_templates",
+  "stored_documents",
+  "survey_answers",
+  "survey_options",
+  "survey_participations",
+  "survey_questions",
+  "survey_responses",
+  "surveys",
+  "unit_occupancies",
+  "unit_ownerships",
+  "unit_residencies",
+  "unit_tenancies",
+  "units",
+  "user_consents",
+  "vehicles",
+  "website_domains",
+  "website_inquiries",
+  "website_media",
+  "website_pages",
+  "website_publications",
+  "website_sections",
+  "website_sites"
+ ],
+ "unmatchedMobileCalls": [],
+ "unmatchedWebCalls": [],
+ "webPages": [
+  {
+   "apiCalls": [
+    "/api/v2/session/contexts"
+   ],
+   "features": [
+    "session-workspaces"
+   ],
+   "route": "/",
+   "signals": [
+    "paging"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/account",
+    "/api/v1/account/communication-preferences",
+    "/api/v1/account/consents",
+    "/api/v1/account/consents/commands",
+    "/api/v1/account/contact-verification",
+    "/api/v1/account/profile/commands",
+    "/api/v1/account/profile/photo/{}"
+   ],
+   "features": [
+    "account"
+   ],
+   "route": "/account",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/announcements",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/common-areas",
+   "signals": []
+  },
+  {
+   "apiCalls": [
+    "/api/v1/consents",
+    "/api/v1/consents/records/{}",
+    "/api/v1/consents/users/{}",
+    "/api/v1/properties"
+   ],
+   "features": [
+    "consents"
+   ],
+   "route": "/consents",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/consents",
+    "/api/v1/consents/records/{}",
+    "/api/v1/consents/users/{}",
+    "/api/v1/properties"
+   ],
+   "features": [
+    "consents"
+   ],
+   "route": "/consents/records/[recordId]",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties",
+    "/api/v1/properties/{}/dashboard",
+    "/api/v1/properties/{}/documents",
+    "/api/v1/properties/{}/documents/{}/download",
+    "/api/v1/weather"
+   ],
+   "features": [
+    "dashboard"
+   ],
+   "route": "/dashboard",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/documents",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/dues",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/expenses",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/login",
+   "signals": []
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/maintenance",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/meters",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/parking",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/payments",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}",
+    "/api/v2/people",
+    "/api/v2/person-workspaces",
+    "/api/v2/tenants/{}/people",
+    "/api/v2/tenants/{}/person-properties",
+    "/api/v2/tenants/{}/person-workspace",
+    "/api/v2/tenants/{}/properties/{}",
+    "/api/v2/tenants/{}/properties/{}/management-assignments",
+    "/api/v2/tenants/{}/properties/{}/management-assignments/{}",
+    "/api/v2/tenants/{}/properties/{}/units/{}/lease-contracts"
+   ],
+   "features": [
+    "navigation",
+    "person-center"
+   ],
+   "route": "/people",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v2/people",
+    "/api/v2/person-workspaces",
+    "/api/v2/tenants/{}/people",
+    "/api/v2/tenants/{}/person-properties",
+    "/api/v2/tenants/{}/person-workspace",
+    "/api/v2/tenants/{}/properties/{}",
+    "/api/v2/tenants/{}/properties/{}/management-assignments",
+    "/api/v2/tenants/{}/properties/{}/management-assignments/{}",
+    "/api/v2/tenants/{}/properties/{}/units/{}/lease-contracts"
+   ],
+   "features": [
+    "person-center"
+   ],
+   "route": "/people/[tenantId]",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v2/people",
+    "/api/v2/person-workspaces",
+    "/api/v2/tenants/{}/people",
+    "/api/v2/tenants/{}/person-properties",
+    "/api/v2/tenants/{}/person-workspace",
+    "/api/v2/tenants/{}/properties/{}",
+    "/api/v2/tenants/{}/properties/{}/management-assignments",
+    "/api/v2/tenants/{}/properties/{}/management-assignments/{}",
+    "/api/v2/tenants/{}/properties/{}/units/{}/lease-contracts"
+   ],
+   "features": [
+    "person-center"
+   ],
+   "route": "/people/[tenantId]/[personId]",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties",
+    "/api/v1/properties/{}"
+   ],
+   "features": [
+    "properties"
+   ],
+   "route": "/properties",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "table"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties",
+    "/api/v1/properties/{}"
+   ],
+   "features": [
+    "properties"
+   ],
+   "route": "/properties/[id]",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "table"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/documents",
+    "/api/v1/properties/{}/documents/{}",
+    "/api/v1/properties/{}/documents/{}/download",
+    "/api/v1/properties/{}/{}"
+   ],
+   "features": [
+    "communication"
+   ],
+   "route": "/properties/[id]/announcements",
+   "signals": [
+    "create",
+    "delete",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/properties/[id]/buildings",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/occupancies"
+   ],
+   "features": [
+    "hierarchy"
+   ],
+   "route": "/properties/[id]/buildings/[buildingId]",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/notifications",
+    "/api/v1/notifications/{}/read",
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}",
+    "/api/v1/properties/{}/people/{}",
+    "/api/v1/properties/{}/people/{}/code",
+    "/api/v1/properties/{}/people/{}/photo",
+    "/api/v1/properties/{}/unit-parties"
+   ],
+   "features": [
+    "navigation",
+    "people"
+   ],
+   "route": "/properties/[id]/buildings/[buildingId]/units",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/properties/[id]/common-areas",
+   "signals": []
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/documents",
+    "/api/v1/properties/{}/documents/{}",
+    "/api/v1/properties/{}/documents/{}/download",
+    "/api/v1/properties/{}/{}"
+   ],
+   "features": [
+    "communication"
+   ],
+   "route": "/properties/[id]/documents",
+   "signals": [
+    "create",
+    "delete",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties"
+   ],
+   "features": [
+    "dues"
+   ],
+   "route": "/properties/[id]/dues",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/expenses/{}"
+   ],
+   "features": [
+    "expenses"
+   ],
+   "route": "/properties/[id]/expenses",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/maintenance-plans",
+    "/api/v1/properties/{}/maintenance-plans/upcoming"
+   ],
+   "features": [
+    "maintenance"
+   ],
+   "route": "/properties/[id]/maintenance",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/dues/unit-choices",
+    "/api/v1/properties/{}/meters",
+    "/api/v1/properties/{}/meters/{}/readings"
+   ],
+   "features": [
+    "meters"
+   ],
+   "route": "/properties/[id]/meters",
+   "signals": [
+    "create",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/parking"
+   ],
+   "features": [
+    "parking"
+   ],
+   "route": "/properties/[id]/parking",
+   "signals": [
+    "create",
+    "delete",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/payments"
+   ],
+   "features": [
+    "payments"
+   ],
+   "route": "/properties/[id]/payments",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/notifications",
+    "/api/v1/notifications/{}/read",
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/people/{}",
+    "/api/v1/properties/{}/people/{}/code",
+    "/api/v1/properties/{}/people/{}/photo",
+    "/api/v1/properties/{}/unit-parties"
+   ],
+   "features": [
+    "people"
+   ],
+   "route": "/properties/[id]/people",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/notifications",
+    "/api/v1/notifications/{}/read",
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/people/{}",
+    "/api/v1/properties/{}/people/{}/code",
+    "/api/v1/properties/{}/people/{}/photo",
+    "/api/v1/properties/{}/unit-parties"
+   ],
+   "features": [
+    "people"
+   ],
+   "route": "/properties/[id]/people/[personId]",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/reports"
+   ],
+   "features": [
+    "reports"
+   ],
+   "route": "/properties/[id]/reports",
+   "signals": [
+    "paging"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/mobile/sync/requests/{}/photo",
+    "/api/v1/properties/{}/requests",
+    "/api/v1/properties/{}/requests/{}",
+    "/api/v1/properties/{}/units"
+   ],
+   "features": [
+    "requests"
+   ],
+   "route": "/properties/[id]/requests",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/sms"
+   ],
+   "features": [
+    "sms"
+   ],
+   "route": "/properties/[id]/sms",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/surveys",
+    "/api/v1/properties/{}/surveys/{}",
+    "/api/v1/properties/{}/surveys/{}/results"
+   ],
+   "features": [
+    "surveys"
+   ],
+   "route": "/properties/[id]/surveys",
+   "signals": [
+    "create",
+    "delete",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/notifications",
+    "/api/v1/notifications/{}/read",
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}",
+    "/api/v1/properties/{}/people/{}",
+    "/api/v1/properties/{}/people/{}/code",
+    "/api/v1/properties/{}/people/{}/photo",
+    "/api/v1/properties/{}/unit-parties"
+   ],
+   "features": [
+    "navigation",
+    "people"
+   ],
+   "route": "/properties/[id]/units",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}/listings",
+    "/api/v1/properties/{}/website",
+    "/api/v1/properties/{}/website/domains",
+    "/api/v1/properties/{}/website/inquiries",
+    "/api/v1/properties/{}/website/inquiries/{}",
+    "/api/v1/properties/{}/website/media"
+   ],
+   "features": [
+    "website"
+   ],
+   "route": "/properties/[id]/website",
+   "signals": [
+    "create",
+    "delete",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/reports",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/requests",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/sites",
+   "signals": []
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/sites/[id]",
+   "signals": []
+  },
+  {
+   "apiCalls": [],
+   "features": [],
+   "route": "/sites/[id]/blocks/[blockId]",
+   "signals": []
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/sms",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/surveys",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/payment-providers",
+    "/api/v1/properties/{}",
+    "/api/v1/system/status"
+   ],
+   "features": [
+    "online-payments",
+    "system-status"
+   ],
+   "route": "/system-settings",
+   "signals": [
+    "create",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/units",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties",
+    "/api/v1/properties/{}/people",
+    "/api/v1/users",
+    "/api/v1/users/{}",
+    "/api/v1/users/{}/password-reset",
+    "/api/v1/users/{}/people",
+    "/api/v1/users/{}/people/{}",
+    "/api/v1/users/{}/photo"
+   ],
+   "features": [
+    "users"
+   ],
+   "route": "/users",
+   "signals": [
+    "create",
+    "delete",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/properties/{}",
+    "/api/v1/properties/{}/buildings",
+    "/api/v1/properties/{}/buildings/{}"
+   ],
+   "features": [
+    "navigation"
+   ],
+   "route": "/website",
+   "signals": [
+    "filter",
+    "paging",
+    "search"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v2/session/contexts"
+   ],
+   "features": [
+    "session-workspaces"
+   ],
+   "route": "/website-entry/[siteKey]/[audience]",
+   "signals": [
+    "paging"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v2/session/contexts"
+   ],
+   "features": [
+    "session-workspaces"
+   ],
+   "route": "/workspaces",
+   "signals": [
+    "paging"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v2/people",
+    "/api/v2/person-workspaces",
+    "/api/v2/session/contexts",
+    "/api/v2/tenants/{}/people",
+    "/api/v2/tenants/{}/person-properties",
+    "/api/v2/tenants/{}/person-workspace",
+    "/api/v2/tenants/{}/properties/{}",
+    "/api/v2/tenants/{}/properties/{}/management-assignments",
+    "/api/v2/tenants/{}/properties/{}/management-assignments/{}",
+    "/api/v2/tenants/{}/properties/{}/units/{}/lease-contracts"
+   ],
+   "features": [
+    "person-center",
+    "session-workspaces"
+   ],
+   "route": "/workspaces/[kind]/[id]",
+   "signals": [
+    "create",
+    "filter",
+    "form",
+    "paging",
+    "search",
+    "update"
+   ]
+  },
+  {
+   "apiCalls": [
+    "/api/v1/mobile/sync/commands",
+    "/api/v1/mobile/sync/requests",
+    "/api/v2/me/active-context",
+    "/api/v2/me/finance-summary",
+    "/api/v2/me/portfolio",
+    "/api/v2/me/units/{}/documents/{}/download",
+    "/api/v2/me/units/{}/{}"
+   ],
+   "features": [
+    "my-portfolio"
+   ],
+   "route": "/workspaces/portfolio",
+   "signals": [
+    "create",
+    "export",
+    "filter",
+    "form",
+    "paging",
+    "search"
+   ]
+  }
+ ]
+}

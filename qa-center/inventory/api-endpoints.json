@@ -1,0 +1,3213 @@
+[
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/domains/{host}",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/public/v1/preview",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/public/v1/preview/media/{id:guid}/{sha}",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}",
+    "Access": "ANONYMOUS",
+    "Policies": []
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/public/v1/sites/{siteKey}/inquiries/",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}/inquiries/challenge",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}/listings/",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}/listings/{id:guid}",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}/media/{id:guid}/{sha}.{ext}",
+    "Access": "ANONYMOUS",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/public/v1/sites/{siteKey}/primary-domain",
+    "Access": "PUBLIC_IMPLICIT",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/communication-preferences/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/account/communication-preferences/operational",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/account/communication-preferences/{senderId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/communication-preferences/{senderId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/consents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/account/consents/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/contact-verification/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/account/contact-verification/phone",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/account/contact-verification/phone/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/account/profile/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/account/profile/photo/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/records",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/records/{recordId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/texts/{textId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/types",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/consents/types",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/consents/types/{typeId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/consents/types/{typeId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/types/{typeId:guid}/texts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/consents/types/{typeId:guid}/texts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/consents/users/{userId}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/communication-preferences/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/communication-preferences/operational",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/communication-preferences/{senderId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/consents/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/consents/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/contact-verification/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/contact-verification/phone",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/contact-verification/phone/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/finance",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/manager",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/notices/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/notices/preference",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/notices/read",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/owner",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/parking/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/parking/guests",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/parking/guests/{id:guid}/{action}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/parking/vehicles",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/payments/intents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/payments/intents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/payments/intents/{intentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/mobile/payments/intents/{intentId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/payments/options",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/payments/receipts/{paymentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/person-links",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/profile/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/profile/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/profile/photo/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/registrations",
+    "Access": "ANONYMOUS",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/session",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/surveys/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/surveys/{surveyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/surveys/{surveyId:guid}/responses",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/mobile/sync/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/sync/requests",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/sync/requests/{id:guid}/photo",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/mobile/tenant",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/notifications",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/notifications/{id:guid}/read",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/parking/my-vehicles/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/parking/my-vehicles/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/parking/my-vehicles/{vehicleId:guid}/deactivate",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/payment-providers/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/payment-providers/{code}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/payment-webhooks/{provider}",
+    "Access": "ANONYMOUS",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}/archive",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/announcements/{id:guid}/publish",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/bank-accounts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/bank-accounts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/close",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/decision",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/default",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/budgets",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/budgets/{budgetId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/closures/{closureId:guid}/release",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}/download",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/report",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations/{reservationId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/reservations/{reservationId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/common-areas/{areaId:guid}/schedule",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dashboard",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/documents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/documents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/documents/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/documents/{id:guid}/download",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/assessments",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/assessments/{assessmentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/cancellation-reasons",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/person-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/unit-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/{chargeId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/dues/{chargeId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/expenses",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/expenses",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/expenses/{expenseId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/expenses/{expenseId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/finance-summary",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/accruals/run",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/accruals/{accrualId:guid}/waive",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/charges/{chargeId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/overdue",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/report",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/settings",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/late-penalties/switches",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/unit-options",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/events",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/owner-consent",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/owner-consent",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/publish",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/reject",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/submit",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/listings/{id:guid}/withdraw",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/upcoming",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/maintenance-plans/{planId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/merchant-accounts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/merchant-accounts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/deactivate",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/default",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/merchant-accounts/{merchantId:guid}/test",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/meters/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/meters/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/meters/{meterId:guid}/readings/{readingId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues",
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/occupancies",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/occupancies",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/occupancies/{occupancyId:guid}/end-preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/online-payments",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}/refunds",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/online-payments/{intentId:guid}/settle",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/allocations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/allocations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/allocations/{id:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/closures",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/closures",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/closures/{id:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/facilities",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/facilities",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/facilities/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/facilities/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guest-policy",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guest-spaces",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guests",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guests",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/arrive",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/guests/{id:guid}/depart",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/levels",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/levels/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/levels/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/plates",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/policy",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/policy",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/report",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/spaces",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/spaces",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/spaces/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/spaces/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/units",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/units/{unitId:guid}/residents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/deactivate",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/parking/vehicles/{id:guid}/reject",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-ledger",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/items",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/items/{itemId:guid}/resolve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/run",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-reconciliation/settlement",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-refunds/{refundId:guid}/decision",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-settings",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/payment-settings",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payments/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/payments/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/payments/{paymentId:guid}/receipt",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/account-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/code",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/messages",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/messages",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/people/{personId:guid}/photo",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/reports",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/requests/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/requests/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/requests/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/requests/{id:guid}/management",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/account",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/account/credits",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/account/credits",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople",
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/commercial-consents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/legal-sender",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/legal-sender",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/messages",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/messages",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/opt-outs",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/templates",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/templates",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/templates/{templateId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/sms/templates/{templateId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/overview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/close",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/copy",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/publish",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/results",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/surveys/{surveyId:guid}/schedule",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/unit-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/unit-parties",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/units/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/units/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/units/{unitId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/disable",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/primary",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/rotate",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/domains/{id:guid}/verify",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/inquiries/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/inquiries/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/media/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/media/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/media/{id:guid}/content",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/order",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/order",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/{sectionId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/pages/{pageId:guid}/sections/{sectionId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/preview-token",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/publications",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/publications",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/publications/{publicationId:guid}/restore",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite",
+      "CanPublishWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/status",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties",
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{propertyId:guid}/website/theme",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageWebsite"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{siteId:guid}/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{siteId:guid}/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/properties/{siteId:guid}/buildings/{blockId:guid}/units/{apartmentId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy",
+      "CanReadProperties"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/sms/opt-out-callbacks",
+    "Access": "ANONYMOUS",
+    "Policies": []
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/sms/platform-sender/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/sms/platform-sender/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageProperties"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/status",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/system/status",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageHierarchy"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/users/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/users/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/users/{userId}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v1/users/{userId}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/users/{userId}/password-reset",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/users/{userId}/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v1/users/{userId}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/users/{userId}/photo",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v1/users/{userId}/photo/commands",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/users/{userId}/photo/state",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v1/weather",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/active-context",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/finance-summary",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/me/person-links",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/portfolio",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/announcements",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/common-areas/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/photos/{photoId:guid}/download",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/common-areas/{areaId:guid}/schedule",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/documents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/documents/{documentId:guid}/download",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/dues",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/leases",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/me/units/{unitId:guid}/payments",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/mobile/authorization",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/person-workspaces",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/session/contexts/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/session/contexts/website/{siteKey}/{audience}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/session/contexts/{kind}/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/me/person",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-link-codes",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-link/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/account-status",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/center",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/management-duties",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/photo",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/portfolio",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations/{kind}/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/people/{personId:guid}/unit-relations/{kind}/{id:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/person-properties",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/person-workspace",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-access",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople",
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople",
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople",
+      "CanManageUsers"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/management-assignments/{id:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "AUTHENTICATED",
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-building-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/apply",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/comparison",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/people/{legacyPersonId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-transition/preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/person-unit-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/attach",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/parties",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  }
+]

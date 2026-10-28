@@ -1,3 +1,7 @@
+## QA FAZ 02 — Ekran/API keşfi ve test matrisi — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#82, bulgular #83.** Çalışma zamanı endpoint dökümü (`QaEndpointInventoryTests`, public prefix dışında işaretsiz route FAIL) ve `scripts/qa_inventory.py`: **API398 (yetkili385/anonim5/public8), web55 sayfa, mobil9 ekran, tablo108; web tam eşleşme131, mobil20, tüketicisiz12.** Testler: envanter1/1, eşleştirici11/11, deterministik çıktı; lisans329 PASS. Mobil ekran içi rol dalları kısmi (FAZ07). Yeni paket/migration yok; push yok. Rapor `qa-center/reports/phase-02.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 01 — İzole test altyapısı ve güvenlik — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **Test ve Kalite Merkezi akışı (qa-center/, 14 faz), FAZ01 / #81.** `scripts/qa_guard.py` test.sh içinde her koşumdan önce Production ortamı, loopback dışı/ana/test dışı DB, loopback dışı S3/Mailpit/Keycloak/RabbitMQ/SMTP/sandbox URL ve gerçek SMS OTP'yi reddeder. **Guard 15/15, izole smoke Integration52/52+Unit14/14 atlanan0, Production negatif kanıtı exit1/0 test, lisans329 PASS.** Ayrı Keycloak test realm'i ve QA mobil profili yok (kısmi madde). Yeni paket/migration yok; push yok. Rapor `qa-center/reports/phase-01.md`. Ürün yol haritası değişmedi. Token: BİLGİ MEVCUT DEĞİL.

@@ -1,3 +1,7 @@
+## QA-02 — Ekran/API envanteri — 28.10.2026 — TEKNİK TESLİM
+
+`dotnet test backend/tests/BuildingFlow.IntegrationTests --filter QaEndpointInventoryTests` 1/1 PASS (398 endpoint; ilk koşum 8 işaretsiz public route ile FAIL, public prefix sınıflandırmasıyla düzeltildi). `python3 scripts/test_qa_inventory.py` 11/11 PASS; `qa_inventory.py` iki çalıştırma byte-aynı. `check-licenses.py` 329 PASS. Tam regresyon bu tur çalıştırılmadı.
+
 ## QA-01 — İzole test ortamı guard'ı — 28.10.2026 — TEKNİK TESLİM
 
 `python3 scripts/test_qa_guard.py` 15/15 PASS. `bash scripts/test.sh --filter OnlinePayment|AuthenticationTests|ReleaseSecurityTests|PersistenceTests` run_id qa-20261028T172329Z-034106: Integration 52/52, Unit 14/14, atlanan 0, guard GEÇTİ. Negatif: `ASPNETCORE_ENVIRONMENT=Production bash scripts/test.sh` exit 1, PROD_ENVIRONMENT, 0 test, geçici DB temizlendi. `check-licenses.py` 329 PASS. GitHub Actions bu tur çalıştırılmadı.
