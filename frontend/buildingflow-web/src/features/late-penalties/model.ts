@@ -91,6 +91,6 @@ export function normalizeRate(raw:string):string|null{
 }
 // CSV is opened by Excel without a new dependency; formula-like cells are neutralised.
 export function toCsv(rows:readonly (readonly (string|number)[])[]):string{
- const cell=(value:string|number)=>{let text=String(value);if(/^[=+\-@\t\r]/.test(text))text="'"+text;return /[";\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
+ const cell=(value:string|number)=>{let text=String(value);if(/^[=+\-@\t\r]/.test(text)&&!/^-?\d+(?:[.,]\d+)?$/.test(text))text="'"+text;return /[";\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
  return "﻿"+rows.map(row=>row.map(cell).join(";")).join("\r\n");
 }

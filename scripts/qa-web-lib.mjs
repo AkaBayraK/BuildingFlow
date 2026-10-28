@@ -57,3 +57,12 @@ export function judge({ documentStatus, finalPath, expectedPath, exceptions, ser
 export function reportLine(index, item) {
   return `${index}. [${item.status}] ${item.route} (${item.viewport}) > ${item.action}. Beklenen: ${item.expected}. Gerçek: ${item.actual}. Kanıt: ${item.evidence || '-'}`;
 }
+
+// Self-contained player for screencast frames: no codec or package, frames keep their capture timing.
+export function recordingPlayer(frames) {
+  const list = JSON.stringify(frames.map(frame => ({ file: frame.file, at: frame.at })));
+  return `<!doctype html><meta charset="utf-8"><title>QA ekran kaydı</title><style>body{margin:0;background:#0b2540;color:#fff;font:14px system-ui}img{max-width:100%;display:block;margin:auto}p{text-align:center}</style>`
+    + `<img id="f" alt="QA ekran kaydı karesi"><p id="t"></p><script>const frames=${list};let i=0;const img=document.getElementById('f'),t=document.getElementById('t');`
+    + `function show(){if(!frames.length){t.textContent='Kare yok';return;}img.src=frames[i].file;t.textContent=(i+1)+'/'+frames.length;`
+    + `const next=frames[i+1];i=(i+1)%frames.length;setTimeout(show,next?Math.max(40,(next.at-frames[i===0?frames.length-1:i-1].at)*1000):1500);}show();</script>`;
+}

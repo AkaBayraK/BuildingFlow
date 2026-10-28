@@ -3229,7 +3229,7 @@
     "aiExplanationTitle": "AI explanation — does not change the recorded result",
     "dataIntro": "Generate synthetic demo or test data. Every row is tagged with the batch code; no real personal data is used.",
     "dataKind": "Data type",
-    "kind_DEMO": "Demo (protected)",
+    "kind_DEMO": "Demo (protected, with dues and collections)",
     "kind_TEST": "Test (removable)",
     "dataCreate": "Create data",
     "dataEmpty": "No data batches yet.",

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { judge, plan, reportLine, slug } from './qa-web-lib.mjs';
+import { judge, plan, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
 
 const clean = { overflow: 0, imagesWithoutAlt: 0, unnamedControls: 0, unlabelledFields: 0, tabsWithoutState: 0, headings: 1, alerts: [] };
 const base = { documentStatus: 200, finalPath: '/dues', expectedPath: '/dues', exceptions: [], serverErrors: [], audit: clean, viewport: 'desktop' };
@@ -31,4 +31,11 @@ test('slug and report line are stable', () => {
   assert.equal(slug('/'), 'root');
   assert.equal(reportLine(1, { status: 'PASS', route: '/dues', viewport: 'mobile', action: 'Ekran açıldı', expected: 'hata yok', actual: 'hata yok', evidence: 'a.png' }),
     '1. [PASS] /dues (mobile) > Ekran açıldı. Beklenen: hata yok. Gerçek: hata yok. Kanıt: a.png');
+});
+
+test('recording player lists frames in order and handles an empty capture', () => {
+  const html = recordingPlayer([{ file: 'frame-0000.jpg', at: 1.0 }, { file: 'frame-0001.jpg', at: 1.5 }]);
+  assert.ok(html.indexOf('frame-0000.jpg') < html.indexOf('frame-0001.jpg'));
+  assert.match(html, /<img id="f" alt=/);
+  assert.match(recordingPlayer([]), /Kare yok/);
 });

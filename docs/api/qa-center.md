@@ -37,7 +37,7 @@ Hatalar: `BF_QA_AI_PROMPT_INVALID` 400, `BF_QA_AI_BUDGET` 429 (süreç içi gün
 | Method | Route | Açıklama |
 |---|---|---|
 | GET | `/api/v1/qa-center/data/batches` | Son 50 parti (kod, tür, ortam, `runCode`, durum, kayıt sayısı, yönetim alanı) |
-| POST | `/api/v1/qa-center/data/batches` `{kind: DEMO\|TEST, requestId, runCode?, blocks 1-5, unitsPerBlock 1-20}` | SITE + bloklar + daireler + malik/kiracı kişileri (`@example.test`, telefon/kimlik yok) + ilişkiler; her satır `qa_data_records`'a yazılır. 201 yeni, 200 replay, farklı türle aynı UUID 409 |
+| POST | `/api/v1/qa-center/data/batches` `{kind: DEMO\|TEST, requestId, runCode?, blocks 1-5, unitsPerBlock 1-20}` | SITE + bloklar + daireler + malik/kiracı kişileri (`@example.test`, telefon/kimlik yok) + ilişkiler; her satır `qa_data_records`'a yazılır. DEMO partisine ayrıca (varsayılan, `withFinance=false` ile kapatılır) aylık 1.500 TRY aidat tahakkuku ve dairelerin yarısı için nakit tahsilat/makbuz domain servisleriyle eklenir; finans kaydı silinmeyeceği için TEST partisine eklenmez. 201 yeni, 200 replay, farklı türle aynı UUID 409 |
 | GET | `.../{id}/cleanup-preview` | Dry-run: sıra (UnitOccupancy → Person → Unit → Building → Property), sayılar, engeller (`DEMO_PROTECTED`, `FINANCE_HISTORY`, `UNREGISTERED_ROWS`, `ALREADY_CLEANED`), onay metni `TEMIZLE <kod>`, version |
 | POST | `.../{id}/cleanup` `{version, confirmation}` | Yalnız TEST + engelsiz + birebir onay; kayıtlı satırları tek transaction'da soft-delete eder; parti ve kayıt defteri (audit) korunur |
 

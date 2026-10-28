@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { PAGE_AUDIT, VIEWPORTS, judge, plan, reportLine, slug } from './qa-web-lib.mjs';
+import { PAGE_AUDIT, VIEWPORTS, judge, plan, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
 
 const CHROME = process.env.BF_QA_CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const WEB = `http://localhost:${process.env.WEB_PORT ?? 3003}`;
@@ -93,11 +93,24 @@ try {
 
   if (only && !only.includes('/system-settings/qa-center')) { exitCode = items.some(item => item.status === 'FAIL') ? 1 : 0; throw Object.assign(new Error('subset'), { subset: true }); }
   await viewport(VIEWPORTS[0]); reset();
+  // Screen recording without a video encoder: CDP screencast frames plus a self-contained HTML player.
+  const recording = join(out, 'qa-center-recording'); mkdirSync(recording, { recursive: true });
+  const frames = [];
+  cdp.on(({ method, params }) => {
+    if (method !== 'Page.screencastFrame') return;
+    if (frames.length < 300) { const file = `frame-${String(frames.length).padStart(4, '0')}.jpg`; writeFileSync(join(recording, file), Buffer.from(params.data, 'base64')); frames.push({ file, at: params.metadata.timestamp }); }
+    cdp.send('Page.screencastFrameAck', { sessionId: params.sessionId }).catch(() => {});
+  });
+  await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 60, everyNthFrame: 2 });
   await cdp.send('Page.navigate', { url: `${WEB}/system-settings/qa-center` }); await settle();
   const started = await click('Test Senaryoları') && await cdp.until(`[...document.querySelectorAll('h2')].some(h => h.textContent.includes('Veritabanı Migration'))`)
     && await cdp.value(`(() => { const card = [...document.querySelectorAll('h2')].find(h => h.textContent.includes('Veritabanı Migration')).closest('div.flex-col'); const b = card && [...card.querySelectorAll('button')].find(x => x.textContent.includes('Testi Başlat')); if (!b) return false; b.click(); return true; })()`);
   const passed = started && await cdp.until(`document.querySelectorAll('[role=tabpanel] ol li').length === 2 && /Geçti/.test(document.querySelector('[role=tabpanel]').innerText) && !/Çalışıyor|Kuyrukta/.test(document.querySelector('[role=tabpanel]').innerText)`, 30000);
   const steps = await cdp.value(`[...document.querySelectorAll('[role=tabpanel] ol li')].map(li => li.innerText.replace(/\\s+/g, ' ').trim())`);
+  await cdp.send('Page.stopScreencast');
+  writeFileSync(join(recording, 'player.html'), recordingPlayer(frames));
+  items.push({ route: '/system-settings/qa-center', viewport: 'desktop', action: `Akış ekran kaydına alındı (${frames.length} kare)`, expected: 'en az 1 kare ve oynatıcı',
+    actual: frames.length ? `${frames.length} kare, ${((frames.at(-1).at - frames[0].at) || 0).toFixed(1)} sn` : 'kare yok', status: frames.length ? 'PASS' : 'FAIL', evidence: join(recording, 'player.html') });
   items.push({ route: '/system-settings/qa-center', viewport: 'desktop', action: 'Veritabanı Migration senaryosu UI üzerinden başlatıldı', expected: 'koşum Geçti, 2 adım (database.connect, database.pendingMigrations=0)',
     actual: passed ? `Geçti; ${steps.join(' / ')}` : `beklenen sonuca ulaşılmadı; adımlar: ${steps.join(' / ') || 'yok'}`, status: passed ? 'PASS' : 'FAIL', evidence: await shot('qa-center-run-desktop') });
   await viewport(VIEWPORTS[1]); await settle();

@@ -3229,7 +3229,7 @@
     "aiExplanationTitle": "AI açıklaması — kayıtlı sonucu değiştirmez",
     "dataIntro": "Sentetik demo veya test verisi üretin. Her kayıt parti koduyla etiketlenir; gerçek kişi verisi kullanılmaz.",
     "dataKind": "Veri türü",
-    "kind_DEMO": "Demo (korunur)",
+    "kind_DEMO": "Demo (korunur, aidat ve tahsilat dahil)",
     "kind_TEST": "Test (temizlenebilir)",
     "dataCreate": "Veri oluştur",
     "dataEmpty": "Henüz veri partisi yok.",

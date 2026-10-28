@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BuildingFlow.Api;
 
-public sealed record CreateQaDataBatchRequest(string? Kind, Guid RequestId, string? RunCode, int Blocks = 2, int UnitsPerBlock = 4);
+public sealed record CreateQaDataBatchRequest(string? Kind, Guid RequestId, string? RunCode, int Blocks = 2, int UnitsPerBlock = 4, bool? WithFinance = null);
 public sealed record QaDataBatchResponse(Guid Id, string Code, string Kind, string Environment, string? RunCode, string Status, int RecordCount,
     DateTimeOffset GeneratedAt, DateTimeOffset? CleanedAt, Guid? PropertyId, long Version);
 public sealed record QaCleanupItem(int Order, string EntityType, int Count);
@@ -14,7 +14,7 @@ public sealed record QaCleanupRequest(long Version, string? Confirmation);
 
 // Synthetic data for demos and tests. Cleanup only soft-deletes rows this batch registered, in dependency order and in
 // one transaction; demo batches, finance history and rows added later by users block it instead of being touched.
-public sealed class QaDataService(BuildingFlowDbContext db, IHostEnvironment environment, TimeProvider clock)
+public sealed class QaDataService(BuildingFlowDbContext db, IHostEnvironment environment, TimeProvider clock, DuesService dues, PaymentService payments)
 {
     private static readonly string[] FirstNames = ["Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Burak", "Deniz", "Selin", "Emre", "Derya"];
     private static readonly string[] LastNames = ["Demo", "Örnek", "Deneme", "Sentetik"];
@@ -66,7 +66,29 @@ public sealed class QaDataService(BuildingFlowDbContext db, IHostEnvironment env
         batch.Registered(records.Count);
         db.AddRange(batch, property); db.AddRange(people); db.AddRange(occupancies); db.AddRange(records);
         await db.SaveChangesAsync(token);
+        // Finance rows are never deleted, so only protected DEMO batches get them (TEST stays cleanable).
+        if (kind == QaDataKind.DEMO && request.WithFinance != false) await SeedFinance(batch, property, today, token);
         return (Map(batch, property.Id), true);
+    }
+
+    private async Task SeedFinance(QaDataBatch batch, Property property, DateOnly today, CancellationToken token)
+    {
+        var units = property.Buildings.SelectMany(building => building.Units).OrderBy(unit => unit.Number, StringComparer.Ordinal).ToList();
+        var period = new DateOnly(today.Year, today.Month, 1);
+        var assessment = await dues.CreateAsync(property.Id, new CreateAssessmentRequest(Guid.NewGuid(), units.Select(unit => unit.Id).ToList(), period.ToString("yyyy-MM"),
+            "1500.00", "TRY", period.AddDays(14), "Demo aidat"), token) ?? throw new InvalidOperationException("Demo dues were not created.");
+        var records = new List<QaDataRecord> { new(batch.Id, "DuesAssessment", assessment.Id, 90) };
+        var charges = await db.DuesCharges.AsNoTracking().Where(charge => charge.AssessmentId == assessment.Id).OrderBy(charge => charge.UnitId).ToListAsync(token);
+        foreach (var charge in charges.Where((_, index) => index % 2 == 0))
+        {
+            var paid = await payments.CreateAsync(property.Id, new CreatePaymentRequest(Guid.NewGuid(), charge.UnitId, "1500.00", "TRY", today, "CASH", null, "Demo tahsilat",
+                [new AllocationRequest(charge.Id, "1500.00", charge.Version)]), token) ?? throw new InvalidOperationException("Demo payment was not created.");
+            records.Add(new(batch.Id, "Payment", paid.Id, 91));
+        }
+        var tracked = await db.QaDataBatches.SingleAsync(value => value.Id == batch.Id, token);
+        tracked.Registered(tracked.RecordCount + records.Count);
+        db.QaDataRecords.AddRange(records);
+        await db.SaveChangesAsync(token);
     }
 
     public async Task<QaCleanupPreview?> Preview(Guid id, CancellationToken token)

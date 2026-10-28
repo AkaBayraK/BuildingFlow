@@ -59,6 +59,16 @@ public sealed class QaDataApiTests(SiteApiTests.SiteApiFactory factory) : IClass
         var demo = await Json(await admin.PostAsJsonAsync(Root, new { kind = "DEMO", requestId = Guid.NewGuid(), blocks = 1, unitsPerBlock = 2 }), HttpStatusCode.Created);
         var demoPreview = await Json(await admin.GetAsync($"{Root}/{demo.GetProperty("id").GetGuid()}/cleanup-preview"), HttpStatusCode.OK);
         Assert.False(demoPreview.GetProperty("canClean").GetBoolean()); Assert.Contains("DEMO_PROTECTED", demoPreview.GetProperty("blockers").EnumerateArray().Select(x => x.GetString()));
+        var demoProperty = demo.GetProperty("propertyId").GetGuid();
+        Assert.Equal(12, demo.GetProperty("recordCount").GetInt32());
+        Assert.Contains("FINANCE_HISTORY", demoPreview.GetProperty("blockers").EnumerateArray().Select(x => x.GetString()));
+        await With(async db =>
+        {
+            var charges = await db.DuesCharges.Where(x => x.PropertyId == demoProperty).ToListAsync();
+            Assert.Equal(2, charges.Count); Assert.All(charges, charge => Assert.Equal(1500m, charge.Amount));
+            Assert.Single(await db.Payments.Where(x => x.PropertyId == demoProperty).ToListAsync());
+            Assert.Equal(["DuesAssessment", "Payment"], (await db.QaDataRecords.Where(x => x.BatchId == demo.GetProperty("id").GetGuid() && x.CleanupOrder > 50).OrderBy(x => x.CleanupOrder).Select(x => x.EntityType).ToListAsync()));
+        });
         await Code(await admin.PostAsJsonAsync($"{Root}/{demo.GetProperty("id").GetGuid()}/cleanup", new { version = demoPreview.GetProperty("version").GetInt64(), confirmation = demoPreview.GetProperty("confirmation").GetString() }), HttpStatusCode.Conflict, "BF_QA_DATA_PROTECTED");
 
         foreach (var blocker in new[] { "FINANCE_HISTORY", "UNREGISTERED_ROWS" })
