@@ -166,3 +166,46 @@ Mevcut Node imaj ailesi korunarak Docker/CI24.22.1 sabitlendi; yeni npm paket/lo
 ## BF-VERIFY03 — 23.10.2026
 
 Netgsm platform OTP sağlayıcısı kullanıcı tarafından seçildi. Ücretli SMS hizmetidir;SDK/kütüphane/asset lisansı eklenmedi. HTTPS/XML/HttpClient,RNG/HMAC/HKDF ve mevcut AES-GCM yardımcı kodu kullanılır;doküman örneklerinden üçüncü taraf paket/kod kopyalanmadı. Mevcut cached PostgreSQL18.6 yalnız geçici testte kullanıldı;imaj/sürüm eklenmedi. Manifest/lock/csproj farkı yok,restore/install yok;envanter yeniden üretilmedi. Mevcut LICENSE/NOTICE dosyaları korundu. Hesap/OTP paketi/onaylı gönderici ve gerçek kullanım sözleşmesi tamamlanmadan gerçek gönderim kabulü kapanmaz. [Sağlayıcı fiyat/koşulları](https://www.netgsm.com.tr/fiyatlar/otp-sms),[API](https://www.netgsm.com.tr/dokuman/).
+
+## Ortak Alanlar FAZ02 — 26.10.2026
+
+Yeni üçüncü taraf paket/sürüm/font/ikon/fotoğraf/imaj yok. Manifest/lock ve NuGet referansları aynı. Mevcut shadcn/TanStack ve platform API'leri korunur; yeni takvim/validator/scheduler eklenmedi. python3 scripts/check-licenses.py **329 npm/NuGet sürümü için GEÇTİ**, envanter içeriği değişmedi. Bu metadata sonucu container SBOM/dağıtım/copyleft veya ticari uygunluk garantisi değildir. [Kanıt](common-areas/02-report.md).
+
+## Ortak Alanlar FAZ05 — 26.10.2026
+
+Yeni paket/sürüm/font/ikon/görsel/imaj yok; mevcut Lucide/React/ASP.NET Core/EF/PostgreSQL ve uygulama içi kayıtlar kullanıldı. python3 scripts/check-licenses.py **329 npm/NuGet sürümü GEÇTİ**; manifest/lock ve envanter aynı. Yeni SMS/e-posta/push SDK'sı eklenmedi. Container/copyleft/NOTICE yükümlülükleri önceki kapsamıyla sürer; metadata sonucu hukuki uygunluk/SBOM sertifikası değildir. [Kanıt](common-areas/05-report.md).
+
+
+## OA-06 mobil ortak alanlar — 27.10.2026
+
+Yeni bağımlılık/sürüm/font/ikon/görsel yok; mevcut Expo SQLite/Crypto, React Native, Ionicons ve projeye ait ortak sözleşme kullanıldı. Manifest/lock ve LICENSE/NOTICE değişmedi. `npm run release:licenses`:871 mevcut mobil lockfile kaydının metadata kontrolü GEÇTİ; envanter yeniden yazılmadı. Yeni kaynak/lisans kararı gerektiren harici paket eklenmedi. Merkezi329 kontrolü bu tur yeniden çalıştırılmadı; ticari/container/dağıtım yükümlülükleri bu metadata sonucuyla kapanmaz. [Rapor](common-areas/06-report.md).
+
+
+## OA-07 — 27.10.2026
+
+Yeni paket/font/ikon/görsel/container veya sürüm yok. Takvim mevcut React/shadcn/TanStack/Lucide; rapor .NET BCL/EF, doğrulama BigInt ve projeye ait kaynakla yapıldı. Manifest/lock/csproj/LICENSE/NOTICE farkı yok; install/restore/metadata envanter üretimi bu tur yapılmadı. Önceki taramalar bu turun testi sayılmadı; mevcut dağıtım/ticari/copyleft yükümlülükleri devam eder. [Rapor](common-areas/07-report.md).
+
+
+## OTOPARK FAZ05 — 27.10.2026
+
+Yeni üçüncü taraf paket, font, ikon, görsel veya SDK eklenmedi. Mevcut .NET BCL/EF, Intl/React/Next, shadcn/TanStack/Lucide ve projeye ait kod kullanıldı. Manifest/lock/csproj/LICENSE/NOTICE farkı 0; tasarım görseli ürüne kopyalanmadı. Metadata envanteri bu tur yeniden üretilmedi; tam binary/container dağıtım lisans onayı değildir. [Kapsam ve kanıt](parking/05-report.md).
+
+
+## OTOPARK FAZ06 — 27.10.2026
+
+Yeni paket/sürüm/font/ikon/görsel eklenmedi; mevcut Expo57/Crypto/SQLCipher, React Native/React/Intl ve projeye ait kod kullanılır. Worktree için aynı lockfile ile `npm ci --offline --ignore-scripts` yapıldı. Sonrasında merkez329npm/NuGet ve871mobil lock kaydı lisans metadata kontrolü geçti;109tracked manifest/lock/csproj/migration hash'i korundu. Bu kontrol native/container binary dağıtım veya güncel güvenlik advisory kabulü değildir. [Teslim](parking/06-report.md).
+
+
+## OTOPARK-07 — 28.10.2026
+
+Yeni paket/SDK/font/ikon/görsel veya sürüm yoktur. Mevcut PersonMessage/ProcessedMessage, EF/PostgreSQL, .NET BCL, React/Next, shadcn/TanStack ve Lucide yeniden kullanıldı. Harici bildirim/donanım sağlayıcısı kurulmadı; lisanssız alternatif projeye ait rapor/CSV ve mevcut mesaj kutusudur. EF üretimi sonrası `python3 scripts/check-licenses.py` mevcut329sürüm için geçti; manifest/lock/csproj ve eski migration hash kontrolü teslim kanıtındadır. Lisans/NOTICE korundu. Bu metadata kontrolü güncel güvenlik advisory veya native/container dağıtım kabulü değildir. [Teslim](parking/07-report.md).
+
+## OTOPARK-08 — 28.10.2026 final inceleme
+
+Mevcut mobil transitif `node-forge`1.4.0→1.4.2 güvenlik yaması: resmi npm tarball içindeki tam LICENSE okundu ve [korundu](licenses/node-forge-1.4.2-LICENSE.txt). BSD-3-Clause seçeneği seçilir; GPL-2.0 seçeneği kullanılmaz. Ticari kullanım için BSD telif/koşul/feragat bildirimi dağıtımda korunur. Yeni paket yolu yoktur; aynı871mobil lock kaydında yalnız bu sürüm değişti. `npm install --ignore-scripts` sonrası merkez329 ve mobil871 lisans metadata kontrolü geçti, [DEPENDENCIES.tsv](../mobile/docs/mobile/DEPENDENCIES.tsv) güncellendi. Yeni SDK/font/görsel/ikon eklenmedi.
+
+[SBOM](parking/evidence/08-declared.cdx.json) mevcut web/mobil lock ve restore edilmiş NuGet kaynaklarından1116benzersiz bileşen içerir; dev/test ve platform varyantları dahildir. `scripts/parking-sbom.py` yalnız standart kütüphane kullanır. Resmi [CycloneDX1.6 şeması](https://github.com/CycloneDX/specification/tree/1.6/schema), zaten kurulu mobil Ajv ile geçici doğrulamada kullanıldı; yeni validator paketi eklenmedi. Bu düzleştirilmiş beyan SBOM'udur; çözülmüş bağımlılık grafiği, native SDK/binary taraması veya tüm imajın yasal uygunluk sertifikası değildir.
+
+[İmaj envanteri](parking/evidence/08-container-inventory.json) API/worker/web imageId, non-root user ve OS paketlerini kaydeder;97/97/19paket. Debian copyright ve native libvips/LGPL gibi dağıtım bildirimleri, temel imajlarla korunmalı; hedef dağıtım ve kaynak sunma/yeniden bağlama yükümlülükleri ayrıca kabul edilir. Redis/Grafana/Loki AGPL ve Docker Desktop/kuruluş abonelikleri önceki kurallara tabidir; paket metadata kontrolü bunların yerine geçmez. Yeni tarayıcı veya farklı lisanslı araç yüklemek yerine mevcut lock/assets ve image paket DB'leri kullanıldı.
+
+Güncel web ve NuGet audit temiz; node-forge yaması sonrası mobil audit3high/6moderate/5low ile BAŞARISIZ. Üç high aynı Zod duyurusunun zod→@expo/cli→expo zincirindeki yansımalarıdır. Mevcut CLI57.0.29ve incelenen57.0.32 `zod:^3.25.76` ister; [resmi duyuru](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) `<4.6.6` aralığını etkilenmiş sayar. Kırıcı Zod4override, Expo51'e otomatik downgrade veya audit istisnası uygulanmadı. Uyumlu upstream düzeltme/ayrı SDK geçişi ve yeniden test olmadan güvenlik kapısı yeşil değildir. [Final rapor](parking/08-report.md).

@@ -1,0 +1,32 @@
+{
+  "phase": "OTOPARK-06",
+  "date": "2026-10-27",
+  "scope": "selected isolated tests; not native device or live OIDC acceptance",
+  "integration": 46,
+  "unit": 18,
+  "mobile": 154,
+  "web": 275,
+  "skipped_in_final_selected_run": 0,
+  "sourceSha256": {
+    "mobile/buildingflow-mobile/src/parking/contracts.ts": "899dfe551617189dc50798829df9e5635710051eba2d73765267e4e8aa1f5820",
+    "mobile/buildingflow-mobile/src/parking/Editor.tsx": "e44f93621c2f9926df076d630d63a8e1ece3011646c0e24b5f8b02765846efdb",
+    "mobile/buildingflow-mobile/src/parking/useParking.ts": "371b0dae7bb8c489903a8c3efa3bb23707353931808dd98a08849d8291e57ac0",
+    "mobile/buildingflow-mobile/src/parking/cache.ts": "174b6eca3e7f4d78a400b3815b319fa184878149e6bbe4fdb7599fa071c69d42",
+    "mobile/buildingflow-mobile/src/parking/type-style.ts": "79eb91cdf0fc4a4b0ebec0d0b3e05c229a06af877ce3ec3964ec7e1a95fa03e0",
+    "mobile/buildingflow-mobile/src/parking/Parking.tsx": "ff6ff8dac50a9359f2fb7f8a529497b71c7c01bbdffa571b63eae7f4ac5a3c19",
+    "shared/parking.ts": "825056d239427414c82196cc585d0e820399507af4548fa136b7f2442b04e205",
+    "backend/src/BuildingFlow.Infrastructure/ParkingStore.Mobile.cs": "3259a047cc97d2ab6a5d21e244e0dc37baefc7d8766b962f3b19afbd171ce186",
+    "mobile/buildingflow-mobile/src/auth/AuthProvider.tsx": "3938a6fe15c3688904cc26dd6d86ddd33856fa517f135e7c02f43cd9bdcfa74b"
+  },
+  "exportSha256": {
+    "_expo/static/js/web/entry-4d16a2da630401f5ba41a6806b88e9fe.js": "e17b0aca7244bd088769a8336f796a3aa1ddefb0e276850171aebc3f415d9c09",
+    "_expo/static/js/ios/entry-1277c5a134ebebb53db89f8f58a597c5.hbc": "d48bff0b86f3660116113079504b62dc2feb43a41ec3a97a73978aed274411c3",
+    "_expo/static/js/android/entry-0ddf49f8d47d6755180cd9b91f09c83b.hbc": "29d79a8d1b10a517128e615955f95beb946b0a4ac2c0c884ea6fb2c863354b1f"
+  },
+  "licenseMetadata": {
+    "npmNugetVersions": 329,
+    "mobileLockEntries": 871
+  },
+  "exportContainsMobileParking": true,
+  "mainCommonAreasNotBundled": true
+}

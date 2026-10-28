@@ -1,3 +1,39 @@
+## OA-08 — Planlanan kabul kontrolleri — 27.10.2026
+
+Yeni koşu kanıtları: tüm.NET testleri ayrıPG+fixturebucket/broker/mailpit; webtest/typecheck/build; mobilcheck/export; metadata/audit/SBOM; model+migrations; izolecontainer sağlık/auth/header ve ortakalanrapor/takvimperformans; erişilebilirlik/rol/gizlilik. CanlıOIDC/native/remoteCI eksikleri ayrı kalır; skip geçiş değildir.
+
+## OA-07 — 27.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**İzolePG/API42/42 + unit13/13, web280/280/typecheck/varsayılanbuild GEÇTİ;0atlanan.** Yeni9API+3unit+6web senaryosu; rol/foreignscope/anonim/tarih, union/bakım/null/sıfır/yuvarlama/mevcut kapasite, sayfadan bağımsız özet ve bakım kaldırma. UI fixture:90→60dk düzenleme, gerekçeli iptal→0dk/geçmiş;375pxTR/ENkoyu ve1200pxTR, readonly aktif rezervasyonda rapor/özelnot/yazma yok, taşma0. PaymentSupported=false doğrulandı; gerçek ödeme yapılmadı. Gerçekauth/API E2E/native/tamBE/yük/pentest/container/CI bu tur çalıştırılmadı. Yeni schema/paket yok; migration testi eklenmedi. Manifest/lock/csproj/LICENSE/NOTICE/indeks korundu; metadata taraması yeniden çalıştırılmadı. [Komutlar/TRX/sınırlar](common-areas/07-report.md).
+
+## OA-07 — Kabul senaryoları — 27.10.2026
+
+Yönetici raporunda rol/üyelik/Property negatifleri; tarih aralığı93gün üst sınır, iptal kayıtları, çakışan rezervasyonun süreyi iki kez saymaması, bakım/kapalı/saatsiz gün ve sıfır payda; dönem özeti liste sayfasından bağımsız, mevcut saat/kapasite tanımı açık. Web yönetici dönem filtreleri/pagination, version kontrollü düzenleme/409, readonly yazma/rapor gizliliği; ücretin tahsilat gibi gösterilmemesi. İzole PostgreSQL/API + unit, web test/typecheck/build; ortak sözleşmede mobil check/build gerektikçe. Yeni tablo yoksa migration yok.
+
+## OA-06 — 27.10.2026 — TEKNİK TESLİM / CİHAZ VE KULLANICI KABULÜ AÇIK
+
+**Mobil check(typecheck/lint)+152/152 test, üç platform Expo export,871 mevcut mobil lisans metadata GEÇTİ. Web274/274,typecheck,varsayılan build GEÇTİ.**0atlanan. Beş yeni feature testi + purge hatasında ret için bir regresyon; hesap/rol/Property/ilişki/query/tarih cache ve UUID taslak/gizlilik sınırları.375/430px izole React Native Web fixture: salt okunur yazma düğmesi0, CLOSED/FREE/FULL, yönetici409 ve offline kesin işlem engeli, yatay taşma yok. Auth/API/shell ikonları fixture portudur. Fiziksel cihaz SQLCipher/biyometri, canlı Keycloak/API E2E ve backend/PG/.NET bu tur çalıştırılmadı. Yeni migration/paket yok. [Ayrıntı ve gerçek komutlar](common-areas/06-report.md).
+
+## OA-06 — Mobil ortak alanlar — 26.10.2026 — doğrulama sürüyor
+
+Senaryolar: yetkili çoklu Property/daire ilişkisi, ACCOUNTANT yazma reddi, yabancı URL/query reddi; FREE/PARTIAL/FULL/CLOSED ve kişisel alan reddi; hesap/rol/tarih izolasyonu, 24saat/geri saat/bozuk önbellek; otomatik gönderilmeyen taslak UUID ve not temizleme; 403/404 temizleme; mobil check+üç platform export; paylaşılan sözleşme için web test/typecheck/build. Gerçek cihaz SQLCipher/biyometri ve canlı Keycloak/API E2E ayrıca doğrulanmalıdır.
+
+## ORTAK ALANLAR FAZ05 — 26.10.2026 — KABUL KANITI
+
+**164/164 izolePG/API/regresyon+10/10unit;0atlanan. Web274/274,typecheck,varsayılanTurbopackbuild,329lisansmetadata GEÇTİ.** Bakım close/replay/UUIDconflict,kapalı rezervasyon409,değen sınır,release/version/tekrar409,plancompleted/cancelled/delete,çakışan rezervasyon korunması/rollback,plan günü,rol/foreignscope,race tek kazanan,bloknoticegizliliği,canonicalresident CLOSEDveözelveriyokluğu; migrationupgrade/repeat/emptyDown/reUp/doluDown,FK/check,release_reasonNULLreddi,eskiJSON/audit/model ve8NOTNULL. FixtureUI:375px taşma0,kapat/kaldır,sakinyazmadüğmesiyok. Gerçekauth/APIbrowser/native/SMS/push/load/pentest çalıştırılmadı. Önceki testler bu turun yerine sayılmadı. İlk kişi fixture kısıt hataları düzeltilip son koşu tekrarlandı. [Komutlar,sonTRX,sınırlar](common-areas/05-report.md),[API](api/common-areas.md). Git indeksi/bağımlılık/.env/eski migration/canlıDB korundu;#55açık.
+
+## ORTAK ALANLAR FAZ03 — 26.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-03 / Issue #53; plan03/08.** Web yönetici kart/liste/detay/CRUD/409/UUID, salt okunur daire görünümü, yetkili galeri (`20261026131804_CommonAreaPhotos`, canlıya uygulanmadı), TR/EN, ikonlu filtreler. Bu tur: fixture locale tipi ve panel kapanış odağı düzeltildi. **102/102 izole PG/API + 8/8 unit, web 271/271, typecheck, webpack ve Turbopack build, 329 lisans GEÇTİ.** İzole fixture UI kabulü: masaüstü, 375px EN koyu, klavye/odak, 409, salt okunur rol. Gerçek Keycloak/API/MinIO tarayıcı kabulü ve gerçek fotoğraf yükleme UI'ı çalıştırılmadı. Yeni paket yok; commit/push yok. Rezervasyon FAZ04, mobil FAZ06; FAZ04 kullanıcı onayı bekler. [Rapor](common-areas/03-report.md).
+
+## PROTOKOL — Ortak Alanlar yetki kararı — 26.10.2026
+
+**Gelecek kabul (henüz çalıştırılmadı):** yönetici alan/rezervasyon create/edit/cancel; yönetici dışı bu mutationlara backend403; web ve mobilde salt okunur yetkili alan/saat takvimi; yabancı tenant/blok404; halı sahada dolu/boş/bakım, PII yok; offline eski önbellek uygunluk garantisi değil. Belge kanıtı:11yerelbağlantı eksik0,886kaynak hash aynı,git diff --check GEÇTİ. Bu belge turunda uygulama testi/build çalıştırılmadı; FAZ02'nin100/8/260 sonuçları tekrar edilmiş sayılmaz. [Sözleşme](api/common-areas.md).
+
+## ORTAK ALANLAR FAZ 02 — 26.10.2026 — KABUL KANITI
+
+**100/100 izole PostgreSQL/API/regresyon+8/8 domain; 0 atlanan. Yeni modül13PG+8domain toplamın içindedir.** UUID/replay/race/version/audit/soft-delete; aktif üyelik/tenant/issuer-subject/hesap bağı/yönetim görevi, OWNER/TENANT/RESIDENT ve blok görünürlüğü; bitiş günü dahil/expired ilişkiler; FK/check, migration upgrade/repeat/boşDown/dolu-geçmişDown, eski satır/audit JSON eşliği, model/snapshot, tüm tablo8NOTNULL ve idempotentSQL. **Web260/260,typecheck,webpack üretim build ve329lisans metadata GEÇTİ.** Varsayılan npm run build mevcut shared/contact-verification Turbopack kök hatasında BAŞARISIZ. Gerçek browser/native/mobil/yük/pentest çalıştırılmadı. [Komutlar, son TRX ve tüm deneme/düzeltmeler](common-areas/02-report.md); [API](api/common-areas.md). Canlı DB/migration/servis değişmedi; yalnız geçici test DB/rolü temizlendi. Issue #52 açık; kullanıcı kabulü bekleniyor.
+
 ## BF-SMS BAKIM — 26.10.2026 — #66–#70 GEÇTİ
 
 **Backend tam koşu:** unit 394/394; izole PostgreSQL 18.6 (fixture `max_connections=400`, tmpfs 2 GiB) integration 791: 745 geçti, 45 koşullu skip, 1 başarısız → `MobileCanonicalSyncTests.PhotoIsOptional…` S3 gerektirdiği hâlde `[PostgresFact]` idi; `[StorageFact]` yapıldı (S3 yoksa atlanır). `PersonPortfolioApiTests` artık geçiyor (#68: fotoğrafsız kişiye `Guid.Empty` yerine `null`). Yeni: hizmet SMS tercihi resolver testi (3 operasyonel kategori engellenir, 4 güvenlik/acil etkilenmez, başka telefon etkilenmez, MANUAL kuyruğu durur) ve API akışı (aç/kapat, önizleme, mobil, doğrulanmamış telefon 409). **Web:** test 266/266, typecheck, **`npm run build` geçti** (#66). **Mobil:** `npm run check` (typecheck+lint+146/146) ve export geçti (#67). Docker imaj build'i çalıştırılmadı (node imajı yerelde yok). Yeni paket yok.
@@ -1739,3 +1775,85 @@ Senaryolar: menüden açılan modül ekranları (daireler, kişiler, aidat, tahs
 Senaryolar: sol menüde alt menüsü olmayan düz bağlantılarda (Mülkler, Kişiler, Raporlar, Web Sitesi) "›" oku görünmez; alt menülü gruplar ChevronDown ile açılmaya devam eder. Kişi Merkezi listesi Müşteri kolonunda müşteri adının altında yönetim alanı · bölüm numarası ve rol ikonlarını (Malik/Kiracı/Sakin, ekran okuyucuda metin) gösterir; 5'ten fazla bölümde "+N bölüm daha". Özet yalnız çağıranın yetkili alanlarındaki bugün etkin, REJECTED olmayan ilişkilerden gelir; alan filtresi seçiliyse yalnız o alan; sayfa başına sabit sorgu (N+1 yok).
 
 **Bu tur:** yeni entegrasyon `DirectoryRowsSummarizeActiveScopedUnitsWithCapacities` (çoklu alan sıralaması, aynı bölümde rol birleşimi, alan filtresi) ve mevcut `PersonPortfolioApiTests`+`PersonCenter*` ayrı `buildingflow_test_personlist` PostgreSQL veritabanında **22/22** (sabit sorgu sayısı testi dahil); `dotnet build` 0/0. Web `npm test` **272/272** (yeni dizin satırı ayrıştırıcı testi), `tsc --noEmit` geçti, `npm run build` geçti, `check-licenses.py` 329 PASS. Tarayıcıda gerçek API ile görsel kabul **çalıştırılmadı**.
+
+
+## Araçlar/Otopark FAZ 02 — 27.10.2026 — Veri modeli ve iş kuralları
+
+Senaryolar: plaka normalize/ret (boşluk, tire, nokta; Türkçe harf, uzunluk, özel karakter); araç PENDING → APPROVED/REJECTED tek inceleme, gerekçesiz ret yok, pasif araç düzenlenemez; politika kota/misafir süresi/saklama sınırları; ortak/bloğa özel otopark, kat sırası, park yeri kodu; ziyaretçi yeri tahsis edilemez, başka Property park yeri reddedilir, tahsis bitişi bir kez; misafir PLANNED → ARRIVED → DEPARTED / CANCELLED ve pencere çakışması. Migration: önceki sürümden yükseltme + tekrar uygulama, yedi tabloda sekiz BaseEntity NOT NULL alanı, model/migration eşleşmesi, aynı aktif plaka ret (reddedilen plaka yeniden kaydedilebilir), başka Property dairesiyle araç ret (composite FK), aynı park yerinde ikinci açık tahsis ret, otopark adı büyük/küçük harf tekilliği, durum/inceleme check kısıtı, dolu şemada Down ret.
+
+**Bu tur (ayrı geçici PostgreSQL):** `ParkingDomainTests` **16/16**; `ParkingMigrationTests` + `PersistenceTests` + `AutoMigrationTests` **18/18**; tam unit **410/410**; `db.sh check` model değişikliği yok. Tam entegrasyon 792: paylaşılan sunucu bağlantı kotası (53300) nedeniyle paralel koşularda 269 ve 215 hata; bu hataları veren 31 sınıf sıralı koşuda **239 geçti / 1 başarısız / 1 atlandı**. Kalan `CentralPeopleTests.FeatureDefaultsOffAndLegacyPeopleRemainUnchanged` aynı commit'in ana çalışma kopyasında da başarısız (yerel `.env` PersonRefactor bayrağı); otopark değişikliğiyle ilgisiz. Web/mobil/CI bu fazda çalıştırılmadı (değişiklik yok).
+
+## Araçlar/Otopark FAZ 03 — 27.10.2026 — Backend API ve güvenlik
+
+Senaryolar: politika yok → 409, politika version/409; kişi-daire ilişkisi yok/başka Property dairesi → 409; yönetici kaydı onaylı, aynı `requestId` replay aynı kayıt, farklı içerik 409; aktif plaka tekrarı (tire/boşluk normalize) 409; kota aşımı 409; Türkçe harfli plaka 400; pasif araç onayı 409 durum; liste filtre/arama; ziyaretçi yeri tahsis 409, çakışan tahsis 409, daire park yeri kotası 409, kullanımdaki park yeri silme 409, bitiş stale version 409; aynı park yerine eşzamanlı iki tahsis → tam bir 201 + bir 409 ve DB'de tek kayıt; SECURITY misafir oluşturma/replay/aynı ziyaretçi yeri çakışması/politika süresi aşımı, geldi → iptal 409 → çıktı, plaka aramasında kişi adı/kimliği yok, yönetim uçları 403; ACCOUNTANT/RESIDENT/spoofed 403, anonim 401; üye olmayan yönetici 404, başka Property park yeri 404; sakin PENDING kayıt + replay, ilişkisiz daire/yabancı kullanıcı 403/404, gerekçesiz ret 400, onay/ret, listeleme, pasife alma, ilişki bitince 403.
+
+**Bu tur (ayrı geçici PostgreSQL):** `ParkingApiTests` + `ParkingMigrationTests` + `ErrorContractTests` **19/19**; unit **410/410**; web `node --test tests/*.test.mjs` **266/266**; `tsc --noEmit` geçti. Tam backend sıralı (`-- xUnit.MaxParallelThreads=1`): entegrasyon **798 geçti / 1 başarısız / 2 atlandı** (801); başarısız `CentralPeopleTests.FeatureDefaultsOffAndLegacyPeopleRemainUnchanged` FAZ 02'de değişikliksiz ana kopyada da başarısız (yerel `.env` PersonRefactor bayrağı). Bağlantı kotası (53300) hatası yok. Mobil/CI bu fazda çalıştırılmadı.
+
+## Araçlar/Otopark FAZ 04 — 27.10.2026 — Web yönetim ekranları
+
+Senaryolar: plaka normalize (boşluk/tire/nokta, Türkçe harf ret); DTO okuyucuları yabancı Property, bilinmeyen enum, bozuk sayfa/tekrar kimlik, ayrık tahsis alanları ve kişi alanı içermeyen plaka sorgusu; politika/araç/misafir/tahsis gövdeleri whitelist, `requestId` korunur, politika saat sınırı; her tür/durum/sekme ikonlu, harita etiketi metinli; menü SUPER_ADMIN/SITE_ADMIN/MANAGER/SECURITY görünür + aktif, ACCOUNTANT gizli; `/parking` ve `/properties/{id}/parking` dönüş adresi izinli, sorgulu/alt yol reddedilir; TR/EN anahtar eşitliği ve kaynakta kullanılan her anahtar mevcut. Backend: daire seçici (yönetici + SECURITY, kişi verisi yok), dairedeki güncel kişiler (yalnız yönetici, başka Property 404).
+
+**Bu tur:** web `node --test tests/*.test.mjs` **273/273** (yeni `parking.test.mjs` 7/7; menü testleri parking aktif modüle göre güncellendi), `tsc --noEmit` geçti, `npm run build` geçti (`/parking`, `/properties/[id]/parking`). Backend ayrı geçici PostgreSQL `--filter Parking|ErrorContractTests` **20/20**, unit **16/16**. Tarayıcıda görsel kontrol **yapılmadı**: API'yi çalıştırmak yerel geliştirme veritabanına otopark migration'larını uygular (MASTER kural 10, kullanıcı onayı gerekir). Mobil/CI çalıştırılmadı.
+
+
+## OTOPARK FAZ05 — 27.10.2026 — Teknik teslim
+
+**42/42 seçili izole PostgreSQL/API entegrasyonu + 18/18 otopark unit, 0 başarısız/atlanan; web 275/275, typecheck ve son üretim build GEÇTİ.** Komut: `dotnet test backend/BuildingFlow.sln --no-restore -m:1 --disable-build-servers --filter 'FullyQualifiedName~Parking|FullyQualifiedName~PersistenceTests|FullyQualifiedName~AutoMigrationTests|FullyQualifiedName~ErrorContractTests'`; yalnız bu turun ayrı geçici DB/rolü. Web `npm test`, `npm run typecheck`, `npm run build`.
+
+UUID ad/not farkı, giriş saat sınırı, bitişik rezervasyon, geç çıkışta kapasite/yer/plaka engeli, iki yönlü bakım/tahsis/misafir çakışması ve eşzamanlı yarış; rol/üyelik/Property/version, salt okunur guard ve sınırlı misafir seçenekleri doğrulandı. Yeni migration upgrade/repeat, eski veri/audit JSON eşliği, boş Down/reUp, scopeFK/UUID/check, iptal geçmişiyle dolu Down reddi ve tüm tablo BaseEntity/model taraması geçti. Önceki 93 migration dosyası ve manifest/lock/LICENSE/NOTICE korundu.
+
+İlk iki integration koşusu sırasıyla 3 ve 1 offset-parametre hatası verdi; UTC normalizasyonuyla son 42/42 geçti. İlk web çeviri eksikleri düzeltildi. Sandbox SWC cache engeli dışarıdaki build ile doğrulandı. İzole 623 px UI TR/EN/koyu tema, oluştur/iptal/409 panel ve guard salt okunur; yatay taşma 0. Canlı API/Keycloak browser E2E, tam masaüstü/375 px/native/CI/yük/pentest bu tur yapılmadı. Yeni paket yok; canlı migration/servis/commit/push/deploy yok. Faz 7/8 = %87,50, kullanıcı kabulü açık; FAZ06 başlamadı. [Teslim/kanıt](parking/05-report.md).
+
+
+## OTOPARK FAZ06 — 27.10.2026 — Teknik teslim
+
+**46/46 seçili izole PG/API + 18/18 unit,0fail/skip; mobil154/154+typecheck/lint ve iOS/Android/web export; web275/275+typecheck/build GEÇTİ.** Canonical exactContext/missing-stalealias/revoke/featureflag; legacy üyelik/daire/rol/UUIDfarkı; misafir çakışması/giriş/çıkış;20+3sayfalama ve mevcut model/şema kontrolleri. Gerçek NodeSQLite migration/cache/draft/account-context-page/TTL/clock/outbox0/late-response/denied-purge testleri.329npm/NuGet+871mobil lisans metadata ve109trackedkaynak hash koruması geçti.
+
+İlk API test fixture'ı zorunlu phone/email alanları eksik olduğundan başarısızdı; düzeltildi. İlk mobil lint3hata ve testharnessDOMtyping hatası düzeltildi. İlk web Node re-export uzantısı düzeltildi. Ana checkout'a node_modules symlink'i yüzünden ilk export yanlış kaynakları paketliyordu; ilk çıktı kabul edilmedi. Aynı lockfile ile offline bağımsız npmci, lisans kontrolü ve doğru worktree kaynaklarıyla temiz export tekrarlandı. Sonbundlemobilparkingvar/maincommonareasyok; SHA256 [evidence](parking/06-evidence.json).
+
+Cua375pxiframe/560pxiçerik izoleReactNativeWeb: araç→PENDING, yönetici manuel giriş,409→düğmelerkapalı,offlinekesinyazımkapalı. GerçeknativeSQLCipher/SecureStore/biyometri/background ve canlıOIDC/API E2E DOĞRULANAMADI. İlk geniş koşudaki S3gerektiren canonicalfotoğraftesti1skip; sonhedeflikoşustoragegerektirmez0skip. Tambackend/regressionCI/pentest/yük/yayınkabulüyok. Yeni paket/migration veya canlıDB/.env/servis/commit/pushyok. [Teslim](parking/06-report.md).
+
+## OTOPARK-07 / #79 — 28.10.2026 doğrulama
+
+**52/52 seçili izole PostgreSQL/API +19/19unit,0fail/skip;276/276web, typecheck/build ve Worker dahil.NETbuild GEÇTİ.** Filtre Parking|ErrorContractTests|PersistenceTests|AutoMigrationTests. Etkin Property/rol, tarih aralığı ve tarihsel2010İstanbul kış saati; tahsis/rezervasyon/manüel hareket ayrımı; mesaj atomikliği/dedup/üyeliksiz SKIPPED; opt-in yaklaşan/geç süre, tekrar tarama; terminal kesim/maskelenmiş replay409; additive migration/model/tüm tablolar8NOTNULL/Down veri koruması doğrulandı. İlk başarısız koşular sonucun yerine geçmez; bakım testinin son migration varsayımı ve EF kısmi Down durumu düzeltildi.
+
+**TR/EN/koyu/375px/guard izole UI ve tarayıcı CSV indirme GEÇTİ**:375viewport scrollWidth360,20kart; CSV28gün4kolon sayfalamadan bağımsız. Gerçek auth/API kullanmaz. **329lisans metadata ve eski99baselinehash GEÇTİ**, snapshot beklenen fark; yeni paket yok. Canlı OIDC/native/production worker/push/CI/yük/pentest çalıştırılmadı; mobilcheck/export bu fazda yeniden koşulmadı. [Rapor](parking/07-report.md), [sayım/hash kanıtı](parking/07-evidence.json).
+
+## OTOPARK-08 / #80 — 28.10.2026 planlanan final kabul
+
+Parking ve tüm uygulanmış aşamaların backend regresyonu; negatif JWT/rol/Property/kişi-daire/yetki iptali; concurrency/UUID/transaction ve migration/model/8alan/rollback; web test/typecheck/build, mobil check/export; gerçek API/PG ile test-only browser köprüsü; klavye/odak/TR/EN/375px ve anonim SSR; kayıtlı hacimde rapor ölçümü; izole Docker API/web/worker smoke ve SBOM/transitif lisans/NOTICE/release checklist. Sonuçlar henüz çalıştırılmadı. İki ilgisiz opt-in iletişim/native test host'u fullsuite filtresinden açıkça dışlanacak; bu dışlama native kabulü değildir.
+
+OTOPARK-08 final kabul bulguları: Kurallar retentionNote TR/EN metni gerçek opt-in maskeleme ve korunan ilişkilerle eşlendi. BAKIM: PersonRelationPersistence yarış testinde Npgsql40P01'in InvalidOperationException→DbUpdateException sarmalı yalnız bu kod için beklenen kaybeden olarak tanındı; tek başarılı işlem ve DB'de tek kayıt şartı korundu/güçlendirildi. Üretim kişi iş kuralı değişmedi. Final koşu henüz bekleniyor.
+
+OTOPARK-08 erişilebilirlik: sekmelerde tek Tab durağı, sol/sağ ve Home/End ile seçim+odak uygulanır. Gerçek tarayıcı kontrolü final imajda bekleniyor. Yarış testindeki sayım db.Set<T>() üzerinden düzeltildi; önceki son koşu derleme hatası nedeniyle kabul edilmedi.
+
+OTOPARK-08: ilişkisi bulunan ACCOUNTANT için eski AraçlarımGET beklenen403yerine200verdiği negatif testle yeniden üretildi. Resident() tokenrolü sakin/yönetim rolleriyle sınırlandı; üç uç ve mevcut sakin akışı final koşuda doğrulanacak. LeaseContractPersistence yarış testine de yalnız40P01sarmalı için beklenen kaybeden yakalaması ve DBsayımı eklendi; üretim kira kuralı değişmedi.
+
+OTOPARK-08 UUID tutarlılığı: web yönetici ve legacy sakin kayıt tekrarında marka/model/renk trim-normalize eşitliği eklendi; farklı içerik409, boşluk-normalize aynı içerik aynıID. Mobilde mevcut tam kontrol korunur. Şema değişmedi.
+
+
+## OTOPARK-08 son kanıt —28.10.2026
+
+**817/817entegrasyon+413/413unit,0fail/skip;276/276web+typecheck/build;154/154mobil+check/3platformexport GEÇTİ.** İki opt-in iletişim/nativehost filtreden dışlandı; nativekabuldeğil. Son3Docker/non-root,gerçektestOIDC/S256/API/PG alan/daire/politika/yer/misafir giriş-çıkış/bakım oluştur-iptal/rapor1-1-1veCSV;TR/EN/koyu/375–1440px/klavye. AnonimSSRPIIyok/nonceCSP/401/no-store/nosniff/CORS/passwordgrantkapalı;model-migrationeşliği,idempotentSQLikiapply/49history GEÇTİ.2000kayıt7istekmedyan23,39ms,p9535,13ms;yerelörnekölçüm,üretimSLO/yükkanıtıdeğil.
+
+LegacyACCOUNTANTGET200negatiftestleüretildi;üçResidentucundarolkontrolü,UUIDmetadataeşliği ve klavye düzeltmeleri sonkoşudageçti. PersonRelation/LeaseContractDBtestlerinde yalnız40P01sarmalı kaybeden olarak tanındı ve DBsayımıgüçlendirildi;üretimkuralıdeğişmedi. İlkbaşarısız/durdurulan/derlenmeyenkoşularbaşarılısayılmaz.
+
+**329/871lisansmetadata GEÇTİ**,node-forge1.4.2yaması/teklocksürümü,yenipaketyok;1116declaredSBOMşema,97/97/19OSenvanteri. Web/NuGetaudit0vulnerability. **Mobil audit BAŞARISIZ:3high/6moderate/5low Zodzinciri;yayınBLOKE.** Tambdağıtım/nativebinarylisans,gerçeknative/hedefTLS/uzakCI/otomatikWCAG/DAST/yük/pentestiddiasıyok. [Rapor](parking/08-report.md),[sayım/hash](parking/08-evidence.json),[yayınkontrolü](parking/08-release-checklist.md).
+
+## BAKIM — main Otopark entegrasyonu — 28.10.2026
+
+Kullanıcı isteğiyle çalışma gerçek yerel `main` dalına taşındı. Otopark backend/web/mobil kodu mevcut Ortak Alanlar ile birleştirildi; navigation/routes/OIDC dönüş kapsamı, servis ve endpoint kayıtları, AuthProvider/cache ve EF snapshot birlikte korundu. Git indeksine bu işlemde add/reset yapılmadı; mevcut kullanıcı değişiklikleri korunur. Yeni bağımlılık eklenmedi; parking kaynak dalındaki aynı node-forge sürüm düzeltmesi taşındı.
+
+**Adım 1/3 kaynak birleştirme TAMAMLANDI; adım 2/3 doğrulama TAMAMLANDI; adım 3/3 yerel runtime BEKLIYOR. Tur 2/3=%66,67.** BAKIM ürün fazı değildir, faz sayaçlarına eklenmez. Birleşik ürün yol haritası 32 kayıt,152/163=%93,25; bu bakım nedeniyle yeni görev işaretlenmedi. **Main .NET build 0 hata/0 uyarı; EF pending-model kontrolü başarılı; web typecheck +296/296 test + üretim build; mobil check (typecheck/lint/160 test); ayrı geçici PostgreSQL'de Otopark/Ortak Alanlar 71/71 entegrasyon +32/32 unit başarılı, atlanan yok.** Test DB/rolü temizlendi. Kanıtlar `/tmp/bf-main-parking-*` log ve TRX dosyaları; önceki dal testleri bu tur çalıştırılmış sayılmadı.
+
+Yerel DB read-only migration sorgusu: CommonArea dört migration uygulanmış, ParkingFoundation/ParkingRequestIds/ParkingMaintenanceClosures/ParkingRetentionRedaction bekliyor. Gerçek DB değişmedi, API yeniden başlatılmadı; tarayıcıda gerçek main oturumuyla uçtan uca kullanım doğrulanmadı. Menü kaynakta artık etkin bağlantı; kullanıcıdaki çalışan API'nin hazır olduğu iddia edilmez. Plan MASTER_PROMPT madde10 gereği yerel migration onayı son adımda istenir. Commit/push/deploy yok.
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex 28.10.2026: 300dk %93 kullanılan/%7 kalan, reset 28.10.2026 16:43:32;10080dk %14/%86, reset 04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## BAKIM main Otopark — onaylı yerel devreye alma — 28.10.2026
+
+Kullanıcı dört migration ve API yeniden başlatmayı açıkça onayladı. **ADIM03/03 TAMAMLANDI; bakım3/3=%100,00.** Yerel main/.env DB üzerinde EF Core `database update 20261027205401_ParkingRetentionRedaction --no-build` başarılı: ParkingFoundation, ParkingRequestIds, ParkingMaintenanceClosures, ParkingRetentionRedaction uygulandı. Son `migrations list --no-build`: **bekleyen0**. Yalnız bu projeye ait API güvenli `api-stop` ile durduruldu ve standart `bash scripts/dev.sh api` ile başlatıldı. **localhost:5005/health ve /health/live HTTP200; anonim parking/policy HTTP401.** Chrome gerçek localhost:3003 oturumunda Araçlar/Otopark etkin link ve property parking rotası görüldü. Sonrasında kullanıcı başka pencereye geçtiği için özel oturumda parking içerik etkileşimi yapılmadı; veri yazan E2E bu tur çalıştırılmadı. Önceki559 test bu tur tekrar çalışmış sayılmaz. Yeni paket/kod/commit/push yok; mevcut hesap parolası ve kullanıcı kayıtları değiştirilmedi.
+
+Kanıt: `/tmp/bf-main-parking-migrate.log`, `/tmp/bf-main-parking-post-migration.log`, `/tmp/bf-main-parking-api.log`. Önceki BEKLIYOR kaydı tarihsel; bu onayla runtime adımı tamamlandı. Ürün yol haritası32kayıt152/163=%93,25; ürün fazı/yayın kabulü değişmedi. Sonraki: kullanıcı localhost:3003 menüsünden Otopark ekranını kullanabilir.
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex 28.10.2026:300dk kullanılan%99/kalan%1 reset28.10.2026 16:43:32;10080dk%15/%85 reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.

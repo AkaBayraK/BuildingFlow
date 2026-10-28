@@ -18,3 +18,5 @@ test('large outbox summary does not materialize payload and UI remains bounded',
 
 import {theme} from '../src/theme.ts';
 test('shared text and muted tokens meet 4.5 contrast on both main light surfaces',()=>{function l(hex){const c=hex.slice(1).match(/../g).map(n=>parseInt(n,16)/255).map(v=>v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2];}for(const fg of [theme.colors.text,theme.colors.muted,theme.colors.primary])for(const bg of [theme.colors.surface,theme.colors.background]){const a=l(fg),b=l(bg);assert.ok((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,fg+' on '+bg);}});
+
+test('access denial remains explicit when local purge fails',async()=>{const f=ports({request:async()=>({status:403}),purge:async()=>{throw Error('storage');}});await loadScoped(f.p);assert.equal(f.values.at(-1).v,null);assert.deepEqual(f.errors,[true]);});

@@ -1,0 +1,148 @@
+{
+  "phase": "OTOPARK-08",
+  "date": "2026-10-28",
+  "status": "local verification complete; release blocked",
+  "integration": 817,
+  "unit": 413,
+  "web": 276,
+  "mobile": 154,
+  "skipped_in_final_selected_run": 0,
+  "explicitly_excluded_unrelated_hosts": [
+    "ContactNativeHost",
+    "PhoneContactBrowserHost"
+  ],
+  "trxCounters": [
+    {
+      "total": 817,
+      "executed": 817,
+      "passed": 817,
+      "failed": 0,
+      "error": 0,
+      "timeout": 0,
+      "aborted": 0,
+      "inconclusive": 0,
+      "passedButRunAborted": 0,
+      "notRunnable": 0,
+      "notExecuted": 0,
+      "disconnected": 0,
+      "warning": 0,
+      "completed": 0,
+      "inProgress": 0,
+      "pending": 0
+    },
+    {
+      "total": 413,
+      "executed": 413,
+      "passed": 413,
+      "failed": 0,
+      "error": 0,
+      "timeout": 0,
+      "aborted": 0,
+      "inconclusive": 0,
+      "passedButRunAborted": 0,
+      "notRunnable": 0,
+      "notExecuted": 0,
+      "disconnected": 0,
+      "warning": 0,
+      "completed": 0,
+      "inProgress": 0,
+      "pending": 0
+    }
+  ],
+  "webAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "mobileAudit": {
+    "info": 0,
+    "low": 5,
+    "moderate": 6,
+    "high": 3,
+    "critical": 0,
+    "total": 14
+  },
+  "nugetAudit": "no vulnerabilities and no source problems",
+  "licenseMetadata": [
+    329,
+    871
+  ],
+  "declaredSbomComponents": 1116,
+  "containerOsPackages": [
+    97,
+    97,
+    19
+  ],
+  "performance": {
+    "rows": 2000,
+    "samples": 7,
+    "p50_ms": 23.39,
+    "p95_ms": 35.13,
+    "scope": "isolated in-process API/PG sample, not production SLO or sustained load"
+  },
+  "idempotentSql": {
+    "applies": 2,
+    "migrationRows": 49,
+    "sha256": "fc335695b663c5328d633e26897d184ec01104a93cdc8d8816984d2b0766fbbb",
+    "modelUnchanged": true
+  },
+  "baseline": {
+    "files": 1189,
+    "unchanged": 1179,
+    "expectedChanged": [
+      "backend/src/BuildingFlow.Application/Parking.cs",
+      "backend/src/BuildingFlow.Infrastructure/ParkingStore.Vehicles.cs",
+      "backend/tests/BuildingFlow.IntegrationTests/LeaseContractPersistenceTests.cs",
+      "backend/tests/BuildingFlow.IntegrationTests/ParkingApiTests.cs",
+      "backend/tests/BuildingFlow.IntegrationTests/PersonRelationPersistenceTests.cs",
+      "frontend/buildingflow-web/messages/en.json",
+      "frontend/buildingflow-web/messages/tr.json",
+      "frontend/buildingflow-web/src/features/parking/ParkingWorkspace.tsx",
+      "frontend/buildingflow-web/src/features/roadmap/milestones.ts",
+      "mobile/buildingflow-mobile/package-lock.json"
+    ]
+  },
+  "sourceSha256": {
+    "backend/src/BuildingFlow.Application/Parking.cs": "3f5355e034c1a4c3396d276d52e69eced3cda2e866f89661f47a97991a1a44c8",
+    "backend/src/BuildingFlow.Infrastructure/ParkingStore.Vehicles.cs": "d3a8e37809f4d2b6eec57913a34b0e805954516ed5fb3287b6aa51eaa1400f85",
+    "backend/tests/BuildingFlow.IntegrationTests/LeaseContractPersistenceTests.cs": "5dfa873ab9a00729547d95ad8985790b9b65d65d3ed973e50d36abca4704ae4e",
+    "backend/tests/BuildingFlow.IntegrationTests/ParkingApiTests.cs": "1779f04e9a1e2236e12e7f079523261fc672847a0f80579429a312df475de72d",
+    "backend/tests/BuildingFlow.IntegrationTests/PersonRelationPersistenceTests.cs": "a7de75b21f9cd35ca6d30da606253a07face330c17b6007bfb1ce7846375473f",
+    "docs/licenses/node-forge-1.4.2-LICENSE.txt": "f63ff0e4e239244aa79280da2dd4811a0469e5e201caf5cbc0d97c3a1dff8e82",
+    "docs/parking/evidence/08-container-inventory.json": "83cc7895a14b7ea62e6622bb191bc1dd8538076f77cde93fc366cd8be537c723",
+    "docs/parking/evidence/08-declared.cdx.json": "5901d1ce5e1ac63fb688f3e776b9a94293b68b37b8e8683c71b8840dd7d99365",
+    "docs/parking/evidence/08-docker-smoke.json": "965cc1e089315c7e32d28d3404356606acfe81e7bc184a8bb396fc3f3fea4cff",
+    "docs/parking/evidence/08-final-375.png": "3ebe783b3e43a577358275592d768c9007786a57516f7d050e330c3ebab4adeb",
+    "docs/parking/evidence/08-final-keyboard-report.png": "876f8bfd9ec508c8d6c94566440897aa1870df268fc066ba3daed60aedde586b",
+    "docs/parking/evidence/08-real-oidc-report-en-dark.png": "6af92495c9a18d6e6662b7665acb7bc5a9358b730341948de0e7f0eb53a780b0",
+    "docs/parking/evidence/08-real-oidc-report-tr.png": "655fd80ad3381177929a1aa6a5709e481b465acb8a166e44c9316732dac2ba20",
+    "docs/parking/evidence/08-ui-checks.json": "9a857419d13f62f71f92c83f4ba54b911016ebeb79d1c60d04bdc6a1ba9eef58",
+    "frontend/buildingflow-web/messages/en.json": "8f9c4044996124320bf08729e3fe6c484210cbb659e0af15163ffb50b138d467",
+    "frontend/buildingflow-web/messages/tr.json": "6ff06500d878f0932af4e8f808d305338d3924406c32cef27201b001fae23e07",
+    "frontend/buildingflow-web/src/features/parking/ParkingWorkspace.tsx": "5307680fbc11f0abbe8e3e3406fc459934a5a84c704a7186d8966769bffbc2b7",
+    "frontend/buildingflow-web/src/features/roadmap/milestones.ts": "1e699f5bf8e286b47ad84874f8c99745cb6a04d04cd2f46d0ad66ce0dde27d50",
+    "mobile/buildingflow-mobile/package-lock.json": "fa2074957f28d036279a166693c47078236353664c4a4e36a400d088b84a1e60",
+    "mobile/docs/mobile/DEPENDENCIES.tsv": "1de93b84b9ab75f52a0e25562d4355225cc6c4bafe347d7af97648b1bd783301",
+    "scripts/parking-image-inventory.py": "2053254fd73d9dd1783957ac61ae06ab86710eb0dccad5df866715a5438283b2",
+    "scripts/parking-sbom.py": "1ff937126dc64a008cf6258c45117b73c6546fa2ed692cbbcae2eebcde304f82"
+  },
+  "scopeLimits": [
+    "real local Docker/OIDC/API/PG browser flow only",
+    "no native physical-device, production HTTPS, remote CI, full WCAG/DAST or binary license scan",
+    "mobile Zod/Expo audit blocks release"
+  ],
+  "reviewEnvironment": "six owned API/web/worker/IdP/broker/PG containers retained for user review; regression DB/role, SQL DB and Mailpit cleaned; credentials remain private and untracked",
+  "acceptance": {
+    "officialCompleted": 5,
+    "officialTotal": 8,
+    "officialPercent": 62.5,
+    "turnCompleted": 2,
+    "turnTotal": 3,
+    "roadmapCompleted": 148,
+    "roadmapTotal": 159,
+    "issue80": "open"
+  }
+}

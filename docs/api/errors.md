@@ -96,6 +96,16 @@ Kodlar sabittir; çeviri metni kimlik olarak kullanılmaz. Yeni kod için katalo
 | BF_ERRORS_APARTMENT_POSITIVE_FLOORS | 400 | error | — |
 | BF_ERRORS_FLOOR_REQUIRED | 400 | error | — |
 | BF_RECORD_CHANGED | 409 | warning | — |
+| BF_PARKING_INVALID | 400 | error | — |
+| BF_PARKING_POLICY_REQUIRED | 409 | warning | — |
+| BF_PARKING_QUOTA_EXCEEDED | 409 | warning | — |
+| BF_PARKING_PLATE_TAKEN | 409 | warning | — |
+| BF_PARKING_SPACE_OCCUPIED | 409 | warning | — |
+| BF_PARKING_IN_USE | 409 | warning | — |
+| BF_PARKING_STATE_INVALID | 409 | warning | — |
+| BF_PARKING_RELATION_REQUIRED | 409 | warning | — |
+| BF_PARKING_REQUEST_REUSED | 409 | warning | — |
+| BF_PARKING_NAME_TAKEN | 409 | warning | — |
 | BF_PERSON_LINK_UNAVAILABLE | 409 | warning | — |
 | BF_PERSON_DUPLICATE_IDENTITY | 409 | warning | — |
 | BF_PERSON_DUPLICATE_PHONE | 409 | warning | — |

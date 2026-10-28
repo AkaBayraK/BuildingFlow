@@ -10,13 +10,13 @@ import {useEffect,useRef,useState} from "react";
 import {usePathname} from "next/navigation";
 import {useLocale,useTranslations} from "next-intl";
 import {searchNavigation} from "@/features/navigation/search";
-import {Building2,CalendarCheck2,LayoutDashboard,DoorOpen,Users,FileText,ReceiptText,WalletCards,ChartNoAxesCombined,Menu,Search,ChevronDown,Plus,Car,BriefcaseBusiness,Wrench,Settings,SlidersHorizontal,MessageSquareText,UserCog,ShieldCheck,UserRound,ListChecks,ClipboardList} from "lucide-react";
+import {Building2,CalendarCheck2,LayoutDashboard,DoorOpen,Users,FileText,ReceiptText,WalletCards,ChartNoAxesCombined,Menu,Search,ChevronDown,Plus,Car,BriefcaseBusiness,Wrench,Settings,SlidersHorizontal,MessageSquareText,UserCog,ShieldCheck,UserRound,ListChecks,ClipboardList,Shapes} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogDescription} from "@/components/ui/dialog";
 import {SessionControls,SessionProfileMenu,SessionProfileProvider,useIdentity} from "@/auth/AuthGate";
 import {PropertyScopeProvider,usePropertyScope} from "@/features/navigation/PropertyScope";
 import {createNavigation,navigationRoles,type NavigationItem} from "@/features/navigation/navigation";
-const navigationIcons={Building2,CalendarCheck2,LayoutDashboard,DoorOpen,Users,FileText,ReceiptText,WalletCards,ChartNoAxesCombined,Plus,Car,BriefcaseBusiness,Wrench,Settings,SlidersHorizontal,MessageSquareText,UserCog,ShieldCheck,UserRound,ListChecks,ClipboardList};
+const navigationIcons={Building2,CalendarCheck2,LayoutDashboard,DoorOpen,Users,FileText,ReceiptText,WalletCards,ChartNoAxesCombined,Plus,Car,BriefcaseBusiness,Wrench,Settings,SlidersHorizontal,MessageSquareText,UserCog,ShieldCheck,UserRound,ListChecks,ClipboardList,Shapes};
 import {pickSlogan} from "@/features/dashboard/slogans";
 import {StatusFooter} from "@/features/system-status/StatusFooter";
 export function WorkspaceShell(props:{children:React.ReactNode;centralPeople?:boolean;sessionContexts?:boolean}){return <SessionProfileProvider><DashboardAreaProvider><WorkspaceContent {...props}/></DashboardAreaProvider></SessionProfileProvider>;}

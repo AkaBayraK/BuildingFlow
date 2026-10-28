@@ -632,7 +632,7 @@ negotiator	1.1.0	MIT	node_modules/negotiator
 node-exports-info	1.6.2	MIT	node_modules/node-exports-info
 semver	6.3.1	ISC	node_modules/node-exports-info/node_modules/semver
 node-fetch	2.7.0	MIT	node_modules/node-fetch
-node-forge	1.4.0	(BSD-3-Clause OR GPL-2.0)	node_modules/node-forge
+node-forge	1.4.2	(BSD-3-Clause OR GPL-2.0)	node_modules/node-forge
 node-int64	0.4.0	MIT	node_modules/node-int64
 node-releases	2.0.58	MIT	node_modules/node-releases
 npm-package-arg	11.0.3	ISC	node_modules/npm-package-arg

@@ -61,6 +61,14 @@ public sealed class BuildingFlowDbContext : DbContext
     public DbSet<MeterReading> MeterReadings => Set<MeterReading>();
     public DbSet<MeterReadingRevision> MeterReadingRevisions => Set<MeterReadingRevision>();
     public DbSet<MaintenancePlan> MaintenancePlans => Set<MaintenancePlan>();
+    public DbSet<ParkingClosure> ParkingClosures => Set<ParkingClosure>();
+    public DbSet<ParkingPolicy> ParkingPolicies => Set<ParkingPolicy>();
+    public DbSet<ParkingFacility> ParkingFacilities => Set<ParkingFacility>();
+    public DbSet<ParkingLevel> ParkingLevels => Set<ParkingLevel>();
+    public DbSet<ParkingSpace> ParkingSpaces => Set<ParkingSpace>();
+    public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<ParkingAllocation> ParkingAllocations => Set<ParkingAllocation>();
+    public DbSet<GuestVehicle> GuestVehicles => Set<GuestVehicle>();
     public DbSet<Survey> Surveys => Set<Survey>();
     public DbSet<SurveyQuestion> SurveyQuestions => Set<SurveyQuestion>();
     public DbSet<SurveyOption> SurveyOptions => Set<SurveyOption>();

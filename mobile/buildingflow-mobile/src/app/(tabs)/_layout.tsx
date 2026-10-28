@@ -18,9 +18,11 @@ export default function TabLayout() {
   const linked = (useAuth().session?.contexts.length ?? 0) > 0;
   return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: navy, tabBarInactiveTintColor: theme.colors.muted, tabBarStyle: s.bar, tabBarLabelStyle: s.label, tabBarItemStyle: s.item }}>
     <Tabs.Screen name="index" options={{ title: 'Ana sayfa', tabBarIcon: icon('home-outline') }} />
+    <Tabs.Screen name="common-areas" options={{ href: linked ? undefined : null, title: 'Ortak alanlar', tabBarIcon: icon('grid-outline') }} />
     <Tabs.Screen name="finance" options={{ href: linked ? undefined : null, title: 'Ödemeler', tabBarIcon: icon('wallet-outline') }} />
     <Tabs.Screen name="announcements" options={{ href: linked ? undefined : null, title: 'Bildirimler', tabBarIcon: icon('megaphone-outline') }} />
     <Tabs.Screen name="requests" options={{ href: linked ? undefined : null, title: 'Talepler', tabBarIcon: icon('construct-outline') }} />
+    <Tabs.Screen name="parking" options={{href:null,title:"Araçlar / Otopark"}} />
     <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: icon('person-outline') }} />
   </Tabs>;
 }

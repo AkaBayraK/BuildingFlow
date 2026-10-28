@@ -1,0 +1,20 @@
+// Build first. Uses only existing Next webpack/TypeScript/React/Radix; no production route or auth bypass.
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer} from 'node:http';
+const root=fileURLToPath(new URL('../',import.meta.url)),require=createRequire(import.meta.url);
+const {webpack}=require('next/dist/compiled/webpack/webpack');
+const output=await mkdtemp(join(tmpdir(),'buildingflow-common-area-fixture-'));
+await new Promise((resolve,reject)=>webpack({mode:'production',devtool:false,entry:join(root,'tests/fixtures/common-area-entry.tsx'),output:{path:output,filename:'bundle.js'},optimization:{minimize:false},resolve:{extensions:['.tsx','.ts','.js'],modules:[join(root,'node_modules'),'node_modules'],alias:{'@/auth/AuthGate$':join(root,'tests/fixtures/common-area-mocks.tsx'),'@/services/api$':join(root,'tests/fixtures/common-area-api.ts'),'@/features/people/NotificationInbox$':join(root,'tests/fixtures/sidebar-mocks.tsx'),'@/features/navigation/PropertyScope$':join(root,'tests/fixtures/common-area-mocks.tsx'),'next/link$':join(root,'tests/fixtures/sidebar-mocks.tsx'),'next/navigation$':join(root,'tests/fixtures/sidebar-mocks.tsx'),'@':join(root,'src')}},module:{rules:[{test:/\.tsx?$/,exclude:/node_modules/,use:join(root,'tests/fixtures/sidebar-loader.cjs')}]},plugins:[new webpack.DefinePlugin({'process.env':JSON.stringify({NODE_ENV:'production'})})]},(error,stats)=>{if(error||stats.hasErrors())reject(error??new Error(stats.toString({all:false,errors:true})));else resolve();}));
+const cssRoot=join(root,'.next/static');
+const css=(await Promise.all((await readdir(cssRoot,{recursive:true})).filter(name=>name.endsWith('.css')).map(name=>readFile(join(cssRoot,name),'utf8')))).join('\n');
+if(!css)throw new Error('Production CSS missing; run npm run build first.');
+const bundle=await readFile(join(output,'bundle.js'));
+const residence=await readFile(join(root,'public/images/dashboard-residence.webp'));
+const html='<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>BuildingFlow Common Area Fixture</title><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script src="/bundle.js"></script></body></html>';
+const server=createServer((req,res)=>{res.setHeader('Cache-Control','no-store');const path=req.url?.split('?')[0];if(path==='/images/dashboard-residence.webp'){res.setHeader('Content-Type','image/webp');res.end(residence);}else if(path==='/bundle.js'){res.setHeader('Content-Type','text/javascript');res.end(bundle);}else if(path==='/style.css'){res.setHeader('Content-Type','text/css');res.end(css);}else{res.setHeader('Content-Type','text/html; charset=utf-8');res.end(html);}});
+const fixturePort=Number(process.env.COMMON_AREA_FIXTURE_PORT??13006);server.listen(fixturePort,'127.0.0.1',()=>console.log(`[BUILDINGFLOW][TEST] İzole ortak alan UI fixture http://127.0.0.1:${fixturePort}/ — canlı auth/API yok.`));
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>{void rm(output,{recursive:true,force:true}).finally(()=>process.exit(0));}));

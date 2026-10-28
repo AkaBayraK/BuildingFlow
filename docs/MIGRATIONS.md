@@ -188,3 +188,29 @@ Dolu Down, soft-delete dahil veri varsa ilk drop'tan önce reddeder. Boş Down/U
 ## WEBSITE FAZ 05 — 18.10.2026
 
 20261018172114_WebsiteMedia yeni website_media tablosunu ve website_sites logo_media_id/hero_media_id kolonlarını ekler; eski migration'lar değiştirilmedi. Aynı Property/site composite FK, BaseEntity8NOT NULL kolonları, hak/kişi izni/check ve UUID index vardır. Dolu medya Down veri kaybını reddeder. İlk kurulum/yükseltme/tekrar/boş Down ve dolu Down reddi ayrı fixture'da doğrulandı (TESTING.md). Bu tur canlı DB'ye uygulanmadı; mevcut API AutoMigrate prosedürü geçerlidir.
+
+## Ortak Alanlar FAZ03 — 20261026131804_CommonAreaPhotos
+
+Yalnız `common_area_photos` tablosu; BaseEntity sekiz NOT NULL alan, (property_id, common_area_id) ve (property_id, document_id) composite FK, alan+belge tekil index. Fotoğraf geçmişi varsa Down `RAISE EXCEPTION` ile durur; boş Down desteklenir. Önceki migrationlar değişmedi; canlı DB'ye uygulanmadı.
+
+## Ortak Alanlar FAZ02 — 20261026125717_CommonAreaDefinitions
+
+Yalnız common_areas tablosu ve index/check/compositeFK; BaseEntity8NOTNULL, istekUUID tekilliği (silinmişler dahil), Property/Building uyumu. Önceki migrationlar değişmedi. Down herhangi alan geçmişinde ilk drop öncesi durur; boş Down/reapply desteklenir. Upgrade/repeat/ilk kurulum, eski Property JSON/audit eşliği, tüm tablo şeması ve snapshot gerçek izole PostgreSQL'de doğrulandı. Canlıya uygulanmadı; sonraki AutoMigrate başlangıcı pendingmigration uygulayabilir. [API](api/common-areas.md), [kanıt](common-areas/02-report.md).
+
+## Ortak Alanlar FAZ04/05 — 26.10.2026
+
+FAZ04'ün `20261026165346_CommonAreaReservations` migration+Designer+snapshot teslimi kaynak worktree'den main çalışma dosyalarına alındı. FAZ05 `20261026174038_CommonAreaMaintenanceClosures`: tek yeni BaseEntity tablo, Property+alan/plan/duyuru compositeFK'ları, requestUUID ve aktif plan/alan tekilliği, zaman/yaşam döngüsü check'i. Eski migrationlar değiştirilmedi. Kapanış geçmişi varsa Down ilk drop öncesi reddedilir; boş Down/reUp, upgrade/repeat, eski satır/audit JSON eşliği, FK/check ve tüm tablo8NOTNULL/model eşliği izole PG'de geçti. Canlıya uygulanmadı; AutoMigrate başlangıcı pendingmigration uygulayabilir. [Rapor](common-areas/05-report.md).
+
+
+## OTOPARK FAZ05 — ParkingMaintenanceClosures —27.10.2026
+
+`20261027104618_ParkingMaintenanceClosures` yalnız `parking_closures` tablosu ve8zorunluNOTNULLBaseEntity alanı,Property/park yeri compositeFK,UUIDunique,aralık/gerekçe/iptalcheck veindex ekler. Önceki93migration kaynağı değişmedi. Önceki sürümden yükseltme/tekrar/boşDown/reUp/eskiPropertyJSON-audit eşliği/model ve iptal geçmişiyleDownreddi ayrıgeçiciPG'de geçti. DoluDownilkDROPöncesi durur. Canlıya uygulanmadı;AutoMigrateaçık sonrakiAPIbaşlangıcında uygulanabilir. [Kanıt](parking/05-report.md).
+
+
+## OTOPARK-07 — ParkingRetentionRedaction — 28.10.2026
+
+`20261027205401_ParkingRetentionRedaction` araç ve misafir tablolarına nullable `personal_data_redacted_at` ekler; yeni tablo/paket yoktur. Önceki migration kaynakları korunur. Eski satırların alan/audit JSON eşliği, tekrar apply, boş Down/re-up, terminal maskeleme sonrası dolu Down reddi izole PostgreSQL'de doğrulanır. Down maskelenmiş geçmiş varsa ilk DROP öncesi durur; maskeleme geri döndürülemez. EF çoklu migration geri alımında her tamamlanan migration ayrı commit edilebilir: daha sonraki boş Down başarılı olup eski bakım Down durabilir; test bu ara sürümü ve tekrar yükseltmeyi doğrular. Canlıya uygulanmadı. AutoMigrate açık sonraki API başlangıcı yeni migration'ı uygulayabilir. Önce uygulama/worker yazımlarını durdur, sürümü kontrol et; veri koruma engelini elle silerek aşma. [Rapor](parking/07-report.md).
+
+## OTOPARK-08 final prova —28.10.2026
+
+Yeni migration/model alanı yok; eski migration/snapshot hashleri korundu. `has-pending-model-changes --no-build` temiz. Mevcut49migration'ın idempotentSQL'i yeniizoleDByeikiuygulandı,49historysatırı;herikikoşuERROR/FATALyok. Migration/8NOTNULL/Up/Downkoruma testleri817suite'degeçti. Canlıya uygulanmadı. [Rapor](parking/08-report.md).

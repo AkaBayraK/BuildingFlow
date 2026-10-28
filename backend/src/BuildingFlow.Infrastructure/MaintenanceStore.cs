@@ -3,7 +3,7 @@ using BuildingFlow.Application;
 using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace BuildingFlow.Infrastructure;
-public sealed class MaintenanceStore(BuildingFlowDbContext db) : IMaintenanceStore
+public sealed class MaintenanceStore(BuildingFlowDbContext db,TimeProvider clock) : IMaintenanceStore
 {
     private IQueryable<Property> Properties(AccessScope scope) => db.Properties.Where(p => !p.IsDeleted && (scope.ReadAll || db.PropertyMemberships.Any(m => m.PropertyId == p.Id && m.UserId == scope.UserId && m.IsEnabled && !m.IsDeleted)));
     private IQueryable<MaintenancePlan> Plans(Guid property) => db.MaintenancePlans.AsNoTracking().Where(x => x.PropertyId == property && x.IsEnabled);
@@ -60,6 +60,7 @@ public sealed class MaintenanceStore(BuildingFlowDbContext db) : IMaintenanceSto
             value.Edit(command.Title, command.Description, command.Type, command.PlannedDate, command.Location, command.Responsible, command.Status);
             db.Entry(value).Property(x => x.IsEnabled).IsModified = true;
         } else { value = new(property, command.Title, command.Description, command.Type, command.PlannedDate, command.Location, command.Responsible, command.Status); db.Add(value); }
+        await CommonAreaMaintenanceEvents.PlanChanged(db,value,false,clock.GetUtcNow(),token);
         db.Entry(parent).Property(x => x.IsEnabled).IsModified = true;
         await db.SaveChangesAsync(token); await tx.CommitAsync(token); return Response(value);
     }
@@ -69,6 +70,7 @@ public sealed class MaintenanceStore(BuildingFlowDbContext db) : IMaintenanceSto
         var parent = await Lock(property, access, token); if (parent is null) return false;
         var value = await db.MaintenancePlans.SingleOrDefaultAsync(x => x.PropertyId == property && x.Id == id && x.IsEnabled, token); if (value is null) return false;
         Version(version, value.Version);
+        await CommonAreaMaintenanceEvents.PlanChanged(db,value,true,clock.GetUtcNow(),token);
         db.Remove(value); db.Entry(parent).Property(x => x.IsEnabled).IsModified = true;
         await db.SaveChangesAsync(token); await tx.CommitAsync(token); return true;
     }

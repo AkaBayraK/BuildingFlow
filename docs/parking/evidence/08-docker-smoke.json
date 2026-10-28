@@ -1,0 +1,10 @@
+{
+  "anonymousSSR": true,
+  "noFixturePIIInSSR": true,
+  "nonceCSP": true,
+  "anonymousAndInvalidJwt401": true,
+  "apiNoStoreNosniff": true,
+  "untrustedCorsDenied": true,
+  "passwordGrantDisabled": true,
+  "scope": "owned local HTTP Docker fixtures; production HTTPS/native not asserted"
+}

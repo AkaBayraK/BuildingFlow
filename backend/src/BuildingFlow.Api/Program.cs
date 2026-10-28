@@ -52,6 +52,10 @@ builder.Services.AddScoped<ResidentPaymentService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<MeterService>();
 builder.Services.AddScoped<MaintenanceService>();
+builder.Services.AddScoped<CommonAreaService>();
+builder.Services.AddScoped<CommonAreaClosureService>();
+builder.Services.AddScoped<CommonAreaReservationService>();
+builder.Services.AddScoped<ParkingService>();
 builder.Services.AddScoped<SurveyService>();
 builder.Services.AddScoped<SmsService>();
 builder.Services.AddScoped<SmsConsentService>();
@@ -156,6 +160,7 @@ app.MapOnlinePaymentEndpoints();
 app.MapExpenseEndpoints();
 app.MapMeterEndpoints();
 app.MapMaintenanceEndpoints();
+app.MapCommonAreaEndpoints();
 app.MapSurveyEndpoints();
 app.MapReportEndpoints();
 app.MapDashboardEndpoints();
@@ -170,6 +175,7 @@ app.MapWebsiteEndpoints();
 app.MapWebsiteMediaEndpoints();
 app.MapPublicWebsiteMediaEndpoints();
 app.MapPublicWebsiteEndpoints();
+app.MapParkingEndpoints();
 app.Run();
 
 public partial class Program { }

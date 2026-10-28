@@ -8,6 +8,22 @@ const planned = (title: string, detail: string): RoadmapTask => ({ title, detail
 
 export const milestones: Milestone[] = [
   {
+    number: "OA-07", title: "commonAreaPhase07Title", description: "commonAreaPhase07Description",
+    tasks: [done("commonAreaPhase07Task", "commonAreaPhase07Detail", "commonAreaPhase07Verification")],
+  },
+  {
+    number: "OA-06", title: "commonAreaPhase06Title", description: "commonAreaPhase06Description",
+    tasks: [done("commonAreaPhase06Task", "commonAreaPhase06Detail", "commonAreaPhase06Verification")],
+  },
+  {
+    number: "OA-05", title: "commonAreaPhase05Title", description: "commonAreaPhase05Description",
+    tasks: [done("commonAreaPhase05Task", "commonAreaPhase05Detail", "commonAreaPhase05Verification")],
+  },
+  {
+    number: "OA-02", title: "commonAreaPhase02Title", description: "commonAreaPhase02Description",
+    tasks: [done("commonAreaPhase02Task", "commonAreaPhase02Detail", "commonAreaPhase02Verification")],
+  },
+  {
     number: "00", title: "projectFoundationAndLocalEnvironment",
     description: "completedArchitectureDomainFoundationAndLocalRuntime",
     tasks: [
@@ -279,6 +295,34 @@ export const milestones: Milestone[] = [
       { ...planned("phase21Task10", "phase21Task10Detail"), verification: "phase21Task10Verification" },
       done("phase21Task11", "phase21Task11Detail", "phase21Task11Verification"),
       planned("phase21Task12", "phase21Task12Detail"),
+    ],
+  },
+  {
+    number: "OTOPARK-05", title: "parkingPhase05Title", description: "parkingPhase05Description",
+    tasks: [
+      done("parkingPhase05Operations", "parkingPhase05OperationsDetail", "parkingPhase05Verification"),
+      done("parkingPhase05Acceptance", "parkingPhase05AcceptanceDetail", "parkingPhase05Verification"),
+    ],
+  },
+  {
+    number: "OTOPARK-06", title: "parkingPhase06Title", description: "parkingPhase06Description",
+    tasks: [
+      done("parkingPhase06Delivery", "parkingPhase06DeliveryDetail", "parkingPhase06Verification"),
+      done("parkingPhase06Acceptance", "parkingPhase06AcceptanceDetail", "parkingPhase06Verification"),
+    ],
+  },
+  {
+    number: "OTOPARK-07", title: "parkingPhase07Title", description: "parkingPhase07Description",
+    tasks: [
+      done("parkingPhase07Delivery", "parkingPhase07DeliveryDetail", "parkingPhase07Verification"),
+      done("parkingPhase07Acceptance", "parkingPhase07AcceptanceDetail", "parkingPhase07Verification"),
+    ],
+  },
+  {
+    number: "OTOPARK-08", title: "parkingPhase08Title", description: "parkingPhase08Description",
+    tasks: [
+      done("parkingPhase08Verification", "parkingPhase08VerificationDetail", "parkingPhase08Evidence"),
+      planned("parkingPhase08Release", "parkingPhase08ReleaseDetail"),
     ],
   },
 ];

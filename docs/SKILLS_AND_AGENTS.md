@@ -231,3 +231,24 @@ Tek agent;phase/contract/security/verify/license prosedürleri uygulandı. Yaln�
 ### BF-VERIFY04 — 23.10.2026
 
 Bu tur akadev-phase/contract/security/verify/docs yönergeleri ortak web iletişim doğrulamasına uygulandı. Mevcut kendi-hesapAPI/IdP/OTP sınırı,3resmiadım ve8faz ayrımı,32API+16unit/250web/12IdP/gerçekbileşenPGkanıtı ve rapor/kayıt eşliği kullanıldı. YeniAgent/MCP/paket kurulmadı;tekAgent. GerçekSMSFAZ03 ve mobilUIFAZ05 ayrı kaldı.
+
+26.10.2026 OA-02: phase/contract/security/license/verify/docs mevcut yerel prosedürleri domain/API/migration tesliminde kullanıldı; tek Agent, yeni kurulum yok. [Kanıt](common-areas/02-report.md).
+
+26.10.2026 OA-05: phase/contract/security/license/verify/docs prosedürleri bakım-rezervasyon-iletişim sözleşmesinde kullanıldı; tek Agent. Yeni agent/MCP/bağımlılık kurulmadı. [Kanıt](common-areas/05-report.md).
+
+
+27.10.2026 OA-06: akadev-phase/contract/security/license/verify/docs mevcut prosedürleri tek agent ile kullanıldı; yeni skill/MCP/agent kurulmadı. Kanıt [OA06](common-areas/06-report.md).
+
+
+27.10.2026 OA-07: mevcut akadev-phase/contract/security/license/verify/docs prosedürleri tek agent ile kullanıldı. Yeni agent/MCP/skill kurulmadı; [kanıt](common-areas/07-report.md).
+
+
+27.10.2026 OTOPARKFAZ05: mevcut akadev-phase/contract/security/verify/docs yönergeleri uygulandı; tekagent. Yeniagent/skill/MCP/paket kurulmadı. Kullanıcı kararıyla sakin yetkisi genişletilmedi. Kanıt[05-report](parking/05-report.md).
+
+
+27.10.2026 OTOPARKFAZ06: mevcut akadev-phase/contract/security/verify/docs yönergeleri tekagent ile uygulandı. Yeniagent/skill/MCP/paket kurulmadı. Mobil person/context, offline ve scope sözleşmesi yeniden kullanıldı; ayrı ürün fazı/backlog oluşturulmadı. [Kanıt](parking/06-report.md).
+
+
+28.10.2026 OTOPARK-07: akadev-phase/contract/security/verify/docs mevcut yönergeleri tek agent ile uygulandı. Yeni agent/skill/MCP/paket kurulmadı. Mevcut mesaj kutusu/işlem makbuzu, Property scope, opt-in worker ve ayrı fiziksel donanım sınırı korundu. [Kanıt](parking/07-report.md).
+
+28.10.2026 OTOPARK-08: akadev-phase/verify/security/license/docs mevcut yönergeleri tek agent ile uygulandı. Yeni agent/MCP/Skill/tarayıcı paketi kurulmadı. Yeni paket adı yok; mevcut node-forge güvenlik yaması resmi lisansla incelendi. Gerçek yerel Docker/OIDC/API/PG ile kayıtlı senaryolar; üretim/native/CI ve Zod audit engeli ayrı tutulur. [Rapor](parking/08-report.md).

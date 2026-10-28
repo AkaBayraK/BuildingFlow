@@ -63,8 +63,12 @@ public sealed class LeaseContractPersistenceTests(SiteApiTests.SiteApiFactory fa
         await factory.WithDb(async db=>{db.Add(new LeaseContract(s.Tenant,s.Property,s.Unit,Start,End));await db.SaveChangesAsync();
             var overlap=new LeaseContract(s.Tenant,s.Property,s.Unit,End,null);db.Add(overlap);var error=await Assert.ThrowsAsync<DbUpdateException>(()=>db.SaveChangesAsync());Assert.Equal(PostgresErrorCodes.ExclusionViolation,Assert.IsType<PostgresException>(error.InnerException).SqlState);db.Entry(overlap).State=EntityState.Detached;
             db.Add(new LeaseContract(s.Tenant,s.Property,s.Unit,End.AddDays(1)));await db.SaveChangesAsync();});
-        async Task<bool> Write(){var ok=false;await factory.WithDb(async db=>{var row=new LeaseContract(s.Tenant,s.Property,s.Unit,Start.AddYears(-3),Start.AddYears(-2));db.Add(row);try{await db.SaveChangesAsync();ok=true;}catch(DbUpdateException){db.Entry(row).State=EntityState.Detached;}});return ok;}
+        async Task<bool> Write(){var ok=false;await factory.WithDb(async db=>{var row=new LeaseContract(s.Tenant,s.Property,s.Unit,Start.AddYears(-3),Start.AddYears(-2));db.Add(row);try{await db.SaveChangesAsync();ok=true;}catch(DbUpdateException){db.Entry(row).State=EntityState.Detached;}
+                catch(InvalidOperationException error) when(error.InnerException is DbUpdateException {InnerException:PostgresException {SqlState:PostgresErrorCodes.DeadlockDetected}})
+                {db.Entry(row).State=EntityState.Detached;}
+            });return ok;}
         Assert.Single(await Task.WhenAll(Write(),Write()),r=>r);
+        await factory.WithDb(async db=>Assert.Equal(3,await db.Set<LeaseContract>().CountAsync(x=>x.UnitId==s.Unit)));
     }
     [PostgresFact]public async Task MigrationBackfillsLegacyWithoutInventedVerifierReappliesAndRefusesLossyRollback()
     {

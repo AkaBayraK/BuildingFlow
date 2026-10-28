@@ -1080,3 +1080,7 @@ body{background:var(--background);color:var(--foreground);}
   .shell .workspace-header { margin-top:6px; padding-inline:4px; }
   .shell .workspace-footer { margin-bottom:6px; }
 }
+
+/* OA-03: presentation choice retains the shared list/pagination and responsive cards. */
+.common-area-card-mode > .hidden { display: none; }
+.common-area-card-mode > .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }

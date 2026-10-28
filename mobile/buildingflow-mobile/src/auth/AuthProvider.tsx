@@ -1,3 +1,6 @@
+import {authorizePath} from '../common-areas/contracts';
+import {purge as purgeParking} from "../parking/cache";
+import {authorizePath as authorizeParkingPath,permitted as parkingPermitted,parseSnapshot as parseParkingSnapshot} from "../parking/contracts";
 import {isContactRequest,type EmailAction} from '../contact-verification/contracts';
 import {isCommunicationRequest} from '../communication/contracts';
 import {deviceAccess} from '../person-authorization/device';
@@ -34,7 +37,7 @@ const canonicalSync=canonicalMode&&process.env.EXPO_PUBLIC_PERSON_SYNC_ENABLED==
 const cacheScope = config ? `${config.issuer}|${config.api}|${config.clientId}` : 'unconfigured';
 const expoGo = Platform.OS !== 'web' && Constants.appOwnership === 'expo';
 type State = 'loading' | 'signedOut' | 'signedIn' | 'working' | 'locked';
-type Value = { emailAction:(action:EmailAction)=>Promise<boolean>; withDeviceAction:<T>(task:()=>Promise<T>)=>Promise<T>; privacyLocked:boolean; canUnlockOffline:boolean; unlockOffline:()=>Promise<void>; offlineEnabled:boolean; enableOffline:()=>Promise<void>; noticeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; noticeRequest:(q:NoticeQuery)=>Promise<Response>; noticeRead:(kind:NoticeKind,id:string)=>Promise<Response>; noticePreference:(enabled:boolean,version:number)=>Promise<Response>; requestCache:<T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; queueRequestDraft:(draft:Draft)=>Promise<void>; requestPhoto:(id:string,photoId:string,sha:string)=>Promise<{uri:string;local:boolean}>; financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; register: (input: RegistrationInput, requestId: string) => Promise<RegistrationResult>; linkPerson: (input: PersonLinkInput) => Promise<void>; cancel: () => void; choose: (key: string) => void; portfolio: Record<string,ContextAccess> | null; meRequest: (path: string, signal: AbortSignal) => Promise<Response> };
+type Value = { parkingCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; parkingRequest:(path:string,body?:unknown)=>Promise<Response>; commonAreaCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; commonAreaRequest:(path:string,method?:string,body?:unknown)=>Promise<Response>; emailAction:(action:EmailAction)=>Promise<boolean>; withDeviceAction:<T>(task:()=>Promise<T>)=>Promise<T>; privacyLocked:boolean; canUnlockOffline:boolean; unlockOffline:()=>Promise<void>; offlineEnabled:boolean; enableOffline:()=>Promise<void>; noticeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; noticeRequest:(q:NoticeQuery)=>Promise<Response>; noticeRead:(kind:NoticeKind,id:string)=>Promise<Response>; noticePreference:(enabled:boolean,version:number)=>Promise<Response>; requestCache:<T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; queueRequestDraft:(draft:Draft)=>Promise<void>; requestPhoto:(id:string,photoId:string,sha:string)=>Promise<{uri:string;local:boolean}>; financeCache:<T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; financeRequest:(query:FinanceQuery)=>Promise<Response>; managerCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; managerRequest:(section:string,page:number)=>Promise<Response>; residentCache: <T>(task:(db:SyncDb)=>Promise<T>)=>Promise<T>; residentRequest:()=>Promise<Response>; profileCache: <T>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>)=>Promise<T>; profileRequest: (path:string,body?:unknown)=>Promise<Response>; syncSummary: Summary | null; syncJobs: Job[]; syncBusy: boolean; syncMessage: string; synchronizeNow: () => Promise<void>; retryJob: (id: string) => Promise<void>; cancelJob: (id: string) => Promise<void>; queueCommand: (command: Command) => Promise<void>; offline: boolean; verifiedAt: number | null; cacheNote: string; state: State; message: string; session: Session | null; selected: Context | null; ready: boolean; canRetry: boolean; retrySetup: () => void; login: () => Promise<void>; logout: () => Promise<void>; register: (input: RegistrationInput, requestId: string) => Promise<RegistrationResult>; linkPerson: (input: PersonLinkInput) => Promise<void>; cancel: () => void; choose: (key: string) => void; portfolio: Record<string,ContextAccess> | null; meRequest: (path: string, signal: AbortSignal) => Promise<Response> };
 const AuthContext = createContext<Value | null>(null);
 class TimeoutError extends Error {}
 // Keycloak issues 5-minute access tokens; expo-auth-session's default 10-minute margin would treat every token as expired.
@@ -321,6 +324,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await refreshSyncView();if(retry)void synchronizeNow();
     } catch {setSyncMessage('Bu işlem değiştirilemedi. Güncel durumunu kontrol et.');}
   };
+  const parkingDenied=useRef(new Set<string>());
+  const parkingCache=async<T,>(task:(db:SyncDb)=>Promise<T>):Promise<T>=>{
+    if(!session||!selected||state!=='signedIn'||activeUser.current!==session.userId||presentationLocked.current||!parkingPermitted(selected)||parkingDenied.current.has(session.userId+':'+contextKey(selected)))throw Error('Yetkili otopark bağlamı gerekli.');
+    if(canonicalMode&&(!session.authorization||!readableOffline(session.authorization,Date.now(),verifiedAt??0)))throw Error('Yetki kopyasının süresi doldu.');
+    const epoch=generation.current,key=contextKey(selected);
+    return withSyncCache(cacheScope,session.userId,task,()=>epoch===generation.current&&lastContext.current===key&&!presentationLocked.current);
+  };
+  const parkingRequest=async(path:string,body?:unknown):Promise<Response>=>{
+    if(!session||!selected||state!=='signedIn'||offline||!config||presentationLocked.current||activeUser.current!==session.userId)throw Error('Çevrimiçi otopark oturumu gerekli.');
+    authorizeParkingPath(selected,path,body===undefined?'GET':'POST');
+    if(body!==undefined&&parkingDenied.current.has(session.userId+':'+contextKey(selected)))throw Error('Otopark erişimi yeniden doğrulanmalı.');
+    const epoch=generation.current,key=contextKey(selected),user=session.userId;
+    if(token.current&&needsRefresh(token.current)){
+      if(lock.current)await waitForUnlock(()=>lock.current);
+      if(token.current&&needsRefresh(token.current)){if(lock.current)throw Error('Oturum yenileniyor.');await renew(true);}
+    }
+    const active=()=>epoch===generation.current&&lastContext.current===key&&activeUser.current===user&&!presentationLocked.current;
+    if(!active()||!token.current||needsRefresh(token.current))throw Error('Otopark oturumu değişti.');
+    const controller=new AbortController();profileAborts.current.add(controller);const timeout=setTimeout(()=>controller.abort(),15000);
+    try{const response=await fetch(config.api+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+token.current.accessToken,...(body===undefined?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:JSON.stringify(body),signal:controller.signal});
+      if(!active())throw Error('Otopark bağlamı değişti.');
+      if(response.status===403||response.status===404){
+        parkingDenied.current.add(user+':'+key);
+        try{await withSyncCache(cacheScope,user,db=>purgeParking(db,user,selected),active);}catch{await clear();throw Error('Erişim kopyası temizlenemedi; oturum kapatıldı.');}
+      }
+      if(response.ok&&body===undefined){parseParkingSnapshot(await response.clone().json(),user,selected,Number(new URL(path,'https://scope.invalid').searchParams.get('page')));if(!active())throw Error('Bağlam değişti.');parkingDenied.current.delete(user+':'+key);}
+      if(response.status===401){await clear();throw Error('Oturum sona erdi.');}return response;
+    }finally{clearTimeout(timeout);profileAborts.current.delete(controller);}
+  };
   const profileCache = async <T,>(task:(db:SyncDb,files:PrivateFiles)=>Promise<T>):Promise<T> => {
     if(canonicalMode&&(presentationLocked.current||!canonicalSync||!session?.authorization||!readableOffline(session.authorization,Date.now(),verifiedAt??0)))throw Error('Güncel mobil işlem yetkisi gerekli.');
     if(!session || activeUser.current!==session.userId || state!=='signedIn')throw Error('Oturum gerekli.');
@@ -494,6 +526,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   // Canonical read-only unit summaries; online only, the server re-resolves the context on every call.
+  const commonAreaCache=async<T,>(task:(db:SyncDb)=>Promise<T>):Promise<T>=>{
+    if(!session||!selected||state!=='signedIn'||activeUser.current!==session.userId)throw Error('Yetkili oturum gerekli.');
+    const epoch=generation.current,key=contextKey(selected);
+    return withSyncCache(cacheScope,session.userId,task,()=>epoch===generation.current&&lastContext.current===key&&!presentationLocked.current);
+  };
+  const commonAreaRequest=async(path:string,method='GET',body?:unknown)=>{
+    if(!session||!selected||state!=='signedIn'||offline||!config||!token.current||presentationLocked.current)throw Error('Çevrimiçi yetkili oturum gerekli.');
+    authorizePath(selected,path,method);const epoch=generation.current,key=contextKey(selected),controller=new AbortController();profileAborts.current.add(controller);
+    const timer=setTimeout(()=>controller.abort(),20000);
+    try{const response=await fetch(config.api+path,{method,headers:{Authorization:`Bearer ${token.current}`,...(body===undefined?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:JSON.stringify(body),signal:controller.signal});
+      if(epoch!==generation.current||lastContext.current!==key||presentationLocked.current)throw Error('Çalışma alanı değişti.');
+      if(response.status===401){await clear();throw Error('Oturum sona erdi.');}return response;
+    }finally{clearTimeout(timer);profileAborts.current.delete(controller);}
+  };
   const meRequest = async (path: string, signal: AbortSignal) => { if (!canonicalMode || offline || !config || !token.current || !path.startsWith('/api/v2/me/units/')) throw Error('Çevrimiçi doğrulama gerekli.'); return fetch(config.api + path, { headers: { Authorization: `Bearer ${token.current}` }, signal }); };
   const choose = (key: string) => { if (session) { const context = selectContext(session, key); syncAbort.current?.abort(); lastContext.current = key; setSelected(context); void saveSelection(key, cacheScope).catch(() => setCacheNote('Mülk seçimi cihazda saklanamadı.')); } };
   const unlockOffline=async()=>{
@@ -544,7 +590,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });return()=>sub.remove();
   },[state,session,verifiedAt,offlineEnabled]);
   const note = expoGo ? 'Güvenli giriş için BuildingFlow development build gerekli. Expo Go özel giriş dönüş adresini desteklemiyor.' : !config ? 'Giriş yapılandırması hazır değil.' : message;
-  return <AuthContext.Provider value={{ emailAction,withDeviceAction,privacyLocked,canUnlockOffline,unlockOffline,offlineEnabled,enableOffline,noticeCache, noticeRequest, noticeRead, noticePreference, requestCache, queueRequestDraft, requestPhoto, financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, register, linkPerson, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && (state === 'signedOut'||state==='locked'), retrySetup, login, logout, cancel, choose, meRequest, portfolio: canonicalMode && state==='signedIn' && session && portfolio?.userId===session.userId ? portfolio.access : null }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ parkingCache,parkingRequest,commonAreaCache,commonAreaRequest,emailAction,withDeviceAction,privacyLocked,canUnlockOffline,unlockOffline,offlineEnabled,enableOffline,noticeCache, noticeRequest, noticeRead, noticePreference, requestCache, queueRequestDraft, requestPhoto, financeCache, financeRequest, managerCache, managerRequest, residentCache, residentRequest, profileCache, profileRequest, register, linkPerson, syncSummary: selected && syncScopeKey===contextKey(selected) ? syncSummary : null, syncJobs: selected && syncScopeKey===contextKey(selected) ? syncJobs : [], syncBusy, syncMessage, synchronizeNow, queueCommand, retryJob: id=>changeJob(id,true), cancelJob: id=>changeJob(id,false), offline, verifiedAt, cacheNote, state, message: note, session, selected, ready: !!request && !!discovery && !expoGo, canRetry: !!config && !expoGo && !!message && (state === 'signedOut'||state==='locked'), retrySetup, login, logout, cancel, choose, meRequest, portfolio: canonicalMode && state==='signedIn' && session && portfolio?.userId===session.userId ? portfolio.access : null }}>{children}</AuthContext.Provider>;
 }
 export function useOptionalAuth() { return useContext(AuthContext); }
 export function useAuth() { const v = useOptionalAuth(); if (!v) throw new Error('AuthProvider gerekli.'); return v; }

@@ -21,5 +21,6 @@ test('reference children retain planned and active state; role-restricted parent
  const rows=sidebarRows(createNavigation(base,`/properties/${P}/payments`));
  assert.equal(rows.find(r=>r.id==='finance').items.find(i=>i.id==='payments').active,true);
  assert.ok(!rows.some(r=>r.id==='people'||r.id==='administration'||r.id==='website'));
- for(const item of rows.find(r=>r.id==='property').items.filter(i=>['shared-areas','parking','suppliers'].includes(i.id))){assert.equal(item.disabled,true);assert.equal(item.href,undefined);}
+ for(const item of rows.find(r=>r.id==='property').items.filter(i=>['suppliers'].includes(i.id))){assert.equal(item.disabled,true);assert.equal(item.href,undefined);}
+ assert.ok(!rows.find(r=>r.id==='property').items.some(i=>i.id==='parking'),'accountant has no parking module');
 });

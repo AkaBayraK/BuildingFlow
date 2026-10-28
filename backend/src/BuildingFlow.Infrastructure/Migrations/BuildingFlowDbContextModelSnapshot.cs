@@ -895,6 +895,438 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.CommonArea", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BuildingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("building_id");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<TimeOnly?>("ClosesAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("closes_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<decimal>("FeeAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("fee_amount");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name");
+
+                    b.Property<TimeOnly?>("OpensAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("opens_at");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Rules")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("rules");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<string>("Usage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("usage");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("visibility");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "BuildingId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "Type", "Name");
+
+                    b.ToTable("common_areas", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_common_areas_valid", "length(trim(name)) > 0 AND request_id <> '00000000-0000-0000-0000-000000000000'::uuid AND fingerprint ~ '^[0-9A-Fa-f]{64}$' AND type IN ('POOL','FITNESS','MEETING_ROOM','PLAYGROUND','BARBECUE','SPORTS_COURT','EVENT_HALL','OTHER') AND visibility IN ('PROPERTY','BUILDING') AND (visibility <> 'BUILDING' OR building_id IS NOT NULL) AND usage IN ('OPEN_USE','RESERVATION','APPROVAL') AND capacity BETWEEN 1 AND 10000 AND currency = 'TRY' AND fee_amount BETWEEN 0 AND 99999999.99 AND ((opens_at IS NULL AND closes_at IS NULL) OR (opens_at IS NOT NULL AND closes_at IS NOT NULL AND opens_at < closes_at AND EXTRACT(SECOND FROM opens_at) = 0 AND EXTRACT(SECOND FROM closes_at) = 0))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaClosure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("announcement_id");
+
+                    b.Property<Guid>("CommonAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("common_area_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<TimeOnly>("EndsAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid>("MaintenancePlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("maintenance_plan_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Notice")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notice");
+
+                    b.Property<int>("NotificationCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("notification_count");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid?>("ReleaseAnnouncementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("release_announcement_id");
+
+                    b.Property<string>("ReleaseReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("release_reason");
+
+                    b.Property<DateTimeOffset?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("released_at");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<TimeOnly>("StartsAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "AnnouncementId");
+
+                    b.HasIndex("PropertyId", "MaintenancePlanId");
+
+                    b.HasIndex("PropertyId", "ReleaseAnnouncementId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "CommonAreaId", "Date");
+
+                    b.HasIndex("PropertyId", "CommonAreaId", "MaintenancePlanId")
+                        .IsUnique()
+                        .HasFilter("released_at IS NULL AND is_deleted = false");
+
+                    b.ToTable("common_area_closures", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_common_area_closure_valid", "starts_at < ends_at AND EXTRACT(SECOND FROM starts_at)=0 AND EXTRACT(SECOND FROM ends_at)=0 AND EXTRACT(MINUTE FROM starts_at)::int % 15=0 AND EXTRACT(MINUTE FROM ends_at)::int % 15=0 AND length(trim(notice))>0 AND notification_count>=0 AND ((released_at IS NULL AND release_reason IS NULL AND release_announcement_id IS NULL) OR (released_at IS NOT NULL AND release_reason IS NOT NULL AND length(trim(release_reason))>0 AND release_announcement_id IS NOT NULL))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CommonAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("common_area_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<bool>("RightsConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("rights_confirmed");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "DocumentId");
+
+                    b.HasIndex("PropertyId", "CommonAreaId", "DocumentId")
+                        .IsUnique();
+
+                    b.ToTable("common_area_photos", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_common_area_photo_rights", "rights_confirmed = true");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaReservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancel_reason");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<Guid>("CommonAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("common_area_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("reservation_date");
+
+                    b.Property<TimeOnly>("EndsAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("PartySize")
+                        .HasColumnType("integer")
+                        .HasColumnName("party_size");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<TimeOnly>("StartsAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.HasIndex("PropertyId", "CommonAreaId", "Date", "StartsAt");
+
+                    b.ToTable("common_area_reservations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_common_area_reservations_valid", "request_id <> '00000000-0000-0000-0000-000000000000'::uuid AND fingerprint ~ '^[0-9A-Fa-f]{64}$' AND starts_at < ends_at AND EXTRACT(EPOCH FROM starts_at)::bigint % 900 = 0 AND EXTRACT(EPOCH FROM ends_at)::bigint % 900 = 0 AND party_size BETWEEN 1 AND 10000 AND status IN ('CONFIRMED','CANCELLED') AND ((status = 'CONFIRMED' AND cancel_reason IS NULL AND cancelled_at IS NULL) OR (status = 'CANCELLED' AND length(trim(cancel_reason)) > 0 AND cancelled_at IS NOT NULL))");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ConsentText", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1722,6 +2154,126 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_expenses_history", "is_deleted = false AND is_enabled = true");
 
                             t.HasCheckConstraint("ck_expenses_values", "amount > 0 AND currency = 'TRY' AND occurred_date >= DATE '2000-01-01' AND category IN ('MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER') AND length(trim(description)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.GuestVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ArrivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("arrived_at");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DepartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("departed_at");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<string>("GuestName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("guest_name");
+
+                    b.Property<Guid>("HostUnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("host_unit_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset?>("PersonalDataRedactedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("personal_data_redacted_at");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("plate");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<Guid?>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "HostUnitId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "SpaceId");
+
+                    b.HasIndex("PropertyId", "StartsAt");
+
+                    b.HasIndex("SpaceId", "StartsAt");
+
+                    b.ToTable("guest_vehicles", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_guest_vehicles_valid", "plate ~ '^[A-Z0-9]{2,12}$' AND ends_at > starts_at AND status IN ('PLANNED','ARRIVED','DEPARTED','CANCELLED') AND (status <> 'ARRIVED' OR arrived_at IS NOT NULL) AND (status <> 'DEPARTED' OR (arrived_at IS NOT NULL AND departed_at >= arrived_at)) AND (status <> 'CANCELLED' OR cancelled_at IS NOT NULL)");
                         });
                 });
 
@@ -2739,8 +3291,6 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnName("version");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("PropertyId", "Id");
 
                     b.HasIndex("PropertyId", "PlannedDate");
 
@@ -4036,6 +4586,466 @@ namespace BuildingFlow.Infrastructure.Migrations
                             t.HasCheckConstraint("ck_outbox_messages_status", "(status = 'PENDING' AND published_at IS NULL) OR (status = 'PUBLISHED' AND published_at IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_outbox_messages_type", "type IN ('email.requested.v1','sms.requested.v1','notification.requested.v1')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<Guid?>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpaceId")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false AND end_date IS NULL");
+
+                    b.HasIndex("PropertyId", "SpaceId");
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.HasIndex("PropertyId", "VehicleId");
+
+                    b.ToTable("parking_allocations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_allocations_dates", "end_date IS NULL OR end_date >= start_date");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingClosure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancellation_reason");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "SpaceId", "StartsAt");
+
+                    b.ToTable("parking_closures", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_closures_valid", "ends_at > starts_at AND length(trim(reason)) > 0 AND ((cancelled_at IS NULL AND cancellation_reason IS NULL) OR (cancelled_at IS NOT NULL AND length(trim(cancellation_reason)) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingFacility", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BuildingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("building_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("citext")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "BuildingId");
+
+                    b.HasIndex("PropertyId", "Name")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("parking_facilities", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_facilities_name", "length(trim(name)) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingLevel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("FacilityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("facility_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("citext")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId", "Name")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("PropertyId", "FacilityId");
+
+                    b.ToTable("parking_levels", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_levels_valid", "length(trim(name)) > 0 AND sort_order BETWEEN -10 AND 50");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("GuestMaxHours")
+                        .HasColumnType("integer")
+                        .HasColumnName("guest_max_hours");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int>("MaxSpacesPerUnit")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_spaces_per_unit");
+
+                    b.Property<int>("MaxVehiclesPerPerson")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_vehicles_per_person");
+
+                    b.Property<int>("MaxVehiclesPerUnit")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_vehicles_per_unit");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<int>("RetentionDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("retention_days");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("parking_policies", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_policies_valid", "max_vehicles_per_unit BETWEEN 1 AND 20 AND max_vehicles_per_person BETWEEN 1 AND 20 AND max_spaces_per_unit BETWEEN 0 AND 20 AND guest_max_hours BETWEEN 1 AND 168 AND retention_days BETWEEN 1 AND 365");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingSpace", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("citext")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("FacilityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("facility_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid?>("LevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("level_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId", "Code")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("FacilityId", "LevelId");
+
+                    b.HasIndex("PropertyId", "FacilityId");
+
+                    b.ToTable("parking_spaces", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_parking_spaces_valid", "length(trim(code)) > 0 AND type IN ('STANDARD','ACCESSIBLE','VISITOR','EV_CHARGING','MOTORCYCLE')");
                         });
                 });
 
@@ -8696,6 +9706,130 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.Vehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Brand")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("brand");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("color");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeactivatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deactivated_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<DateTimeOffset?>("PersonalDataRedactedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("personal_data_redacted_at");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("plate");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("ReviewReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_reason");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "PersonId");
+
+                    b.HasIndex("PropertyId", "Plate")
+                        .IsUnique()
+                        .HasFilter("is_deleted = false AND status IN ('PENDING','APPROVED')");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "UnitId");
+
+                    b.ToTable("vehicles", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_vehicles_valid", "plate ~ '^[A-Z0-9]{2,12}$' AND type IN ('CAR','MOTORCYCLE','VAN','OTHER') AND status IN ('PENDING','APPROVED','REJECTED','PASSIVE') AND (status <> 'REJECTED' OR (reviewed_at IS NOT NULL AND review_reason IS NOT NULL)) AND (status <> 'APPROVED' OR reviewed_at IS NOT NULL) AND (status <> 'PASSIVE' OR deactivated_at IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.WebsiteDomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9569,6 +10703,84 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.CommonArea", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Building", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BuildingId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaClosure", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Announcement", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "AnnouncementId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.CommonArea", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "CommonAreaId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.MaintenancePlan", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "MaintenancePlanId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Announcement", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "ReleaseAnnouncementId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaPhoto", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.CommonArea", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "CommonAreaId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.StoredDocument", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "DocumentId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.CommonAreaReservation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.CommonArea", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "CommonAreaId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.ConsentText", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.ConsentType", null)
@@ -9646,6 +10858,22 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.GuestVehicle", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "HostUnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.ParkingSpace", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SpaceId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyAccrual", b =>
@@ -9948,6 +11176,89 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasOne("BuildingFlow.Domain.Property", null)
                         .WithMany()
                         .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingAllocation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.ParkingSpace", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SpaceId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "VehicleId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingClosure", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.ParkingSpace", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "SpaceId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingFacility", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Building", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BuildingId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingLevel", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.ParkingFacility", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "FacilityId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingPolicy", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.ParkingSpace", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.ParkingLevel", null)
+                        .WithMany()
+                        .HasForeignKey("FacilityId", "LevelId")
+                        .HasPrincipalKey("FacilityId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.ParkingFacility", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "FacilityId")
+                        .HasPrincipalKey("PropertyId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -10602,6 +11913,23 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_consents_text_type");
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.Vehicle", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Person", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "PersonId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.Unit", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "UnitId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.WebsiteDomain", b =>

@@ -1,0 +1,4 @@
+// Existing native icon set; every tab/type/status has one icon mapping.
+export const tabs={vehicles:{label:'Araçlarım',icon:'car-outline'},allocations:{label:'Park tahsislerim',icon:'key-outline'},guests:{label:'Misafir / Geçici park',icon:'people-outline'}} as const;
+export const statuses={PENDING:{label:'Onay bekliyor',icon:'time-outline'},APPROVED:{label:'Onaylı',icon:'checkmark-circle-outline'},REJECTED:{label:'Reddedildi',icon:'close-circle-outline'},PASSIVE:{label:'Pasif',icon:'pause-circle-outline'},PLANNED:{label:'Bekleniyor',icon:'calendar-outline'},ARRIVED:{label:'Manuel giriş',icon:'log-in-outline'},DEPARTED:{label:'Manuel çıkış',icon:'log-out-outline'},CANCELLED:{label:'İptal',icon:'ban-outline'}} as const;
+export const types={CAR:{label:'Otomobil',icon:'car-outline'},MOTORCYCLE:{label:'Motosiklet',icon:'bicycle-outline'},VAN:{label:'Minibüs',icon:'bus-outline'},OTHER:{label:'Diğer',icon:'ellipsis-horizontal-outline'}} as const;

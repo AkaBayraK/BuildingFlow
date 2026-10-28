@@ -1,3 +1,4 @@
+import {permitted as parkingPermitted} from "../parking/contracts";
 import type { ReactNode } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +21,7 @@ export function Screen({ title, subtitle, home = false, children }: { title: str
       <View style={styles.brandRow}>
         <View style={styles.brandLockup}><BuildingFlowMark size={32} variant="light" /><Text style={styles.brand}>Building<Text style={styles.brandFlow}>Flow</Text></Text></View>
         <View style={styles.headerActions}>
+          {title!=="Araçlar / Otopark"&&auth?.selected&&parkingPermitted(auth.selected)&&<Link href="/parking" asChild><Pressable accessibilityRole="button" accessibilityLabel="Araçlar / Otopark" style={styles.headerButton}><Icon name="car-outline" color="#fff" size={22}/></Pressable></Link>}
           {auth?.selected && <Link href="/announcements" asChild><Pressable accessibilityRole="button" accessibilityLabel={unread ? `Bildirimler, ${unread} okunmamış` : 'Bildirimler'} style={styles.headerButton}><Icon name="notifications-outline" size={22} color="#fff" />{!!unread && <View style={styles.badge}><Text style={styles.badgeText}>{unread > 99 ? '99+' : unread}</Text></View>}</Pressable></Link>}
         </View>
       </View>

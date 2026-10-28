@@ -1,6 +1,6 @@
 import {managementSection, propertyIdFromPath, type ManagementSection} from "./routes.ts";
 
-export const navigationRoles = ["SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT"] as const;
+export const navigationRoles = ["SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT", "SECURITY"] as const;
 type Role = typeof navigationRoles[number];
 export type NavigationContext = {
   roles: readonly string[];
@@ -9,7 +9,7 @@ export type NavigationContext = {
   propertyId: string | null;
   property: {id: string; type: "APARTMENT" | "SITE" | "RESIDENCE" | "MIXED"} | null;
 };
-export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList";
+export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList" | "Shapes";
 type LabelKey = "sidebarUnitsGroup" | "sidebarAdminGroup" | "navigationOverviewGroup" | "navigationPropertyGroup" | "navigationFinanceGroup" | "navigationOperationsGroup" | "navigationCommunicationGroup" | "navigationSystemGroup" | "navDashboard" | "properties" | "navOverview" | "navBuildings" | "apartments" | "navUnits" | "navMeters" | "navMaintenance" | "navReports" | "navDues" | "navPayments" | "navExpenses" | "navAnnouncements" | "navSurveys" | "navDocuments" | "navWebsite" | "shellRequests" | "people" | "navSms" | "navUsers" | "navConsents" | "navAccount" | "overview" | "shellSharedAreas" | "shellParking" | "shellSuppliers" | "shellDefinitions" | "shellUsers" | "shellSettings";
 export type NavigationLabel = {namespace: "ui"; key: LabelKey} | {namespace: "sessionWorkspaces"; key: "title"};
 type ItemBase = {
@@ -30,7 +30,7 @@ export function navigationPermissions(context: NavigationContext) {
   const has = (role: Role) => context.roles.includes(role);
   const platform = has("SUPER_ADMIN");
   const manager = platform || has("SITE_ADMIN") || has("MANAGER");
-  return {manager, finance: manager || has("ACCOUNTANT"), users: platform || !context.sessionContexts && has("SITE_ADMIN"), administration: manager && (!context.sessionContexts || platform)};
+  return {manager, parking: manager || has("SECURITY"), finance: manager || has("ACCOUNTANT"), users: platform || !context.sessionContexts && has("SITE_ADMIN"), administration: manager && (!context.sessionContexts || platform)};
 }
 
 export function isNavigationActive(item: NavigationItem, path: string): boolean {
@@ -41,7 +41,7 @@ export function isNavigationActive(item: NavigationItem, path: string): boolean 
     if (propertyIdFromPath(path)?.toLowerCase() !== propertyId.toLowerCase()) return false;
     const suffix = path.slice(`/properties/${propertyId}`.length);
     if (item.section === "overview") return suffix === "" || suffix === "/";
-    if (!/^\/(buildings|units|people|dues|payments|expenses|announcements|surveys|documents|meters|maintenance|reports|sms|requests|website)(?:\/|$)/.test(suffix)) return false;
+    if (!/^\/(buildings|units|people|dues|payments|expenses|announcements|surveys|documents|meters|maintenance|common-areas|parking|reports|sms|requests|website)(?:\/|$)/.test(suffix)) return false;
     return managementSection(path, propertyId) === item.section;
   }
   if (item.href === "/people" || item.href === "/consents" || item.href === "/workspaces") return path === item.href || path.startsWith(item.href + "/");
@@ -82,7 +82,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
   const propertyLink = link("properties", "/properties", "properties", "Building2");
   const units = module("units", property?.type === "APARTMENT" ? "apartments" : "navUnits", "DoorOpen");
   const people = permissions.manager ? link("people", context.centralPeople ? "/people" : `${base ?? ""}/people`, "people", "Users", "people") : null;
-  const main: NavigationItem[] = [dashboard, propertyLink, ...(base ? [link("overview", base, "navOverview", "FileText", "overview")] : []), ...(base && property && property.type !== "APARTMENT" ? [module("buildings", "navBuildings", "Building2")] : []), units, ...(people ? [people] : []), planned("shared-areas", "shellSharedAreas", "Plus"), planned("parking", "shellParking", "Car"), planned("suppliers", "shellSuppliers", "BriefcaseBusiness")];
+  const main: NavigationItem[] = [dashboard, propertyLink, ...(base ? [link("overview", base, "navOverview", "FileText", "overview")] : []), ...(base && property && property.type !== "APARTMENT" ? [module("buildings", "navBuildings", "Building2")] : []), units, ...(people ? [people] : []), link("shared-areas", permissions.manager ? `${base ?? ""}/common-areas` : "/common-areas", "shellSharedAreas", "Shapes", "common-areas"), ...(permissions.parking ? [module("parking", "shellParking", "Car")] : []), planned("suppliers", "shellSuppliers", "BriefcaseBusiness")];
   const operations: NavigationItem[] = [
     ...(permissions.finance ? [module("maintenance", "navMaintenance", "CalendarCheck2"), module("meters", "navMeters", "ChartNoAxesCombined"), module("reports", "navReports", "ChartNoAxesCombined"), module("dues", "navDues", "ReceiptText"), module("payments", "navPayments", "WalletCards"), module("expenses", "navExpenses", "ChartNoAxesCombined")] : []),
     module("announcements", "navAnnouncements", "FileText"), module("documents", "navDocuments", "FileText"),
@@ -110,7 +110,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
 
 // Reuse the existing module entry pages to choose another authorized property.
 export function propertySelectionHref(path:string,propertyId:string|null):string{
- const modules:readonly ManagementSection[]=["units","people","dues","payments","expenses","announcements","surveys","documents","meters","maintenance","reports","sms","requests","website"];
+ const modules:readonly ManagementSection[]=["units","people","dues","payments","expenses","announcements","surveys","documents","meters","maintenance","reports","sms","requests","website","common-areas","parking"];
  if(propertyId){
   if(propertyIdFromPath(path)!==propertyId)return "/properties";
   const section=managementSection(path,propertyId);

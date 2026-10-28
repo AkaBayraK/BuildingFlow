@@ -68,3 +68,11 @@ Worker'da `Smtp__Enabled=true`, dış host, 587/STARTTLS ve sır deposundan gele
 ## Bilinen sınırlar
 
 Dış domain/TLS, gerçek SMTP, CI sunucusu ve uzak yedek hedefi bu ortamda yoktur. Online ödeme, SMS, Tempo trace deposu, PITR yedeği ve çok örnekli rate limit kapsam dışıdır. Production go-live, kullanıcının hedef ortamıyla ayrıca yapılır.
+
+## OTOPARK-08 yayın adayı — 28.10.2026
+
+Otopark kabulü için [08-release-checklist](parking/08-release-checklist.md), [rapor](parking/08-report.md) ve TESTING kaydı esas alınır. Yukarıdaki İŞ11 tarihsel genel kapsam, sonradan eklenen uygulama içi PersonMessage/SMS/ödeme modüllerinin yokluğu olarak yorumlanmaz. Otopark PersonMessage lifecycle bildirimleri mevcuttur; harici teslim iddia edilmez. Zamanlanmış otopark işlemleri kapalı, donanım bağlı değildir.
+
+Yerel geçici Docker API/web/worker ve S256PKCE/OIDC→API→PostgreSQL kabulü hedef üretime dağıtım değildir. Yeni `ParkingRetentionRedaction` migration'ı masked-history Down guard taşır; eski binary maskeleme filtresini taşımadığından kör kod rollback yapılmaz. API/worker birlikte sürümlenir, önce yazımlar durdurulur; ileri düzeltme tercih edilir. Yedek/restore yalnız quiesced kaynak ve yeni izole hedef kurallarına tabidir.
+
+**Yayın kapısı açık/engelli:** mobil Zod zincirindeki high audit, native/hedef HTTPS/uzakCI ve hedef dağıtım bildirim kabulü. Hiçbir gate gevşetilmedi. Kullanıcı onayı olmadan push/PR/canlı migration/servis değiştirme/üretime dağıtım yapılmadı.

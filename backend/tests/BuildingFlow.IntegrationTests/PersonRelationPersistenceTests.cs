@@ -38,9 +38,13 @@ public sealed class PersonRelationPersistenceTests(SiteApiTests.SiteApiFactory f
         var s=await Seed();
         async Task<bool> Write(bool owner)
         {
-            var success=false;await factory.WithDb(async db=>{BaseEntity row=owner?new UnitOwnership(s.Tenant,s.Property,s.Unit,s.Person,new(2026,1,1),new(2026,1,2),true):new UnitTenancy(s.Tenant,s.Property,s.Unit,s.Other,new(2026,1,1),new(2026,1,2),true);db.Add(row);try{await db.SaveChangesAsync();success=true;}catch(DbUpdateException){db.Entry(row).State=EntityState.Detached;}});return success;
+            var success=false;await factory.WithDb(async db=>{BaseEntity row=owner?new UnitOwnership(s.Tenant,s.Property,s.Unit,s.Person,new(2026,1,1),new(2026,1,2),true):new UnitTenancy(s.Tenant,s.Property,s.Unit,s.Other,new(2026,1,1),new(2026,1,2),true);db.Add(row);try{await db.SaveChangesAsync();success=true;}catch(DbUpdateException){db.Entry(row).State=EntityState.Detached;}
+                catch(InvalidOperationException error) when(error.InnerException is DbUpdateException {InnerException:PostgresException {SqlState:PostgresErrorCodes.DeadlockDetected}})
+                {db.Entry(row).State=EntityState.Detached;}
+            });return success;
         }
         var results=await Task.WhenAll(Write(true),Write(false));Assert.Single(results,r=>r);
+        await factory.WithDb(async db=>Assert.Equal(1,await db.Set<UnitOwnership>().CountAsync(x=>x.UnitId==s.Unit)+await db.Set<UnitTenancy>().CountAsync(x=>x.UnitId==s.Unit)));
     }
     [PostgresFact]public async Task GuardMigrationReappliesPreservesLegacyJsonAndRejectsRollbackWithHistory()
     {

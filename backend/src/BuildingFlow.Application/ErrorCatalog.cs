@@ -24,6 +24,13 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition CommonAreaMaintenanceInvalid=new("BF_COMMON_AREA_MAINTENANCE_INVALID","Geçerli bakım planı, tarih, saat aralığı ve görünür duyuru metni girin.","error");
+    public static readonly ErrorDefinition CommonAreaMaintenanceConflict=new("BF_COMMON_AREA_MAINTENANCE_CONFLICT","Bakım kapanışı rezervasyon veya başka bir kayıtla çakışıyor. Güncel planı kontrol edin.","warning");
+    public static readonly ErrorDefinition CommonAreaReservationClosed = new("BF_COMMON_AREA_RESERVATION_CLOSED", "Alan bu tarih ve saatte rezervasyona açık değil veya rezervasyon artık değiştirilemez.", "warning");
+    public static readonly ErrorDefinition CommonAreaReservationFull = new("BF_COMMON_AREA_RESERVATION_FULL", "Seçilen saat aralığında yeterli kapasite yok. Saat takvimini kontrol edin.", "warning");
+    public static readonly ErrorDefinition CommonAreaReservationInvalid = new("BF_COMMON_AREA_RESERVATION_INVALID", "Rezervasyon tarihini, 15 dakikalık saat aralığını, kişi sayısını ve daireyi kontrol edin.", "error");
+    public static readonly ErrorDefinition CommonAreaInvalid = new("BF_COMMON_AREA_INVALID", "Ortak alan bilgilerini, kapsamı, çalışma saatlerini ve ücretini kontrol edin.", "error");
+    public static readonly ErrorDefinition CommonAreaConflict = new("BF_COMMON_AREA_CONFLICT", "Ortak alan isteği veya bağlı kayıt geçmişi çakışıyor. Güncel kaydı kontrol edin.", "warning");
     public static readonly ErrorDefinition WebsiteDomainInvalid=new("BF_WEBSITE_DOMAIN_INVALID","Alan adı, tür, istek kimliği ve sürümü kontrol edin.","error");
     public static readonly ErrorDefinition WebsiteDomainConflict=new("BF_WEBSITE_DOMAIN_CONFLICT","Alan adı başka bir site için ayrılmış.","warning");
     public static readonly ErrorDefinition WebsiteDomainUnverified=new("BF_WEBSITE_DOMAIN_UNVERIFIED","Güncel DNS/TLS doğrulaması ve gerekli onay tamamlanmadı.","warning");
@@ -85,6 +92,16 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SurveyAlreadyAnswered = new("BF_SURVEY_ALREADY_ANSWERED", "Bu anket için yanıtınız zaten kaydedildi; yanıtlar sonradan değiştirilemez.", "warning");
     public static readonly ErrorDefinition SurveyNotOpen = new("BF_SURVEY_NOT_OPEN", "Anket şu anda yanıta açık değil.", "warning");
     public static readonly ErrorDefinition PlanInvalid = new("BF_PLAN_INVALID", "Planlama için 1–200 karakter başlık, geçerli tür, durum ve 2000–2100 arası tarih gerekli; açıklama en fazla 2000, konum ve sorumlu en fazla 200 karakter olabilir.", "error");
+    public static readonly ErrorDefinition ParkingInvalid = new("BF_PARKING_INVALID", "Otopark alanlarını kontrol edin: plaka 2–12 harf/rakam, geçerli tür, tarih aralığı ve en fazla izin verilen uzunluklar.", "error");
+    public static readonly ErrorDefinition ParkingPolicyRequired = new("BF_PARKING_POLICY_REQUIRED", "Önce bu yönetim alanı için otopark kurallarını (kota ve misafir süresi) kaydedin.", "warning");
+    public static readonly ErrorDefinition ParkingQuotaExceeded = new("BF_PARKING_QUOTA_EXCEEDED", "Daire veya kişi için izin verilen araç ya da park yeri sayısı doldu.", "warning");
+    public static readonly ErrorDefinition ParkingPlateTaken = new("BF_PARKING_PLATE_TAKEN", "Bu plaka bu yönetim alanında zaten kayıtlı veya onay bekliyor.", "warning");
+    public static readonly ErrorDefinition ParkingSpaceOccupied = new("BF_PARKING_SPACE_OCCUPIED", "Park yeri seçilen tarih veya saat aralığında dolu ya da bu işleme uygun değil.", "warning");
+    public static readonly ErrorDefinition ParkingInUse = new("BF_PARKING_IN_USE", "Bu kayıt kullanımda olduğu için silinemez; önce bağlı park yerlerini veya tahsisleri kapatın.", "warning");
+    public static readonly ErrorDefinition ParkingStateInvalid = new("BF_PARKING_STATE_INVALID", "Kayıt bu işlem için uygun durumda değil; güncel bilgileri yükleyin.", "warning");
+    public static readonly ErrorDefinition ParkingRelationRequired = new("BF_PARKING_RELATION_REQUIRED", "Kişinin bu bağımsız bölümle güncel bir malik, kiracı veya sakin ilişkisi bulunmalı.", "warning");
+    public static readonly ErrorDefinition ParkingRequestReused = new("BF_PARKING_REQUEST_REUSED", "Aynı istek kimliği farklı bilgilerle kullanıldı; formu yenileyip tekrar gönderin.", "warning");
+    public static readonly ErrorDefinition ParkingNameTaken = new("BF_PARKING_NAME_TAKEN", "Aynı ad veya park yeri kodu bu otoparkta zaten var.", "warning");
     public static readonly ErrorDefinition ReadingOrder = new("BF_READING_ORDER", "Endeks önceki okumadan küçük veya sonraki okumadan büyük olamaz.", "warning");
 
     public static readonly ErrorDefinition ConstructionYearInvalid = new("BF_CONSTRUCTION_YEAR_INVALID", "Yapım yılı 1800 ile içinde bulunulan yıl arasında olmalı.", "error");
@@ -396,6 +413,16 @@ public static class ErrorCatalog
         PaymentsErrorStatus,
         PaymentsErrorDate,
         InvalidPage,
+        ParkingInvalid,
+        ParkingPolicyRequired,
+        ParkingQuotaExceeded,
+        ParkingPlateTaken,
+        ParkingSpaceOccupied,
+        ParkingInUse,
+        ParkingStateInvalid,
+        ParkingRelationRequired,
+        ParkingRequestReused,
+        ParkingNameTaken,
         InvalidSortField,
         InvalidSortDirection,
         PaymentsReferenceRequired,

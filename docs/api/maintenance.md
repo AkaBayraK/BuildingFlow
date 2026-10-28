@@ -16,3 +16,7 @@ Gövde: `title`1–200, `description`≤2000, `type` MAINTENANCE/CLEANING/INSPEC
 Tablo `maintenance_plans` (BaseEntity kolonları, Property FK Restrict, index `(property_id, planned_date)`). Plan geçmişi olan Property silinemez. Migration `20261021103545_PlanningAndAnnouncementCategories` yalnız ekleme yapar; `Down` plan veya GENERAL dışı duyuru kategorisi varsa veri kaybını önlemek için durur.
 
 Dashboard "Yaklaşan Önemli Tarihler" kartı mevcut dashboard `upcomingDues` ile `/upcoming?limit=4` sonuçlarını tarih sırasıyla birleştirir (aynı gün aidat önce, geçmiş tarih yok, en çok4). Plan isteği başarısız olursa yalnız kart içinde uyarı gösterilir; aidat satırları korunur.
+
+## Ortak Alanlar FAZ05 bağlantısı — 26.10.2026
+
+Mevcut plan `common_area_closures` üzerinden alana bağlanır; ikinci bakım planı üretilmez. Aktif kapanışla farklı güne taşıma409; COMPLETED/CANCELLED veya DELETE aynı Property kilitli transaction'da ilgili kapanışları kaldırır, önceki duyuruyu arşivler ve açılma duyurusu/bildirimini kaydeder. Rezervasyonlar kendiliğinden iptal edilmez. Bağlı olmayan bakım planlarının mevcut akışı korunur. [Kapanış sözleşmesi](common-areas.md), [bu turun kanıtı](../common-areas/05-report.md).

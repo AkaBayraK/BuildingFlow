@@ -23,6 +23,7 @@ import {useCenterRecord} from "@/features/person-center/hooks";
 import {CapacityBadge,LeaseStatusBadge,PortfolioBadge,VerificationBadge} from "@/features/person-center/Badges";
 import {capacityStyle} from "@/features/person-center/relation-style";
 import type {PortfolioUnit} from "@/features/person-center/model";
+import {CommonAreasWorkspace} from "@/features/common-areas/CommonAreasWorkspace";
 import {workspacePath} from "@/features/session-workspaces/model";
 import {sectionStyle} from "./section-style";
 import {requestRows,requestCreated,requestsPath,downloadPath,financeSummary,myPortfolio,activeContext,dues,payments,announcements,documents,leases,unitPath,activePath,sectionsFor,type MyPortfolio,type Selection,type UnitAccess,type Rows,type Charge,type Payment,type Lease} from "./model";
@@ -57,7 +58,7 @@ function UnitDetail({selection,access,found,onSwitch,onBack}:{selection:Selectio
  const t=useTranslations("myPortfolio"),ui=useTranslations("ui");const decode=useCallback((v:unknown)=>activeContext(v,selection),[selection]);const active=useCenterRecord(activePath(selection),decode);const [tab,setTab]=useState("");
  if(active.error)return <MessageBanner action={<Button variant="outline" onClick={onBack}>{t("backToAll")}</Button>}>{t("contextUnavailable")}</MessageBanner>;
  if(!active.value||!found)return <p role="status">{ui("loading")}</p>;
- const sections=sectionsFor(active.value.capabilities);const current=sections.includes(tab as typeof sections[number])?tab:sections[0];
+ const sections=[...sectionsFor(active.value.capabilities),"common-areas"] as const;const current=sections.includes(tab as typeof sections[number])?tab:sections[0];
  return <div className="space-y-5"><div className="rounded-2xl border bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm text-muted-foreground">{active.value.context.tenantName} · {found.propertyName}</p><h2 className="text-xl font-semibold">{[found.buildingName,found.unit.unitNumber].filter(Boolean).join(" · ")}</h2></div><div className="flex flex-wrap gap-2"><PortfolioBadge value={found.unit.status}/><CapacityBadge value={selection.capacity}/></div></div>
   {access.contexts.length>1&&<div className="mt-4"><FilterChips label={t("activeRole")} items={access.contexts.map(c=>({value:c.contextKey,label:t("role_"+c.capacity),icon:capacityStyle[c.capacity].icon}))} value={selection.contextKey} onChange={key=>{const c=access.contexts.find(x=>x.contextKey===key);if(c)onSwitch(access,c);}}/></div>}</div>
   <Tabs.Root value={current} onValueChange={setTab}><Tabs.List aria-label={t("sections")} className="mb-4 flex flex-wrap gap-2 rounded-xl bg-muted p-2">{sections.map(s=>{const Icon:LucideIcon=sectionStyle[s];return <Tabs.Trigger key={s} value={s} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium outline-offset-2 data-[state=active]:bg-card data-[state=active]:shadow-sm"><Icon aria-hidden="true" className="size-4"/>{t("section_"+s)}</Tabs.Trigger>;})}</Tabs.List>
@@ -66,6 +67,7 @@ function UnitDetail({selection,access,found,onSwitch,onBack}:{selection:Selectio
 function useScoped<T>(selection:Selection,section:string,page:number,parse:(v:unknown,key:string)=>T,revision:number){const decode=useCallback((v:unknown)=>parse(v,selection.contextKey),[parse,selection.contextKey]);const r=useCenterRecord(unitPath(selection,section,page),decode,revision);return{data:r.value,loading:r.loading,error:r.error};}
 function Section({name,selection,unit}:{name:string;selection:Selection;unit:PortfolioUnit}){
  const t=useTranslations("myPortfolio"),locale=useLocale();
+ if(name==="common-areas")return <CommonAreasWorkspace propertyId={selection.propertyId} context={selection}/>;
  if(name==="requests")return <RequestsSection selection={selection}/>;
  if(name==="relations")return <div className="rounded-2xl border bg-card p-5"><p className="mb-3 text-sm text-muted-foreground">{t("relationsReadonly")}</p><ul className="space-y-2">{unit.relations.map(r=><li key={r.relationId} className="flex flex-wrap items-center gap-2"><CapacityBadge value={r.kind}/>{formatDateOnly(r.startDate,locale)} – {r.endDate?formatDateOnly(r.endDate,locale):t("openEnded")}<VerificationBadge value={r.verificationStatus}/></li>)}</ul></div>;
  if(name==="dues")return <DuesSection selection={selection}/>;

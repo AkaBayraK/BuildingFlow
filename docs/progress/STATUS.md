@@ -1,3 +1,63 @@
+## BAKIM main Otopark — onaylı yerel devreye alma — 28.10.2026
+
+Kullanıcı dört migration ve API yeniden başlatmayı açıkça onayladı. **ADIM03/03 TAMAMLANDI; bakım3/3=%100,00.** Yerel main/.env DB üzerinde EF Core `database update 20261027205401_ParkingRetentionRedaction --no-build` başarılı: ParkingFoundation, ParkingRequestIds, ParkingMaintenanceClosures, ParkingRetentionRedaction uygulandı. Son `migrations list --no-build`: **bekleyen0**. Yalnız bu projeye ait API güvenli `api-stop` ile durduruldu ve standart `bash scripts/dev.sh api` ile başlatıldı. **localhost:5005/health ve /health/live HTTP200; anonim parking/policy HTTP401.** Chrome gerçek localhost:3003 oturumunda Araçlar/Otopark etkin link ve property parking rotası görüldü. Sonrasında kullanıcı başka pencereye geçtiği için özel oturumda parking içerik etkileşimi yapılmadı; veri yazan E2E bu tur çalıştırılmadı. Önceki559 test bu tur tekrar çalışmış sayılmaz. Yeni paket/kod/commit/push yok; mevcut hesap parolası ve kullanıcı kayıtları değiştirilmedi.
+
+Kanıt: `/tmp/bf-main-parking-migrate.log`, `/tmp/bf-main-parking-post-migration.log`, `/tmp/bf-main-parking-api.log`. Önceki BEKLIYOR kaydı tarihsel; bu onayla runtime adımı tamamlandı. Ürün yol haritası32kayıt152/163=%93,25; ürün fazı/yayın kabulü değişmedi. Sonraki: kullanıcı localhost:3003 menüsünden Otopark ekranını kullanabilir.
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex 28.10.2026:300dk kullanılan%99/kalan%1 reset28.10.2026 16:43:32;10080dk%15/%85 reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM — main Otopark entegrasyonu — 28.10.2026
+
+Kullanıcı isteğiyle çalışma gerçek yerel `main` dalına taşındı. Otopark backend/web/mobil kodu mevcut Ortak Alanlar ile birleştirildi; navigation/routes/OIDC dönüş kapsamı, servis ve endpoint kayıtları, AuthProvider/cache ve EF snapshot birlikte korundu. Git indeksine bu işlemde add/reset yapılmadı; mevcut kullanıcı değişiklikleri korunur. Yeni bağımlılık eklenmedi; parking kaynak dalındaki aynı node-forge sürüm düzeltmesi taşındı.
+
+**Adım 1/3 kaynak birleştirme TAMAMLANDI; adım 2/3 doğrulama TAMAMLANDI; adım 3/3 yerel runtime BEKLIYOR. Tur 2/3=%66,67.** BAKIM ürün fazı değildir, faz sayaçlarına eklenmez. Birleşik ürün yol haritası 32 kayıt,152/163=%93,25; bu bakım nedeniyle yeni görev işaretlenmedi. **Main .NET build 0 hata/0 uyarı; EF pending-model kontrolü başarılı; web typecheck +296/296 test + üretim build; mobil check (typecheck/lint/160 test); ayrı geçici PostgreSQL'de Otopark/Ortak Alanlar 71/71 entegrasyon +32/32 unit başarılı, atlanan yok.** Test DB/rolü temizlendi. Kanıtlar `/tmp/bf-main-parking-*` log ve TRX dosyaları; önceki dal testleri bu tur çalıştırılmış sayılmadı.
+
+Yerel DB read-only migration sorgusu: CommonArea dört migration uygulanmış, ParkingFoundation/ParkingRequestIds/ParkingMaintenanceClosures/ParkingRetentionRedaction bekliyor. Gerçek DB değişmedi, API yeniden başlatılmadı; tarayıcıda gerçek main oturumuyla uçtan uca kullanım doğrulanmadı. Menü kaynakta artık etkin bağlantı; kullanıcıdaki çalışan API'nin hazır olduğu iddia edilmez. Plan MASTER_PROMPT madde10 gereği yerel migration onayı son adımda istenir. Commit/push/deploy yok.
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex 28.10.2026: 300dk %93 kullanılan/%7 kalan, reset 28.10.2026 16:43:32;10080dk %14/%86, reset 04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## ORTAK ALANLAR FAZ08 — 27.10.2026 — DEVAM EDIYOR
+
+OA-08/#58, plan08/08 kullanıcı tarafından onaylandı. Tur0/3=%0,00: kapsam, kalite kontrolleri, yayın raporu. Tam backend/web/mobil regresyonu, güvenlik/lisans/SBOM, izoleDocker-smoke ve performans; gerçekOIDC/native/remoteCI ayrı kapıdır. Mevcut Git indeksi ve kullanıcı verisi korunur; yayın/commit/push yok.
+
+## ORTAK ALANLAR FAZ07 — 27.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-07 / #57, plan07/08.** Yönetici dönem takvimi, sayfalı/ikonlu durum listesi, UUID/version kontrollü düzenleme ve gerekçeli iptal; RepeatableRead rapor API'si. Union/bakım/iptal, null payda ve mevcut saat/kapasite sınırı açık. Sakin salt okunur ve gizli not yasağı korundu. **İzolePG/API42/42+unit13/13;web280/280+typecheck+build GEÇTİ.**375pxTR/ENkoyu,1200pxTR izoleUI;90→60dk düzenle/iptal→0dk ve readonly rol kanıtı. Yeni paket/entity/migration yok, Git indeksi/önceki çalışmalar korundu. Mevcut adapter yalnız Sandbox, gerçek sağlayıcılar planda; rezervasyon-ücret ChargeId bağı yok, referans ücret tahsilat değildir. CanlıE2E/native/gerçeködeme/yük/pentest/CI yok; başarılı sayılmadı. Commit/PR/push/deploy yok.
+
+Tur3/3=%100,00;faz6/7=%85,71 kullanıcı kabulü açık; önceki fazlara devam onayı6/8=%75,00. Ürün roadmap28kayıt,145/155=%93,55; mobil15/UI/TEKNİK sayaçları aynı. #57 açık;FAZ08 başlatılmadı. Sonraki kullanıcı kabulü ve yeni faz için talimat. [Rapor](../common-areas/07-report.md).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage27.10.2026/rateLimitsByLimitId.codex:300dk%65kullanılan/%35kalan reset27.10.2026 12:00:53;10080dk%42/%58 reset02.11.2026 15:28:41 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## ORTAK ALANLAR FAZ06 — 27.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-06 / #56, plan06/08.** Mobil portföy bağlamlı liste/detay/salt okunur saatler, online yönetici alan/rezervasyon/iptal, şifreli sınırlı cache ve otomatik gönderilmeyen UUID taslağı; web/mobil saf sözleşme ortaklaştırıldı. ACCOUNTANT yazmaz;403/404 temizleme ve purge hatasında açık ret. **Mobil152/152+check+üç platform export; web274/274+typecheck+build;871mobil lisans metadata GEÇTİ.**375/430px izole UI rol/409/offline kanıtı var; gerçek cihaz SQLCipher/biyometri ve canlı auth/API E2E yok. Backend/DB/paket/migration/commit/push/deploy değişmedi. Mevcut Git indeksi korundu. Native blok atama ve fotoğraf yönetimi merkezde; gelişmiş takvim/rezervasyon düzenleme/ödeme yok.
+
+Tur3/3=%100,00 teknik; faz6/7=%85,71 kullanıcı kabulü açık; önceki fazlar için devam onayı5/8=%62,50. Ürün roadmap27kayıt,144/154=%93,51. Mobil15faz/UI sayaçları korunur. #56 açık; FAZ07 başlatılmadı. Sonraki: kullanıcı kabulü ve canlı/native kabul; yalnız yeni kullanıcı talimatıyla FAZ07. [Rapor](../common-areas/06-report.md).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context kapasitesi: BİLGİ MEVCUT DEĞİL. Codex usage27.10.2026/rateLimitsByLimitId.codex:300dk%13kullanılan/%87kalan reset 27.10.2026 12:00:53;10080dk%33/%67 reset02.11.2026 15:28:41 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## ORTAK ALANLAR FAZ05 — 26.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-05 / #55, plan 05/08.** FAZ04 kaynak worktree'den main çalışma dosyalarına birleştirildi; Git indeksi ve kaynak worktree korundu. Mevcut bakım planına bağlı kapanış, ortak rezervasyon kilidi/409, UUID, plan tamamlandı/iptal/silme ile kaldırma, kapsamlı duyuru ve uygun legacy hesaplara mevcut kişisel kutu bildirimi uygulandı. Blokla sınırlı bildirim geniş kanala çıkmaz. **164/164 PG/API/regresyon + 10/10 unit; web274/274, typecheck, varsayılan build ve329lisans GEÇTİ,0atlanan.**375px fixture UI'da taşma0; sakinde CLOSED var, yazma/özel not yok. Gerçek auth/API browser E2E, native, SMS/push, yük/pentest çalıştırılmadı. Tek günlük15dk aralık; canonical-only hesapta yetkili duyuru/takvim vardır, kişisel inbox/cihaz teslimi iddiası yok. Yeni migration canlıya uygulanmadı; paket/commit/push/deploy yok. Yalnız kendi test DB/rolü ve13007/13008 fixture temizlendi.
+
+Tur3/3=%100,00 teknik teslim; resmi faz6/7=%85,71 (kullanıcı kabulü açık); kullanıcı bildirimindeki önceki fazlar4/8=%50,00. Ürün yol haritası26kayıt,143/153=%93,46. FAZ06 başlatılmadı; #55 açık. [Rapor](../common-areas/05-report.md).
+
+Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Son kaynak Codex usage/rateLimitsByLimitId.codex, 26.10.2026:300dk kullanılan%73/kalan%27, reset27.10.2026 01:34:15;10080dk kullanılan%27/kalan%73, reset02.11.2026 15:28:41 Europe/Istanbul. Hesap kotası sohbetin token tüketimi değildir.
+
+## ORTAK ALANLAR FAZ03 — 26.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-03 / Issue #53; plan03/08.** Web yönetici kart/liste/detay/CRUD/409/UUID, salt okunur daire görünümü, yetkili galeri (`20261026131804_CommonAreaPhotos`, canlıya uygulanmadı), TR/EN, ikonlu filtreler. Bu tur: fixture locale tipi ve panel kapanış odağı düzeltildi. **102/102 izole PG/API + 8/8 unit, web 271/271, typecheck, webpack ve Turbopack build, 329 lisans GEÇTİ.** İzole fixture UI kabulü: masaüstü, 375px EN koyu, klavye/odak, 409, salt okunur rol. Gerçek Keycloak/API/MinIO tarayıcı kabulü ve gerçek fotoğraf yükleme UI'ı çalıştırılmadı. Yeni paket yok; commit/push yok. Rezervasyon FAZ04, mobil FAZ06; FAZ04 kullanıcı onayı bekler. [Rapor](../common-areas/03-report.md).
+
+## PROTOKOL — Ortak Alanlar yetki kararı — 26.10.2026
+
+Yönetici alan ve rezervasyon oluşturur/düzenler/iptal eder; yönetici dışı kullanıcı web/merkez ve mobilde yalnız yetkili alanları ve rezervasyon saatlerini okur. Halı saha: dolu/boş/bakım saatleri, kişisel detay yok. MASTER_PROMPT+FAZ03/04/06/07 ve API/teslim raporuna işlendi. Yeni faz/kod/migration/bağımlılık yok; roadmap tiki değişmedi. PROTOKOL2/2=%100,00;11yerelbağlantı eksik0,886kaynak/test/migration/dependency/roadmap dosyası hash aynı,git diff --check GEÇTİ. Uygulama testleri bu tur çalıştırılmadı. Önceki FAZ02 testi yeni kanıt değildir. [Karar](../api/common-areas.md).
+
+## ORTAK ALANLAR FAZ 02 — 26.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**OA-02 / Issue #52; plan02/08.** Alan tür/konum/görünürlük/kurallar/kapasite/saat/referans ücret, yönetim CRUD ve mevcut kullanıcı-daire bağlamından salt okunur katalog; UUID/version/audit/soft-delete, parent geçmiş koruması. Eklemeli20261026125717 migration+Designer+snapshot; canlıya uygulanmadı. **100/100 PostgreSQL/API/regresyon+8/8 domain, web260/260,typecheck,webpack build,329lisans metadata GEÇTİ.** Varsayılan Turbopack build mevcut shared/contact-verification importunda BAŞARISIZ; kaynakları değiştirilmedi. UI/rezervasyon/ödeme/mobil fazı uygulanmadı. Yeni paket/manifest/lock/eski migration/.env/canlı servis değişimi veya commit/push yok; yalnız kendi test DB/rolü temizlendi.
+
+Tur3/3=%100,00 teknik teslim; resmi faz6/7=%85,71(kullanıcı kabulü açık); akışta kabul edilen1/8=%12,50. Mevcut ürün roadmap25 kayıt,142/152=%93,42; OA-02 kanıtı eklendi, sonraki fazlar tiklenmedi. [Rapor](../common-areas/02-report.md). Sonraki FAZ03, yeni kullanıcı onayı bekler; #52 açık, #51 bu tur kapatılmadı. Giriş/çıkış/toplam token ve kalan context: her biri BİLGİ MEVCUT DEĞİL. Codex usage26.10.2026:300dk%41kullanılan/%59kalan,reset20:28:41;10080dk%6/%94,reset02.11.2026 15:28:41 Europe/Istanbul.
+
 ## BF-PAY FAZ 08 — 24.10.2026 — TAMAMLANDI (tarayıcı kabulü BEKLIYOR)
 
 **[AKIŞ BF-PAY | 13 faz, 00–12] FAZ 08 resmi görev 9/10 = %90,00; akış 9/13 faz = %69,23 (00–08).** Web: Tahsilatlar sekmeleri (online ödemeler, defter, mutabakat, banka ve ödeme ayarları), makbuz, sistem ayarlarında sağlayıcı kataloğu. Web 260/260, typecheck, OnlinePayment entegrasyon 9/9 + unit 14/14. `npm run build` eşzamanlı iletişim doğrulama çalışmasının Turbopack kökü dışındaki `shared/` içe aktarımı yüzünden kırık. Yeni paket/migration yok, commit yok. Sonraki: FAZ 09 mobil, onay bekler. Token/kota: BİLGİ MEVCUT DEĞİL. [Rapor](../payment/08-web.md).
@@ -8,7 +68,7 @@ Mobil ortak doğrulama kartı hemlegacyHesabım hemcanonicalçalışmaalanında;
 
 ## BF-VERIFY FAZ05 — 23.10.2026 — DEVAM EDIYOR
 
-Kullanıcı FAZ05/#48’i başlattı;liste6/08,3resmiadım. OrtakAuthProvider/profileRequest,profil ve canonicalPersonModelScreen doğrudan incelendi;Expo57/RN0.86.3 veversioneddocs doğrulandı;başlangıçprofile/registration testleri geçti. iOS26.5simülatörleri veöncedenderlenmişsimulatorapp mevcut;henüzbootedcihaz yok. #48Inprogress;04kapalıDone,03gerçekSMSaçık. Adım01 TAMAMLANDI,02 DEVAM EDIYOR;faz1/3=%33,33,plan4/8=%50,00. Üretim/nativeayar/dependency/canlıveri değişmedi;diğer çalışmalar korunur. SonCodexusage:300dk%58kullanılan/%42kalan,reset23.10.2026 21:42:33;10080dk%25/%75,reset30.10.2026 11:03:51 Europe/Istanbul. Giriş/çıkış/toplam token vekalancontext:BİLGİ MEVCUT DEĞİL.
+Kullanıcı FAZ05/#48’i başlattı;liste6/08,3resmiadım. OrtakAuthProvider/profileRequest,profil ve canonicalPersonModelScreen doğrudan incelendi;Expo57/RN0.86.3 veversioneddocs doğrulandı;başlangıçprofile/registration testleri geçti. iOS26.5simülatörleri veöncedenderlenmişsimulatorapp mevcut;henüzbootedcihaz yok. #48Inprogress;04kapalıDone,03gerçekSMSaçık. Adım01 TAMAMLANDI,02 DEVAM EDIYOR;faz1/3=%33,33,plan4/8=%50,00. Üretim/nativeayar/dependency/canlıveri değişmedi;diğer çalışmalar korunur. SonCodexusage:300dk%65kullanılan/%35kalan,reset23.10.2026 21:42:33;10080dk%25/%75,reset30.10.2026 11:03:51 Europe/Istanbul. Giriş/çıkış/toplam token vekalancontext:BİLGİ MEVCUT DEĞİL.
 
 ## BF-VERIFY FAZ04 — 23.10.2026 — TAMAMLANDI
 
@@ -288,7 +348,7 @@ Referans lacivert/cyan çerçeve,maviaktif,dikey ikon/satırlar,arama ve iç iç
 
 **Sidebar/drawer footer Yönetim alanı seçim bağlantısı kaldırıldı.** WorkspaceShell.tsx içinde tek ortak render ve kullanılmayan import kaldırıldı;profil,ana Yönetim Alanları menüsü ve Dashboardheaderseçimi korunur. **184/184FE,typecheck/üretim build,diffcheck PASS.** Bu küçük kaldırma için yeni test yazılmadı;tarayıcı/backend testleri bu tur koşulmadı. Başlangıçindeks/manifest/lock/next-env korundu;build üretimi exactimport kontrolüyle geri alındı. Yeni paket/API/DB yok. Bu tur1/1=%100,00;sidebar8/8korunur. Tekagent verify/docs;sonraki kullanıcıincelemesi.
 
-Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage21.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%3/kalan%97 reset21.10.2026 16:14:02;10080dk kullanılan%32/kalan%68 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+Token giriş/çıkış/toplam/kalancontext:her biri BİLGİ MEVCUT DEĞİL. Sonusage21.10.2026 rateLimitsByLimitId.codex:300dk kullanılan%3/kalan%97 reset21.10.2026 16:14:02;10080dk kullanılan%33/kalan%67 reset27.10.2026 13:32:07 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
 
 ## BAKIM —21.10.2026 — Sidebar alt alan seçimi — DEVAM EDIYOR
 

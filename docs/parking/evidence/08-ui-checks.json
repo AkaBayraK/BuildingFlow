@@ -1,0 +1,35 @@
+{
+  "scope": "owned Docker/OIDC/API/PostgreSQL fixture; not production/native",
+  "pkceS256": true,
+  "realGuestCreateArriveDepart": true,
+  "realClosureCreateCancel": true,
+  "literalMarkupEscaped": true,
+  "reportDailyCounts": [
+    1,
+    1,
+    1
+  ],
+  "csvDownloaded": true,
+  "locales": [
+    "tr",
+    "en"
+  ],
+  "darkTheme": true,
+  "viewportNarrow": {
+    "scrollWidth": 375,
+    "visibleCards": 1,
+    "width": 375
+  },
+  "viewportDesktop": 1440,
+  "keyboard": [
+    "Home",
+    "End",
+    "ArrowLeft",
+    "ArrowRight",
+    "wrap",
+    "single-tab-stop",
+    "focus-follows-selection"
+  ],
+  "retentionNoteCorrected": true,
+  "sessionRestoredWithFixtureAccount": true
+}
