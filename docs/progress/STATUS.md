@@ -1,3 +1,7 @@
+## QA kapanış turu — 29.10.2026
+
+Test Merkezi SUPER_ADMIN Sistem Yönetimi menüsünde; yerel API `.env` ile Test Merkezi açık. Kapatılan: #87 (Bloklar başlığı), #104 (export testleri; ledger CSV negatif tutar hatası düzeltildi), #108 (performans p95 22 ms). DEMO verisine aidat+tahsilat, paketsiz CDP ekran kaydı, iOS build+simülatör açılışı, AkaAI `buildingflow-integration` yapılandırması (AkaAI 55c7975, testler 16/16). Final rapor 1448 kalem FAIL0; kapı INCOMPLETE (14 SKIPPED). Açık: #83 #89 #103 #105 #106 #107 #109. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 13 — Tam regresyon ve devreye alma hazırlığı — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#109.** Backend Integration900/902(2 opt-in)+Unit434/434, web308/308, mobil160/160, tarayıcı PASS84/FAIL3/SKIPPED12, realm11/11, lisans329, KVKK0. Konsolide 1446 kalem PASS1429/FAIL3/SKIPPED14; kapı RED (#87 ×2, Test Merkezi UI: yerel API QaCenter kapalı başlatılmış). Kök neden: test havuzları 53300 → `test.sh` havuz sınırı/idle süresi. OPERATIONS, DEMO_GUIDE, FINAL_CHECKLIST yazıldı. Canlıya alma yok. Rapor `qa-center/reports/phase-13.md`. Token: BİLGİ MEVCUT DEĞİL.
