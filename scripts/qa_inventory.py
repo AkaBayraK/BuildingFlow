@@ -161,13 +161,14 @@ def summary(data):
 
 
 def main():
-    dump = OUT / 'api-endpoints.json'
+    out = Path(sys.argv[1]) if len(sys.argv) > 1 else OUT
+    dump = out / 'api-endpoints.json'
     if not dump.exists():
         print('[HATA] api-endpoints.json yok: önce QaEndpointInventoryTests çalıştırılmalı.', file=sys.stderr)
         return 1
     data = build(json.loads(dump.read_text()))
-    (OUT / 'inventory.json').write_text(json.dumps(data, ensure_ascii=False, indent=1, sort_keys=True) + '\n')
-    (OUT / 'coverage.md').write_text(summary(data))
+    (out / 'inventory.json').write_text(json.dumps(data, ensure_ascii=False, indent=1, sort_keys=True) + '\n')
+    (out / 'coverage.md').write_text(summary(data))
     print(f"[QA ENVANTER] API {len(data['api'])}, web sayfası {len(data['webPages'])}, mobil ekran {len(data['mobileScreens'])}, tablo {len(data['tables'])}.")
     return 0
 

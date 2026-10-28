@@ -1,3 +1,7 @@
+## QA-08 — Diğer modüller — 28.10.2026 — TEKNİK TESLİM
+
+Modül filtresi Integration 281/302 + Unit 237/237; 21 FAIL tekrarı 20/21 (53300 bağlantı sınırı flaky); Parking+QaCenter migration düzeltmesi sonrası 4/4. `test_qa_coverage_gate.py` 3/3; kapı HEAD envanterinde GEÇTİ, çalışma ağacında paralel tedarikçi endpoint'leriyle RED (beklenen).
+
 ## QA-07 — Mobil — 28.10.2026 — TEKNİK TESLİM
 
 `npm run check` 160/160 (iki kez), `npm run build` PASS. iOS simülatör: kurulum/açılış var, JS paketi bağlantısı başarısız (BLOKE). Android çalıştırılmadı (SDK yok).

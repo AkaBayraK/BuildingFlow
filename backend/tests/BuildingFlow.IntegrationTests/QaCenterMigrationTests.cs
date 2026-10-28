@@ -44,6 +44,9 @@ public sealed class QaCenterMigrationTests
             await AssertRejected(db, new QaRunStep(run.Id, 1, "duplicate", QaStepStatus.PASSED, "a", "b", 1));
             await Assert.ThrowsAsync<PostgresException>(() => db.Database.ExecuteSqlInterpolatedAsync($"UPDATE qa_runs SET status='DONE' WHERE id={run.Id}"));
             await Assert.ThrowsAsync<PostgresException>(() => db.GetService<IMigrator>().MigrateAsync(previous));
+            // EF commits each completed migration separately: later empty Downs may complete before this Down refuses.
+            Assert.EndsWith("_QaCenterRuns", (await db.Database.GetAppliedMigrationsAsync()).Last());
+            await db.Database.MigrateAsync();
             Assert.Equal(migrations.Last(), (await db.Database.GetAppliedMigrationsAsync()).Last());
             LegacySchema.AssertCurrentModelMatchesMigrations();
         }

@@ -1,3 +1,7 @@
+## QA FAZ 08 — Diğer modüller — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#104.** Modül paketleri ilk koşum 281/302; 20 FAIL paylaşılan PG bağlantı sınırı (53300) flaky, tek başına tekrar PASS; ParkingMigrationTests retention testi QaCenterRuns sonrası `migrations[^2]` varsayımıyla kırılmıştı, isimle bağlandı (4/4 PASS). Yeni `qa_coverage_gate.py` ratchet + CI; paralel tedarikçi kodundaki 2 testsiz endpoint'i yakaladı. Rapor `qa-center/reports/phase-08.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 07 — Mobil ve offline-first — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#103.** Mobil check 160/160 + build PASS; `eas.json` `qa` profili; mobil rol kapıları envanteri. iOS simülatörde mevcut dev build kuruldu ama Metro paketine bağlanamadı (BLOKE, kanıt `artifacts/qa/qa-mobile-ios/`); Android SDK yok. Rapor `qa-center/reports/phase-07.md`. Token: BİLGİ MEVCUT DEĞİL.

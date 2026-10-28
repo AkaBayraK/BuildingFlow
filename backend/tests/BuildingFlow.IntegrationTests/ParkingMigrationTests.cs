@@ -129,7 +129,7 @@ public sealed class ParkingMigrationTests
         try{
             var cs=new NpgsqlConnectionStringBuilder(original){SearchPath=schema+",public"};
             var options=new DbContextOptionsBuilder<BuildingFlowDbContext>().UseNpgsql(cs.ConnectionString,o=>o.MigrationsHistoryTable("__EFMigrationsHistory",schema)).AddInterceptors(new AuditInterceptor(new Actor(),TimeProvider.System)).Options;
-            await using var db=new BuildingFlowDbContext(options);var migrations=db.Database.GetMigrations().ToList();var previous=migrations[^2];
+            await using var db=new BuildingFlowDbContext(options);var migrations=db.Database.GetMigrations().ToList();var previous=migrations[migrations.IndexOf(migrations.Single(x=>x.EndsWith("_ParkingRetentionRedaction",StringComparison.Ordinal)))-1];
             await db.GetService<IMigrator>().MigrateAsync(previous);
             var p=new Property("Retention","City","District","Address",PropertyType.APARTMENT);var unit=p.AddUnit("1",1,100);
             var person=new Person(p.Id,"Test","Person",null,null);db.AddRange(p,person);await db.SaveChangesAsync();
@@ -142,6 +142,9 @@ public sealed class ParkingMigrationTests
             await db.GetService<IMigrator>().MigrateAsync(previous);await db.Database.MigrateAsync();
             var v=await db.Vehicles.SingleAsync(v=>v.Id==id);Assert.Null(v.PersonalDataRedactedAt);Assert.True(v.Redact(now,30));await db.SaveChangesAsync();
             await Assert.ThrowsAsync<PostgresException>(()=>db.GetService<IMigrator>().MigrateAsync(previous));
+            // EF commits each completed migration separately: later empty Downs may complete before retention Down refuses.
+            Assert.EndsWith("_ParkingRetentionRedaction",(await db.Database.GetAppliedMigrationsAsync()).Last());
+            await db.Database.MigrateAsync();
             Assert.Equal(migrations.Last(),(await db.Database.GetAppliedMigrationsAsync()).Last());
             LegacySchema.AssertCurrentModelMatchesMigrations();
         }finally{await using var cleanup=new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE",admin);await cleanup.ExecuteNonQueryAsync();}
