@@ -19,6 +19,7 @@ FEATURE_IMPORT = re.compile(r'from\s+"@/features/([\w-]+)/')
 NAV_LINK = re.compile(r'link\("([\w-]+)",\s*"(/[^"]*)"')
 NAV_PLANNED = re.compile(r'planned\("([\w-]+)"')
 TAB = re.compile(r'<Tabs\.Screen name="([\w-]+)" options=\{\{\s*(href:\s*([^,]+),)?')
+ROLE = re.compile(r"['\"](SUPER_ADMIN|SITE_ADMIN|MANAGER|ACCOUNTANT|RESIDENT|OWNER|TENANT|SECURITY)['\"]")
 TABLE = re.compile(r'ToTable\("([a-z0-9_]+)"')
 SIGNALS = {
     'create': re.compile(r'method:\s*"POST"|\bPOST\b'), 'update': re.compile(r'method:\s*"PUT"|\bPUT\b'),
@@ -68,6 +69,16 @@ def tab_visibility(layout):
             for name, _, href in TAB.findall(layout)]
 
 
+def role_gates(folder):
+    gates = defaultdict(set)
+    for path in sources(folder):
+        group = path.relative_to(folder).parts[0] if len(path.relative_to(folder).parts) > 1 else path.stem
+        if group == 'app':
+            group = 'screen:' + path.stem
+        gates[group].update(ROLE.findall(path.read_text(errors='ignore')))
+    return {group: sorted(roles) for group, roles in sorted(gates.items()) if roles}
+
+
 def web_pages():
     pages = []
     for page in sources(WEB / 'app', 'page.tsx'):
@@ -109,7 +120,7 @@ def build(endpoints):
     tables = sorted(set(TABLE.findall(snapshot.read_text())))
     return {
         'api': api, 'webPages': pages, 'navigation': nav, 'plannedNavigation': sorted(set(NAV_PLANNED.findall(navigation))),
-        'mobileScreens': mobile_screens, 'mobileTabs': tab_visibility((MOBILE / 'app/(tabs)/_layout.tsx').read_text()),
+        'mobileScreens': mobile_screens, 'mobileRoleGates': role_gates(MOBILE), 'mobileTabs': tab_visibility((MOBILE / 'app/(tabs)/_layout.tsx').read_text()),
         'mobileModules': {module: sorted(calls) for module, calls in sorted(mobile_calls.items())},
         'tables': tables, 'unmatchedWebCalls': unmatched(web_calls_flat), 'unmatchedMobileCalls': unmatched(mobile_calls_flat),
     }
@@ -134,6 +145,8 @@ def summary(data):
              f"| Mobil sekme: her zaman / bağlı kişi gerekir / gizli | {sum(t['visibility'] == 'ALWAYS' for t in data['mobileTabs'])} / {sum(t['visibility'] == 'LINKED_CONTEXT' for t in data['mobileTabs'])} / {sum(t['visibility'] == 'HIDDEN' for t in data['mobileTabs'])} |", f"| DB tablosu (EF snapshot) | {len(data['tables'])} |", '',
              '## Web sayfaları ve statik sinyaller', '', '| Route | Feature | API çağrısı | Sinyal |', '|---|---|---|---|']
     lines += [f"| `{p['route']}` | {', '.join(p['features']) or '-'} | {len(p['apiCalls'])} | {', '.join(p['signals']) or '-'} |" for p in data['webPages']]
+    lines += ['', '## Mobil rol kapıları (statik: kaynakta geçen rol/ilişki adları)', '', '| Modül/ekran | Roller |', '|---|---|']
+    lines += [f"| `{group}` | {', '.join(roles)} |" for group, roles in data['mobileRoleGates'].items()]
     lines += ['', '## Bulgular', '']
     lines += [f"- Sayfası olmayan menü bağlantısı: `{n['key']}` → `{n['route']}`" for n in data['navigation'] if not n['pageExists']]
     lines += [f"- Planlı (henüz ekranı olmayan) menü: `{key}`" for key in data['plannedNavigation']]

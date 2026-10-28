@@ -1,3 +1,7 @@
+## QA FAZ 07 — Mobil ve offline-first — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#103.** Mobil check 160/160 + build PASS; `eas.json` `qa` profili; mobil rol kapıları envanteri. iOS simülatörde mevcut dev build kuruldu ama Metro paketine bağlanamadı (BLOKE, kanıt `artifacts/qa/qa-mobile-ios/`); Android SDK yok. Rapor `qa-center/reports/phase-07.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 06 — Finans E2E — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#88, ürün eksikleri #89.** Yeni testler: eşzamanlı çift tıklama tek intent + UUID replay; sırası bozuk webhook başarılı ödemeyi geri alamaz. Finans paketleri izole PG Integration121/121+Unit57/57, KVKK 0. 3DS, çift taraflı muhasebe ve web/mobil online ödeme istemcisi ürün eksiği (BLOKE). Rapor `qa-center/reports/phase-06.md`. Token: BİLGİ MEVCUT DEĞİL.

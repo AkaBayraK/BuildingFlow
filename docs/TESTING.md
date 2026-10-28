@@ -1,3 +1,7 @@
+## QA-07 — Mobil — 28.10.2026 — TEKNİK TESLİM
+
+`npm run check` 160/160 (iki kez), `npm run build` PASS. iOS simülatör: kurulum/açılış var, JS paketi bağlantısı başarısız (BLOKE). Android çalıştırılmadı (SDK yok).
+
 ## QA-06 — Finans zinciri — 28.10.2026 — TEKNİK TESLİM
 
 `test.sh` finans filtresi (OnlinePayment|PaymentApi|PaymentMigration|Dues|LatePenalty|MobileFinance|ReportApi|DashboardApi|Expense) run qa-20261028T182709Z-7422c4: guard GEÇTİ, Integration 121/121, Unit 57/57, atlanan 0; yeni DuplicateTapsOpenExactlyOneIntent ve OutOfOrderFailureNoticeCannotUndoASettledPayment Passed. 3DS/çift taraflı muhasebe/istemci ödeme ekranı yok (#89).

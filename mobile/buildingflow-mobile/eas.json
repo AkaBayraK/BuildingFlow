@@ -13,6 +13,16 @@
         "BUILDINGFLOW_APP_VARIANT": "development"
       }
     },
+    "qa": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "BUILDINGFLOW_APP_VARIANT": "development",
+        "BUILDINGFLOW_QA_PROFILE": "1"
+      }
+    },
     "production": {
       "distribution": "store",
       "environment": "production",
