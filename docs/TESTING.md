@@ -1,3 +1,7 @@
+## QA-13 — Tam regresyon — 28.10.2026 — TEKNİK TESLİM
+
+`bash scripts/test.sh --logger trx`: Integration 900/902 (2 opt-in atlandı), Unit 434/434 (havuz düzeltmesi öncesi iki koşum 399/504 FAIL, tümü 53300). Web 308/308+typecheck, mobil check 160/160, `qa-web.sh` PASS84/FAIL3/SKIPPED12, `qa-identity.sh` 11/11, lisans 329.
+
 ## QA-12 — Kalite kapısı — 28.10.2026 — TEKNİK TESLİM
 
 `test_qa_github.py` 15/15 (gh kayıtçı, ağ yok). Gerçek konsolide rapor kapısı RED/çıkış 1; bugs ve close-phase dry-run. qa-gate.yml GitHub'da çalıştırılmadı.

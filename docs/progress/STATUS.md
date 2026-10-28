@@ -1,3 +1,7 @@
+## QA FAZ 13 — Tam regresyon ve devreye alma hazırlığı — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#109.** Backend Integration900/902(2 opt-in)+Unit434/434, web308/308, mobil160/160, tarayıcı PASS84/FAIL3/SKIPPED12, realm11/11, lisans329, KVKK0. Konsolide 1446 kalem PASS1429/FAIL3/SKIPPED14; kapı RED (#87 ×2, Test Merkezi UI: yerel API QaCenter kapalı başlatılmış). Kök neden: test havuzları 53300 → `test.sh` havuz sınırı/idle süresi. OPERATIONS, DEMO_GUIDE, FINAL_CHECKLIST yazıldı. Canlıya alma yok. Rapor `qa-center/reports/phase-13.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 12 — Kalite kapısı ve GitHub otomasyonu — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#108.** `scripts/qa_github.py` gate/bugs/close-phase (varsayılan dry-run, kanıtsız kategori INCOMPLETE, yalnız PASS kapatır), manuel `qa-gate.yml`; fixture 15/15. Gerçek rapor: RED (regresyon 2 FAIL #87, güvenlik 1 SKIPPED, finans 176 PASS, performans kanıt yok). Rapor `qa-center/reports/phase-12.md`. Token: BİLGİ MEVCUT DEĞİL.

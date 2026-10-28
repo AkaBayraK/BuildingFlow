@@ -42,6 +42,9 @@ else
   echo 'Shared PostgreSQL project ../postgres-18.6 not found.' >&2
   exit 1
 fi
+# Every test class migrates its own schema and therefore gets its own Npgsql pool; idle connections must be released
+# quickly or a full run exhausts the shared server's max_connections (PostgreSQL 53300).
+BUILDINGFLOW_TEST_DATABASE="$BUILDINGFLOW_TEST_DATABASE;Maximum Pool Size=10;Connection Idle Lifetime=2;Connection Pruning Interval=1"
 export BUILDINGFLOW_TEST_DATABASE
 trap cleanup_test_database EXIT
 python3 scripts/configure-object-storage.py
