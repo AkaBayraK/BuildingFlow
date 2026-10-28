@@ -377,4 +377,49 @@ public sealed class OnlinePaymentApiTests(SiteApiTests.SiteApiFactory factory) :
         var next = await admin.PostAsJsonAsync(root + "/payments", Transfer(null) with { Reference = "HVL-2", Allocations = [new(x.Extra, "500.00", (await Charge(admin, x, x.Extra))!.Version)] });
         Assert.Equal($"BF-{Today.Year}-000002", (await next.Content.ReadFromJsonAsync<PaymentResponse>(Json))!.ReceiptNumber);
     }
+
+    // QA FAZ 06: a double tap or parallel retry opens one intent; the same UUID replays it instead of reserving twice.
+    [PostgresFact] public async Task DuplicateTapsOpenExactlyOneIntent()
+    {
+        await using var app = App(); var x = await Seed(app);
+        using var resident = TestToken.Client(app, x.Resident, "RESIDENT");
+        var requests = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToArray();
+        var responses = await Task.WhenAll(requests.Select(request => Intent(resident, x, [x.Extra], null, request)));
+        var created = Assert.Single(responses, value => value.StatusCode == HttpStatusCode.Created);
+        foreach (var busy in responses.Where(value => value != created))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, busy.StatusCode); Assert.Equal("BF_PAYMENT_INTENT_ACTIVE", await Code(busy));
+        }
+        var first = (await created.Content.ReadFromJsonAsync<ResidentIntentResponse>(Json))!;
+        var replay = await Intent(resident, x, [x.Extra], null, requests[Array.IndexOf(responses, created)]);
+        Assert.True(replay.IsSuccessStatusCode, replay.StatusCode.ToString());
+        Assert.Equal(first.Id, (await replay.Content.ReadFromJsonAsync<ResidentIntentResponse>(Json))!.Id);
+        await WithDb(app, async db => Assert.Single(await db.PaymentIntents.Where(value => value.PropertyId == x.Property).ToListAsync()));
+    }
+
+    // QA FAZ 06: a late "failed" notice after success cannot reverse the payment or add ledger rows.
+    [PostgresFact] public async Task OutOfOrderFailureNoticeCannotUndoASettledPayment()
+    {
+        await using var app = App(); var x = await Seed(app);
+        using var resident = TestToken.Client(app, x.Resident, "RESIDENT"); using var anonymous = app.CreateClient();
+        var intent = await Open(resident, x, [x.Extra]);
+        var reference = await Reference(app, intent.Id);
+        var sandbox = app.Services.GetRequiredService<SandboxPaymentProvider>();
+        async Task<HttpStatusCode> Send((Dictionary<string, string> Headers, byte[] Body) notice)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/payment-webhooks/sandbox") { Content = new ByteArrayContent(notice.Body) };
+            request.Headers.TryAddWithoutValidation(SandboxPaymentProvider.SignatureHeader, notice.Headers[SandboxPaymentProvider.SignatureHeader]);
+            return (await anonymous.SendAsync(request)).StatusCode;
+        }
+        Assert.Equal(HttpStatusCode.OK, await Send(sandbox.Complete(reference, true)!.Value));
+        Assert.Equal("SUCCEEDED", (await Status(resident, x, intent.Id)).Status);
+        Assert.Equal(HttpStatusCode.OK, await Send(sandbox.Sign("payment.failed", reference, DateTimeOffset.UtcNow)));
+        Assert.Equal(HttpStatusCode.OK, await Send(sandbox.Sign("payment.succeeded", reference, DateTimeOffset.UtcNow)));
+        Assert.Equal("SUCCEEDED", (await Status(resident, x, intent.Id)).Status);
+        await WithDb(app, async db =>
+        {
+            Assert.Single(await db.Payments.Where(value => value.PropertyId == x.Property).ToListAsync());
+            Assert.Single(await db.PaymentLedgerEntries.Where(value => value.PropertyId == x.Property).ToListAsync());
+        });
+    }
 }

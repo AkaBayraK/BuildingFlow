@@ -1,3 +1,7 @@
+## QA-06 — Finans zinciri — 28.10.2026 — TEKNİK TESLİM
+
+`test.sh` finans filtresi (OnlinePayment|PaymentApi|PaymentMigration|Dues|LatePenalty|MobileFinance|ReportApi|DashboardApi|Expense) run qa-20261028T182709Z-7422c4: guard GEÇTİ, Integration 121/121, Unit 57/57, atlanan 0; yeni DuplicateTapsOpenExactlyOneIntent ve OutOfOrderFailureNoticeCannotUndoASettledPayment Passed. 3DS/çift taraflı muhasebe/istemci ödeme ekranı yok (#89).
+
 ## QA-04/05 — Tarayıcı, kimlik ve KVKK — 28.10.2026 — TEKNİK TESLİM
 
 `bash scripts/qa-web.sh` (gerçek Chrome/Keycloak/localhost): tam PASS81/FAIL10/SKIPPED10; `BF_QA_ROUTES` alt küme PASS9/FAIL2(#87)/SKIPPED2, Test Merkezi UI koşumu PASS. `bash scripts/qa-identity.sh` 11/11. `test_qa_log_scan.py` 13/13, gerçek loglar 0 bulgu. `test.sh` kişi/alan/rol filtresi Integration244/244+Unit28/28 (öncesi CentralPeopleTests bayrak sızıntısıyla 1 FAIL; bayraklı FAIL/bayraksız PASS ile kanıtlandı). `test_qa_guard.py` 16/16, `test_qa_web_lib.mjs` 3/3, web `npm test` 301/301 + typecheck.

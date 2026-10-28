@@ -1,3 +1,7 @@
+## QA FAZ 06 — Finans E2E — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#88, ürün eksikleri #89.** Yeni testler: eşzamanlı çift tıklama tek intent + UUID replay; sırası bozuk webhook başarılı ödemeyi geri alamaz. Finans paketleri izole PG Integration121/121+Unit57/57, KVKK 0. 3DS, çift taraflı muhasebe ve web/mobil online ödeme istemcisi ürün eksiği (BLOKE). Rapor `qa-center/reports/phase-06.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 04/05 — Web otomasyonu ve kimlik/KVKK — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#85, #86, bulgu #87.** CDP tarayıcı motoru (yeni paket yok, geçici SUPER_ADMIN, kullanıcı silindi): tam koşum PASS81/FAIL10/SKIPPED10; düzeltme sonrası alt küme kalan FAIL yalnız #87. Düzeltilen: `/properties/{id}/sms` OIDC dönüş whitelist'i, test.sh `PersonRefactor__*` sızıntısı (guard FEATURE_FLAG_LEAK). Geçici `bf-qa-*` realm 11/11 (realm izolasyonu 401), KVKK log taraması 13/13 + gerçek loglar 0; kişi/alan/rol paketleri Integration244/244+Unit28/28. Web301/301, lisans329 PASS. Web↔mobil BLOKE. Raporlar `qa-center/reports/phase-04.md`, `phase-05.md`. Token: BİLGİ MEVCUT DEĞİL.
