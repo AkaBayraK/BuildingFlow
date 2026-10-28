@@ -16,7 +16,7 @@ test('six semantic groups keep each enabled destination once and remove only the
  assert.deepEqual(m.groups.map(g=>ids(g.items)),[
   ['dashboard'],['properties','overview','buildings','units','people','shared-areas','parking'],
   ['dues','payments','expenses','reports'],['requests','maintenance','meters','suppliers'],
-  ['announcements','surveys','documents','website','sms'],['users','consents','definitions','settings']
+  ['announcements','surveys','documents','website','sms'],['users','consents','definitions','settings','qa-center']
  ]);
  const all=m.groups.flatMap(g=>g.items);
  assert.deepEqual(navigationDuplicates([...all,m.account,m.home]),[]);

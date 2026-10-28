@@ -22,7 +22,7 @@ export function ManagementPage({section,buildingId,unitFilter}:{section:"buildin
  const title=section==="buildings"?t("navBuildings"):scope.property?.type==="APARTMENT"?t("apartments"):t("navUnits");
  if(scope.error)return <div className="py-10"><MessageBanner action={<Button variant="view" onClick={scope.refresh}>{t("tryAgain")}</Button>}>{scope.error}</MessageBanner></div>;
  if(!scope.property)return <div className="py-10" role="status"><span className="sr-only">{t("loading")}</span><Skeleton className="h-24"/></div>;
- if(section==="buildings"&&scope.property.type==="APARTMENT")return <div className="py-10"><MessageBanner kind="info" action={<Button asChild><Link href={`/properties/${scope.propertyId}/units`}>{t("openApartments")}</Link></Button>}>{t("apartmentHasDirectUnits")}</MessageBanner></div>;
+ if(section==="buildings"&&scope.property.type==="APARTMENT")return <div className="py-10"><h1 className="mb-4 text-2xl font-semibold">{t("navBuildings")}</h1><MessageBanner kind="info" action={<Button asChild><Link href={`/properties/${scope.propertyId}/units`}>{t("openApartments")}</Link></Button>}>{t("apartmentHasDirectUnits")}</MessageBanner></div>;
  return <div className="py-8">{section==="units"?<>
  <WorkspaceHeading title={title} description={t("unitsPageDescription")} scope={`${scope.property.name}${building?` / ${building.name}`:""}`} icon={DoorOpen} action={buildingId?<BackButton href={`/properties/${scope.propertyId}/units`} label={t("changeBuilding")}/>:undefined}/>
  <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

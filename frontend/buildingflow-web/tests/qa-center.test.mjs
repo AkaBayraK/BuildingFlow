@@ -1,3 +1,4 @@
+import {createNavigation} from '../src/features/navigation/navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -72,4 +73,12 @@ test('cleanup needs a clean preview and the exact confirmation text; demo and bl
  assert.equal(readBatches([{id:'b',code:'c',kind:'DEMO',environment:'Development',runCode:null,status:'ACTIVE',recordCount:35,generatedAt:'2026-10-28T19:00:00Z',cleanedAt:null,propertyId:'p',version:1}])[0].kind,'DEMO');
  for(const kind of ['DEMO','TEST']){assert.ok(qaDataKindIcon[kind]);assert.ok(tr[`kind_${kind}`]&&en[`kind_${kind}`]);}
  for(const code of ['DEMO_PROTECTED','FINANCE_HISTORY','UNREGISTERED_ROWS','ALREADY_CLEANED'])assert.ok(tr[`blocker_${code}`]&&en[`blocker_${code}`]);
+});
+
+test('sidebar shows the QA centre only to SUPER_ADMIN under system administration',()=>{
+ const has=roles=>createNavigation({roles,sessionContexts:false,centralPeople:false,propertyId:null,property:null},'/').groups.flatMap(g=>g.items).some(i=>i.id==='qa-center');
+ assert.equal(has(['SUPER_ADMIN']),true);
+ for(const role of ['SITE_ADMIN','MANAGER','ACCOUNTANT','RESIDENT'])assert.equal(has([role]),false,role);
+ const item=createNavigation({roles:['SUPER_ADMIN'],sessionContexts:false,centralPeople:false,propertyId:null,property:null},'/').groups.find(g=>g.id==='administration').items.find(i=>i.id==='qa-center');
+ assert.equal(item.href,'/system-settings/qa-center');
 });
