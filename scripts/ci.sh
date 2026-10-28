@@ -5,6 +5,8 @@ python3 scripts/check-private-config.py
 python3 scripts/test_private_config.py
 python3 scripts/test_qa_guard.py
 python3 scripts/test_qa_inventory.py
+python3 scripts/test_qa_log_scan.py
+node --test scripts/test_qa_web_lib.mjs
 printf '[BUILDINGFLOW]\n[FAZ İŞ11 | KAYIT14/14]\n[ADIM02/04] CI\n[DURUM] BAŞLADI\n'
 [ "${1:-}" = "" ] || [ "$1" = --install ] || { echo 'Usage: bash scripts/ci.sh [--install]' >&2; exit 2; }
 # Results from earlier runs must never satisfy the gates.

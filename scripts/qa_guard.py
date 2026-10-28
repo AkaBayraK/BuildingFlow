@@ -48,6 +48,8 @@ def violations(env):
             found.append(('SERVICE_NOT_LOOPBACK', name))
     if env.get('ContactVerification__PhoneEnabled', '').strip().lower() in TRUE:
         found.append(('REAL_SMS_PROVIDER', 'ContactVerification__PhoneEnabled'))
+    for name in sorted(key for key in env if key.startswith('PersonRefactor__')):
+        found.append(('FEATURE_FLAG_LEAK', name))
     return found
 
 

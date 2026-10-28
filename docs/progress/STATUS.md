@@ -1,3 +1,7 @@
+## QA FAZ 04/05 — Web otomasyonu ve kimlik/KVKK — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#85, #86, bulgu #87.** CDP tarayıcı motoru (yeni paket yok, geçici SUPER_ADMIN, kullanıcı silindi): tam koşum PASS81/FAIL10/SKIPPED10; düzeltme sonrası alt küme kalan FAIL yalnız #87. Düzeltilen: `/properties/{id}/sms` OIDC dönüş whitelist'i, test.sh `PersonRefactor__*` sızıntısı (guard FEATURE_FLAG_LEAK). Geçici `bf-qa-*` realm 11/11 (realm izolasyonu 401), KVKK log taraması 13/13 + gerçek loglar 0; kişi/alan/rol paketleri Integration244/244+Unit28/28. Web301/301, lisans329 PASS. Web↔mobil BLOKE. Raporlar `qa-center/reports/phase-04.md`, `phase-05.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 03 — Test Merkezi UI ve orkestrasyon — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#84.** QaRun/QaRunStep + `QaCenterRuns` migration (Down guard), SUPER_ADMIN `CanManageQaCenter`, `QaCenter:Enabled` varsayılan kapalı/Production yasak, sıralı runner (timeout, iptal, INTERRUPTED), 3 salt okunur senaryo, 4 hata kodu; web `/system-settings/qa-center` ikonlu sekmeler, başlat/durdur/yeniden dene, polling izleme. **Integration31/31+Unit156/156 (guard GEÇTİ), web300/300+typecheck+build, lisans329 PASS.** Migration yerel DB'ye uygulanmadı; canlı UI/responsive kanıtı BLOKE (onay bekliyor). Rapor `qa-center/reports/phase-03.md`. Token: BİLGİ MEVCUT DEĞİL.

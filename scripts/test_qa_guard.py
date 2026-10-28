@@ -35,6 +35,7 @@ cases = [
     ({'Smtp__Host': 'smtp.gmail.com'}, {'SERVICE_NOT_LOOPBACK'}),
     ({'Payments__Sandbox__PublicBaseUrl': 'https://pay.example.com'}, {'SERVICE_NOT_LOOPBACK'}),
     ({'ContactVerification__PhoneEnabled': 'true'}, {'REAL_SMS_PROVIDER'}),
+    ({'PersonRefactor__Enabled': 'true'}, {'FEATURE_FLAG_LEAK'}),
 ]
 for index, (changes, expected) in enumerate(cases, 1):
     actual = codes(**changes)

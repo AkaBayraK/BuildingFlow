@@ -1,3 +1,7 @@
+## QA-04/05 — Tarayıcı, kimlik ve KVKK — 28.10.2026 — TEKNİK TESLİM
+
+`bash scripts/qa-web.sh` (gerçek Chrome/Keycloak/localhost): tam PASS81/FAIL10/SKIPPED10; `BF_QA_ROUTES` alt küme PASS9/FAIL2(#87)/SKIPPED2, Test Merkezi UI koşumu PASS. `bash scripts/qa-identity.sh` 11/11. `test_qa_log_scan.py` 13/13, gerçek loglar 0 bulgu. `test.sh` kişi/alan/rol filtresi Integration244/244+Unit28/28 (öncesi CentralPeopleTests bayrak sızıntısıyla 1 FAIL; bayraklı FAIL/bayraksız PASS ile kanıtlandı). `test_qa_guard.py` 16/16, `test_qa_web_lib.mjs` 3/3, web `npm test` 301/301 + typecheck.
+
 ## QA-03 — Test Merkezi orkestrasyonu — 28.10.2026 — TEKNİK TESLİM
 
 `bash scripts/test.sh --filter QaCenter|QaRunTests|QaEndpointInventoryTests|ErrorContract|PersistenceTests|MigrationTests|AutoMigrationTests|DomainTests`: guard GEÇTİ, Integration 31/31, Unit 156/156, atlanan 0. Kapsam: SUPER_ADMIN dışı 401/403, kapalıyken 404, UUID replay/başka senaryo 409, bilinmeyen senaryo 404, aktif koşum 409, stale version 409, iptal, timeout→retry (attempt 2), başarısız adım, sayfa/durum filtresi 400, migration upgrade/tekrar/audit kolonları/unique/check/Down guard. Web `npm test` 300/300, typecheck, build. Canlı tarayıcı responsive/erişilebilirlik kontrolü çalıştırılmadı (BLOKE).

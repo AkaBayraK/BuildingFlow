@@ -45,3 +45,9 @@ test('QA centre route is a safe OIDC return path',()=>{
  assert.equal(isWorkspaceReturnPath('/system-settings'),true);
  for(const path of ['/system-settings/qa-center/x','/system-settings/qa-center?token=x'])assert.equal(isWorkspaceReturnPath(path),false);
 });
+
+test('property SMS screen survives a reload (QA FAZ 04 finding)',()=>{
+ const p='11111111-1111-4111-8111-111111111111';
+ assert.equal(isWorkspaceReturnPath(`/properties/${p}/sms`),true);
+ assert.equal(isWorkspaceReturnPath(`/properties/${p}/sms/extra`),false);
+});

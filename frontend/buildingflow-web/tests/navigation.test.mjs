@@ -63,8 +63,8 @@ test('disabled placeholders stay routeless, unsearchable, and inactive; destinat
  assert.deepEqual(m.shortcuts.map(i=>i.id),['dashboard','properties','units','people']);
  // Yönetim > Sistem Ayarları sistem durumu ekranına açılır ve aranabilir.
  assert.equal(byId(m,'settings').href,'/system-settings');assert.equal(byId(m,'settings').disabled,false);assert.ok(m.searchable.some(i=>i.id==='settings'));
- for(const item of entries(m).filter(i=>!i.disabled))assert.equal(isWorkspaceReturnPath(item.href),!['sms','home'].includes(item.id),item.href);
- // Existing scoped SMS allowlist gap and root handling are recorded, not silently expanded here.
+ for(const item of entries(m).filter(i=>!i.disabled))assert.equal(isWorkspaceReturnPath(item.href),item.id!=='home',item.href);
+ // Scoped SMS was missing from the allowlist (reload sent users to /); QA FAZ 04 closed it. Root stays excluded.
  assert.equal(m.searchable.filter(i=>i.href==='/users').length,1);
  assert.equal(byId(m,'planned-users'),undefined);
 });
