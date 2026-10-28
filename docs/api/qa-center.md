@@ -31,3 +31,14 @@ AkaAI'ya yalnız mevcut entegrasyon API'si (`POST /api/v1/integrations/chat/comp
 | POST | `/api/v1/qa-center/ai/runs/{id}/explanation` | Bitmiş koşumun kayıtlı adımlarını açıklar; `runStatus` DB'den gelir, AI değiştiremez |
 
 Hatalar: `BF_QA_AI_PROMPT_INVALID` 400, `BF_QA_AI_BUDGET` 429 (süreç içi günlük sayaç; çoklu örnekte paylaşılmaz), `BF_QA_AI_PLAN_INVALID` 502 (bilinmeyen senaryo, fazla alan, mükerrer, boş, JSON dışı), `BF_QA_AI_UNAVAILABLE` 503 (kapalı, token/bağlantı/zaman aşımı hatası; UI katalogdan elle seçime döner). Kullanıcı metni `<kullanici_istegi>` içinde veri olarak gönderilir; asıl koruma çıktı doğrulamasıdır.
+
+## Demo/test verisi ve temizlik (QA FAZ 10)
+
+| Method | Route | Açıklama |
+|---|---|---|
+| GET | `/api/v1/qa-center/data/batches` | Son 50 parti (kod, tür, ortam, `runCode`, durum, kayıt sayısı, yönetim alanı) |
+| POST | `/api/v1/qa-center/data/batches` `{kind: DEMO\|TEST, requestId, runCode?, blocks 1-5, unitsPerBlock 1-20}` | SITE + bloklar + daireler + malik/kiracı kişileri (`@example.test`, telefon/kimlik yok) + ilişkiler; her satır `qa_data_records`'a yazılır. 201 yeni, 200 replay, farklı türle aynı UUID 409 |
+| GET | `.../{id}/cleanup-preview` | Dry-run: sıra (UnitOccupancy → Person → Unit → Building → Property), sayılar, engeller (`DEMO_PROTECTED`, `FINANCE_HISTORY`, `UNREGISTERED_ROWS`, `ALREADY_CLEANED`), onay metni `TEMIZLE <kod>`, version |
+| POST | `.../{id}/cleanup` `{version, confirmation}` | Yalnız TEST + engelsiz + birebir onay; kayıtlı satırları tek transaction'da soft-delete eder; parti ve kayıt defteri (audit) korunur |
+
+Hatalar (409): `BF_QA_DATA_PROTECTED`, `BF_QA_DATA_CONFIRM`, `BF_QA_DATA_BLOCKED`, `BF_QA_DATA_STATE`. Finans kaydı silinmez kuralı nedeniyle finanslı test verisi bu uçla temizlenmez; izole test veritabanı (`scripts/test.sh`, geçici DB/rol silinir) kullanılır. Tablolar `qa_data_batches`, `qa_data_records` (migration `QaCenterData`, `kind='TEST' OR status='ACTIVE'` check'i demo temizliğini DB düzeyinde de engeller, dolu tabloda Down reddedilir).

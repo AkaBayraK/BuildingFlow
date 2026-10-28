@@ -3,8 +3,8 @@ export const qaCenterHref="/system-settings/qa-center";
 export const qaCenterRoles=["SUPER_ADMIN"] as const;
 export const qaRunStatuses=["QUEUED","RUNNING","PASSED","FAILED","CANCELLED","TIMED_OUT"] as const;
 export const qaStepStatuses=["PASSED","FAILED","SKIPPED"] as const;
-export const qaTabs=["overview","inventory","scenarios","assistant","runs","live"] as const;
-export const qaPlannedTabs=[["data","10"],["results","11"],["defects","12"],["cleanup","10"],["settings","12"]] as const;
+export const qaTabs=["overview","inventory","scenarios","assistant","runs","live","data","cleanup"] as const;
+export const qaPlannedTabs=[["results","11"],["defects","12"],["settings","12"]] as const;
 export type QaRunStatus=typeof qaRunStatuses[number];
 export type QaStepStatus=typeof qaStepStatuses[number];
 export type QaTab=typeof qaTabs[number];
@@ -53,6 +53,15 @@ const texts=(value:unknown)=>{if(!Array.isArray(value))throw new Error("Invalid 
 export function readAiStatus(value:unknown):QaAiStatus{const v=object(value);return {enabled:v.enabled===true,dailyLimit:count(v.dailyLimit),usedToday:count(v.usedToday)};}
 export function readAiPlan(value:unknown):QaAiPlan{const v=object(value);if(v.requiresApproval!==true)throw new Error("Invalid QA response");return {scenarios:texts(v.scenarios),summary:text(v.summary),risks:texts(v.risks),source:text(v.source),requiresApproval:true};}
 export function readAiExplanation(value:unknown):QaAiExplanation{const v=object(value);return {runId:text(v.runId),runStatus:member(qaRunStatuses,v.runStatus),explanation:text(v.explanation),source:text(v.source)};}
+export const qaDataKinds=["DEMO","TEST"] as const;
+export type QaDataKind=typeof qaDataKinds[number];
+export type QaDataBatch={id:string;code:string;kind:QaDataKind;environment:string;runCode:string|null;status:"ACTIVE"|"CLEANED";recordCount:number;generatedAt:string;cleanedAt:string|null;propertyId:string|null;version:number};
+export type QaCleanupPreview={batchId:string;code:string;kind:QaDataKind;canClean:boolean;items:{order:number;entityType:string;count:number}[];blockers:string[];confirmation:string;version:number};
+export function readBatch(value:unknown):QaDataBatch{const v=object(value);return {id:text(v.id),code:text(v.code),kind:member(qaDataKinds,v.kind),environment:text(v.environment),runCode:optionalText(v.runCode),status:member(["ACTIVE","CLEANED"] as const,v.status),recordCount:count(v.recordCount),generatedAt:text(v.generatedAt),cleanedAt:optionalText(v.cleanedAt),propertyId:optionalText(v.propertyId),version:count(v.version)};}
+export function readBatches(value:unknown):QaDataBatch[]{if(!Array.isArray(value))throw new Error("Invalid QA response");return value.map(readBatch);}
+export function readPreview(value:unknown):QaCleanupPreview{const v=object(value);if(!Array.isArray(v.items))throw new Error("Invalid QA response");
+ return {batchId:text(v.batchId),code:text(v.code),kind:member(qaDataKinds,v.kind),canClean:v.canClean===true,items:v.items.map(item=>{const i=object(item);return {order:count(i.order),entityType:text(i.entityType),count:count(i.count)};}),blockers:texts(v.blockers),confirmation:text(v.confirmation),version:count(v.version)};}
+export const canConfirmCleanup=(preview:QaCleanupPreview,typed:string)=>preview.canClean&&typed===preview.confirmation;
 export const isActive=(run:QaRun)=>run.status==="QUEUED"||run.status==="RUNNING";
 export const canRetry=(run:QaRun)=>(run.status==="FAILED"||run.status==="CANCELLED"||run.status==="TIMED_OUT")&&run.attempt<5;
 export const runsQuery=(page:number,status:QaRunStatus|"ALL")=>`${qaCenterPath}/runs?page=${page}&pageSize=10${status==="ALL"?"":`&status=${status}`}`;

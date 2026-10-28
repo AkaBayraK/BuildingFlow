@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {canRetry,isActive,qaPlannedTabs,readAiExplanation,readAiPlan,readAiStatus,qaRunStatuses,qaStepStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey} from '../src/features/qa-center/model.ts';
-import {qaPlannedIcon,qaRunStatusIcon,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from '../src/features/qa-center/qa-style.ts';
+import {canConfirmCleanup,readBatches,readPreview,canRetry,isActive,qaPlannedTabs,readAiExplanation,readAiPlan,readAiStatus,qaRunStatuses,qaStepStatuses,qaTabs,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey} from '../src/features/qa-center/model.ts';
+import {qaDataKindIcon,qaPlannedIcon,qaRunStatusIcon,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from '../src/features/qa-center/qa-style.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 const tr=JSON.parse(readFileSync(new URL('../messages/tr.json',import.meta.url))).qaCenter;
 const en=JSON.parse(readFileSync(new URL('../messages/en.json',import.meta.url))).qaCenter;
@@ -61,4 +61,15 @@ test('AI plan is only accepted as an approval-required proposal and explanations
  assert.equal(readAiExplanation({runId:'r',runStatus:'FAILED',explanation:'x',source:'AKAAI'}).runStatus,'FAILED');
  assert.throws(()=>readAiExplanation({runId:'r',runStatus:'GREEN',explanation:'x',source:'AKAAI'}));
  for(const key of ['aiProposal','aiApprove','aiExplain','aiExplanationTitle'])assert.ok(tr[key]&&en[key]);
+});
+
+test('cleanup needs a clean preview and the exact confirmation text; demo and blockers stay visible',()=>{
+ const preview=readPreview({batchId:'b',code:'qa-data-x',kind:'TEST',canClean:true,items:[{order:1,entityType:'UnitOccupancy',count:2}],blockers:[],confirmation:'TEMIZLE qa-data-x',version:1});
+ assert.equal(canConfirmCleanup(preview,'TEMIZLE qa-data-x'),true);
+ assert.equal(canConfirmCleanup(preview,'temizle qa-data-x'),false);
+ assert.equal(canConfirmCleanup({...preview,canClean:false},'TEMIZLE qa-data-x'),false);
+ assert.throws(()=>readPreview({...preview,kind:'PROD'}));
+ assert.equal(readBatches([{id:'b',code:'c',kind:'DEMO',environment:'Development',runCode:null,status:'ACTIVE',recordCount:35,generatedAt:'2026-10-28T19:00:00Z',cleanedAt:null,propertyId:'p',version:1}])[0].kind,'DEMO');
+ for(const kind of ['DEMO','TEST']){assert.ok(qaDataKindIcon[kind]);assert.ok(tr[`kind_${kind}`]&&en[`kind_${kind}`]);}
+ for(const code of ['DEMO_PROTECTED','FINANCE_HISTORY','UNREGISTERED_ROWS','ALREADY_CLEANED'])assert.ok(tr[`blocker_${code}`]&&en[`blocker_${code}`]);
 });

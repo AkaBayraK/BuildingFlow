@@ -1,3 +1,7 @@
+## QA FAZ 10 — Demo/test verileri — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#106.** `QaCenterData` migration (qa_data_batches/records, Down guard, demo DB check), sentetik site/blok/daire/kişi/ilişki üretici, dry-run + birebir onaylı, bağımlılık sıralı tek transaction temizlik; DEMO/finans/parti dışı kayıt blokajı; web Test Verileri ve Temizle sekmeleri. **Integration33/33, web308/308+typecheck; commit ağacı tek başına build/pending/tsc/303 temiz.** Finans demo verisi ve rol değiştirme demosu kısmi. Yerel DB'ye yazılmadı. Rapor `qa-center/reports/phase-10.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 09 — AkaAI AI Test Asistanı — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#105.** AkaAI deposu değişmeden mevcut entegrasyon API'si: kapalı şema + allowlist plan, onaysız koşum yok, açıklama sonucu değiştirmez, bütçe/503 fallback, 4 hata kodu; web AI Test Asistanı sekmesi. **Integration27/27 (5 injection/uydurma plan reddi), web307/307+typecheck+build, lisans329 PASS.** Gerçek AkaAI uçtan uca bağlantı yapılandırma bekliyor. Rapor `qa-center/reports/phase-09.md`. Token: BİLGİ MEVCUT DEĞİL.

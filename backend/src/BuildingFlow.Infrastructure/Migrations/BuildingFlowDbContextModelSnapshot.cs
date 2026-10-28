@@ -7669,6 +7669,182 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.QaDataBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CleanedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cleaned_at");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Environment")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("environment");
+
+                    b.Property<DateTimeOffset>("GeneratedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("generated_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("RecordCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("record_count");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("RunCode")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("run_code");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_qa_data_batches_code");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_qa_data_batches_request_id");
+
+                    b.ToTable("qa_data_batches", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_qa_data_batches_demo_kept", "kind = 'TEST' OR status = 'ACTIVE'");
+
+                            t.HasCheckConstraint("ck_qa_data_batches_kind", "kind IN ('DEMO','TEST')");
+
+                            t.HasCheckConstraint("ck_qa_data_batches_status", "status IN ('ACTIVE','CLEANED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.QaDataRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<int>("CleanupOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("cleanup_order");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityType", "EntityId")
+                        .HasDatabaseName("idx_qa_data_records_entity");
+
+                    b.HasIndex("BatchId", "EntityType", "EntityId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_qa_data_records_batch_entity");
+
+                    b.ToTable("qa_data_records", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_qa_data_records_order", "cleanup_order BETWEEN 1 AND 100");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.QaRun", b =>
                 {
                     b.Property<Guid>("Id")
@@ -11810,6 +11986,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.QaDataRecord", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.QaDataBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_qa_data_records_batch");
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.QaRun", b =>

@@ -80,6 +80,8 @@ public sealed class BuildingFlowDbContext : DbContext
     public DbSet<ConsentText> ConsentTexts => Set<ConsentText>();
     public DbSet<QaRun> QaRuns => Set<QaRun>();
     public DbSet<QaRunStep> QaRunSteps => Set<QaRunStep>();
+    public DbSet<QaDataBatch> QaDataBatches => Set<QaDataBatch>();
+    public DbSet<QaDataRecord> QaDataRecords => Set<QaDataRecord>();
     public DbSet<UserConsent> UserConsents => Set<UserConsent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

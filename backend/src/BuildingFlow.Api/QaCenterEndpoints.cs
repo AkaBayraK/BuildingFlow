@@ -304,6 +304,7 @@ internal static class QaCenterEndpoints
         services.AddSingleton<IQaScenario, ApiAuthorizationScenario>();
         services.AddSingleton<IQaScenario, DatabaseMigrationScenario>();
         services.AddScoped<QaCenterService>();
+        services.AddScoped<QaDataService>();
         services.AddSingleton(QaAkaAiOptions.From(configuration));
         services.AddSingleton<QaAiAssistant>();
         services.AddHttpClient(QaAiAssistant.ClientName, client => client.Timeout = TimeSpan.FromSeconds(300))
@@ -329,6 +330,7 @@ internal static class QaCenterEndpoints
         root.MapPost("/runs", async (StartQaRunRequest request, QaCenterService service, CancellationToken token) => Accepted(await service.Start(request, token)));
         root.MapPost("/runs/{runId:guid}/retry", async (Guid runId, RetryQaRunRequest request, QaCenterService service, CancellationToken token) =>
             Accepted(await service.Retry(runId, request, token)));
+        root.MapQaDataEndpoints();
         var ai = root.MapGroup("/ai");
         ai.MapGet("/status", (QaAiAssistant assistant, ICurrentUserService user) => Results.Ok(assistant.Status(user.UserId!)));
         ai.MapPost("/plans", async (QaAiPlanRequest request, QaAiAssistant assistant, ICurrentUserService user, CancellationToken token) =>

@@ -255,6 +255,10 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition QaAiPlanInvalid = new("BF_QA_AI_PLAN_INVALID", "AkaAI izin verilmeyen veya geçersiz bir plan döndürdü; plan reddedildi.", "warning");
     public static readonly ErrorDefinition QaAiBudget = new("BF_QA_AI_BUDGET", "Bugünkü AI test asistanı kullanım sınırına ulaştınız.", "warning");
     public static readonly ErrorDefinition QaAiPromptInvalid = new("BF_QA_AI_PROMPT_INVALID", "Test isteği 1-1000 karakter olmalı ve kontrol karakteri içermemeli.", "error");
+    public static readonly ErrorDefinition QaDataProtected = new("BF_QA_DATA_PROTECTED", "Demo verisi korunur; temizlenemez.", "warning");
+    public static readonly ErrorDefinition QaDataConfirm = new("BF_QA_DATA_CONFIRM", "Onay metni ön izlemedeki ifadeyle birebir aynı olmalı.", "error");
+    public static readonly ErrorDefinition QaDataBlocked = new("BF_QA_DATA_BLOCKED", "Bu veri partisi temizlenemez: finans geçmişi veya parti dışı bağlı kayıt var.", "warning");
+    public static readonly ErrorDefinition QaDataState = new("BF_QA_DATA_STATE", "Veri partisi değişmiş veya zaten temizlenmiş; ön izlemeyi yenileyin.", "warning");
     public static readonly ErrorDefinition RecordChanged = new("BF_RECORD_CHANGED", "Kayıt değişti. Güncel bilgileri yükleyip yeniden deneyin.", "warning");
     public static readonly ErrorDefinition DuesErrorMoveOutReason = new("BF_DUES_ERROR_MOVE_OUT_REASON", "Kiracı taşınması iptal nedeni kullanılamıyor. Önizlemeyi yenileyin.", "warning");
     public static readonly ErrorDefinition PersonRequired = new("BF_PERSON_REQUIRED", "Kişi seçin.", "error");
@@ -521,6 +525,10 @@ public static class ErrorCatalog
         QaAiPlanInvalid,
         QaAiBudget,
         QaAiPromptInvalid,
+        QaDataProtected,
+        QaDataConfirm,
+        QaDataBlocked,
+        QaDataState,
         MobileSyncConflict,
         ValidationFailed,
         InvalidRequest,

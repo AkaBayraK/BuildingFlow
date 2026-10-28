@@ -57,6 +57,10 @@ export const errorCodes = {
   "BF_QA_AI_PLAN_INVALID":{"status":502,"severity":"warning","parameters":[]},
   "BF_QA_AI_BUDGET":{"status":429,"severity":"warning","parameters":[]},
   "BF_QA_AI_PROMPT_INVALID":{"status":400,"severity":"error","parameters":[]},
+  "BF_QA_DATA_PROTECTED":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_DATA_CONFIRM":{"status":409,"severity":"error","parameters":[]},
+  "BF_QA_DATA_BLOCKED":{"status":409,"severity":"warning","parameters":[]},
+  "BF_QA_DATA_STATE":{"status":409,"severity":"warning","parameters":[]},
 
   "BF_INQUIRY_REJECTED": {"status":400,"severity":"error","parameters":[]},
   "BF_INQUIRY_UNAVAILABLE": {"status":409,"severity":"warning","parameters":[]},

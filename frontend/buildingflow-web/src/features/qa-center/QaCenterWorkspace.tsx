@@ -11,8 +11,8 @@ import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {BackButton} from "@/components/navigation/BackButton";
 import {WorkspaceHeading} from "@/components/management/WorkspacePresentation";
 import {cn} from "@/lib/utils";
-import {canRetry,isActive,qaCenterPath,qaCenterRoles,qaPlannedTabs,qaPromptLimit,qaRunStatuses,qaTabs,readAiExplanation,readAiPlan,readAiStatus,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey,type QaAiExplanation,type QaAiPlan,type QaAiStatus,type QaOverview,type QaRun,type QaRunDetail,type QaRunPage,type QaRunStatus,type QaScenario,type QaTab} from "./model";
-import {qaDefaultScenarioIcon,qaPlannedIcon,qaRunStatusIcon,qaRunStatusTone,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from "./qa-style";
+import {canConfirmCleanup,qaDataKinds,readBatch,readBatches,readPreview,type QaCleanupPreview,type QaDataBatch,type QaDataKind,canRetry,isActive,qaCenterPath,qaCenterRoles,qaPlannedTabs,qaPromptLimit,qaRunStatuses,qaTabs,readAiExplanation,readAiPlan,readAiStatus,readDetail,readOverview,readPage,readRun,readScenarios,runsQuery,scenarioMessageKey,type QaAiExplanation,type QaAiPlan,type QaAiStatus,type QaOverview,type QaRun,type QaRunDetail,type QaRunPage,type QaRunStatus,type QaScenario,type QaTab} from "./model";
+import {qaDataKindIcon,qaDefaultScenarioIcon,qaPlannedIcon,qaRunStatusIcon,qaRunStatusTone,qaScenarioIcon,qaStepStatusIcon,qaTabIcon} from "./qa-style";
 
 const panel="min-w-0 rounded-2xl border bg-card p-4 shadow-sm sm:p-5";
 const json=(body:unknown)=>({method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -24,6 +24,7 @@ export function QaCenterWorkspace(){
  const [tab,setTab]=useState<QaTab>("overview"),[overview,setOverview]=useState<QaOverview|null>(null),[scenarios,setScenarios]=useState<QaScenario[]>([]);
  const [page,setPage]=useState<QaRunPage|null>(null),[pageNumber,setPageNumber]=useState(1),[filter,setFilter]=useState<QaRunStatus|"ALL">("ALL");
  const [selected,setSelected]=useState<QaRunDetail|null>(null),[disabled,setDisabled]=useState(false),[error,setError]=useState(false),[busy,setBusy]=useState("");
+ const [batches,setBatches]=useState<QaDataBatch[]>([]),[dataKind,setDataKind]=useState<QaDataKind>("TEST"),[preview,setPreview]=useState<QaCleanupPreview|null>(null),[typed,setTyped]=useState("");
  const [aiStatus,setAiStatus]=useState<QaAiStatus|null>(null),[prompt,setPrompt]=useState(""),[plan,setPlan]=useState<QaAiPlan|null>(null),[explanation,setExplanation]=useState<QaAiExplanation|null>(null);
 
  const load=useCallback(async(signal?:AbortSignal)=>{
@@ -31,6 +32,7 @@ export function QaCenterWorkspace(){
    const [o,s,p]=await Promise.all([api<unknown>(`${qaCenterPath}/overview`,{signal},"json",[404]),api<unknown>(`${qaCenterPath}/scenarios`,{signal},"json",[404]),api<unknown>(runsQuery(pageNumber,filter),{signal},"json",[404])]);
    if(!signal?.aborted){setOverview(readOverview(o));setScenarios(readScenarios(s));setPage(readPage(p));setError(false);setDisabled(false);}
    const a=await api<unknown>(`${qaCenterPath}/ai/status`,{signal},"json",[404]).catch(()=>null);if(!signal?.aborted&&a)setAiStatus(readAiStatus(a));
+   const b=await api<unknown>(`${qaCenterPath}/data/batches`,{signal},"json",[404]).catch(()=>null);if(!signal?.aborted&&b)setBatches(readBatches(b));
   }catch(e){if(!signal?.aborted){if(e instanceof ApiError&&e.status===404)setDisabled(true);else setError(true);}}
  },[api,pageNumber,filter]);
  const loadRun=useCallback(async(id:string,signal?:AbortSignal)=>{try{const d=readDetail(await api<unknown>(`${qaCenterPath}/runs/${id}`,{signal}));if(!signal?.aborted)setSelected(d);}catch{if(!signal?.aborted)setError(true);}},[api]);
@@ -39,6 +41,9 @@ export function QaCenterWorkspace(){
  useEffect(()=>{if(!watching)return;const timer=window.setInterval(()=>{void loadRun(watching);void load();},2000);return()=>window.clearInterval(timer);},[watching,loadRun,load]);
 
  const act=async(key:string,request:()=>Promise<unknown>)=>{setBusy(key);try{const run=readRun(await request());await loadRun(run.id);setTab("live");await load();}catch{}finally{setBusy("");}};
+ const createBatch=async()=>{setBusy("data");try{readBatch(await api(`${qaCenterPath}/data/batches`,json({kind:dataKind,requestId:crypto.randomUUID()})));await load();}catch{}finally{setBusy("");}};
+ const loadPreview=async(batch:QaDataBatch)=>{setBusy("preview");setTyped("");try{setPreview(readPreview(await api(`${qaCenterPath}/data/batches/${batch.id}/cleanup-preview`)));}catch{}finally{setBusy("");}};
+ const clean=async(value:QaCleanupPreview)=>{setBusy("clean");try{readBatch(await api(`${qaCenterPath}/data/batches/${value.batchId}/cleanup`,json({version:value.version,confirmation:typed})));setPreview(null);setTyped("");await load();}catch{}finally{setBusy("");}};
  const askPlan=async()=>{setBusy("ai-plan");setPlan(null);try{setPlan(readAiPlan(await api(`${qaCenterPath}/ai/plans`,json({prompt}))));}catch{}finally{setBusy("");void load();}};
  const runPlan=async(value:QaAiPlan)=>{for(const key of value.scenarios)await start(key);setPlan(null);};
  const explain=async(run:QaRun)=>{setBusy("ai-explain");setExplanation(null);try{setExplanation(readAiExplanation(await api(`${qaCenterPath}/ai/runs/${run.id}/explanation`,{method:"POST"})));}catch{}finally{setBusy("");}};
@@ -94,6 +99,26 @@ export function QaCenterWorkspace(){
      <ul className="mt-2 list-disc ps-5">{plan.scenarios.map(key=><li key={key}>{scenarioName(key)} <code className="text-xs">{key}</code></li>)}</ul>
      {plan.risks.length>0&&<><p className="mt-2 font-medium">{t("aiRisks")}</p><ul className="list-disc ps-5">{plan.risks.map(risk=><li key={risk}>{risk}</li>)}</ul></>}
      <div className="mt-3 flex flex-wrap gap-2"><Button onClick={()=>void runPlan(plan)}><Play aria-hidden="true"/>{t("aiApprove")}</Button><Button variant="outline" onClick={()=>setPlan(null)}>{t("aiReject")}</Button></div></div>}
+   </div>}
+   {tab==="data"&&<div className={cn(panel,"flex flex-col gap-3")}>
+    <p className="text-sm text-muted-foreground">{t("dataIntro")}</p>
+    <div role="group" aria-label={t("dataKind")} className="flex flex-wrap items-center gap-2">{qaDataKinds.map(kind=>{const I=qaDataKindIcon[kind];return <Button key={kind} size="sm" aria-pressed={dataKind===kind} variant={dataKind===kind?"default":"outline"} onClick={()=>setDataKind(kind)}><I aria-hidden="true"/>{t(`kind_${kind}`)}</Button>;})}
+     <Button disabled={busy==="data"} onClick={()=>void createBatch()}><Play aria-hidden="true"/>{t("dataCreate")}</Button></div>
+    {batches.length===0?<p className="text-sm text-muted-foreground">{t("dataEmpty")}</p>:<ul className="divide-y">{batches.map(batch=>{const I=qaDataKindIcon[batch.kind];return <li key={batch.id} className="flex flex-col gap-2 py-3 text-sm md:flex-row md:items-center md:justify-between">
+     <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><code className="break-all">{batch.code}</code><Badge variant="outline" className="gap-1"><I aria-hidden="true" className="size-3.5"/>{t(`kind_${batch.kind}`)}</Badge><Badge variant="secondary">{t(`dataStatus_${batch.status}`)}</Badge></div>
+      <p className="text-muted-foreground">{t("dataRecords",{count:batch.recordCount})} · {batch.environment} · {date(batch.generatedAt)}</p></div>
+     <div className="flex flex-wrap gap-2">{batch.propertyId&&batch.status==="ACTIVE"&&<Button asChild size="sm" variant="view"><Link href={`/properties/${batch.propertyId}`}>{t("dataOpen")}</Link></Button>}
+      {batch.kind==="TEST"&&batch.status==="ACTIVE"&&<Button size="sm" variant="warn" onClick={()=>{setTab("cleanup");void loadPreview(batch);}}>{t("dataPreview")}</Button>}</div></li>;})}</ul>}
+   </div>}
+   {tab==="cleanup"&&<div className={cn(panel,"flex flex-col gap-3")}>
+    <p className="text-sm text-muted-foreground">{t("cleanupIntro")}</p>
+    {!preview?<p className="text-sm text-muted-foreground">{t("cleanupSelect")}</p>:<>
+     <div className="flex flex-wrap items-center gap-2"><code className="break-all">{preview.code}</code><Badge variant="outline">{t(`kind_${preview.kind}`)}</Badge></div>
+     <ol className="list-decimal ps-5 text-sm">{preview.items.map(item=><li key={item.entityType}>{t("cleanupItem",{type:item.entityType,count:item.count})}</li>)}</ol>
+     {preview.blockers.length>0&&<MessageBanner kind="warning">{preview.blockers.map(code=>t(`blocker_${code}`)).join(" ")}</MessageBanner>}
+     <label htmlFor="qa-cleanup-confirm" className="text-sm font-medium">{t("cleanupConfirmLabel",{text:preview.confirmation})}</label>
+     <input id="qa-cleanup-confirm" className="h-9 rounded-lg border bg-background px-3 text-sm" value={typed} disabled={!preview.canClean} onChange={event=>setTyped(event.target.value)} autoComplete="off"/>
+     <div className="flex flex-wrap gap-2"><Button variant="danger" disabled={!canConfirmCleanup(preview,typed)||busy==="clean"} onClick={()=>void clean(preview)}>{t("cleanupRun")}</Button><Button variant="outline" onClick={()=>setPreview(null)}>{t("cancel")}</Button></div></>}
    </div>}
    {tab==="runs"&&page&&<div className={panel}>
     <div role="group" aria-label={t("statusFilter")} className="mb-3 flex flex-wrap gap-2">{(["ALL",...qaRunStatuses] as const).map(value=>{const I=value==="ALL"?qaTabIcon.runs:qaRunStatusIcon[value];return <Button key={value} size="sm" aria-pressed={filter===value} variant={filter===value?"default":"outline"} onClick={()=>{setFilter(value);setPageNumber(1);}}><I aria-hidden="true"/>{value==="ALL"?t("all"):t(`status_${value}`)}</Button>;})}</div>

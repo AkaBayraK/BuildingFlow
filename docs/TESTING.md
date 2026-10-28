@@ -1,3 +1,7 @@
+## QA-10 — Demo/test verisi — 28.10.2026 — TEKNİK TESLİM
+
+`test.sh` QaData|QaCenter|QaAiAssistant|ErrorContract|QaEndpointInventoryTests|PersistenceTests: 33/33, guard GEÇTİ. Web 308/308 + typecheck. `git write-tree` arşivi: dotnet build 0/0, has-pending-model-changes yok, tsc temiz, web 303/303.
+
 ## QA-09 — AI Test Asistanı — 28.10.2026 — TEKNİK TESLİM
 
 `test.sh` QaAiAssistantApiTests|QaCenterApiTests|ErrorContract|QaEndpointInventoryTests|QaCenterMigrationTests: 27/27, guard GEÇTİ. Sahte AkaAI; gerçek AkaAI çağrılmadı. Web `npm test` 307/307, typecheck, build.
