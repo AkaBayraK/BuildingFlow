@@ -1,3 +1,7 @@
+## QA-11 — Kanıt raporu — 28.10.2026 — TEKNİK TESLİM
+
+`test_qa_report.py` 7/7. `qa_report.py` gerçek koşumlar: konsolide 1082 kalem PASS1068/FAIL2/SKIPPED12, PDF 8 sayfa; ParkingMigration/QaCenterMigration/QaDataMigration TRX tekrar 5/5.
+
 ## QA-10 — Demo/test verisi — 28.10.2026 — TEKNİK TESLİM
 
 `test.sh` QaData|QaCenter|QaAiAssistant|ErrorContract|QaEndpointInventoryTests|PersistenceTests: 33/33, guard GEÇTİ. Web 308/308 + typecheck. `git write-tree` arşivi: dotnet build 0/0, has-pending-model-changes yok, tsc temiz, web 303/303.

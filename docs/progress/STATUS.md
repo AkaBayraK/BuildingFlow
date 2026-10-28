@@ -1,3 +1,7 @@
+## QA FAZ 11 — Kanıt ve raporlama — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
+
+**#107.** `scripts/qa_report.py`: web/kimlik/TRX kanıtlarını JSON/MD/CSV/HTML/PDF'e birleştirir, tekrar koşum önceliği, geçmiş karşılaştırma, issue bağlantısı; fixture 7/7. Gerçek konsolide rapor 1082 kalem PASS1068/FAIL2(#87)/SKIPPED12; web karşılaştırması düzelen 4. Video BLOKE (ffmpeg yok), trace korelasyonu kısmi. Rapor `qa-center/reports/phase-11.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 10 — Demo/test verileri — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#106.** `QaCenterData` migration (qa_data_batches/records, Down guard, demo DB check), sentetik site/blok/daire/kişi/ilişki üretici, dry-run + birebir onaylı, bağımlılık sıralı tek transaction temizlik; DEMO/finans/parti dışı kayıt blokajı; web Test Verileri ve Temizle sekmeleri. **Integration33/33, web308/308+typecheck; commit ağacı tek başına build/pending/tsc/303 temiz.** Finans demo verisi ve rol değiştirme demosu kısmi. Yerel DB'ye yazılmadı. Rapor `qa-center/reports/phase-10.md`. Token: BİLGİ MEVCUT DEĞİL.
