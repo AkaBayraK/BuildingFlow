@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/check-private-config.py
 python3 scripts/test_private_config.py
+python3 scripts/test_qa_guard.py
 printf '[BUILDINGFLOW]\n[FAZ İŞ11 | KAYIT14/14]\n[ADIM02/04] CI\n[DURUM] BAŞLADI\n'
 [ "${1:-}" = "" ] || [ "$1" = --install ] || { echo 'Usage: bash scripts/ci.sh [--install]' >&2; exit 2; }
 # Results from earlier runs must never satisfy the gates.

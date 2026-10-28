@@ -69,5 +69,7 @@ trap 'docker stop "$mailpit" >/dev/null 2>&1 || true; cleanup_test_database' EXI
 sleep 2
 export BUILDINGFLOW_TEST_SMTP_PORT="$(docker port "$mailpit" 1025 | head -1 | cut -d: -f2)"
 export BUILDINGFLOW_TEST_MAILPIT_URL="http://$(docker port "$mailpit" 8025 | head -1)"
+# Every run must prove it targets only throwaway, loopback test resources.
+python3 scripts/qa_guard.py
 cd backend
 dotnet test BuildingFlow.sln -m:1 --disable-build-servers "$@"

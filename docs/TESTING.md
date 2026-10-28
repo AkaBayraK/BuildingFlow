@@ -1,3 +1,7 @@
+## QA-01 — İzole test ortamı guard'ı — 28.10.2026 — TEKNİK TESLİM
+
+`python3 scripts/test_qa_guard.py` 15/15 PASS. `bash scripts/test.sh --filter OnlinePayment|AuthenticationTests|ReleaseSecurityTests|PersistenceTests` run_id qa-20261028T172329Z-034106: Integration 52/52, Unit 14/14, atlanan 0, guard GEÇTİ. Negatif: `ASPNETCORE_ENVIRONMENT=Production bash scripts/test.sh` exit 1, PROD_ENVIRONMENT, 0 test, geçici DB temizlendi. `check-licenses.py` 329 PASS. GitHub Actions bu tur çalıştırılmadı.
+
 ## OA-08 — Planlanan kabul kontrolleri — 27.10.2026
 
 Yeni koşu kanıtları: tüm.NET testleri ayrıPG+fixturebucket/broker/mailpit; webtest/typecheck/build; mobilcheck/export; metadata/audit/SBOM; model+migrations; izolecontainer sağlık/auth/header ve ortakalanrapor/takvimperformans; erişilebilirlik/rol/gizlilik. CanlıOIDC/native/remoteCI eksikleri ayrı kalır; skip geçiş değildir.
