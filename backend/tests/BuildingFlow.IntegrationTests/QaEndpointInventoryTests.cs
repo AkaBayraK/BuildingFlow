@@ -27,7 +27,29 @@ public sealed class QaEndpointInventoryTests : IClassFixture<QaEndpointInventory
         if (!string.IsNullOrWhiteSpace(output))
             File.WriteAllText(output, JsonSerializer.Serialize(endpoints, new JsonSerializerOptions { WriteIndented = true }));
         Assert.NotEmpty(endpoints);
-        Assert.Empty(endpoints.Where(endpoint => endpoint.Access == "IMPLICIT").Select(endpoint => $"{endpoint.Method} {endpoint.Route}"));
+        Assert.Empty(endpoints.Where(endpoint => endpoint.Access is "IMPLICIT" or "PUBLIC_IMPLICIT").Select(endpoint => $"{endpoint.Method} {endpoint.Route}"));
+        Assert.Equal(PublicApi, endpoints.Where(endpoint => endpoint.Access == "ANONYMOUS").Select(endpoint => $"{endpoint.Method} {endpoint.Route}").ToHashSet());
+    }
+
+    // Every anonymous API route is listed here on purpose; anything else falls back to an authenticated user.
+    private static readonly HashSet<string> PublicApi =
+    [
+        "GET /api/public/v1/domains/{host}", "POST /api/public/v1/preview", "POST /api/public/v1/preview/media/{id:guid}/{sha}",
+        "GET /api/public/v1/sites/{siteKey}", "GET /api/public/v1/sites/{siteKey}/media/{id:guid}/{sha}.{ext}", "GET /api/public/v1/sites/{siteKey}/primary-domain",
+        "POST /api/public/v1/sites/{siteKey}/inquiries/", "GET /api/public/v1/sites/{siteKey}/inquiries/challenge",
+        "GET /api/public/v1/sites/{siteKey}/listings/", "GET /api/public/v1/sites/{siteKey}/listings/{id:guid}",
+        "POST /api/v1/mobile/registrations", "POST /api/v1/payment-webhooks/{provider}", "POST /api/v1/sms/opt-out-callbacks"
+    ];
+
+    [Fact]
+    public async Task UndeclaredRoutesFallBackToAuthenticationAndHealthStaysPublic()
+    {
+        var policy = await factory.Services.GetRequiredService<IAuthorizationPolicyProvider>().GetFallbackPolicyAsync();
+        Assert.NotNull(policy);
+        Assert.Contains(policy!.Requirements, requirement => requirement is Microsoft.AspNetCore.Authorization.Infrastructure.DenyAnonymousAuthorizationRequirement);
+        using var client = factory.CreateClient();
+        Assert.Equal(System.Net.HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/status")).StatusCode);
     }
 
     private List<QaEndpoint> Inventory() => factory.Services.GetRequiredService<EndpointDataSource>().Endpoints

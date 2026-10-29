@@ -10,6 +10,7 @@ node --test scripts/test_qa_web_lib.mjs
 python3 scripts/test_qa_coverage_gate.py
 python3 scripts/test_qa_report.py
 python3 scripts/test_qa_github.py
+python3 scripts/test_qa_pentest.py
 printf '[BUILDINGFLOW]\n[FAZ İŞ11 | KAYIT14/14]\n[ADIM02/04] CI\n[DURUM] BAŞLADI\n'
 [ "${1:-}" = "" ] || [ "$1" = --install ] || { echo 'Usage: bash scripts/ci.sh [--install]' >&2; exit 2; }
 # Results from earlier runs must never satisfy the gates.

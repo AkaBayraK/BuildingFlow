@@ -1,3 +1,7 @@
+## Güvenlik — fallback yetki politikası ve pentest — 29.10.2026
+
+Varsayılan yetki "giriş zorunlu"; 13 public API + health açıkça AllowAnonymous; anonim allowlist testi. Regresyon Integration908/910 (2 opt-in)+Unit453/453. `scripts/qa_pentest.py` yerel API: 429 endpoint/505 kontrol, critical/high/medium/low 0, info 1 (Development rate limit kapalı). Rapor `qa-center/reports/security-pentest.md`. Token: BİLGİ MEVCUT DEĞİL.
+
 ## QA kapanış turu — 29.10.2026
 
 Test Merkezi SUPER_ADMIN Sistem Yönetimi menüsünde; yerel API `.env` ile Test Merkezi açık. Kapatılan: #87 (Bloklar başlığı), #104 (export testleri; ledger CSV negatif tutar hatası düzeltildi), #108 (performans p95 22 ms). DEMO verisine aidat+tahsilat, paketsiz CDP ekran kaydı, iOS build+simülatör açılışı, AkaAI `buildingflow-integration` yapılandırması (AkaAI 55c7975, testler 16/16). Final rapor 1448 kalem FAIL0; kapı INCOMPLETE (14 SKIPPED). Açık: #83 #89 #103 #105 #106 #107 #109. Token: BİLGİ MEVCUT DEĞİL.

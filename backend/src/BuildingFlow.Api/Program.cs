@@ -30,6 +30,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddBuildingFlowAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddAuthorization(options =>
 {
+    // Deny by default: an endpoint without its own policy needs a signed-in user; public routes opt out with AllowAnonymous.
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     options.AddPolicy("CanReadProperties", policy => policy.RequireAuthenticatedUser().RequireClaim("sub"));
     options.AddPolicy("CanManageProperties", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN"));
     options.AddPolicy("CanManageHierarchy", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
@@ -116,7 +118,7 @@ app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
 app.UseSessionContextAccess();
-if (app.Environment.IsDevelopment()) app.MapOpenApi();
+if (app.Environment.IsDevelopment()) app.MapOpenApi().AllowAnonymous();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
@@ -125,8 +127,8 @@ app.MapHealthChecks("/health", new HealthCheckOptions
         status = report.Status.ToString(),
         checks = report.Entries.Select(entry => new { name = entry.Key, status = entry.Value.Status.ToString() })
     }, context.RequestAborted)
-});
-app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+}).AllowAnonymous();
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
 app.MapGet("/api/v1/status", () => Results.Ok(new { application = "BuildingFlow", phase = "Foundation" }))
     .RequireAuthorization();
 app.MapMobileSessionEndpoints();
