@@ -169,6 +169,7 @@ app.MapSupplierEndpoints();
 app.MapSupplierDocumentsEndpoints();
 app.MapSupplierQuoteEndpoints();
 app.MapSupplierWorkOrderEndpoints();
+app.MapSupplierMaintenanceEndpoints();
 app.MapCommonAreaEndpoints();
 app.MapSurveyEndpoints();
 app.MapReportEndpoints();

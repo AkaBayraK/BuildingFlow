@@ -9482,6 +9482,71 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierHoliday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Date")
+                        .IsUnique()
+                        .HasFilter("NOT is_deleted");
+
+                    b.ToTable("supplier_holidays", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_holiday_valid", "length(trim(name)) > 0 AND date >= DATE '2000-01-01' AND date <= DATE '2100-12-31'");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierInquiry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9743,6 +9808,369 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasIndex("TenantId", "SupplierId", "PropertyId", "AreaServiceId");
 
                     b.ToTable("supplier_invitations", (string)null);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceOccurrence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly?>("CompletedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("completed_on");
+
+                    b.Property<string>("CompletionNote")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("completion_note");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<int?>("DelayDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("delay_days");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid>("MaintenancePlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("maintenance_plan_id");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("NominalDate")
+                        .HasColumnType("date")
+                        .HasColumnName("nominal_date");
+
+                    b.Property<DateOnly>("PlannedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("planned_date");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence");
+
+                    b.Property<string>("SkipReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("skip_reason");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<Guid?>("WorkOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_order_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaintenancePlanId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "MaintenancePlanId");
+
+                    b.HasIndex("ScheduleId", "Sequence")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "PropertyId", "PlannedDate", "Status");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "ScheduleId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "WorkOrderId")
+                        .HasDatabaseName("IX_supplier_maintenance_occurrences_tenant_id_supplier_id_pro~1");
+
+                    b.ToTable("supplier_maintenance_occurrences", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_maintenance_occurrence_valid", "sequence > 0 AND status IN ('PLANNED','COMPLETED','SKIPPED') AND (status = 'COMPLETED') = (completed_on IS NOT NULL AND delay_days IS NOT NULL AND delay_days >= 0 AND completion_note IS NOT NULL AND length(trim(completion_note)) > 0) AND (status = 'SKIPPED') = (skip_reason IS NOT NULL AND length(trim(skip_reason)) > 0) AND (work_order_id IS NULL OR status = 'COMPLETED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("ActorIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("actor_issuer");
+
+                    b.Property<string>("ActorSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_subject");
+
+                    b.Property<long>("AppliedVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("applied_version");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid?>("OccurrenceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("occurrence_id");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("snapshot");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScheduleId", "CreatedAt");
+
+                    b.HasIndex("TenantId", "ActorIssuer", "ActorSubject", "OperationId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "OccurrenceId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "ScheduleId")
+                        .HasDatabaseName("IX_supplier_maintenance_revisions_tenant_id_supplier_id_prope~1");
+
+                    b.ToTable("supplier_maintenance_revisions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_maintenance_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','END','COMPLETE','SKIP') AND (occurrence_id IS NULL) = (action IN ('CREATE','END'))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AreaServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_service_id");
+
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contract_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("end_reason");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("frequency");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("NonWorkingDayRule")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("non_working_day_rule");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<int>("ReminderDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("reminder_days");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "AreaServiceId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "ContractId")
+                        .HasDatabaseName("IX_supplier_maintenance_schedules_tenant_id_supplier_id_prope~1");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "Status", "StartDate")
+                        .HasDatabaseName("IX_supplier_maintenance_schedules_tenant_id_supplier_id_prope~2");
+
+                    b.ToTable("supplier_maintenance_schedules", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_maintenance_schedule_valid", "length(trim(title)) > 0 AND type IN ('MAINTENANCE','CLEANING','INSPECTION','DRILL','OTHER') AND frequency IN ('WEEKLY','MONTHLY','QUARTERLY','SEMIANNUAL','YEARLY') AND non_working_day_rule IN ('KEEP','NEXT_WORKING_DAY','PREVIOUS_WORKING_DAY') AND start_date >= DATE '2000-01-01' AND end_date <= DATE '2100-12-31' AND end_date >= start_date AND end_date - start_date <= 731 AND reminder_days BETWEEN 0 AND 60 AND status IN ('ACTIVE','ENDED') AND (status <> 'ENDED' OR end_reason IS NOT NULL AND length(trim(end_reason)) > 0)");
+                        });
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.SupplierManagementArea", b =>
@@ -13826,6 +14254,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierHoliday", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PersonTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierInquiry", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.SupplierCategory", null)
@@ -13868,6 +14305,61 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceOccurrence", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.MaintenancePlan", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "MaintenancePlanId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierMaintenanceSchedule", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "ScheduleId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierWorkOrder", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "WorkOrderId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceRevision", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SupplierMaintenanceOccurrence", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "OccurrenceId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SupplierMaintenanceSchedule", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "ScheduleId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceSchedule", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SupplierAreaService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "AreaServiceId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierContract", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "ContractId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.SupplierManagementArea", b =>
