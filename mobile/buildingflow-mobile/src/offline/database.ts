@@ -6,7 +6,7 @@ export interface Database {
   runAsync(sql: string, ...values: SqlValue[]): Promise<unknown>;
   getFirstAsync<T>(sql: string, ...values: SqlValue[]): Promise<T | null>;
 }
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 export const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
 export type Snapshot = { session: Session; verifiedAt: number; selectedKey: string | null };
 export async function migrate(db: Database) {
@@ -62,6 +62,12 @@ export async function migrate(db: Database) {
       CREATE TABLE consent_seen(user_id TEXT NOT NULL REFERENCES account(user_id),text_id TEXT NOT NULL,seen_at INTEGER NOT NULL,PRIMARY KEY(user_id,text_id));
     `);
     if(version<9)await db.execAsync('CREATE TABLE IF NOT EXISTS portfolio_cache(user_id TEXT PRIMARY KEY NOT NULL REFERENCES account(user_id),payload TEXT NOT NULL,checked_at INTEGER NOT NULL);');
+    // Supplier FAZ09: manager work-order actions queued offline; one active job per work order keeps expected versions honest.
+    if(version<10)await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS supplier_work_jobs(operation_id TEXT PRIMARY KEY NOT NULL,user_id TEXT NOT NULL REFERENCES account(user_id),context_key TEXT NOT NULL,work_order_id TEXT NOT NULL,payload TEXT NOT NULL,photo_file TEXT,status TEXT NOT NULL CHECK(status IN ('pending','sending','retry','sent','conflict','blocked','failed','cancelled')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt_at INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,error_code INTEGER);
+      CREATE UNIQUE INDEX IF NOT EXISTS supplier_work_jobs_active ON supplier_work_jobs(user_id,context_key,work_order_id) WHERE status IN ('pending','sending','retry','conflict','blocked','failed');
+      CREATE INDEX IF NOT EXISTS supplier_work_jobs_due ON supplier_work_jobs(user_id,context_key,status,next_attempt_at,created_at);
+    `);
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}; COMMIT;`);
   } catch (error) { await db.execAsync('ROLLBACK'); throw error; }
 }

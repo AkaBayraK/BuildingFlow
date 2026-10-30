@@ -5,6 +5,7 @@ import {ActivityIndicator,StyleSheet,Text,View} from 'react-native';
 import {Action as Pressable} from './Action';
 import {Link} from 'expo-router';
 import {useAuth} from '../auth/AuthProvider';
+import {permitted as supplierWorkPermitted} from '../supplier-work/contracts';
 import {useManager} from '../manager/useManager';
 import type {Section} from '../manager/contracts';
 import {formatMoney} from '../owner/contracts';
@@ -15,6 +16,7 @@ export function ManagerScreen({section='overview'}:{section?:Section}){
  const auth=useAuth();return <Screen title={section==='overview'?'Yönetim':labels[section]} home={section==='overview'}><ManagerPanel key={auth.session?.userId+':'+auth.selected?.propertyId+':'+auth.selected?.role+':'+section} initialSection={section}/></Screen>;
 }
 export function ManagerPanel({initialSection}:{initialSection:Section}){
+ const auth=useAuth();
  const [section,setSection]=useState<Section>(initialSection),[page,setPage]=useState(1);
  const {data:d,busy,error,refresh,offline}=useManager(section,page);
  const select=(s:Section)=>{setSection(s);setPage(1);};
@@ -31,6 +33,7 @@ export function ManagerPanel({initialSection}:{initialSection:Section}){
     <View style={s.balance}><Text style={s.eyebrow}>BİNANIN AÇIK AİDAT BAKİYESİ</Text><Text style={s.balanceAmount}>{formatMoney(d.summary.balance)}</Text><Text style={s.overdue}>Gecikmiş: {formatMoney(d.summary.overdue)}</Text><Text style={styles.muted}>Tüm kayıtların merkez özeti. Bu tutar banka bakiyesi değildir.</Text><Link href="/finance" style={s.link}>Aidat detaylarına geç →</Link></View>
     <SectionTitle title="Yönetim kısayolları"/>
     <Link href="/announcements" style={styles.card}><View style={s.row}><Icon name="megaphone-outline"/><View style={styles.flex}><Text style={styles.cardTitle}>Duyurular</Text><Text style={styles.muted}>{d.summary.announcements} kayıt · Taslak, yayın ve arşiv</Text></View><Icon name="chevron-forward"/></View></Link>
+    {supplierWorkPermitted(auth.selected)&&<Link href="/supplier-work" style={styles.card}><View style={s.row}><Icon name="hammer-outline" color="#0f766e"/><View style={styles.flex}><Text style={styles.cardTitle}>Tedarikçi işleri</Text><Text style={styles.muted}>İş emirleri, saha notu ve fotoğraf; çevrimdışı kuyruk</Text></View><Icon name="chevron-forward"/></View></Link>}
     <Link href="/requests" style={styles.card}><View style={s.row}><Icon name="construct-outline" color="#a75c13"/><View style={styles.flex}><Text style={styles.cardTitle}>Gelen talepler</Text><Text style={styles.muted}>{d.summary.requests} merkez kaydı</Text></View><Icon name="chevron-forward"/></View></Link>
    </>:<>
     <Text style={styles.muted}>{d.total} {section==='residents'?'aktif kişi / daire ilişkisi':'kayıt'} · Sayfa {page}{d.total>0?' / '+Math.ceil(d.total/50):''} · En fazla 50 kayıt</Text>

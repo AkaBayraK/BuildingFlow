@@ -4,7 +4,7 @@ import {AESEncryptionKey,AESSealedData,aesEncryptAsync,aesDecryptAsync} from 'ex
 import {utf8,text} from './contracts';
 import type {PrivateFiles,PrivateIdentity} from './files';
 function directory(identity:PrivateIdentity){return new Directory(Paths.document,'profile-'+identity.name);}
-function valid(name:string){if(!/^(job|avatar|request-draft|request-job|request-photo)-[0-9a-f-]{36}\.enc$/.test(name))throw Error('Geçersiz özel dosya.');}
+function valid(name:string){if(!/^(job|avatar|request-draft|request-job|request-photo|supplier-photo)-[0-9a-f-]{36}\.enc$/.test(name))throw Error('Geçersiz özel dosya.');}
 export function privateFiles(identity:PrivateIdentity):PrivateFiles {
  async function key(){const hex=await SecureStore.getItemAsync(identity.keyId);if(!hex)throw Error('Özel dosya anahtarı yok.');return AESEncryptionKey.import(hex,'hex');}
  return {
