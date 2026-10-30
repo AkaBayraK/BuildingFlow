@@ -244,6 +244,8 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
 
     public sealed class SiteApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
+        // Migrating or dropping a whole schema takes a lock per object; unbounded parallel classes exhausted the shared server's lock table (53200).
+        private static readonly SemaphoreSlim SchemaGate=new(4);
         private readonly string schema="sites_api_"+Guid.NewGuid().ToString("N");
         private string? connection;
         public string StorageBucket => "buildingflow-test-" + schema.Replace("_", "-");
@@ -257,7 +259,7 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
             await using var command=new NpgsqlCommand($"CREATE SCHEMA \"{schema}\"",database);await command.ExecuteNonQueryAsync();
             config.SearchPath=schema+",public";connection=config.ConnectionString;
             await using var db=new BuildingFlowDbContext(new DbContextOptionsBuilder<BuildingFlowDbContext>().UseNpgsql(connection, options=>options.MigrationsHistoryTable("__EFMigrationsHistory",schema)).Options);
-            await db.Database.MigrateAsync();
+            await SchemaGate.WaitAsync();try{await db.Database.MigrateAsync();}finally{SchemaGate.Release();}
         }
         public async Task WithDb(Func<BuildingFlowDbContext,Task> action)
         {
@@ -308,7 +310,7 @@ public sealed class SiteApiTests(SiteApiTests.SiteApiFactory factory) : IClassFi
             await DisposeAsync();
             if (connection is null) return;
             await using var db=new NpgsqlConnection(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE"));await db.OpenAsync();
-            await using var command=new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE",db);await command.ExecuteNonQueryAsync();
+            await SchemaGate.WaitAsync();try{await using var command=new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE",db);await command.ExecuteNonQueryAsync();}finally{SchemaGate.Release();}
         }
     }
 }

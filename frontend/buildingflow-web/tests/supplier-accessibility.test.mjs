@@ -22,7 +22,7 @@ test('decorative icons are hidden from assistive technology and icon-only button
 });
 test('tabs, toggles and radio groups expose their state',()=>{
  for(const {f,s} of files){
-  for(const m of s.matchAll(/role="(tab|radio)"[^>]*/g))assert.match(m[0],m[1]==='tab'?/aria-selected=/:/aria-checked=/,`${f}: role=${m[1]} without state`);
+  for(const m of s.matchAll(/\srole="(tab|radio)"[^>]*/g))assert.match(m[0],m[1]==='tab'?/aria-selected[=\s]/:/aria-checked([=\s]|$)/,`${f}: role=${m[1]} without state`);
   assert.equal((s.match(/role="radiogroup"/g)??[]).length,(s.match(/role="radiogroup"[^>]*aria-label(?:ledby)?=/g)??[]).length,`${f}: radiogroup without a name`);
  }
 });
