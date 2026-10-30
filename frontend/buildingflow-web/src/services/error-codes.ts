@@ -2,6 +2,8 @@
 export const errorCodes = {
   "BF_SUPPLIER_PROPERTY_HISTORY":{"status":409,"severity":"warning","parameters":[]},
   "BF_SUPPLIER_WORK_ORDER_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_MAINTENANCE_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_MAINTENANCE_CONFLICT":{"status":409,"severity":"warning","parameters":[]},
   "BF_SUPPLIER_QUOTE_STATE":{"status":409,"severity":"warning","parameters":[]},
   "BF_SUPPLIER_CONTRACT_STATE":{"status":409,"severity":"warning","parameters":[]},
   "BF_SUPPLIER_DOCUMENT_PROTECTED":{"status":409,"severity":"warning","parameters":[]},

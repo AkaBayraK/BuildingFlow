@@ -61,18 +61,36 @@ public sealed partial class SupplierStore
         return new(dates.Select(x => new SupplierMaintenancePreviewDate(x.Sequence, x.Nominal, x.Planned, x.Nominal != x.Planned, x.Conflict)).ToArray(), dates.Count(x => x.Conflict));
     }
 
-    private IQueryable<SupplierMaintenanceScheduleResponse> ScheduleResponses(Guid tenant, Guid supplier)
+    private sealed class ScheduleData
+    {
+        public SupplierMaintenanceSchedule Record { get; init; } = null!;
+        public string PropertyName { get; init; } = null!;
+        public string ServiceName { get; init; } = null!;
+        public string? ContractTitle { get; init; }
+        public int Planned { get; init; }
+        public int Completed { get; init; }
+        public int Skipped { get; init; }
+        public int Overdue { get; init; }
+    }
+    private IQueryable<ScheduleData> LabeledSchedules(Guid tenant, Guid supplier)
     {
         var today = ContractToday;
         return from s in ScheduleRows(tenant, supplier).AsNoTracking()
                join p in db.Properties on s.PropertyId equals p.Id
                join a in db.Set<SupplierAreaService>() on new { s.TenantId, s.SupplierId, s.PropertyId, Id = s.AreaServiceId } equals new { a.TenantId, a.SupplierId, a.PropertyId, a.Id }
                join v in db.Set<BuildingFlow.Domain.SupplierService>() on new { a.TenantId, a.SupplierId, Id = a.ServiceId } equals new { v.TenantId, v.SupplierId, v.Id }
-               let occurrences = db.Set<SupplierMaintenanceOccurrence>().Where(o => o.TenantId == s.TenantId && o.SupplierId == s.SupplierId && o.PropertyId == s.PropertyId && o.ScheduleId == s.Id)
-               select new SupplierMaintenanceScheduleResponse(s.Id, s.TenantId, s.SupplierId, s.PropertyId, p.Name, s.AreaServiceId, v.Name, s.ContractId,
-                   db.Set<SupplierContract>().Where(c => c.Id == s.ContractId).Select(c => c.Title).FirstOrDefault(), s.Title, s.Description, s.Type.ToString(), s.Frequency.ToString(), s.StartDate, s.EndDate, s.ReminderDays, s.NonWorkingDayRule.ToString(), s.Status.ToString(), s.EndReason,
-                   occurrences.Count(o => o.Status == SupplierMaintenanceOccurrenceStatus.PLANNED), occurrences.Count(o => o.Status == SupplierMaintenanceOccurrenceStatus.COMPLETED), occurrences.Count(o => o.Status == SupplierMaintenanceOccurrenceStatus.SKIPPED),
-                   occurrences.Count(o => o.Status == SupplierMaintenanceOccurrenceStatus.PLANNED && o.PlannedDate < today), s.Version, s.CreatedAt);
+               select new ScheduleData
+               {
+                   Record = s, PropertyName = p.Name, ServiceName = v.Name,
+                   ContractTitle = db.Set<SupplierContract>().Where(c => c.TenantId == s.TenantId && c.SupplierId == s.SupplierId && c.Id == s.ContractId).Select(c => c.Title).FirstOrDefault(),
+                   Planned = db.Set<SupplierMaintenanceOccurrence>().Count(o => o.TenantId == s.TenantId && o.SupplierId == s.SupplierId && o.PropertyId == s.PropertyId && o.ScheduleId == s.Id && o.Status == SupplierMaintenanceOccurrenceStatus.PLANNED), Completed = db.Set<SupplierMaintenanceOccurrence>().Count(o => o.TenantId == s.TenantId && o.SupplierId == s.SupplierId && o.PropertyId == s.PropertyId && o.ScheduleId == s.Id && o.Status == SupplierMaintenanceOccurrenceStatus.COMPLETED),
+                   Skipped = db.Set<SupplierMaintenanceOccurrence>().Count(o => o.TenantId == s.TenantId && o.SupplierId == s.SupplierId && o.PropertyId == s.PropertyId && o.ScheduleId == s.Id && o.Status == SupplierMaintenanceOccurrenceStatus.SKIPPED), Overdue = db.Set<SupplierMaintenanceOccurrence>().Count(o => o.TenantId == s.TenantId && o.SupplierId == s.SupplierId && o.PropertyId == s.PropertyId && o.ScheduleId == s.Id && o.Status == SupplierMaintenanceOccurrenceStatus.PLANNED && o.PlannedDate < today)
+               };
+    }
+    private static SupplierMaintenanceScheduleResponse ScheduleResponse(ScheduleData x)
+    {
+        var s = x.Record;
+        return new(s.Id, s.TenantId, s.SupplierId, s.PropertyId, x.PropertyName, s.AreaServiceId, x.ServiceName, s.ContractId, x.ContractTitle, s.Title, s.Description, s.Type.ToString(), s.Frequency.ToString(), s.StartDate, s.EndDate, s.ReminderDays, s.NonWorkingDayRule.ToString(), s.Status.ToString(), s.EndReason, x.Planned, x.Completed, x.Skipped, x.Overdue, s.Version, s.CreatedAt);
     }
     private sealed class OccurrenceData
     {
@@ -95,16 +113,16 @@ public sealed partial class SupplierStore
     {
         Page(page, pageSize); await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, token);
         if (!await Allowed(tenant, token) || !await Rows(tenant).AnyAsync(x => x.Id == supplier, token)) return null;
-        var scopes = PropertyScopes(tenant); var rows = ScheduleResponses(tenant, supplier).Where(x => scopes.Any(s => s.PropertyId == x.PropertyId));
-        var count = await rows.CountAsync(token); var items = await rows.OrderBy(x => x.Status).ThenBy(x => x.StartDate).ThenBy(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize).ToArrayAsync(token);
-        await tx.CommitAsync(token); return new(items, page, pageSize, count);
+        var scopes = PropertyScopes(tenant); var rows = LabeledSchedules(tenant, supplier).Where(x => scopes.Any(s => s.PropertyId == x.Record.PropertyId));
+        var count = await rows.CountAsync(token); var items = await rows.OrderBy(x => x.Record.Status).ThenBy(x => x.Record.StartDate).ThenBy(x => x.Record.Id).Skip((page - 1) * pageSize).Take(pageSize).ToArrayAsync(token);
+        await tx.CommitAsync(token); return new(items.Select(ScheduleResponse).ToArray(), page, pageSize, count);
     }
     public async Task<SupplierMaintenanceScheduleResponse?> MaintenanceSchedule(Guid tenant, Guid supplier, Guid id, CancellationToken token)
     {
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, token);
-        var row = await ScheduleResponses(tenant, supplier).SingleOrDefaultAsync(x => x.Id == id, token);
-        if (row is null || !await AreaAllowed(tenant, supplier, row.PropertyId, token)) return null;
-        await tx.CommitAsync(token); return row;
+        var row = await LabeledSchedules(tenant, supplier).SingleOrDefaultAsync(x => x.Record.Id == id, token);
+        if (row is null || !await AreaAllowed(tenant, supplier, row.Record.PropertyId, token)) return null;
+        await tx.CommitAsync(token); return ScheduleResponse(row);
     }
     public async Task<PagedRows<SupplierMaintenanceOccurrenceResponse>?> MaintenanceOccurrences(Guid tenant, Guid supplier, SupplierMaintenanceOccurrenceQuery q, CancellationToken token)
     {
@@ -143,7 +161,7 @@ public sealed partial class SupplierStore
     private static object ScheduleSnapshot(SupplierMaintenanceSchedule s) => new { s.Title, s.Description, Type = s.Type.ToString(), Frequency = s.Frequency.ToString(), s.StartDate, s.EndDate, s.ReminderDays, Rule = s.NonWorkingDayRule.ToString(), s.AreaServiceId, s.ContractId, Status = s.Status.ToString(), s.EndReason };
     private static object OccurrenceSnapshot(SupplierMaintenanceOccurrence o, string? reason = null) => new { o.Sequence, o.PlannedDate, Status = o.Status.ToString(), o.CompletedOn, o.DelayDays, o.CompletionNote, o.WorkOrderId, o.SkipReason, Reason = reason };
     private async Task<SupplierMaintenanceScheduleMutation> ScheduleMutation(Guid tenant, Guid supplier, Guid id, Supplier parent, bool replayed, long applied, CancellationToken token) =>
-        new(await ScheduleResponses(tenant, supplier).SingleAsync(x => x.Id == id, token), Response(parent), replayed, applied);
+        new(ScheduleResponse(await LabeledSchedules(tenant, supplier).SingleAsync(x => x.Record.Id == id, token)), Response(parent), replayed, applied);
     private async Task<SupplierMaintenanceOccurrenceMutation> OccurrenceMutation(Guid tenant, Guid supplier, Guid id, bool replayed, long applied, CancellationToken token) =>
         new(OccurrenceResponse(await LabeledOccurrences(tenant, supplier).SingleAsync(x => x.Record.Id == id, token)), replayed, applied);
     private Task<bool> HasOpenOrder(Guid tenant, Guid property, Guid plan, CancellationToken token) =>
