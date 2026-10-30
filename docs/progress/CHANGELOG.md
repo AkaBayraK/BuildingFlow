@@ -1,3 +1,8 @@
+## TEDARİKÇİ FAZ09 — 30.10.2026 — TAMAMLANDI
+
+- Backend: mülk bazlı tedarikçi iş emri listesi ve saha notu (`SupplierWorkOrderNotes`).
+- Mobil: "Tedarikçi işleri" ekranı, SQLCipher şifreli kopya ve işlem kuyruğu (şema 10), şifreli fotoğraf dosyası, çakışma/yeniden deneme/temizlik; yol haritası SUP-09.
+
 ## TEDARİKÇİ FAZ08 — 30.10.2026 — TAMAMLANDI
 
 - Tedarikçi faturası, mükerrer numara engeli, onayda Gider kaydı, ödendi/mutabakat, gerekçeli iptal/düzeltme ve audit (`20261030064630_SupplierInvoices`); faturaya bağlı gider Gider ekranından iptal edilemez.

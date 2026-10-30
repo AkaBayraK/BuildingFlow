@@ -3268,6 +3268,14 @@
   },
   {
     "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-work-orders",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/",
     "Access": "AUTHORIZED",
     "Policies": [
@@ -3661,6 +3669,14 @@
   {
     "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/notes",
     "Access": "AUTHORIZED",
     "Policies": [
       "CanManagePeople"

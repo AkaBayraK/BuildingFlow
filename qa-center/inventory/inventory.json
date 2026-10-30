@@ -4486,6 +4486,17 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "GET",
+   "mobile": "EXACT",
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-work-orders",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
    "mobile": null,
    "policies": [
     "CanManagePeople"
@@ -5003,7 +5014,7 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "GET",
-   "mobile": null,
+   "mobile": "EXACT",
    "policies": [
     "CanManagePeople"
    ],
@@ -5014,7 +5025,7 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "PUT",
-   "mobile": null,
+   "mobile": "EXACT",
    "policies": [
     "CanManagePeople"
    ],
@@ -5025,7 +5036,7 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "GET",
-   "mobile": null,
+   "mobile": "BASE_PREFIX",
    "policies": [
     "CanManagePeople"
    ],
@@ -5035,8 +5046,19 @@
   {
    "access": "AUTHORIZED",
    "backendTestReference": true,
+   "method": "POST",
+   "mobile": "BASE_PREFIX",
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/notes",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
    "method": "GET",
-   "mobile": null,
+   "mobile": "BASE_PREFIX",
    "policies": [
     "CanManagePeople"
    ],
@@ -5047,7 +5069,7 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "POST",
-   "mobile": null,
+   "mobile": "BASE_PREFIX",
    "policies": [
     "CanManagePeople"
    ],
@@ -5058,7 +5080,7 @@
    "access": "AUTHORIZED",
    "backendTestReference": true,
    "method": "PUT",
-   "mobile": null,
+   "mobile": "BASE_PREFIX",
    "policies": [
     "CanManagePeople"
    ],
@@ -5108,6 +5130,10 @@
    "/api/v1/mobile/profile",
    "/api/v1/mobile/profile/commands",
    "/api/v1/mobile/profile/photo"
+  ],
+  "supplier-work": [
+   "/api/v2/tenants/{}/supplier-work-orders",
+   "/api/v2/tenants/{}/suppliers/{}/work-orders/{}"
   ],
   "sync": [
    "/api/v1/mobile/session",
@@ -5189,6 +5215,11 @@
   "screen:requests": [
    "ACCOUNTANT"
   ],
+  "supplier-work": [
+   "MANAGER",
+   "SITE_ADMIN",
+   "SUPER_ADMIN"
+  ],
   "sync": [
    "ACCOUNTANT"
   ]
@@ -5201,6 +5232,7 @@
   "/(tabs)/parking",
   "/(tabs)/profile",
   "/(tabs)/requests",
+  "/(tabs)/supplier-work",
   "/auth",
   "/invalid-link"
  ],
@@ -5227,6 +5259,10 @@
   },
   {
    "tab": "parking",
+   "visibility": "HIDDEN"
+  },
+  {
+   "tab": "supplier-work",
    "visibility": "HIDDEN"
   },
   {

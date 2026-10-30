@@ -4,17 +4,17 @@
 
 | Kalem | Sayı |
 |---|---|
-| API endpoint (çalışma zamanı) | 458 |
-| Yetkili / açık anonim / public prefix | 445 / 13 / 0 |
-| Web çağrısı: tam eşleşme / yalnız taban yol | 139 / 265 |
-| Mobil çağrısı: tam eşleşme / yalnız taban yol | 20 / 30 |
-| Backend testlerinde route metni geçen endpoint | 269 |
-| Web/mobilde tam eşleşmesi olmayan endpoint | 302 |
+| API endpoint (çalışma zamanı) | 460 |
+| Yetkili / açık anonim / public prefix | 447 / 13 / 0 |
+| Web çağrısı: tam eşleşme / yalnız taban yol | 139 / 267 |
+| Mobil çağrısı: tam eşleşme / yalnız taban yol | 23 / 35 |
+| Backend testlerinde route metni geçen endpoint | 271 |
+| Web/mobilde tam eşleşmesi olmayan endpoint | 301 |
 | Hiç tüketicisi bulunmayan endpoint | 19 |
 | Web sayfası | 57 |
 | Menü bağlantısı / planlı menü | 10 / 1 |
-| Mobil ekran | 9 |
-| Mobil sekme: her zaman / bağlı kişi gerekir / gizli | 2 / 4 / 1 |
+| Mobil ekran | 10 |
+| Mobil sekme: her zaman / bağlı kişi gerekir / gizli | 2 / 4 / 2 |
 | DB tablosu (EF snapshot) | 135 |
 
 ## Web sayfaları ve statik sinyaller
@@ -95,12 +95,14 @@
 | `screen:index` | OWNER, TENANT |
 | `screen:profile` | SITE_ADMIN, SUPER_ADMIN |
 | `screen:requests` | ACCOUNTANT |
+| `supplier-work` | MANAGER, SITE_ADMIN, SUPER_ADMIN |
 | `sync` | ACCOUNTANT |
 
 ## Bulgular
 
 - Planlı (henüz ekranı olmayan) menü: `definitions`
 - Mobil sekme sekme çubuğunda gizli: `parking`
+- Mobil sekme sekme çubuğunda gizli: `supplier-work`
 - Eşleşmeyen web çağrısı: `/api/v1/qa-center`
 
 ## Web/mobil tüketicisi bulunmayan endpointler (19)

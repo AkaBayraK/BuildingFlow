@@ -7,6 +7,7 @@ const done = (title: string, detail: string, verification = "verificationRecordD
 const planned = (title: string, detail: string): RoadmapTask => ({ title, detail, done: false });
 
 export const milestones: Milestone[] = [
+  {number:"SUP-09",title:"supplierMobileRoadmapTitle",description:"supplierMobileRoadmapDescription",tasks:[done("supplierMobileRoadmapTask","supplierMobileRoadmapDetail","supplierMobileRoadmapVerification")]},
   {number:"SUP-08",title:"supplierInvoicesRoadmapTitle",description:"supplierInvoicesRoadmapDescription",tasks:[done("supplierInvoicesRoadmapTask","supplierInvoicesRoadmapDetail","supplierInvoicesRoadmapVerification")]},
   {number:"SUP-07",title:"supplierMaintenanceRoadmapTitle",description:"supplierMaintenanceRoadmapDescription",tasks:[done("supplierMaintenanceRoadmapTask","supplierMaintenanceRoadmapDetail","supplierMaintenanceRoadmapVerification")]},
   {number:"SUP-06",title:"supplierWorkOrdersRoadmapTitle",description:"supplierWorkOrdersRoadmapDescription",tasks:[done("supplierWorkOrdersRoadmapTask","supplierWorkOrdersRoadmapDetail","supplierWorkOrdersRoadmapVerification")]},

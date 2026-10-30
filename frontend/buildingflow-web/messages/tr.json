@@ -499,6 +499,11 @@
     "resident": "Bu web sitesindeki güncel malik, kiracı ve sakin çalışma alanlarınız."
   },
   "ui": {
+    "supplierMobileRoadmapTitle": "Tedarikçi işleri mobil",
+    "supplierMobileRoadmapDescription": "Yönetici mobil iş emri listesi, saha notu, fotoğraf ve şifreli çevrimdışı kuyruk.",
+    "supplierMobileRoadmapTask": "Mobil iş emri ve offline senkronizasyon",
+    "supplierMobileRoadmapDetail": "Mülk bazlı iş emri listesi, durum/not/fotoğraf işlemleri, SQLCipher şifreli kopya ve kuyruk, aynı işlem kimliğiyle yeniden gönderim, çakışmada sunucu kaydının korunması, yetki kaybında ve hesap değişiminde temizlik.",
+    "supplierMobileRoadmapVerification": "30.10.2026: tam regresyon Integration931/933 (2 opt-in)+unit472/472; mobil check 170/170+3 platform export; web340/340+typecheck/build; lisans329 PASS; kapsam kapısı GEÇTİ. Rapor docs/suppliers/09-report.md; #99. Gerçek cihaz/simülatör E2E yapılmadı.",
     "supplierInvoicesRoadmapTitle": "Tedarikçi faturaları ve gider",
     "supplierInvoicesRoadmapDescription": "Alan bazlı fatura, Gider modülü bağlantısı, onay, ödeme durumu ve mutabakat.",
     "supplierInvoicesRoadmapTask": "Fatura/gider entegrasyonu ve mutabakat",

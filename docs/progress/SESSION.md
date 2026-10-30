@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ09 — 30.10.2026 — TAMAMLANDI
+
+**#99; resmi3/3=%100,00; akış10/13=%76,92.** Mobil "Tedarikçi işleri": mülk bazlı liste, durum/not/fotoğraf, şifreli çevrimdışı kuyruk (şema 10), çakışmada sunucu kaydı korunur, yetki/hesap değişiminde temizlik; backend mülk listesi + saha notu. Tam regresyon Integration931/933+Unit472/472; mobil170/170+build; web340/340+build. Gerçek cihaz E2E yok. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ10 (#100). Token: BİLGİ MEVCUT DEĞİL.
+
 ## TEDARİKÇİ FAZ08 — 30.10.2026 — TAMAMLANDI
 
 **#98; resmi3/3=%100,00; akış9/13=%69,23.** Tedarikçi faturası, mükerrer engeli, onayda tek Gider kaydı, ayrı onaylayıcı, ödendi/mutabakat, gerekçeli iptal/düzeltme, audit; para hareketi yok. Tam regresyon Integration930/932+Unit472/472, web340/340+build, kapsam kapısı GEÇTİ. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ09 (#99, mobil). Token: BİLGİ MEVCUT DEĞİL.

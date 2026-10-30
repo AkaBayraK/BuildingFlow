@@ -499,6 +499,11 @@
     "resident": "Your current owner, tenant and resident workspaces for this website."
   },
   "ui": {
+    "supplierMobileRoadmapTitle": "Supplier work mobile",
+    "supplierMobileRoadmapDescription": "Manager mobile work order list, field notes, photos and an encrypted offline queue.",
+    "supplierMobileRoadmapTask": "Mobile work orders and offline sync",
+    "supplierMobileRoadmapDetail": "Per-property work order list, status/note/photo actions, SQLCipher-encrypted copy and queue, resend with the same operation id, server copy kept on conflict, cleanup on lost access and account change.",
+    "supplierMobileRoadmapVerification": "2026-10-30: full regression integration931/933 (2 opt-in)+unit472/472; mobile check 170/170+3-platform export; web340/340+typecheck/build; 329 license PASS; coverage gate PASS. Report docs/suppliers/09-report.md; #99. No real device/simulator E2E.",
     "supplierInvoicesRoadmapTitle": "Supplier invoices and expenses",
     "supplierInvoicesRoadmapDescription": "Area-scoped invoices, Expenses link, approval, payment status and reconciliation.",
     "supplierInvoicesRoadmapTask": "Invoice/expense integration and reconciliation",
