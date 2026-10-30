@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
+
+**#101; resmi4/4=%100,00; akış12/13=%92,31.** Dış servissiz, modelden bağımsız, maskeli ve onaylı tedarikçi öneri katmanı (eşleştirme, gecikme riski, maliyet sapması); güvenilmez çıktı temizleme, günlük limit. Dış model bağlamak ayrı onay. Tam regresyon Integration938/942+Unit472/472 (PG bellek hatası tekrar koşumda geçti), web344/344+build. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ12 (#102). Risk: paylaşılan PG "out of shared memory". Token: BİLGİ MEVCUT DEĞİL.
+
 ## TEDARİKÇİ FAZ10 — 30.10.2026 — TAMAMLANDI
 
 **#100; resmi3/3=%100,00; akış11/13=%84,62.** Tercihli ve alan yetkili uygulama içi tedarikçi uyarıları; performans raporu (örneklem ve eşikli puan); CSV ve yazdır/PDF. Tam regresyon Integration934/936+Unit472/472 (temizlik hatası tekrar koşumda geçti), web343/343+build. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ11 (#101, opsiyonel AkaAI; dış servis/veri aktarımı ayrı karar). Token: BİLGİ MEVCUT DEĞİL.

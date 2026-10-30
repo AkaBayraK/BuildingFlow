@@ -4419,6 +4419,17 @@
   {
    "access": "AUTHORIZED",
    "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-advice",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
    "method": "GET",
    "mobile": null,
    "policies": [
@@ -4458,7 +4469,7 @@
     "CanManagePeople"
    ],
    "route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
-   "web": "BASE_PREFIX"
+   "web": "EXACT"
   },
   {
    "access": "AUTHORIZED",
@@ -4469,7 +4480,7 @@
     "CanManagePeople"
    ],
    "route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
-   "web": "BASE_PREFIX"
+   "web": "EXACT"
   },
   {
    "access": "AUTHORIZED",
@@ -6323,8 +6334,10 @@
    "apiCalls": [
     "/api/v2/supplier-workspaces",
     "/api/v2/tenants/{}",
+    "/api/v2/tenants/{}/supplier-advice",
     "/api/v2/tenants/{}/supplier-alert-preferences",
     "/api/v2/tenants/{}/supplier-alerts",
+    "/api/v2/tenants/{}/supplier-categories",
     "/api/v2/tenants/{}/supplier-holidays",
     "/api/v2/tenants/{}/supplier-performance",
     "/api/v2/tenants/{}/supplier-property-choices",

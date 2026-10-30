@@ -568,6 +568,11 @@
     "resident": "Bu web sitesindeki güncel malik, kiracı ve sakin çalışma alanlarınız."
   },
   "ui": {
+    "supplierAdviceRoadmapTitle": "Tedarikçi önerileri (AkaAI adaptörü)",
+    "supplierAdviceRoadmapDescription": "Modelden bağımsız, maskeli ve onaylı öneri katmanı; dış servis yok.",
+    "supplierAdviceRoadmapTask": "Eşleştirme, gecikme riski ve maliyet sapması önerisi",
+    "supplierAdviceRoadmapDetail": "Takma adlı sayısal girdi, kural tabanlı varsayılan model, kapalı şema ile çıktı temizleme, kullanıcı onayı, günlük limit; öneri hiçbir kaydı değiştirmez.",
+    "supplierAdviceRoadmapVerification": "30.10.2026: tam regresyon Integration938/942 (2 opt-in; 2 PG bellek hatası tekrar koşumda 23/23)+unit472/472; web344/344+typecheck/build; lisans329 PASS; kapsam kapısı GEÇTİ. Rapor docs/suppliers/11-report.md; #101. Dış model bağlanmadı.",
     "supplierInsightsRoadmapTitle": "Tedarikçi uyarıları ve performans",
     "supplierInsightsRoadmapDescription": "Sözleşme, SLA ve bakım uyarıları; performans raporu, CSV ve PDF çıktısı.",
     "supplierInsightsRoadmapTask": "Uyarılar, performans ve raporlar",

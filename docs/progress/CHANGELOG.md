@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
+
+- Modelden bağımsız tedarikçi öneri adaptörü (kural tabanlı varsayılan), maskeleme, onay, çıktı temizleme, günlük limit; Tedarikçiler ekranında Öneriler görünümü; yol haritası SUP-11.
+
 ## TEDARİKÇİ FAZ10 — 30.10.2026 — TAMAMLANDI
 
 - Tedarikçi uyarıları (sözleşme, SLA, bakım) ve kullanıcı tercihleri (`SupplierAlertPreferences`); performans raporu.

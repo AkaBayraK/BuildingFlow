@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
+
+#101 resmi4/4=%100,00; akış12/13=%92,31. Kural tabanlı, maskeli tedarikçi öneri adaptörü; dış servis yok. Rapor `docs/suppliers/11-report.md`.
+
 ## TEDARİKÇİ FAZ10 — 30.10.2026 — TAMAMLANDI
 
 #100 resmi3/3=%100,00; akış11/13=%84,62. Uyarılar ve tercihler, performans raporu, CSV/PDF export. Rapor `docs/suppliers/10-report.md`.

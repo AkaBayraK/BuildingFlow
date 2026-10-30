@@ -568,6 +568,11 @@
     "resident": "Your current owner, tenant and resident workspaces for this website."
   },
   "ui": {
+    "supplierAdviceRoadmapTitle": "Supplier suggestions (AkaAI adapter)",
+    "supplierAdviceRoadmapDescription": "Model-agnostic, masked, consented suggestion layer; no external service.",
+    "supplierAdviceRoadmapTask": "Match, delay risk and cost anomaly suggestions",
+    "supplierAdviceRoadmapDetail": "Aliased numeric input, rule-based default model, closed-schema output sanitising, user consent, daily limit; suggestions change no records.",
+    "supplierAdviceRoadmapVerification": "2026-10-30: full regression integration938/942 (2 opt-in; 2 PG memory failures passed 23/23 on rerun)+unit472/472; web344/344+typecheck/build; 329 license PASS; coverage gate PASS. Report docs/suppliers/11-report.md; #101. No external model connected.",
     "supplierInsightsRoadmapTitle": "Supplier alerts and performance",
     "supplierInsightsRoadmapDescription": "Contract, SLA and maintenance alerts; performance report with CSV and PDF output.",
     "supplierInsightsRoadmapTask": "Alerts, performance and reports",

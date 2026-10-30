@@ -3219,6 +3219,14 @@
     ]
   },
   {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-advice",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
     "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/supplier-alert-preferences",
     "Access": "AUTHORIZED",
