@@ -15,7 +15,8 @@ export function useSupplierWork(page:number){
   error:'Tedarikçi işleri güncellenemedi. Kopya eski olabilir; bağlantı kurup yenileyin.',denied:'Bu yönetim alanındaki tedarikçi işlerine erişiminiz artık geçerli değil.'});
  const [jobs,setJobs]=useState<Job[]>([]),[message,setMessage]=useState(''),[sending,setSending]=useState(false);const alive=useRef(true);
  useEffect(()=>()=>{alive.current=false;},[]);
- const loadJobs=useCallback(async()=>{await Promise.resolve();if(!alive.current)return;if(!allowed||!user)return setJobs([]);try{const rows=await a.supplierWorkCache(db=>visibleJobs(db,user,c!));if(alive.current)setJobs(rows);}catch{if(alive.current)setJobs([]);}},[a,allowed,user,c]);
+ const fetchJobs=useCallback(async()=>{if(!allowed||!user)return [];try{return await a.supplierWorkCache(db=>visibleJobs(db,user,c!));}catch{return [];}},[a,allowed,user,c]);
+ const loadJobs=useCallback(async()=>{const rows=await fetchJobs();if(alive.current)setJobs(rows);},[fetchJobs]);
  const send=useCallback(async()=>{
   await Promise.resolve();if(!allowed||!a.session||a.offline||sending||!alive.current)return;setSending(true);setMessage('');
   try{
@@ -26,7 +27,7 @@ export function useSupplierWork(page:number){
   }catch(e){setMessage(e instanceof FlushStopped&&e.status===401?'Oturum yenilenmeli; işlemler cihazda bekliyor.':'Bekleyen işlemler gönderilemedi; cihazda saklanıyor.');}
   finally{if(alive.current){setSending(false);await loadJobs();}}
  },[a,allowed,c,sending,loadJobs,read]);
- useEffect(()=>{void loadJobs();},[loadJobs]);
+ useEffect(()=>{let live=true;void fetchJobs().then(rows=>{if(live)setJobs(rows);});return()=>{live=false;};},[fetchJobs]);
  useEffect(()=>{if(!a.offline&&read.data)void send();},[a.offline,read.data]);// eslint-disable-line react-hooks/exhaustive-deps
  const queue=async(input:Omit<Command,'operationId'|'photoFile'>,current:WorkOrder,photo:string|null)=>{
   if(!a.session)return;const operationId=Crypto.randomUUID(),photoFile=photo?'supplier-photo-'+Crypto.randomUUID()+'.enc':null;
