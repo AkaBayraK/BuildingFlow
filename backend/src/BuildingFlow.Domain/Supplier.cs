@@ -57,6 +57,7 @@ public sealed class SupplierCategory : BaseEntity
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = null!;
     public string NameKey { get; private set; } = null!;
+    public void Rename(string name) { Name = Required(name, nameof(name), 100); NameKey = Name.ToUpperInvariant(); }
 }
 public sealed class SupplierService : BaseEntity
 {

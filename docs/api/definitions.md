@@ -1,4 +1,4 @@
-# Tanımlar (TNM 01–03)
+# Tanımlar (TNM 01–04)
 
 `GET /api/v1/definitions` — salt okunur, `CanManageHierarchy` (SUPER_ADMIN, SITE_ADMIN, MANAGER). Anonim 401; ACCOUNTANT/SECURITY 403.
 
@@ -39,3 +39,9 @@ Analiz ve sonraki fazlar: [DEFINITIONS_ANALYSIS.md](../analysis/DEFINITIONS_ANAL
 Yazım koruması (`DefinitionPolicy`): duyuru, anket, bakım planı, ortak alan, araç, merkez talebi ve mobil talep senkronu yeni veya değişen kodu sistemde pasif ya da alanda gizliyse `BF_DEFINITION_UNAVAILABLE` (400, alan hatası) ile reddeder. Kaydın mevcut kodu ve kilitli kodlar her zaman kabul edilir; geçmiş kayıtlar değişmez.
 
 Web formları `useDefinitionOptions` ile etkin listeyi okur (60 sn paylaşımlı önbellek, Tanımlar kaydında temizlenir); okunamazsa modülün sabit listesine döner. Mobil uygulama TNM 06'ya kadar sabit listeyi gösterir. Alana özel ek değer (`P_` kodu) bu fazda yok.
+
+## TNM 04 — mevcut kataloglar
+
+**Aidat iptal nedenleri** — `GET /api/v1/definitions/dues-cancellation-reasons` (`CanManageHierarchy`): tüm nedenler, `usageCount` (iptal edilmiş borç sayısı), `locked`. `POST` (SUPER_ADMIN): `code` `^[A-Z][A-Z0-9_]{1,49}$`, `name` 1–100, `requiresExplanation`, `isEnabled`, `version=0`; aynı kod + aynı içerik tekrarı mevcut kaydı döndürür, aksi 409 `BF_DEFINITION_DUPLICATE`. `PUT /{id}` (SUPER_ADMIN): kod değişmez (400), `version` zorunlu, uyuşmazlık 409 (aynı içerik tekrarı hariç). OTHER ve TENANT_MOVED_OUT pasife alınamaz ve açıklama kuralı değişmez (`BF_DEFINITION_LOCKED`); adları değişebilir. Borç iptali neden kod/adını o anda kopyalar; düzenleme geçmişi değiştirmez. Pasif neden alanın iptal listesinde ve iptal isteğinde kabul edilmez (mevcut davranış).
+
+**Tedarikçi hizmet kategorileri** — ayrıntı [suppliers.md](suppliers.md): `GET /api/v2/tenants/{tenantId}/supplier-categories/manage` (sayfalı, pasifler dahil, `serviceCount`), `PUT .../supplier-categories/{id}` (`name`, `isEnabled`, `version`). Aynı tenant'ta normalize ad tekil (`BF_SUPPLIER_DUPLICATE`). Pasif kategori seçim listesinde ve yeni hizmet alanında kullanılamaz; mevcut hizmetler korunur ve listelenir.

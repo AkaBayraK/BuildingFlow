@@ -103,6 +103,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SupplierDocumentProtected = new("BF_SUPPLIER_DOCUMENT_PROTECTED", "Revizyon veya sözleşme geçmişi olan belge kaldırılamaz.", "warning");
     public static readonly ErrorDefinition DefinitionInvalid = new("BF_DEFINITION_INVALID", "Tanım adı, ikon, renk tonu, sıra ve sürüm bilgilerini kontrol edin.", "error");
     public static readonly ErrorDefinition DefinitionUnavailable = new("BF_DEFINITION_UNAVAILABLE", "Seçilen tür bu yönetim alanında kullanıma kapalı. Listeden başka bir seçenek seçin.", "error");
+    public static readonly ErrorDefinition DefinitionDuplicate = new("BF_DEFINITION_DUPLICATE", "Bu kodla başka bir tanım zaten var. Farklı bir kod girin.", "warning");
     public static readonly ErrorDefinition DefinitionLocked = new("BF_DEFINITION_LOCKED", "Bu değer formlarda varsayılan seçenek olduğu için pasife alınamaz.", "warning");
     public static readonly ErrorDefinition SupplierInvalid = new("BF_SUPPLIER_INVALID", "Tedarikçi adı, türü, durumu ve işlem bilgilerini kontrol edin.", "error");
     public static readonly ErrorDefinition SupplierDuplicate = new("BF_SUPPLIER_DUPLICATE", "Bu yönetim kapsamında aynı adlı tedarikçi zaten mevcut.", "warning");
@@ -335,7 +336,7 @@ public static class ErrorCatalog
     {
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
-        DefinitionInvalid, DefinitionLocked, DefinitionUnavailable,
+        DefinitionInvalid, DefinitionLocked, DefinitionUnavailable, DefinitionDuplicate,
         SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierInvoiceDuplicate, SupplierInvoiceState, SupplierInvoiceLinked, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,

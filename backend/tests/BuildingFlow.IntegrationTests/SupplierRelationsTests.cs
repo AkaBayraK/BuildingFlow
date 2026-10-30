@@ -15,6 +15,28 @@ public sealed class SupplierRelationsTests(SiteApiTests.SiteApiFactory factory) 
         return (t.Id, user, first.Id, second.Id, hidden.Id, foreign.Id);
     }
     private static async Task<T> Value<T>(HttpResponseMessage r) { Assert.Equal(HttpStatusCode.OK, r.StatusCode); return (await r.Content.ReadFromJsonAsync<T>())!; }
+    [PostgresFact] public async Task CategoriesAreRenamedAndDisabledWithoutLosingServices()
+    {
+        var x = await Seed(); using var c = TestToken.Client(factory, x.User, "MANAGER"); var root = $"/api/v2/tenants/{x.Tenant}";
+        var supplier = (await Value<SupplierMutation>(await c.PostAsJsonAsync($"{root}/suppliers", new SupplierRequest(Guid.NewGuid(), "Lift Co", "COMPANY", Status:"ACTIVE")))).Record;
+        var lift = await Value<SupplierWorkspace>(await c.PostAsJsonAsync($"{root}/supplier-categories", new SupplierCategoryRequest(Guid.NewGuid(), "Lift")));
+        var garden = await Value<SupplierWorkspace>(await c.PostAsJsonAsync($"{root}/supplier-categories", new SupplierCategoryRequest(Guid.NewGuid(), "Garden")));
+        await Value<SupplierMutation>(await c.PutAsJsonAsync($"{root}/suppliers/{supplier.Id}/areas", new SupplierAreaRequest(Guid.NewGuid(), supplier.Version, x.First, lift.Id, "Inspection")));
+        var managed = (await c.GetFromJsonAsync<PagedRows<SupplierCategoryRow>>($"{root}/supplier-categories/manage"))!; var row = managed.Items.Single(r => r.Id == lift.Id); Assert.Equal(1, row.ServiceCount); Assert.True(row.IsEnabled);
+        var renamed = await Value<SupplierCategoryRow>(await c.PutAsJsonAsync($"{root}/supplier-categories/{lift.Id}", new SupplierCategoryUpdate(" Elevators ", false, row.Version)));
+        Assert.Equal("Elevators", renamed.Name); Assert.False(renamed.IsEnabled); Assert.Equal(1, renamed.ServiceCount);
+        Assert.Equal(renamed, await Value<SupplierCategoryRow>(await c.PutAsJsonAsync($"{root}/supplier-categories/{lift.Id}", new SupplierCategoryUpdate("Elevators", false, row.Version))));
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PutAsJsonAsync($"{root}/supplier-categories/{lift.Id}", new SupplierCategoryUpdate("Other", true, row.Version))).StatusCode);
+        var duplicate = await c.PutAsJsonAsync($"{root}/supplier-categories/{garden.Id}", new SupplierCategoryUpdate("elevators", true, 1)); Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode); Assert.Contains("BF_SUPPLIER_DUPLICATE", await duplicate.Content.ReadAsStringAsync());
+        Assert.DoesNotContain((await c.GetFromJsonAsync<PagedRows<SupplierWorkspace>>($"{root}/supplier-categories"))!.Items, r => r.Id == lift.Id);
+        var areas = (await c.GetFromJsonAsync<PagedRows<SupplierAreaRow>>($"{root}/suppliers/{supplier.Id}/areas"))!; Assert.Equal("Elevators", Assert.Single(areas.Items).CategoryName);
+        var current = (await c.GetFromJsonAsync<SupplierResponse>($"{root}/suppliers/{supplier.Id}"))!;
+        Assert.Equal(HttpStatusCode.NotFound, (await c.PutAsJsonAsync($"{root}/suppliers/{supplier.Id}/areas", new SupplierAreaRequest(Guid.NewGuid(), current.Version, x.Second, lift.Id, "Repair"))).StatusCode);
+        foreach (var body in new[] { new SupplierCategoryUpdate("", true, 1), new SupplierCategoryUpdate("X", null, 1), new SupplierCategoryUpdate("X", true, 0) }) Assert.Equal(HttpStatusCode.BadRequest, (await c.PutAsJsonAsync($"{root}/supplier-categories/{garden.Id}", body)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await c.PutAsJsonAsync($"{root}/supplier-categories/{Guid.NewGuid()}", new SupplierCategoryUpdate("X", true, 1))).StatusCode);
+        using var accountant = TestToken.Client(factory, x.User, "ACCOUNTANT"); Assert.Equal(HttpStatusCode.Forbidden, (await accountant.GetAsync($"{root}/supplier-categories/manage")).StatusCode);
+        using var outsider = TestToken.Client(factory, Guid.NewGuid().ToString(), "MANAGER"); Assert.Equal(HttpStatusCode.NotFound, (await outsider.PutAsJsonAsync($"{root}/supplier-categories/{garden.Id}", new SupplierCategoryUpdate("X", true, 1))).StatusCode);
+    }
     [PostgresFact] public async Task MultipleAreasAndServicesReplayWithoutDuplicatesAndForeignLinksAreRejected()
     {
         var x = await Seed(); using var c = TestToken.Client(factory, x.User, "MANAGER");

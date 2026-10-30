@@ -140,3 +140,21 @@ export function definitionOptions<T extends string>(codes:readonly T[],list:Prop
  const ordered=known.filter(v=>v.selectable||v.code===current).map(v=>v.code as T);
  return [...ordered,...codes.filter(c=>!known.some(v=>v.code===c))];
 }
+
+// TNM 04: aidat iptal nedenleri (sistem kataloğu). Borçlar kod/ad anlık görüntüsü tuttuğu için ad değişikliği geçmişi yeniden yazmaz.
+export const cancellationReasonsPath=`${definitionsPath}/dues-cancellation-reasons`;
+export type CancellationReason={id:string;code:string;name:string;requiresExplanation:boolean;isEnabled:boolean;locked:boolean;usageCount:number;version:number};
+const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const reasonCodePattern=/^[A-Z][A-Z0-9_]{1,49}$/;
+export function readCancellationReason(value:unknown):CancellationReason{
+ const row=record(value);
+ if(!row||typeof row.id!=="string"||!uuidPattern.test(row.id)||typeof row.code!=="string"||!reasonCodePattern.test(row.code)||typeof row.name!=="string"||!row.name.trim()||row.name.length>100||typeof row.requiresExplanation!=="boolean"||typeof row.isEnabled!=="boolean"||typeof row.locked!=="boolean"||!Number.isSafeInteger(row.usageCount)||(row.usageCount as number)<0||!Number.isSafeInteger(row.version)||(row.version as number)<1||row.locked&&!row.isEnabled)throw Error("Invalid cancellation reason");
+ return {id:row.id,code:row.code,name:row.name,requiresExplanation:row.requiresExplanation,isEnabled:row.isEnabled,locked:row.locked,usageCount:row.usageCount as number,version:row.version as number};
+}
+export function readCancellationReasons(value:unknown):CancellationReason[]{
+ if(!Array.isArray(value))throw Error("Invalid cancellation reasons");
+ const rows=value.map(readCancellationReason);if(new Set(rows.map(r=>r.code)).size!==rows.length)throw Error("Invalid cancellation reasons");return rows;
+}
+export type ReasonForm={code:string;name:string;requiresExplanation:boolean;isEnabled:boolean};
+export function reasonFormErrors(form:ReasonForm,create:boolean){const e:string[]=[];if(create&&!reasonCodePattern.test(form.code.trim()))e.push("code");if(!form.name.trim()||form.name.trim().length>100)e.push("name");return e;}
+export const reasonBody=(form:ReasonForm,version:number,create:boolean)=>({...(create?{code:form.code.trim()}:{}),name:form.name.trim(),requiresExplanation:form.requiresExplanation,isEnabled:form.isEnabled,version});

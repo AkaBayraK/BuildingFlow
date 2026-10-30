@@ -1,3 +1,9 @@
+## TNM 04 — 30.10.2026 — TAMAMLANDI
+
+- `GET/POST/PUT /api/v1/definitions/dues-cancellation-reasons`: kullanım sayısı, kilitli OTHER/TENANT_MOVED_OUT, kod değişmez, `BF_DEFINITION_DUPLICATE`.
+- `GET /api/v2/tenants/{id}/supplier-categories/manage`, `PUT .../supplier-categories/{id}`: yeniden adlandırma ve pasif; pasif kategorideki mevcut hizmetler hizmet alanı listesinde kalır.
+- Tanımlar'da iptal nedeni yönetim paneli; Tedarikçiler ekranında ikonlu "Kategoriler" görünümü.
+
 ## TNM 03 — 30.10.2026 — TAMAMLANDI
 
 - `property_definition_settings` (Property FK, silinmemiş property+list+code tekil, sort_order check, Down guard).

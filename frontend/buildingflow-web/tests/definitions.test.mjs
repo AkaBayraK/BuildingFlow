@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {catalogKeys,definitionBody,definitionForm,definitionFormErrors,definitionIconKeys,definitionKeys,definitionLabelKey,definitionLevels,definitionTones,definitionValuePath,filterLists,overrideName,readDefinitionValue,readDefinitions,sortedValues,definitionOptions,readPropertyDefinitions,propertyDefinitionValuePath} from '../src/features/definitions/model.ts';
+import {catalogKeys,definitionBody,definitionForm,definitionFormErrors,definitionIconKeys,definitionKeys,definitionLabelKey,definitionLevels,definitionTones,definitionValuePath,filterLists,overrideName,readDefinitionValue,readDefinitions,sortedValues,definitionOptions,readPropertyDefinitions,propertyDefinitionValuePath,readCancellationReasons,reasonFormErrors,reasonBody} from '../src/features/definitions/model.ts';
+import {readSupplierCategoryRow} from '../src/features/suppliers/model.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 const tr=JSON.parse(readFileSync(new URL('../messages/tr.json',import.meta.url),'utf8')),en=JSON.parse(readFileSync(new URL('../messages/en.json',import.meta.url),'utf8'));
@@ -81,4 +82,17 @@ test('TNM03 area contract and form options: hidden/passive leave forms, current 
  assert.equal(propertyDefinitionValuePath(P,'REQUEST_CATEGORY','WATER'),`/api/v1/properties/${P}/definitions/REQUEST_CATEGORY/values/WATER`);
  for(const [file,key] of [['requests/RequestsWorkspace.tsx','REQUEST_CATEGORY'],['requests/RequestsWorkspace.tsx','REQUEST_PRIORITY'],['maintenance/MaintenancePanel.tsx','MAINTENANCE_TYPE'],['common-areas/CommonAreaPanel.tsx','COMMON_AREA_TYPE'],['parking/VehiclesTab.tsx','VEHICLE_TYPE'],['communication/CommunicationPanels.tsx','ANNOUNCEMENT_CATEGORY'],['surveys/SurveyEditor.tsx','SURVEY_CATEGORY']])
   assert.match(readFileSync(new URL(`../src/features/${file}`,import.meta.url),'utf8'),new RegExp(`useDefinitionOptions\\(propertyId,["']${key}["']`),`${file}:${key}`);
+});
+
+test('TNM04 catalogues: reason and supplier category contracts, form rules and views',()=>{
+ const id='11111111-1111-4111-8111-111111111111',reason=(patch={})=>({id,code:'WRONG_AMOUNT',name:'Yanlış tutar',requiresExplanation:false,isEnabled:true,locked:false,usageCount:3,version:1,...patch});
+ assert.equal(readCancellationReasons([reason()])[0].usageCount,3);
+ for(const bad of [[reason({code:'x'})],[reason({version:0})],[reason({locked:true,isEnabled:false})],[reason({usageCount:-1})],[reason(),reason({id:'22222222-2222-4222-8222-222222222222'})],{}])assert.throws(()=>readCancellationReasons(bad));
+ const form={code:' BOARD ',name:' Kurul ',requiresExplanation:true,isEnabled:true};
+ assert.deepEqual(reasonFormErrors({...form,code:'b'},true),['code']);assert.deepEqual(reasonFormErrors(form,true),[]);assert.deepEqual(reasonFormErrors({...form,code:'BOARD'},true),[]);assert.deepEqual(reasonFormErrors({...form,name:' '},false),['name']);
+ assert.deepEqual(reasonBody({...form,code:'BOARD'},0,true),{code:'BOARD',name:'Kurul',requiresExplanation:true,isEnabled:true,version:0});assert.equal('code' in reasonBody(form,2,false),false);
+ assert.equal(readSupplierCategoryRow({id,name:'Asansör',isEnabled:false,serviceCount:2,version:3}).serviceCount,2);
+ for(const bad of [{id,name:'',isEnabled:true,serviceCount:0,version:1},{id,name:'A',isEnabled:true,serviceCount:0,version:0},{id:'x',name:'A',isEnabled:true,serviceCount:0,version:1}])assert.throws(()=>readSupplierCategoryRow(bad));
+ assert.match(readFileSync(new URL('../src/features/suppliers/supplier-style.ts',import.meta.url),'utf8'),/categories:\{icon:/);
+ assert.match(readFileSync(new URL('../src/features/definitions/DefinitionsWorkspace.tsx',import.meta.url),'utf8'),/CancellationReasonsPanel canEdit=\{canEdit\}/);
 });

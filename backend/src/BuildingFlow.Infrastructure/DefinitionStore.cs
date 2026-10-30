@@ -134,6 +134,71 @@ public sealed class DefinitionStore(BuildingFlowDbContext db, ILogger<Definition
         return Value(code, row, 0);
     }
 
+    public async Task<IReadOnlyList<CancellationReasonAdminRow>> CancellationReasonsAsync(CancellationToken token)
+    {
+        var usage = await db.DuesCharges.Where(x => x.CancellationReasonId != null).GroupBy(x => x.CancellationReasonId!.Value).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count, token);
+        var rows = await db.DuesCancellationReasons.AsNoTracking().OrderBy(x => x.Code).ToListAsync(token);
+        return rows.Select(x => Reason(x, usage.GetValueOrDefault(x.Id))).ToArray();
+    }
+
+    public async Task<CancellationReasonAdminRow> CreateCancellationReasonAsync(SaveCancellationReasonRequest request, CancellationToken token)
+    {
+        var code = request.Code?.Trim() ?? "";
+        var command = ReasonCommand(request, create: true);
+        if (!System.Text.RegularExpressions.Regex.IsMatch(code, "^[A-Z][A-Z0-9_]{1,49}$")) ReasonInvalid("code");
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtext({"dues_cancellation_reasons"}))", token);
+        var prior = await db.DuesCancellationReasons.IgnoreQueryFilters().SingleOrDefaultAsync(x => x.Code == code, token);
+        if (prior is not null)
+        {
+            // A retried create with identical content returns the stored reason; any other use of the code is a duplicate.
+            if (!prior.IsDeleted && prior.Name == command.Name && prior.RequiresExplanation == command.RequiresExplanation && prior.IsEnabled == command.Enabled)
+                return Reason(prior, await Usage(prior.Id, token));
+            throw new HierarchyConflictException(ErrorCatalog.DefinitionDuplicate.Create());
+        }
+        var reason = new DuesCancellationReason(code, command.Name, command.RequiresExplanation); reason.SetEnabled(command.Enabled);
+        db.Add(reason); await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        logger.LogInformation("BuildingFlow.Definitions cancellation reason created {Code}", code);
+        return Reason(reason, 0);
+    }
+
+    public async Task<CancellationReasonAdminRow?> SaveCancellationReasonAsync(Guid id, SaveCancellationReasonRequest request, CancellationToken token)
+    {
+        var command = ReasonCommand(request, create: false);
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtext({"dues_cancellation_reasons"}))", token);
+        var reason = await db.DuesCancellationReasons.SingleOrDefaultAsync(x => x.Id == id, token);
+        if (reason is null) return null;
+        if (request.Code is not null && request.Code.Trim() != reason.Code) ReasonInvalid("code");
+        if (reason.Locked && (!command.Enabled || command.RequiresExplanation != reason.RequiresExplanation))
+            throw new RequestValidationException(new() { [!command.Enabled ? "isEnabled" : "requiresExplanation"] = [ErrorCatalog.DefinitionLocked.Create()] });
+        if (request.Version != reason.Version)
+        {
+            if (reason.Name == command.Name && reason.RequiresExplanation == command.RequiresExplanation && reason.IsEnabled == command.Enabled) return Reason(reason, await Usage(id, token));
+            throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+        }
+        reason.Edit(command.Name, command.RequiresExplanation); reason.SetEnabled(command.Enabled);
+        await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        logger.LogInformation("BuildingFlow.Definitions cancellation reason updated {Code} {Version}", reason.Code, reason.Version);
+        return Reason(reason, await Usage(id, token));
+    }
+
+    private sealed record ReasonInput(string Name, bool RequiresExplanation, bool Enabled);
+    private static ReasonInput ReasonCommand(SaveCancellationReasonRequest r, bool create)
+    {
+        var name = r.Name?.Trim();
+        var issues = new Dictionary<string, ApiErrorMessage[]>();
+        if (string.IsNullOrEmpty(name) || name.Length > DuesCancellationReason.MaxNameLength || name.Any(char.IsControl)) issues["name"] = [ErrorCatalog.DefinitionInvalid.Create()];
+        if (r.RequiresExplanation is null) issues["requiresExplanation"] = [ErrorCatalog.DefinitionInvalid.Create()];
+        if (r.IsEnabled is null) issues["isEnabled"] = [ErrorCatalog.DefinitionInvalid.Create()];
+        if (create ? r.Version != 0 : r.Version < 1) issues["version"] = [ErrorCatalog.DefinitionInvalid.Create()];
+        if (issues.Count > 0) throw new RequestValidationException(issues);
+        return new(name!, r.RequiresExplanation!.Value, r.IsEnabled!.Value);
+    }
+    private static void ReasonInvalid(string field) => throw new RequestValidationException(new() { [field] = [ErrorCatalog.DefinitionInvalid.Create()] });
+    private Task<int> Usage(Guid id, CancellationToken token) => db.DuesCharges.CountAsync(x => x.CancellationReasonId == id, token);
+    private static CancellationReasonAdminRow Reason(DuesCancellationReason x, int usage) => new(x.Id, x.Code, x.Name, x.RequiresExplanation, x.IsEnabled, x.Locked, usage, x.Version);
+
     private sealed record Command(string? NameTr, string? NameEn, string? IconKey, string? Tone, int SortOrder, bool Enabled);
 
     private static Command Normalize(SaveDefinitionValueRequest r)

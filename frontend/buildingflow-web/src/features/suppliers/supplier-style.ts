@@ -35,6 +35,6 @@ export const invoiceCategoryStyle={MAINTENANCE:{icon:Wrench},CLEANING:{icon:Spar
 export const invoiceOverdueStyle={icon:TriangleAlert} as const;
 
 export const alertStyle={ALL:{icon:Layers,tone:"neutral"},CONTRACT_EXPIRY:{icon:CalendarClock,tone:"warning"},WORK_ORDER_OVERDUE:{icon:Timer,tone:"error"},MAINTENANCE_OVERDUE:{icon:TriangleAlert,tone:"error"},MAINTENANCE_DUE:{icon:AlarmClock,tone:"info"}} as const;
-export const supplierViews={suppliers:{icon:Building2},alerts:{icon:BellRing},performance:{icon:Gauge},advice:{icon:Lightbulb}} as const;
+export const supplierViews={suppliers:{icon:Building2},categories:{icon:relationStyle.category.icon},alerts:{icon:BellRing},performance:{icon:Gauge},advice:{icon:Lightbulb}} as const;
 export const adviceStyle={MATCH:{icon:UserCheck},DELAY_RISK:{icon:Timer},COST_ANOMALY:{icon:TrendingUp}} as const;
 export const adviceLevelStyle={HIGH:{icon:SignalHigh,tone:"warning"},MEDIUM:{icon:SignalMedium,tone:"info"},LOW:{icon:SignalLow,tone:"neutral"}} as const;

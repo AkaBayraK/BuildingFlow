@@ -12,6 +12,11 @@ public static class DefinitionEndpoints
         root.MapPut("/{listKey}/values/{code}", async (string listKey, string code, SaveDefinitionValueRequest request, IDefinitionStore store, CancellationToken token) =>
                 await store.SaveAsync(listKey, code, request, token) is { } value ? Results.Ok(value) : Results.NotFound())
             .RequireAuthorization("CanManageProperties");
+        var reasons = root.MapGroup("/dues-cancellation-reasons");
+        reasons.MapGet("", async (IDefinitionStore store, CancellationToken token) => Results.Ok(await store.CancellationReasonsAsync(token))).RequireAuthorization("CanManageHierarchy");
+        reasons.MapPost("", async (SaveCancellationReasonRequest request, IDefinitionStore store, CancellationToken token) => Results.Ok(await store.CreateCancellationReasonAsync(request, token))).RequireAuthorization("CanManageProperties");
+        reasons.MapPut("/{id:guid}", async (Guid id, SaveCancellationReasonRequest request, IDefinitionStore store, CancellationToken token) =>
+                await store.SaveCancellationReasonAsync(id, request, token) is { } value ? Results.Ok(value) : Results.NotFound()).RequireAuthorization("CanManageProperties");
         var area = app.MapGroup("/api/v1/properties/{propertyId:guid}/definitions").WithTags("Definitions");
         // Any active member reads the area's choices for forms; managers change them for their own areas only.
         area.MapGet("", async (Guid propertyId, IDefinitionStore store, ICurrentUserService user, CancellationToken token) =>

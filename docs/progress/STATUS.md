@@ -1,3 +1,7 @@
+## TNM 04 — 30.10.2026 — TAMAMLANDI
+
+TNM akışı 4/6=%66,67. Aidat iptal nedeni yönetimi (Tanımlar paneli, SUPER_ADMIN) ve tedarikçi kategorisi yeniden adlandırma/pasif (Tedarikçiler → Kategoriler).
+
 ## TNM 03 — 30.10.2026 — TAMAMLANDI
 
 TNM akışı 3/6=%50,00. `property_definition_settings`, alan tanımları API'si, 7 yazım noktasında koruma, 6 web formu etkin listeyi okuyor; Tanımlar ekranında Yönetim alanı görünümü. Alana özel ek değer (P_ kodu) ertelendi.

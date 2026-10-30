@@ -20,6 +20,7 @@ import {dashboardAreas,selectedDashboardArea} from "@/features/dashboard/area-se
 import {toolbarSelectClass} from "@/components/management/WorkspacePresentation";
 import type {Property} from "@/services/api";
 import {clearDefinitionCache} from "./useDefinitionOptions";
+import {CancellationReasonsPanel} from "./CancellationReasonsPanel";
 import {definitionBody,definitionEditorRole,definitionForm,definitionFormErrors,definitionGroups,definitionIconKeys,definitionLabelKey,definitionLevels,definitionRoles,definitionTones,definitionValuePath,definitionsPath,filterLists,maxDefinitionName,maxDefinitionOrder,overrideName,propertyDefinitionValuePath,propertyDefinitionsPath,readDefinitionValue,readDefinitions,readPropertyDefinitionValue,readPropertyDefinitions,sortedValues,type PropertyDefinitionList,type PropertyDefinitionValue,type PropertyDefinitions,type DefinitionForm,type DefinitionGroup,type DefinitionLevel,type DefinitionList,type DefinitionValue,type Definitions} from "./model";
 
 const panel="min-w-0 rounded-2xl border bg-card shadow-sm";
@@ -31,7 +32,7 @@ export function DefinitionsWorkspace(){
  const allowed=definitionRoles.some(role=>identity.hasRealmRole(role)),canEdit=identity.hasRealmRole(definitionEditorRole);
  const [data,setData]=useState<Definitions|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
  const [editing,setEditing]=useState<{list:DefinitionList;value:DefinitionValue;trigger:HTMLElement|null}|null>(null);
- const [mode,setMode]=useState<"SYSTEM"|"AREA">("SYSTEM");
+ const [mode,setMode]=useState<"SYSTEM"|"AREA">("SYSTEM"),[reasons,setReasons]=useState<HTMLElement|null|false>(false);
  const [group,setGroup]=useState<DefinitionGroup|"ALL">("ALL"),[level,setLevel]=useState<DefinitionLevel|"ALL">("ALL");
 
  const load=useCallback(async(signal?:AbortSignal)=>{
@@ -70,11 +71,12 @@ export function DefinitionsWorkspace(){
      <div className="flex items-center gap-2 font-medium"><span className="request-type-icon tone-blue"><Icon aria-hidden="true"/></span>{t(`catalog_${c.key}`)}</div>
      <p className="text-sm text-muted-foreground">{t(`catalogNote_${c.key}`)}</p>
      <div className="mt-auto flex flex-wrap items-center gap-2"><ToneBadge tone="neutral" icon={groupStyle[c.group].icon}>{t(`scope_${c.scope}`)}</ToneBadge>
-      {c.route?<Button asChild variant="view" size="sm"><Link href={c.route}><ExternalLink aria-hidden="true"/>{t("openCatalog")}</Link></Button>:<ToneBadge tone="warning" icon={Lock}>{t("catalogPlanned")}</ToneBadge>}</div>
+      {c.key==="DUES_CANCELLATION_REASONS"?<Button type="button" variant="view" size="sm" onClick={e=>setReasons(e.currentTarget)}><Pencil aria-hidden="true"/>{t(canEdit?"manageCatalog":"viewCatalog")}</Button>:c.route?<Button asChild variant="view" size="sm"><Link href={c.route}><ExternalLink aria-hidden="true"/>{t("openCatalog")}</Link></Button>:<ToneBadge tone="warning" icon={Lock}>{t("catalogPlanned")}</ToneBadge>}</div>
     </div>;})}</div>
    </section>}
   </>}
   </>}
+  {reasons!==false&&<CancellationReasonsPanel canEdit={canEdit} trigger={reasons} onClose={()=>setReasons(false)}/>}
   {editing&&<DefinitionEditor list={editing.list} value={editing.value} trigger={editing.trigger} onClose={()=>setEditing(null)} onSaved={saved=>setData(current=>current&&{...current,lists:current.lists.map(l=>l.key!==editing.list.key?l:{...l,values:l.values.map(v=>v.code===saved.code?saved:v)})})}/>}
  </div>;
 }

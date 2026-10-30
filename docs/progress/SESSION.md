@@ -1,3 +1,7 @@
+## TNM 04 — 30.10.2026 — TAMAMLANDI
+
+**TNM akışı 4/6=%66,67.** Davranış değişikliği: tedarikçi hizmet alanı listesi artık pasif kategorideki mevcut hizmetleri de gösterir (önce kategori pasif olamıyordu). Sonraki: TNM 05 (gider/ek ödeme kategorileri, bütçe/rapor etkisi) ayrı analiz onayı ister; TNM 06 mobil + kalite.
+
 ## TNM 03 — 30.10.2026 — TAMAMLANDI
 
 **TNM akışı 3/6=%50,00.** Kullanıcı Property mi tenant+Property mi sorusunu yanıtlamadan onayladı; öneri uygulandı (yalnız Property). Alan seviyesi yalnız PROPERTY listelerinde (ortak alan, talep kategorisi, bakım, duyuru); araç/anket/öncelik yalnız sistem. Alana özel ek değer (`P_` kodu) enum kolonları string'e çevrilmeden yapılamadığı için ertelendi; kullanıcıya soruldu. Sonraki: TNM 04 (mevcut kataloglar) onayı.

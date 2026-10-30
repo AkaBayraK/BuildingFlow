@@ -7,6 +7,8 @@ internal static class SupplierEndpoints
         app.MapGet("/api/v2/supplier-workspaces", async (ISupplierStore store, CancellationToken token, int page = 1, int pageSize = 20) => Results.Ok(await store.Workspaces(page, pageSize, token))).RequireAuthorization("CanManagePeople").WithTags("Suppliers");
         var catalog = app.MapGroup("/api/v2/tenants/{tenantId:guid}/supplier-categories").RequireAuthorization("CanManagePeople").WithTags("Suppliers");
         catalog.MapGet("", async (Guid tenantId, ISupplierRelationsStore store, CancellationToken token, int page=1, int pageSize=20) => Found(await store.Categories(tenantId,page,pageSize,token)));
+        catalog.MapGet("/manage", async (Guid tenantId, ISupplierRelationsStore store, CancellationToken token, int page=1, int pageSize=20) => Found(await store.ManageCategories(tenantId,page,pageSize,token)));
+        catalog.MapPut("/{id:guid}", async (Guid tenantId, Guid id, SupplierCategoryUpdate request, ISupplierRelationsStore store, CancellationToken token) => Found(await store.SaveCategory(tenantId,id,request,token)));
         catalog.MapPost("", async (Guid tenantId, SupplierCategoryRequest request, ISupplierRelationsStore store, CancellationToken token) => Found(await store.CreateCategory(tenantId,request,token)));
         app.MapGet("/api/v2/tenants/{tenantId:guid}/supplier-property-choices", async (Guid tenantId, ISupplierRelationsStore store, CancellationToken token, int page=1, int pageSize=20, Guid? supplierId=null) => Found(await store.Properties(tenantId,page,pageSize,token,supplierId))).RequireAuthorization("CanManagePeople").WithTags("Suppliers");
         var root = app.MapGroup("/api/v2/tenants/{tenantId:guid}/suppliers").RequireAuthorization("CanManagePeople").WithTags("Suppliers");

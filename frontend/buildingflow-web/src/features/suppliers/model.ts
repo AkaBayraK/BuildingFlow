@@ -33,3 +33,11 @@ export function readSupplierAreas(v:unknown,tenant:string,supplier:string):{item
  const items=v.items.map(x=>{if(!object(x)||!supplierId(x.id)||x.tenantId!==tenant||x.supplierId!==supplier||!supplierId(x.propertyId)||!supplierId(x.categoryId)||!text(x.propertyName,200)||!text(x.categoryName,100)||!text(x.serviceName,200))throw new Error("Invalid supplier area");return x as SupplierArea;});
  if(new Set(items.map(x=>x.id)).size!==items.length)throw new Error("Duplicate supplier area");return {...v,items} as {items:SupplierArea[];page:number;pageSize:number;totalCount:number};
 }
+
+// TNM 04: kategori yönetimi; pasif kategori yeni hizmet alanında seçilmez, bağlı hizmetler korunur.
+export type SupplierCategoryRow={id:string;name:string;isEnabled:boolean;serviceCount:number;version:number};
+export function readSupplierCategoryRow(v:unknown):SupplierCategoryRow{
+ const r=v&&typeof v==="object"?v as Record<string,unknown>:null;
+ if(!r||typeof r.id!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.id)||typeof r.name!=="string"||!r.name.trim()||r.name.length>100||typeof r.isEnabled!=="boolean"||!Number.isSafeInteger(r.serviceCount)||(r.serviceCount as number)<0||!Number.isSafeInteger(r.version)||(r.version as number)<1)throw Error("Invalid supplier category");
+ return {id:r.id,name:r.name,isEnabled:r.isEnabled,serviceCount:r.serviceCount as number,version:r.version as number};
+}

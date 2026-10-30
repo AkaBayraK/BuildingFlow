@@ -194,5 +194,7 @@ Validasyon sorunları BF_VALIDATION_FAILED+fieldIssues içinde kodlanabilir; ham
 | --- | --- | --- | --- |
 | BF_DEFINITION_INVALID | 400 (fieldIssues) | error | — |
 | BF_DEFINITION_LOCKED | 400 (fieldIssues) | warning | — |
+| BF_DEFINITION_UNAVAILABLE | 400 (fieldIssues) | error | — |
+| BF_DEFINITION_DUPLICATE | 409 | warning | — |
 
 Sürüm uyuşmazlığı mevcut `BF_RECORD_CHANGED` (409) ile döner. Ayrıntı [definitions.md](definitions.md).

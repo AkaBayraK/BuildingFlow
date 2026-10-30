@@ -53,8 +53,14 @@ public sealed record PropertyDefinitionListView(string Key, string Group, string
 public sealed record PropertyDefinitionsView(Guid PropertyId, IReadOnlyList<PropertyDefinitionListView> Lists);
 public sealed record SavePropertyDefinitionRequest(bool? IsHidden, int? SortOrder, long Version);
 
+public sealed record CancellationReasonAdminRow(Guid Id, string Code, string Name, bool RequiresExplanation, bool IsEnabled, bool Locked, int UsageCount, long Version);
+public sealed record SaveCancellationReasonRequest(string? Code, string? Name, bool? RequiresExplanation, bool? IsEnabled, long Version);
+
 public interface IDefinitionStore
 {
+    Task<IReadOnlyList<CancellationReasonAdminRow>> CancellationReasonsAsync(CancellationToken token);
+    Task<CancellationReasonAdminRow> CreateCancellationReasonAsync(SaveCancellationReasonRequest request, CancellationToken token);
+    Task<CancellationReasonAdminRow?> SaveCancellationReasonAsync(Guid id, SaveCancellationReasonRequest request, CancellationToken token);
     Task<DefinitionsView> ListAsync(CancellationToken token);
     Task<DefinitionValueView?> SaveAsync(string listKey, string code, SaveDefinitionValueRequest request, CancellationToken token);
     Task<PropertyDefinitionsView?> PropertyListAsync(Guid propertyId, AccessScope access, CancellationToken token);

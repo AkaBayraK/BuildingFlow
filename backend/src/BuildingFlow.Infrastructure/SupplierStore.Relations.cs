@@ -37,6 +37,39 @@ public sealed partial class SupplierStore
         if (await db.Set<SupplierCategory>().AnyAsync(x => x.TenantId == tenant && x.NameKey == key, token)) throw new HierarchyConflictException(ErrorCatalog.SupplierDuplicate.Create());
         var category = new SupplierCategory(tenant, c.Name, c.OperationId); db.Add(category); await db.SaveChangesAsync(token); await tx.CommitAsync(token); return new(category.Id, category.Name);
     }
+    // TNM 04: rename/disable keeps existing services; disabled categories are no longer offered for new area services.
+    public async Task<PagedRows<SupplierCategoryRow>?> ManageCategories(Guid tenant, int page, int pageSize, CancellationToken token)
+    {
+        Page(page, pageSize); await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, token);
+        if (!await Allowed(tenant, token)) return null;
+        var rows = db.Set<SupplierCategory>().AsNoTracking().Where(c => c.TenantId == tenant);
+        var total = await rows.CountAsync(token);
+        var items = await rows.OrderBy(x => x.NameKey).ThenBy(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(x => new SupplierCategoryRow(x.Id, x.Name, x.IsEnabled, db.Set<BuildingFlow.Domain.SupplierService>().Count(s => s.TenantId == tenant && s.CategoryId == x.Id), x.Version)).ToArrayAsync(token);
+        await tx.CommitAsync(token); return new(items, page, pageSize, total);
+    }
+    public async Task<SupplierCategoryRow?> SaveCategory(Guid tenant, Guid id, SupplierCategoryUpdate c, CancellationToken token)
+    {
+        var name = c.Name?.Trim();
+        if (string.IsNullOrEmpty(name) || name.Length > 100 || name.Any(char.IsControl)) InvalidSupplier("name");
+        if (c.IsEnabled is null) InvalidSupplier("isEnabled"); if (c.Version < 1) InvalidSupplier("version");
+        if (!await Allowed(tenant, token)) return null;
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM person_tenants WHERE id={tenant} FOR UPDATE", token);
+        if (!await Allowed(tenant, token)) return null;
+        var row = await db.Set<SupplierCategory>().SingleOrDefaultAsync(x => x.TenantId == tenant && x.Id == id, token); if (row is null) return null;
+        var services = await db.Set<BuildingFlow.Domain.SupplierService>().CountAsync(s => s.TenantId == tenant && s.CategoryId == id, token);
+        if (c.Version != row.Version)
+        {
+            if (row.Name == name && row.IsEnabled == c.IsEnabled) return new(row.Id, row.Name, row.IsEnabled, services, row.Version);
+            throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+        }
+        var key = name!.ToUpperInvariant();
+        if (key != row.NameKey && await db.Set<SupplierCategory>().AnyAsync(x => x.TenantId == tenant && x.NameKey == key && x.Id != id, token)) throw new HierarchyConflictException(ErrorCatalog.SupplierDuplicate.Create());
+        row.Rename(name); row.SetEnabled(c.IsEnabled!.Value);
+        await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        return new(row.Id, row.Name, row.IsEnabled, services, row.Version);
+    }
     public async Task<PagedRows<SupplierWorkspace>?> Properties(Guid tenant, int page, int pageSize, CancellationToken token, Guid? supplier = null)
     {
         Page(page, pageSize); await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, token);
@@ -56,7 +89,7 @@ public sealed partial class SupplierStore
                    join service in db.Set<ServiceEntity>() on new { link.TenantId, link.SupplierId, Id = link.ServiceId } equals new { service.TenantId, service.SupplierId, service.Id }
                    join category in db.Set<SupplierCategory>() on new { service.TenantId, Id = service.CategoryId } equals new { category.TenantId, category.Id }
                    join property in db.Properties on link.PropertyId equals property.Id
-                   where link.TenantId == tenant && link.SupplierId == supplier && link.IsEnabled && area.IsEnabled && service.IsEnabled && category.IsEnabled && scopes.Any(s => s.PropertyId == property.Id)
+                   where link.TenantId == tenant && link.SupplierId == supplier && link.IsEnabled && area.IsEnabled && service.IsEnabled && scopes.Any(s => s.PropertyId == property.Id)
                    select new { link.Id, PropertyId = property.Id, PropertyName = property.Name, CategoryId = category.Id, CategoryName = category.Name, ServiceName = service.Name };
         var total = await rows.CountAsync(token); var items = await rows.OrderBy(x => x.PropertyName).ThenBy(x => x.ServiceName).ThenBy(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize).ToArrayAsync(token);
         await tx.CommitAsync(token); return new(items.Select(x => new SupplierAreaRow(x.Id,tenant,supplier,x.PropertyId,x.PropertyName,x.CategoryId,x.CategoryName,x.ServiceName)).ToArray(), page, pageSize, total);

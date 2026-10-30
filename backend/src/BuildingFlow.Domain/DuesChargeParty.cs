@@ -31,7 +31,20 @@ public sealed class DuesCancellationReason : BaseEntity
     private DuesCancellationReason() { }
     public static readonly Guid OtherId = Guid.Parse("9c74d000-6001-4000-8000-000000000005");
     public static readonly Guid TenantMovedOutId = Guid.Parse("9c74d000-6001-4000-8000-000000000004");
+    public const int MaxCodeLength = 50, MaxNameLength = 100;
+    // TNM 04: administrators add reasons; charges keep their own code/name snapshot, so renaming never rewrites history.
+    public DuesCancellationReason(string code, string name, bool requiresExplanation)
+    {
+        Code = Required(code, nameof(code), MaxCodeLength);
+        Edit(name, requiresExplanation);
+    }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public bool RequiresExplanation { get; private set; }
+    public bool Locked => Id == OtherId || Id == TenantMovedOutId;
+    public void Edit(string name, bool requiresExplanation)
+    {
+        Name = Required(name, nameof(name), MaxNameLength);
+        RequiresExplanation = Locked ? Id == OtherId || RequiresExplanation : requiresExplanation;
+    }
 }

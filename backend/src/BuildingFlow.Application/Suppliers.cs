@@ -42,6 +42,8 @@ public sealed class SupplierService(ISupplierStore store)
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SupplierCategoryRequest(Guid OperationId, string Name);
+public sealed record SupplierCategoryUpdate(string? Name, bool? IsEnabled, long Version);
+public sealed record SupplierCategoryRow(Guid Id, string Name, bool IsEnabled, int ServiceCount, long Version);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SupplierAreaRequest(Guid OperationId, long Version, Guid PropertyId, Guid CategoryId, string ServiceName);
 public sealed record SupplierAreaRow(Guid Id, Guid TenantId, Guid SupplierId, Guid PropertyId, string PropertyName, Guid CategoryId, string CategoryName, string ServiceName);
@@ -49,6 +51,8 @@ public interface ISupplierRelationsStore
 {
     Task<PagedRows<SupplierWorkspace>?> Categories(Guid tenant, int page, int pageSize, CancellationToken token);
     Task<SupplierWorkspace?> CreateCategory(Guid tenant, SupplierCategoryRequest request, CancellationToken token);
+    Task<PagedRows<SupplierCategoryRow>?> ManageCategories(Guid tenant, int page, int pageSize, CancellationToken token);
+    Task<SupplierCategoryRow?> SaveCategory(Guid tenant, Guid id, SupplierCategoryUpdate request, CancellationToken token);
     Task<PagedRows<SupplierWorkspace>?> Properties(Guid tenant, int page, int pageSize, CancellationToken token, Guid? supplier = null);
     Task<PagedRows<SupplierAreaRow>?> Areas(Guid tenant, Guid supplier, int page, int pageSize, CancellationToken token);
     Task<SupplierMutation?> Link(Guid tenant, Guid supplier, SupplierAreaRequest request, CancellationToken token);
