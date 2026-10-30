@@ -29,6 +29,8 @@ internal sealed class StoredDocumentConfiguration : IEntityTypeConfiguration<Sto
     public void Configure(EntityTypeBuilder<StoredDocument> b)
     {
         BaseEntityConfiguration.Configure(b, "stored_documents");
+        b.Property(x => x.IsSupplierOnly).HasColumnName("is_supplier_only");
+        b.ToTable(t => t.HasCheckConstraint("ck_documents_supplier_private", "NOT is_supplier_only OR (audience = 'MANAGEMENT' AND announcement_id IS NULL)"));
         b.Property(x => x.PropertyId).HasColumnName("property_id");
         b.Property(x => x.RequestId).HasColumnName("request_id");
         b.Property(x => x.RequestFingerprint).HasColumnName("request_fingerprint").HasMaxLength(64);

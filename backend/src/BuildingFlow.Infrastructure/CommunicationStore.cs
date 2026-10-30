@@ -11,7 +11,7 @@ public sealed class CommunicationStore(BuildingFlowDbContext db, IFileStorage st
 {
     private IQueryable<Property> Properties(AccessScope scope) => db.Properties.Where(p => !p.IsDeleted && (scope.ReadAll || db.PropertyMemberships.Any(m => m.PropertyId == p.Id && m.UserId == scope.UserId && m.IsEnabled && !m.IsDeleted)));
     private IQueryable<Announcement> Announcements(Guid property, AccessScope scope, bool manager) => db.Announcements.AsNoTracking().Where(x => x.PropertyId == property && x.IsEnabled && Properties(scope).Any(p => p.Id == property) && (manager || (x.Status == AnnouncementStatus.PUBLISHED && x.Audience == ContentAudience.ALL_MEMBERS)));
-    private IQueryable<StoredDocument> Documents(Guid property, AccessScope scope, bool manager) => db.StoredDocuments.AsNoTracking().Where(x => x.PropertyId == property && x.IsEnabled && Properties(scope).Any(p => p.Id == property) && (x.AnnouncementId == null ? (manager || x.Audience == ContentAudience.ALL_MEMBERS) : Announcements(property, scope, manager).Any(a => a.Id == x.AnnouncementId)));
+    private IQueryable<StoredDocument> Documents(Guid property, AccessScope scope, bool manager) => db.StoredDocuments.AsNoTracking().Where(x => !x.IsSupplierOnly && x.PropertyId == property && x.IsEnabled && Properties(scope).Any(p => p.Id == property) && (x.AnnouncementId == null ? (manager || x.Audience == ContentAudience.ALL_MEMBERS) : Announcements(property, scope, manager).Any(a => a.Id == x.AnnouncementId)));
     private async Task<Property?> Lock(Guid property, AccessScope scope, CancellationToken token)
     {
         if (!await Properties(scope).AnyAsync(p => p.Id == property, token)) return null;
@@ -115,7 +115,7 @@ public sealed class CommunicationStore(BuildingFlowDbContext db, IFileStorage st
     public async Task<bool> DeleteAsync(Guid property, Guid id, long version, AccessScope access, CancellationToken token)
     {
         await using var tx = await db.Database.BeginTransactionAsync(token); var parent = await Lock(property, access, token); if (parent is null) return false;
-        var value = await db.StoredDocuments.SingleOrDefaultAsync(x => x.PropertyId == property && x.Id == id, token); if (value is null) return false;
+        var value = await db.StoredDocuments.SingleOrDefaultAsync(x => !x.IsSupplierOnly && x.PropertyId == property && x.Id == id, token); if (value is null) return false;
         Version(version, value.Version);
         if (value.AnnouncementId.HasValue) {
             var announcement = await db.Announcements.SingleAsync(x => x.PropertyId == property && x.Id == value.AnnouncementId, token);

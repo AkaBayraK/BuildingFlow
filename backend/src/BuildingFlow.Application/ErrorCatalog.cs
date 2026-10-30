@@ -91,6 +91,13 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SurveyAnswerInvalid = new("BF_SURVEY_ANSWER_INVALID", "Yanıtları kontrol edin: zorunlu soruları cevaplayın, yalnız sorunun seçeneklerini seçin, puanı 1–5 arasında verin ve metni en fazla 1000 karakter yazın.", "error");
     public static readonly ErrorDefinition SurveyAlreadyAnswered = new("BF_SURVEY_ALREADY_ANSWERED", "Bu anket için yanıtınız zaten kaydedildi; yanıtlar sonradan değiştirilemez.", "warning");
     public static readonly ErrorDefinition SurveyNotOpen = new("BF_SURVEY_NOT_OPEN", "Anket şu anda yanıta açık değil.", "warning");
+    public static readonly ErrorDefinition SupplierPropertyHistory = new("BF_SUPPLIER_PROPERTY_HISTORY", "Tedarikçi hizmet veya sözleşme geçmişi olan yönetim alanı silinemez.", "warning");
+    public static readonly ErrorDefinition SupplierContractState = new("BF_SUPPLIER_CONTRACT_STATE", "Sözleşme durumu, yenileme aralığı veya değişmez alanları bu işleme uygun değil.", "warning");
+    public static readonly ErrorDefinition SupplierQuoteState = new("BF_SUPPLIER_QUOTE_STATE", "Teklifin mevcut durumu bu işleme uygun değil.", "warning");
+    public static readonly ErrorDefinition SupplierWorkOrderState = new("BF_SUPPLIER_WORK_ORDER_STATE", "İş emrinin durumu, kaynak bağlantısı veya fotoğraf sınırı bu işleme uygun değil.", "warning");
+    public static readonly ErrorDefinition SupplierDocumentProtected = new("BF_SUPPLIER_DOCUMENT_PROTECTED", "Revizyon veya sözleşme geçmişi olan belge kaldırılamaz.", "warning");
+    public static readonly ErrorDefinition SupplierInvalid = new("BF_SUPPLIER_INVALID", "Tedarikçi adı, türü, durumu ve işlem bilgilerini kontrol edin.", "error");
+    public static readonly ErrorDefinition SupplierDuplicate = new("BF_SUPPLIER_DUPLICATE", "Bu yönetim kapsamında aynı adlı tedarikçi zaten mevcut.", "warning");
     public static readonly ErrorDefinition PlanInvalid = new("BF_PLAN_INVALID", "Planlama için 1–200 karakter başlık, geçerli tür, durum ve 2000–2100 arası tarih gerekli; açıklama en fazla 2000, konum ve sorumlu en fazla 200 karakter olabilir.", "error");
     public static readonly ErrorDefinition ParkingInvalid = new("BF_PARKING_INVALID", "Otopark alanlarını kontrol edin: plaka 2–12 harf/rakam, geçerli tür, tarih aralığı ve en fazla izin verilen uzunluklar.", "error");
     public static readonly ErrorDefinition ParkingPolicyRequired = new("BF_PARKING_POLICY_REQUIRED", "Önce bu yönetim alanı için otopark kurallarını (kota ve misafir süresi) kaydedin.", "warning");
@@ -320,6 +327,7 @@ public static class ErrorCatalog
     {
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
+        SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,
         SmsInvalid, SmsPhoneInvalid, SmsTemplateParameterInvalid, SmsAccountRequired, SmsCreditInsufficient, SmsTemplateConflict, SmsPhoneNotVerified,

@@ -9,7 +9,7 @@ set -a
 source .env
 set +a
 # Local runtime feature flags must not leak into test hosts, whose fixtures set their own defaults.
-for flag in $(compgen -v | grep '^PersonRefactor__' || true); do unset "$flag"; done
+for flag in $(compgen -v | grep -E '^(PersonRefactor|QaCenter)__' || true); do unset "$flag"; done
 if [ -d ../postgres-18.6 ]; then
   # Tests use their own temporary database and role on the shared server.
   shared_root="$(cd ../postgres-18.6 && pwd)"

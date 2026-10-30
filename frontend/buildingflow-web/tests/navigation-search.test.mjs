@@ -48,7 +48,7 @@ test('search never exposes finance, people or administration entries hidden by t
   assert.deepEqual(search('KİŞİLER'),role==='ACCOUNTANT'||role==='RESIDENT'?[]:['people']);
   assert.deepEqual(search('Aidat'),role==='RESIDENT'?[]:['dues']);
   assert.deepEqual(search('Kullanıcılar'),role==='SUPER_ADMIN'||role==='SITE_ADMIN'&&!sessionContexts?['users']:[]);
-  assert.deepEqual(search('Tanımlar'),[]);assert.deepEqual(search('Tedarikçiler'),[]);
+  assert.deepEqual(search('Tanımlar'),[]);assert.deepEqual(search('Tedarikçiler'),['MANAGER','SITE_ADMIN','SUPER_ADMIN'].includes(role)?['suppliers']:[]);
   assert.ok(m.groups.every(group=>group.items.length>0));
  }
  const resident=createNavigation(context({roles:['RESIDENT']}),'/');

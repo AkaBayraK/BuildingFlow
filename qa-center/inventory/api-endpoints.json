@@ -2,19 +2,19 @@
   {
     "Method": "GET",
     "Route": "/api/public/v1/domains/{host}",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
     "Method": "POST",
     "Route": "/api/public/v1/preview",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
     "Method": "POST",
     "Route": "/api/public/v1/preview/media/{id:guid}/{sha}",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
@@ -26,25 +26,25 @@
   {
     "Method": "POST",
     "Route": "/api/public/v1/sites/{siteKey}/inquiries/",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
     "Method": "GET",
     "Route": "/api/public/v1/sites/{siteKey}/inquiries/challenge",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
     "Method": "GET",
     "Route": "/api/public/v1/sites/{siteKey}/listings/",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
     "Method": "GET",
     "Route": "/api/public/v1/sites/{siteKey}/listings/{id:guid}",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
@@ -56,7 +56,7 @@
   {
     "Method": "GET",
     "Route": "/api/public/v1/sites/{siteKey}/primary-domain",
-    "Access": "PUBLIC_IMPLICIT",
+    "Access": "ANONYMOUS",
     "Policies": []
   },
   {
@@ -2903,6 +2903,14 @@
   },
   {
     "Method": "GET",
+    "Route": "/api/v2/supplier-workspaces",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/me/person",
     "Access": "AUTHORIZED",
     "Policies": [
@@ -3205,6 +3213,318 @@
   {
     "Method": "POST",
     "Route": "/api/v2/tenants/{tenantId:guid}/properties/{propertyId:guid}/units/{unitId:guid}/lease-contracts/{contractId:guid}/parties",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-property-choices",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/areas",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/areas",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts/{contractId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts/{contractId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts/{contractId:guid}/activate",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts/{contractId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/contracts/{contractId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/documents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/documents",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/documents/{documentId:guid}/download",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/documents/{documentId:guid}/remove",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/convert",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/quotes",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/quotes/{quoteId:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/quotes/{quoteId:guid}/reject",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/quote-candidates",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-order-sources",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/photos",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/work-orders/{orderId:guid}/transition",
     "Access": "AUTHORIZED",
     "Policies": [
       "CanManagePeople"

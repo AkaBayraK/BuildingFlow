@@ -1,5 +1,12 @@
 // Public code/parameter contract; translations live in messages/tr.json and en.json.
 export const errorCodes = {
+  "BF_SUPPLIER_PROPERTY_HISTORY":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_WORK_ORDER_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_QUOTE_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_CONTRACT_STATE":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_DOCUMENT_PROTECTED":{"status":409,"severity":"warning","parameters":[]},
+  "BF_SUPPLIER_INVALID":{"status":400,"severity":"error","parameters":[]},
+  "BF_SUPPLIER_DUPLICATE":{"status":409,"severity":"warning","parameters":[]},
   "BF_COMMON_AREA_MAINTENANCE_INVALID":{"status":400,"severity":"error","parameters":[]},
   "BF_COMMON_AREA_MAINTENANCE_CONFLICT":{"status":409,"severity":"warning","parameters":[]},
   "BF_COMMON_AREA_RESERVATION_CLOSED":{"status":409,"severity":"warning","parameters":[]},

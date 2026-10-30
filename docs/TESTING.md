@@ -1,3 +1,31 @@
+## TEDARİKÇİ FAZ06 — 30.10.2026 — GEÇTİ
+
+**Resmi3/3 tamamlandı.** `SupplierWorkOrderTests` (unit+API): talep/bakım kaynağı, kaynak version/foreign 404/409, tek açık iş emri, tam yaşam döngüsü, MANAGER doğrulama 403 ve SITE_ADMIN kapanış, UUID güncel replay/farklı içerik409, eşzamanlı geçiş 200+409, SLA'sız atama 400, adım atlama 409, boş gerekçe 400, kapanmış kaynakta yürütme 409/iptal, fotoğraf JPEG/PNG/10 sınırı/COMPLETED sonrası 409/özel indirme/kaldırma 409, immutable SQL negatifleri, ACCOUNTANT 403/anonim 401/üyelik kaldırma 404. `SupplierWorkOrderMigrationTests`: kurulum/yükseltme/Down guard. Kapsam kapısı için supplier testleri tam route metniyle yazıldı; ilan listesi/challenge/primary-domain anonim HTTP testi eklendi. **Tam regresyon Integration922/924 (2 opt-in) + Unit464/464; web330/330+typecheck+build; lisans329 PASS; kapsam kapısı GEÇTİ.** Gerçek tarayıcı UI kontrolü bu fazda yapılmadı. Rapor `docs/suppliers/06-report.md`.
+
+## TEDARİKÇİ FAZ06 — planlanan kabul — 30.10.2026
+
+Henüz çalıştırılmadı. Kaynak request/maintenance aynı Property/tenant ve version; aktif tek kaynak iş emri; sahte/foreign/silinmiş kaynak reddi; quote dönüşüm replay uyumu. Domain durum matrisi, SLA, gerekçeli red/iptal, completion/manager approval/close. UUID normalize güncel replay, eşzamanlı version yarışları, rol+üyelik+alan ve self-scope negatifleri. Fotoğraf JPEG/PNG imza/MIME/boyut,10 sınırı, SHA özel indirme, geçmiş belge koruması. Yeni model/migration/snapshot/tüm tablo audit, ilk/yükseltme/repeat/Down guard; web strict DTO/TR/EN/typecheck/build/322 regresyon+gerçek UI, lisans kontrolü. Talep veya bakımın mevcut durum akışı otomatik değiştirilmez. Her sonuç gerçek koşum sonrası yazılacak.
+
+## TEDARİKÇİ FAZ05 — 30.10.2026 — kabul kanıtı
+
+**Resmi2/2 tamamlandı.** `SupplierQuoteTests` unit: kesin KDV/yuvarlama/döviz/expiry/own-approval/original-entrant/final immutable/scope conversion. API: iki supplier, para birimi ayrımı, rol+üyelik+alan, normalize UUID güncel replay ve farklı içerik409, yarış, süre, gerekçe, tek DRAFT dönüşüm, immutable geçmiş. `SupplierQuoteMigrationTests`: yeni kurulum/yükseltme/repeat/boş Down/dolu Down; kategori composite/trigger,40 NOT NULL ortak kolon. Son **supplier+release+error Integration63/63+Unit21/21**, atlanan0; önceki geniş142/142+30/30 ayrı koşumdur. **Web322/322 + typecheck + production build**, model/snapshot eşit, lisans329 PASS. Gerçek React/sentetik API workflow ve375/768/masaüstü taşma0; final CSS görseli seeded sentetik fixture. Canlı OIDC browserE2E/native/yük/pentest çalıştırılmadı. Rapor `docs/suppliers/05-report.md`; yeni API `docs/api/suppliers.md`. Sonraki FAZ06 bu kanıta otomatik dahil değildir.
+
+## TEDARİKÇİ FAZ05 — Planlanan kabul — 29.10.2026
+
+Tenant/Property ve kategoriye uygun açıkça seçilen1–20 tedarikçi; alan/hizmet compositeFK. RFQ/version/UUID, teklif net+KDV+brüt iki ondalık ve TRY/USD/EUR grupları; kur dönüşümü yok. Farklı yöneticiyle gerekçeli onay/red, kendi kaydını onaylayamama, süresi dolmuş teklif ret, geçmiş değişmezliği; aynı onaylı tekliften tek DRAFT iş emri. Anonim/ACCOUNTANT/MANAGER karar yetkisi/foreign scope negatifleri, yarışlar, migration/audit/Down. Web karşılaştırma, i18n, ikonlu durumlar ve rol/409 akışları. Henüz çalıştırılmadı.
+
+## TEDARİKÇİ FAZ04 — 29.10.2026 — GEÇTİ
+
+**İzole PostgreSQL/fixture nesne deposu Integration90/90+Unit16/16, atlanan0; web316/316+typecheck+build; lisans329 PASS; EF model/snapshot aynı.** Dosya signature/MIME/uzantı/boyut, genel endpoint bypass ret, revizyon/sözleşme belge koruması, soft-delete/replay, sözleşme lifecycle/history/yenileme, eski belge snapshot ve alan silme engeli, legacy backfill/Down/audit kanıtlandı. Test bayrağı sızıntısı ve yanlış test rolü düzeltildi; son koşumlar yeniden çalıştırıldı. Gerçek React/sentetik API UI kabulü var; canlı OIDC/API E2E, mobil ve canlı DB migration yapılmadı. [Rapor](suppliers/04-report.md).
+
+## TEDARİKÇİ FAZ03 — 29.10.2026 — GEÇTİ
+
+Önceki tamamlanan koşum:**Integration57/57+Unit5/5,skipped0,web306/306+typecheck+build,lisans329PASS**. Çeviri namespace ve EFDTO sıralama hataları düzeltildikten sonraki sonuçlar. Yeni29.10 turunda yeniden çalıştırılmış sayılmaz; son tarayıcı görünümü yeniden okundu. [Kanıt](suppliers/03-report.md).
+
+## TEDARİKÇİ FAZ04 — Planlanan kabul
+
+Belge MIME/imza/uzantı/max10MiB; aktif üyelik+atama ve tenant/supplier/Property scope,management-only belge erişimi;SHA256/boyut,UUID replay/version,expiry/revision,belge silinmesi ve sözleşme geçmiş koruması. Sözleşme taslak/aktif/bitmiş/iptal,alan/hizmet ve yenileme tarihi/uyarı;immutable audit ve migration Down guard. Gerçek ayrıPG+fixtureS3;web form/indirme/409/locale. Henüz çalıştırılmadı.
+
 ## QA-13 — Tam regresyon — 28.10.2026 — TEKNİK TESLİM
 
 `bash scripts/test.sh --logger trx`: Integration 900/902 (2 opt-in atlandı), Unit 434/434 (havuz düzeltmesi öncesi iki koşum 399/504 FAIL, tümü 53300). Web 308/308+typecheck, mobil check 160/160, `qa-web.sh` PASS84/FAIL3/SKIPPED12, `qa-identity.sh` 11/11, lisans 329.
@@ -22,9 +50,25 @@
 
 Modül filtresi Integration 281/302 + Unit 237/237; 21 FAIL tekrarı 20/21 (53300 bağlantı sınırı flaky); Parking+QaCenter migration düzeltmesi sonrası 4/4. `test_qa_coverage_gate.py` 3/3; kapı HEAD envanterinde GEÇTİ, çalışma ağacında paralel tedarikçi endpoint'leriyle RED (beklenen).
 
+## TEDARİKÇİ FAZ02 — 28.10.2026 — GEÇTİ (canlı E2E ayrı)
+
+**İzoleAPI19/19+Unit2/2,web305/305+typecheck+build**. Çalışma alanı membership/rol/page; strictSupplierDTO/form/return-path/menü. GerçekReact sentetikAPI tarayıcı: boşform,gerekçe,create,search,pager,detail,409 reload/save,kapanışodağı,tekbildirim,ACCOUNTANTret;375ENkoyu/768TR/1200TR viewport. CanlıOIDC/API E2E ve otomatik overflow metriği doğrulanmadı. [Kanıt](suppliers/02-report.md).
+
+## TEDARİKÇİ FAZ03 — Planlanan kabul
+
+Aynı tenant kategori, çoklu yetkili Property ve hizmet eşleme; yabancı/pasif alan reddi ve ENFORCED atama, UUID/version yarışları, compositeFK, downgrade veri koruma; ilişkilerde yetkisiz alan adı/id sızmaması. Web ikonlu kategori/alan seçimi ve ilişki listesi. Henüz çalıştırılmadı.
+
 ## QA-07 — Mobil — 28.10.2026 — TEKNİK TESLİM
 
 `npm run check` 160/160 (iki kez), `npm run build` PASS. iOS simülatör: kurulum/açılış var, JS paketi bağlantısı başarısız (BLOKE). Android çalıştırılmadı (SDK yok).
+
+## TEDARİKÇİ FAZ01 — 28.10.2026 — GEÇTİ
+
+**Integration29/29+Unit2/2, skipped0**, izolePG/rol; tüm tablo model/şema sekiz NOTNULL, tenantFK/immutableUUID/upgrade/repeat/Down;401/403/404/400/409, ENFORCED, rol/üyelik/issuer, version/UUID yarışları. **Web301/301+typecheck+build, lisans329 PASS**. İlk test derlemesindeki Actor.Username eksikliği düzeltildi; son koşu yeniden çalıştırıldı. UIE2E bu veri/API fazında uygulanamaz; canlıDB migration/mobil/CI yapılmadı. [Kanıt](suppliers/01-report.md).
+
+## TEDARİKÇİ FAZ01 — Planlanan kabul — 28.10.2026
+
+Yeni model için sekiz zorunlu audit alanı, tenant/composite FK, kategori/hizmet/alan/belge uyumu, duplicate/version/UUID replay; anonim401, rol403, tenant/Property izolasyonu404, ENFORCED atama; izole PostgreSQL migration ilk/yükseltme/tekrar ve dolu Down guard. Henüz çalıştırılmadı. FAZ00 belge keşfi uygulama testi değildir.
 
 ## QA-06 — Finans zinciri — 28.10.2026 — TEKNİK TESLİM
 

@@ -29,7 +29,7 @@ export function readContentPage<T extends {id:string}>(v:unknown,read:(row:unkno
 export function validFile(file:{name:string;size:number;type:string}):boolean{
  const extension=file.name.split('.').pop()?.toLowerCase();return !!file.name.trim()&&file.name.length<=200&&!/[\\/\x00-\x1f\x7f]/.test(file.name)&&Number.isSafeInteger(file.size)&&file.size>0&&file.size<=maxFileBytes&&(file.type==="application/pdf"?extension==="pdf":file.type==="image/png"?extension==="png":file.type==="image/jpeg"&&(extension==="jpg"||extension==="jpeg"));
 }
-export async function verifyDownload(blob:Blob,file:DocumentRecord):Promise<boolean>{
+export async function verifyDownload(blob:Blob,file:Pick<DocumentRecord,"size"|"contentType"|"sha256">):Promise<boolean>{
  if(blob.size!==file.size||blob.size>maxFileBytes||blob.type!==file.contentType)return false;
  const digest=await crypto.subtle.digest("SHA-256",await blob.arrayBuffer());return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("").toUpperCase()===file.sha256;
 }

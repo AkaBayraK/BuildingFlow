@@ -1,6 +1,37 @@
+## TEDARİKÇİ FAZ06 — 30.10.2026 — TAMAMLANDI
+
+#96 resmi3/3=%100,00; akış7/13=%53,85. İş emri yaşam döngüsü, talep/bakım bağlantısı, SLA, fotoğraf, onay/kapanış. Tam regresyon Integration922/924+Unit464/464, web330/330+build, kapsam kapısı GEÇTİ. Rapor `docs/suppliers/06-report.md`.
+
+## TEDARİKÇİ FAZ06 — 30.10.2026 — geliştirme ara kaydı
+
+**Resmi0/3=%0,00; akış6/13=%46,15.** Domain durum/SLA/kaynak/fotoğraf ve backend API eklendi; yeni `20261030052649_SupplierWorkOrders` migration+snapshot, legacy quote DRAFT backfill/audit/version koruması, iki yeni BaseEntity tablo, immutable kaynak/zaman çizgisi/fotoğraf ve dolu Down guard. İlk entegrasyon koşumu test parantezinde derlenemedi; düzeltme sonrası **Integration38/38+Unit32/32, atlanan0** (`/tmp/bf-supplier06-tests2.log`). Sonrasında source-choice tenant/property alanları ve geçiş gerekçesinin audit snapshot'a yazımı güçlendirildi; son regresyonda yeniden doğrulanacak. Backend build0hata/0uyarı; lisans329PASS. Web `SupplierWorkOrders`, `WorkOrderSourceForm`, `WorkOrderPhotos`, strict model, status/style, quote→workorder bağlantısı ve TR/EN eklendi; typecheck geçti, UI gerçek tarayıcı/son build henüz yapılmadı. Yeni paket/canlı migration/commit/push yok. #96 açık. Sonraki: frontend negatif testleri, busy/409/odak ve gerçek React/sentetik API; backend source/gerekçe/regresyon son koşumu. Önceki05 kanıtı06 kabulü değildir.
+
+## TEDARİKÇİ FAZ06 — 30.10.2026 — DEVAM EDIYOR
+
+#96; resmi0/3=%0,00, önceki tamamlanan akış6/13=%46,15. Mevcut MobileRequest ve MaintenancePlan kaynaklarından version kontrollü iş emri; quote DRAFT temeli korunur. Durum DRAFT→ASSIGNED→ACCEPTED→IN_PROGRESS→COMPLETED→VERIFIED→CLOSED; gerekçeli red/iptal, SLA, özel fotoğraf ve immutable audit. Kabul/başlatma iç yönetici kaydıdır; dış supplier portalı yok. Son onay SITE_ADMIN/SUPER_ADMIN gerçek alan yetkisiyle; talep/bakım durumuna otomatik sonuç yazılmaz. Kaynak anlık metni saklanır. Yeni paket yok; canlı DB ve diğer çalışma korunur.
+
+## TEDARİKÇİ FAZ05 — 30.10.2026 — TAMAMLANDI
+
+**#95; resmi2/2=%100,00; akış6/13=%46,15.** Çoklu davet/teklif, kesin KDV ve TRY/USD/EUR ayrı karşılaştırma; ilk girenden ayrı alan yetkili onay/red, immutable audit, normalize UUID/version/kilit, tek gerçek DRAFT iş emri. Son koşum **Integration63/63+Unit21/21**, önceki geniş142/142+30/30; **web322/322+typecheck+production build**, EF model/snapshot aynı, lisans329 PASS. Gerçek React/sentetik API workflow ve375/768/masaüstü taşma0; canlı OIDC/API browserE2E değildir. Beş tablo migration canlıya uygulanmadı. Rapor `docs/suppliers/05-report.md`; kaynak `docs/api/suppliers.md`. Yeni paket/commit/push/deploy yok; diğer QA/güvenlik çalışması ve kullanıcı verisi korundu. Sonraki FAZ06 mevcut kullanıcı yetkisiyle. Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL.
+
+Ürün yol haritası:37 kayıt,157/168=%93,45. Codex usage/rateLimitsByLimitId.codex30.10.2026 okuması:300dk kullanılan%5/kalan%95,reset30.10.2026 13:12:31;10080dk kullanılan%63/kalan%37,reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+
 ## Güvenlik — fallback yetki politikası ve pentest — 29.10.2026
 
 Varsayılan yetki "giriş zorunlu"; 13 public API + health açıkça AllowAnonymous; anonim allowlist testi. Regresyon Integration908/910 (2 opt-in)+Unit453/453. `scripts/qa_pentest.py` yerel API: 429 endpoint/505 kontrol, critical/high/medium/low 0, info 1 (Development rate limit kapalı). Rapor `qa-center/reports/security-pentest.md`. Token: BİLGİ MEVCUT DEĞİL.
+
+## TEDARİKÇİ FAZ05 — 29.10.2026 — DEVAM EDIYOR
+
+#95; teklif talebi, çoklu tedarikçi, KDV/para birimi karşılaştırma, gerekçeli onay/red ve onaylı tekliften taslak iş emri. Resmi0/2=%0,00; önceki tamamlanan faz5/13=%38,46. FAZ05'in dönüşüm kabulü için yalnız DRAFT iş emri temeli eklenecek; tam iş emri yaşam döngüsü FAZ06'dır. Yeni bağımlılık yok. Diğer işin QA commitleri ve kullanıcı verileri korunur.
+
+## TEDARİKÇİ FAZ04 — 29.10.2026 — TAMAMLANDI
+
+#94. Özel belge upload/download/revizyon/expiry ve korumalı kaldırma; alan/hizmet bazlı sözleşme taslak/edit/aktif/iptal/yenileme ve immutable geçmiş eklendi. Genel belge endpoint bypass engeli ve property geçmiş koruması var. Son koşum **Integration90/90+Unit16/16, atlanan0; web316/316+typecheck+build; lisans329 PASS**, EF model/snapshot aynı. Sentetik API/gerçek React tarayıcı kanıtları `docs/suppliers/evidence/04-*`; canlı OIDC E2E değildir. Rapor `docs/suppliers/04-report.md`. Yeni paket yok; canlı DB migration/API restart/mobil/deploy/commit/push yok. Resmi2/2=%100,00; akış5/13=%38,46. Sonraki FAZ05 mevcut kullanıcı yetkisiyle. Giriş/çıkış/toplam token ve kalan context: BİLGİ MEVCUT DEĞİL.
+
+## TEDARİKÇİ FAZ03 — 29.10.2026 — TAMAMLANDI
+
+#93;alan/kategori/hizmet ilişkileri,tenant+Property+serviceFK,yetkili alan listesi,atama/version/UUID. Önceki son koşumIntegration57/57+Unit5/5,skipped0;web306/306+typecheck+build;lisans329PASS.29.10'da sonUIgörünümü tekrar okundu;iki alan+hizmet+yeni kategori PNG. CanlıOIDC E2E/DBmigration/deploy yok. Rapor`docs/suppliers/03-report.md`.Resmi2/2=%100,00;akış4/13=%30,77. SonrakiFAZ04,kullanıcı devam yetkisi mevcut. Token giriş/çıkış/toplam/context:BİLGİ MEVCUT DEĞİL.
 
 ## QA kapanış turu — 29.10.2026
 
@@ -30,9 +61,21 @@ Test Merkezi SUPER_ADMIN Sistem Yönetimi menüsünde; yerel API `.env` ile Test
 
 **#104.** Modül paketleri ilk koşum 281/302; 20 FAIL paylaşılan PG bağlantı sınırı (53300) flaky, tek başına tekrar PASS; ParkingMigrationTests retention testi QaCenterRuns sonrası `migrations[^2]` varsayımıyla kırılmıştı, isimle bağlandı (4/4 PASS). Yeni `qa_coverage_gate.py` ratchet + CI; paralel tedarikçi kodundaki 2 testsiz endpoint'i yakaladı. Rapor `qa-center/reports/phase-08.md`. Token: BİLGİ MEVCUT DEĞİL.
 
+## TEDARİKÇİ FAZ02 — 28.10.2026 — TAMAMLANDI (canlı E2E ayrı)
+
+Dal buildingflow_tedarikci; #92. `/suppliers` yetkili tenant seçimi, liste/arama/sıralama/sayfalama/ikonlu durum, ortak sağ form/detay,version/UUID/409 kurtarma,TR/EN. API19/19+Unit2/2;web305/305+typecheck+build. Sentetik API ile gerçekReactUI375ENkoyu/768TR/1200TR;boşform/gerekçe/oluştur/arama/sayfalama/detay/409/odak/ACCOUNTANT kontrolü. Yeni paket/migration yok; gerçekOIDC APIbrowserE2E/mobil/canlıDB/deploy yok. Kanıt `docs/suppliers/02-report.md`,evidencePNG. Resmi3/3=%100,00; akış3/13=%23,08. SonrakiFAZ03 mevcut kullanıcı yetkisiyle. Token giriş/çıkış/toplam/context:BİLGİ MEVCUT DEĞİL.
+
 ## QA FAZ 07 — Mobil ve offline-first — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 
 **#103.** Mobil check 160/160 + build PASS; `eas.json` `qa` profili; mobil rol kapıları envanteri. iOS simülatörde mevcut dev build kuruldu ama Metro paketine bağlanamadı (BLOKE, kanıt `artifacts/qa/qa-mobile-ios/`); Android SDK yok. Rapor `qa-center/reports/phase-07.md`. Token: BİLGİ MEVCUT DEĞİL.
+
+## TEDARİKÇİ FAZ01 — 28.10.2026 — TAMAMLANDI
+
+Dal `buildingflow_tedarikci`; #90 keşif tamamlandı; #91 temel7tablo/API/migration. Integration29/29+Unit2/2, skipped0; web301/301+typecheck+build; lisans329 PASS; tüm tablo audit ve model/migration sözleşmesi GEÇTİ. Rapor `docs/suppliers/01-report.md`; API `docs/api/suppliers.md`. ResmiFAZ01 3/3=%100,00; akış2/13=%15,38. #92–#102 açık. CanlıDB/mobil/runtime/deploy yok. Sonraki FAZ02 mevcut kullanıcı yetkisiyle. Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL.
+
+## TEDARİKÇİ — 28.10.2026 — DEVAM EDIYOR
+
+Kullanıcı 13 fazlı tedarikçi planının sıralı uygulanmasını ve GitHub checklist takibini istedi. Dal `buildingflow_tedarikci`; mevcut untracked `buildingflow_tedarikci/` ve `graphify-out/` korunur. Kaynak `buildingflow_tedarikci/PHASES.md` (13 faz/38 resmi madde). FAZ00 keşif raporu `docs/suppliers/00-report.md`; GitHub #90 keşif, #91 temel model; sonraki faz issue oluşturma sürüyor. Yeni paket veya canlı DB değişikliği yok. Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL. Başlangıç Codex usage 300dk kullanılan%1/kalan%99,10080dk%16/%84; hesap kotası sohbet tüketimi değildir.
 
 ## QA FAZ 06 — Finans E2E — 28.10.2026 — TEKNİK TESLİM / KABUL BEKLİYOR
 

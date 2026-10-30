@@ -1,3 +1,32 @@
+## TEDARİKÇİ FAZ06 — 30.10.2026 — TAMAMLANDI
+
+- Talep/arıza ve bakım planından iş emri; durum makinesi, SLA, gerekçeli red/iptal, özel fotoğraf kanıtı, SITE_ADMIN doğrulama/kapanış ve immutable geçmiş (`20261030052649_SupplierWorkOrders`).
+- Supplier entegrasyon testleri tam route metniyle yazıldı; ilan listesi, form challenge ve birincil alan adı için anonim HTTP testi eklendi; kapsam tabanı 230→190.
+- Yol haritası SUP-06.
+
+## TEDARİKÇİ FAZ05 — 30.10.2026 — TAMAMLANDI
+
+**#95; resmi2/2=%100,00; akış6/13=%46,15.** Çoklu davet/teklif, kesin KDV ve TRY/USD/EUR ayrı karşılaştırma; ilk girenden ayrı alan yetkili onay/red, immutable audit, normalize UUID/version/kilit, tek gerçek DRAFT iş emri. Son koşum **Integration63/63+Unit21/21**, önceki geniş142/142+30/30; **web322/322+typecheck+production build**, EF model/snapshot aynı, lisans329 PASS. Gerçek React/sentetik API workflow ve375/768/masaüstü taşma0; canlı OIDC/API browserE2E değildir. Beş tablo migration canlıya uygulanmadı. Rapor `docs/suppliers/05-report.md`; kaynak `docs/api/suppliers.md`. Yeni paket/commit/push/deploy yok; diğer QA/güvenlik çalışması ve kullanıcı verisi korundu. Sonraki FAZ06 mevcut kullanıcı yetkisiyle. Token giriş/çıkış/toplam/context: BİLGİ MEVCUT DEĞİL.
+
+Ürün yol haritası:37 kayıt,157/168=%93,45. Codex usage/rateLimitsByLimitId.codex30.10.2026 okuması:300dk kullanılan%5/kalan%95,reset30.10.2026 13:12:31;10080dk kullanılan%63/kalan%37,reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+
+## 29.10.2026 — Tedarikçi FAZ04
+
+Özel belge/revizyon ve sözleşme API/UI, SupplierDocumentsContracts migration, immutable geçmiş ve mahremiyet koruması eklendi. Test koşumunda yerel QaCenter bayrağı temizliği düzeltildi; .env korunur. [Kabul kanıtı](../suppliers/04-report.md).
+
+## 29.10.2026 — Tedarikçi FAZ03
+
+SupplierAreaServices migration;çoklu alan/hizmet ve kategori API/UI;yetkili alan filtreleme,atama/version/UUID ve doluDown koruması. EF ilişki sorgusu ve roadmap çeviri namespace düzeltildi.[Kanıt](../suppliers/03-report.md).
+
+## 28.10.2026 — Tedarikçi FAZ02
+
+Yetkili workspace API ve `/suppliers` liste/form/detay,ikonlu durum,TR/EN,OIDC dönüşü.409 tekbildirim ve panelodak düzeltildi. [Kanıt](../suppliers/02-report.md).
+
+## 28.10.2026 — Tedarikçi FAZ01
+
+Tenant katalog ve7BaseEntity tablo, SupplierFoundation eklemeli migration, yönetici scoped API, version/UUID replay, iki hata kodu TR/EN. Integration29+Unit2 ve web301/typecheck/build doğrulandı; yeni bağımlılık yok. [Rapor](../suppliers/01-report.md).
+
 ## BAKIM main Otopark — onaylı yerel devreye alma — 28.10.2026
 
 Kullanıcı dört migration ve API yeniden başlatmayı açıkça onayladı. **ADIM03/03 TAMAMLANDI; bakım3/3=%100,00.** Yerel main/.env DB üzerinde EF Core `database update 20261027205401_ParkingRetentionRedaction --no-build` başarılı: ParkingFoundation, ParkingRequestIds, ParkingMaintenanceClosures, ParkingRetentionRedaction uygulandı. Son `migrations list --no-build`: **bekleyen0**. Yalnız bu projeye ait API güvenli `api-stop` ile durduruldu ve standart `bash scripts/dev.sh api` ile başlatıldı. **localhost:5005/health ve /health/live HTTP200; anonim parking/policy HTTP401.** Chrome gerçek localhost:3003 oturumunda Araçlar/Otopark etkin link ve property parking rotası görüldü. Sonrasında kullanıcı başka pencereye geçtiği için özel oturumda parking içerik etkileşimi yapılmadı; veri yazan E2E bu tur çalıştırılmadı. Önceki559 test bu tur tekrar çalışmış sayılmaz. Yeni paket/kod/commit/push yok; mevcut hesap parolası ve kullanıcı kayıtları değiştirilmedi.

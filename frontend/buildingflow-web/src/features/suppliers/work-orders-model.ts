@@ -1,0 +1,41 @@
+import {supplierId,readSupplier} from "./model.ts";
+import {readSupplierFile,type SupplierFile} from "./documents-model.ts";
+import {currencies,quoteCents,type QuoteCurrency} from "./quotes-model.ts";
+import {workOrderStatuses,type WorkOrderStatus} from "./work-order-status.ts";
+import {calendarDay} from "../maintenance/model.ts";
+export const workOrderSources=["QUOTE","REQUEST","MAINTENANCE"] as const;
+export type WorkOrderSource=typeof workOrderSources[number];
+export type WorkOrder={id:string;tenantId:string;supplierId:string;propertyId:string;propertyName:string;areaServiceId:string;serviceName:string;title:string;description:string;source:WorkOrderSource;inquiryId:string|null;quoteId:string|null;requestId:string|null;maintenancePlanId:string|null;sourceVersion:number|null;sourceSnapshot:string;amount:string|null;currency:QuoteCurrency|null;status:WorkOrderStatus;dueAt:string|null;isOverdue:boolean;assignedAt:string|null;acceptedAt:string|null;startedAt:string|null;completedAt:string|null;verifiedAt:string|null;closedAt:string|null;completionNote:string|null;decisionReason:string|null;photoCount:number;version:number;createdAt:string;modifiedAt:string};
+export type WorkOrderSourceChoice={id:string;tenantId:string;propertyId:string;source:"REQUEST"|"MAINTENANCE";description:string;version:number};
+export const workOrderActions=["CREATE","EDIT","PHOTO","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","VERIFIED","CLOSED","REJECTED","CANCELLED"] as const;
+export type WorkOrderAction=typeof workOrderActions[number];
+export type WorkOrderPhoto={id:string;file:SupplierFile;caption:string;createdAt:string};
+const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
+const integer=(v:unknown,min=0)=>Number.isSafeInteger(v)&&Number(v)>=min;
+const text=(v:unknown,max:number):v is string=>typeof v==="string"&&!!v.trim()&&v.length<=max&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v);
+const idOrNull=(v:unknown)=>v===null||supplierId(v);
+const stamp=(v:unknown):v is string=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$/.test(v)&&calendarDay(v.slice(0,10))&&Number.isFinite(Date.parse(v));
+export function readWorkOrder(v:unknown,tenant:string,supplier:string,expectedId?:string):WorkOrder{
+ if(!object(v)||!supplierId(v.id)||expectedId&&v.id!==expectedId||v.tenantId!==tenant||v.supplierId!==supplier||!supplierId(v.propertyId)||!supplierId(v.areaServiceId)||!text(v.propertyName,200)||!text(v.serviceName,200)||!text(v.title,200)||!text(v.description,4000)||!text(v.sourceSnapshot,4000)||!workOrderSources.includes(v.source as WorkOrderSource)||!workOrderStatuses.includes(v.status as WorkOrderStatus)||!integer(v.version,1)||!integer(v.photoCount)||Number(v.photoCount)>10||!stamp(v.createdAt)||!stamp(v.modifiedAt)||typeof v.isOverdue!=="boolean")throw new Error("Invalid work order scope");
+ for(const key of ["inquiryId","quoteId","requestId","maintenancePlanId"])if(!idOrNull(v[key]))throw new Error("Invalid work source ID");
+ if(v.source==="QUOTE"){
+  if(!supplierId(v.inquiryId)||!supplierId(v.quoteId)||v.requestId!==null||v.maintenancePlanId!==null||v.sourceVersion!==null||quoteCents(v.amount)===null||quoteCents(v.amount)! <=BigInt(0)||!currencies.includes(v.currency as QuoteCurrency))throw new Error("Invalid quote order snapshot");
+ }else if(v.inquiryId!==null||v.quoteId!==null||!integer(v.sourceVersion,1)||v.amount!==null||v.currency!==null||v.source==="REQUEST"&&(!supplierId(v.requestId)||v.maintenancePlanId!==null)||v.source==="MAINTENANCE"&&(!supplierId(v.maintenancePlanId)||v.requestId!==null))throw new Error("Invalid source order snapshot");
+ const times=["dueAt","assignedAt","acceptedAt","startedAt","completedAt","verifiedAt","closedAt"];
+ for(const key of times)if(v[key]!==null&&!stamp(v[key]))throw new Error("Invalid work order time");
+ if(v.dueAt!==null&&(String(v.dueAt).slice(0,4)<"2000"||String(v.dueAt).slice(0,4)>"2100"))throw new Error("Invalid SLA deadline");
+ const stages=["DRAFT","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","VERIFIED","CLOSED"],level=stages.indexOf(String(v.status));
+ const timeline=[v.assignedAt,v.acceptedAt,v.startedAt,v.completedAt,v.verifiedAt,v.closedAt];
+ if(level>=0&&timeline.slice(level).some(x=>x!==null)||v.status==="REJECTED"&&(!stamp(v.assignedAt)||timeline.slice(1).some(x=>x!==null))||v.status==="CANCELLED"&&(v.verifiedAt!==null||v.closedAt!==null))throw new Error("Unexpected workflow timestamp");
+ if(v.assignedAt!==null&&(!stamp(v.dueAt)||!stamp(v.assignedAt)||Date.parse(v.dueAt)<=Date.parse(v.assignedAt)))throw new Error("Missing assignment SLA");
+ for(let n=0;n<timeline.length;n++){if(level>n&&!stamp(timeline[n]))throw new Error("Missing workflow timestamp");if(timeline[n]!==null&&n>0&&(!stamp(timeline[n-1])||Date.parse(String(timeline[n]))<Date.parse(String(timeline[n-1]))))throw new Error("Invalid workflow timeline");}
+ if(v.completionNote!==null&&!text(v.completionNote,4000)||v.completedAt!==null&&v.completionNote===null||v.completedAt===null&&v.completionNote!==null||v.decisionReason!==null&&!text(v.decisionReason,1000)||["REJECTED","CANCELLED"].includes(String(v.status))&&v.decisionReason===null||!["REJECTED","CANCELLED"].includes(String(v.status))&&v.decisionReason!==null||v.isOverdue&&(!["ASSIGNED","ACCEPTED","IN_PROGRESS"].includes(String(v.status))||!stamp(v.dueAt)))throw new Error("Invalid work order outcome");
+ return v as WorkOrder;
+}
+export function readWorkOrderMutation(v:unknown,tenant:string,supplier:string,id?:string){if(!object(v)||typeof v.replayed!=="boolean"||!integer(v.appliedVersion,1))throw new Error("Invalid work order mutation");const record=readWorkOrder(v.record,tenant,supplier,id),parent=readSupplier(v.supplier,tenant);if(parent.id!==supplier||Number(v.appliedVersion)>record.version||!v.replayed&&v.appliedVersion!==record.version)throw new Error("Invalid work order version");return {record,supplier:parent,replayed:v.replayed,appliedVersion:Number(v.appliedVersion)};}
+export function readWorkOrderSource(v:unknown,tenant:string,property:string,source:string):WorkOrderSourceChoice{if(!object(v)||!supplierId(v.id)||v.tenantId!==tenant||v.propertyId!==property||v.source!==source||!["REQUEST","MAINTENANCE"].includes(String(v.source))||!text(v.description,4000)||!integer(v.version,1))throw new Error("Invalid work source");return v as WorkOrderSourceChoice;}
+export function readWorkOrderPhoto(v:unknown,tenant:string,supplier:string,property:string):WorkOrderPhoto{if(!object(v)||!supplierId(v.id)||!text(v.caption,1000)||!stamp(v.createdAt))throw new Error("Invalid work photo");const file=readSupplierFile(v.file,tenant,supplier);if(file.propertyId!==property||!["image/jpeg","image/png"].includes(file.contentType))throw new Error("Invalid work photo scope");return {id:v.id,file,caption:v.caption,createdAt:v.createdAt};}
+export function readWorkOrderHistory(v:unknown){if(!object(v)||!supplierId(v.id)||!workOrderActions.includes(v.action as WorkOrderAction)||!integer(v.appliedVersion,1)||typeof v.snapshot!=="string"||v.snapshot.length>20000||!stamp(v.createdAt))throw new Error("Invalid work history");let reason:string|null=null;try{const snapshot:unknown=JSON.parse(v.snapshot);if(object(snapshot)&&text(snapshot.Reason,4000))reason=snapshot.Reason;}catch{throw new Error("Invalid work history snapshot");}return {id:v.id,action:v.action as WorkOrderAction,appliedVersion:Number(v.appliedVersion),createdAt:v.createdAt,reason};}
+/** datetime-local is explicitly interpreted in Europe/Istanbul (UTC+03), with no host timezone inference. */
+export function workOrderInstant(value:string){if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)||!calendarDay(value.slice(0,10))||Number(value.slice(11,13))>23||Number(value.slice(14,16))>59||value.slice(0,4)<"2000"||value.slice(0,4)>"2100")return null;return new Date(value+":00+03:00").toISOString();}
+export function workOrderLocalTime(value:string|null){if(!value)return "";const parts=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Istanbul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date(value));const p=(key:string)=>parts.find(v=>v.type===key)?.value;return `${p("year")}-${p("month")}-${p("day")}T${p("hour")}:${p("minute")}`;}

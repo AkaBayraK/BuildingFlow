@@ -4,18 +4,18 @@
 
 | Kalem | Sayı |
 |---|---|
-| API endpoint (çalışma zamanı) | 398 |
-| Yetkili / açık anonim / public prefix | 385 / 5 / 8 |
-| Web çağrısı: tam eşleşme / yalnız taban yol | 131 / 212 |
+| API endpoint (çalışma zamanı) | 438 |
+| Yetkili / açık anonim / public prefix | 425 / 13 / 0 |
+| Web çağrısı: tam eşleşme / yalnız taban yol | 137 / 247 |
 | Mobil çağrısı: tam eşleşme / yalnız taban yol | 20 / 30 |
-| Backend testlerinde route metni geçen endpoint | 186 |
-| Web/mobilde tam eşleşmesi olmayan endpoint | 242 |
-| Hiç tüketicisi bulunmayan endpoint | 12 |
-| Web sayfası | 55 |
-| Menü bağlantısı / planlı menü | 8 / 2 |
+| Backend testlerinde route metni geçen endpoint | 248 |
+| Web/mobilde tam eşleşmesi olmayan endpoint | 284 |
+| Hiç tüketicisi bulunmayan endpoint | 19 |
+| Web sayfası | 57 |
+| Menü bağlantısı / planlı menü | 10 / 1 |
 | Mobil ekran | 9 |
 | Mobil sekme: her zaman / bağlı kişi gerekir / gizli | 2 / 4 / 1 |
-| DB tablosu (EF snapshot) | 108 |
+| DB tablosu (EF snapshot) | 129 |
 
 ## Web sayfaları ve statik sinyaller
 
@@ -67,8 +67,10 @@
 | `/sites/[id]` | - | 0 | - |
 | `/sites/[id]/blocks/[blockId]` | - | 0 | - |
 | `/sms` | navigation | 3 | filter, paging, search |
+| `/suppliers` | suppliers | 5 | create, export, filter, form, paging, search, update |
 | `/surveys` | navigation | 3 | filter, paging, search |
-| `/system-settings` | online-payments, system-status | 3 | create, export, filter, form, paging, search, update |
+| `/system-settings` | online-payments, qa-center, system-status | 4 | create, export, filter, form, paging, search, update |
+| `/system-settings/qa-center` | qa-center | 1 | create, filter, paging, search, update |
 | `/units` | navigation | 3 | filter, paging, search |
 | `/users` | users | 8 | create, delete, filter, form, paging, search, update |
 | `/website` | navigation | 3 | filter, paging, search |
@@ -77,26 +79,44 @@
 | `/workspaces/[kind]/[id]` | person-center, session-workspaces | 10 | create, filter, form, paging, search, update |
 | `/workspaces/portfolio` | my-portfolio | 7 | create, export, filter, form, paging, search |
 
+## Mobil rol kapıları (statik: kaynakta geçen rol/ilişki adları)
+
+| Modül/ekran | Roller |
+|---|---|
+| `auth` | ACCOUNTANT, MANAGER, OWNER, RESIDENT, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `common-areas` | MANAGER, OWNER, RESIDENT, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `components` | ACCOUNTANT, TENANT |
+| `finance` | ACCOUNTANT, MANAGER, OWNER, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `manager` | MANAGER, OWNER, RESIDENT, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `offline` | MANAGER |
+| `owner` | OWNER, TENANT |
+| `parking` | MANAGER, OWNER, RESIDENT, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `person-authorization` | ACCOUNTANT, MANAGER, OWNER, RESIDENT, SITE_ADMIN, SUPER_ADMIN, TENANT |
+| `screen:index` | OWNER, TENANT |
+| `screen:profile` | SITE_ADMIN, SUPER_ADMIN |
+| `screen:requests` | ACCOUNTANT |
+| `sync` | ACCOUNTANT |
+
 ## Bulgular
 
 - Planlı (henüz ekranı olmayan) menü: `definitions`
-- Planlı (henüz ekranı olmayan) menü: `suppliers`
 - Mobil sekme sekme çubuğunda gizli: `parking`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `GET /api/public/v1/domains/{host}`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `POST /api/public/v1/preview`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `POST /api/public/v1/preview/media/{id:guid}/{sha}`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `POST /api/public/v1/sites/{siteKey}/inquiries/`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `GET /api/public/v1/sites/{siteKey}/inquiries/challenge`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `GET /api/public/v1/sites/{siteKey}/listings/`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `GET /api/public/v1/sites/{siteKey}/listings/{id:guid}`
-- Public prefix ile anonim, AllowAnonymous işareti yok: `GET /api/public/v1/sites/{siteKey}/primary-domain`
+- Eşleşmeyen web çağrısı: `/api/v1/qa-center`
 
-## Web/mobil tüketicisi bulunmayan endpointler (12)
+## Web/mobil tüketicisi bulunmayan endpointler (19)
 
 Worker, admin, entegrasyon veya dinamik URL ile çağrılıyor olabilir; FAZ 04’te tek tek doğrulanır.
 
+- `GET /api/public/v1/domains/{host}`
+- `POST /api/public/v1/preview`
+- `POST /api/public/v1/preview/media/{id:guid}/{sha}`
 - `GET /api/public/v1/sites/{siteKey}`
+- `POST /api/public/v1/sites/{siteKey}/inquiries/`
+- `GET /api/public/v1/sites/{siteKey}/inquiries/challenge`
+- `GET /api/public/v1/sites/{siteKey}/listings/`
+- `GET /api/public/v1/sites/{siteKey}/listings/{id:guid}`
 - `GET /api/public/v1/sites/{siteKey}/media/{id:guid}/{sha}.{ext}`
+- `GET /api/public/v1/sites/{siteKey}/primary-domain`
 - `GET /api/v1/parking/my-vehicles/`
 - `POST /api/v1/parking/my-vehicles/`
 - `POST /api/v1/parking/my-vehicles/{vehicleId:guid}/deactivate`
@@ -106,4 +126,3 @@ Worker, admin, entegrasyon veya dinamik URL ile çağrılıyor olabilir; FAZ 04�
 - `PUT /api/v1/sms/platform-sender/`
 - `GET /api/v1/status`
 - `POST /api/v2/me/person-links`
-- `GET /api/v2/tenants/{tenantId:guid}/me/person`

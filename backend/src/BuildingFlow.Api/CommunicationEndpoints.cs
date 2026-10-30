@@ -27,8 +27,20 @@ internal static class CommunicationEndpoints
     }
     private static async Task<IResult> Upload(Guid propertyId, HttpRequest request, CommunicationService service, CancellationToken token)
     {
+        var upload = await ReadUpload(request, token); var form = upload.Form; var file = upload.File;
+        if (!Guid.TryParse(form["requestId"], out var requestId)) CommunicationService.Invalid("requestId", ErrorCatalog.DuesErrorRequestId);
+        Guid? announcement = null; long version = 0;
+        if (!string.IsNullOrEmpty(form["announcementId"])) {
+            if (!Guid.TryParse(form["announcementId"], out var id) || id == Guid.Empty || !long.TryParse(form["announcementVersion"], out version)) CommunicationService.Invalid("announcementId", ErrorCatalog.ContentInvalid);
+            announcement = id;
+        }
+        var result = await service.Upload(propertyId, new(requestId, announcement, version, CommunicationService.Audience(form["audience"]), file.FileName, file.ContentType, upload.Bytes), token);
+        return result is null ? Results.NotFound() : result.Replayed ? Results.Ok(result) : Results.Created($"/api/v1/properties/{propertyId}/documents/{result.Id}/download", result);
+    }
+    internal static async Task<(IFormCollection Form, IFormFile File, byte[] Bytes)> ReadUpload(HttpRequest request, CancellationToken token)
+    {
         const long requestLimit = StoredDocument.MaxBytes + 65536;
-        if (!request.HasFormContentType) return Results.StatusCode(415);
+        if (!request.HasFormContentType) throw new BadHttpRequestException("Multipart form required.",415);
         if (request.ContentLength > requestLimit) throw new DocumentSizeException();
         var feature = request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
         if (feature is { IsReadOnly: false }) feature.MaxRequestBodySize = requestLimit;
@@ -37,20 +49,13 @@ internal static class CommunicationEndpoints
         catch (InvalidDataException) { CommunicationService.Invalid("file", ErrorCatalog.DocumentInvalid); throw; }
         if (form.Files.Count != 1 || form.Files[0].Name != "file") CommunicationService.Invalid("file", ErrorCatalog.DocumentInvalid);
         var file = form.Files[0]; if (file.Length > StoredDocument.MaxBytes) throw new DocumentSizeException();
-        if (!Guid.TryParse(form["requestId"], out var requestId)) CommunicationService.Invalid("requestId", ErrorCatalog.DuesErrorRequestId);
-        Guid? announcement = null; long version = 0;
-        if (!string.IsNullOrEmpty(form["announcementId"])) {
-            if (!Guid.TryParse(form["announcementId"], out var id) || id == Guid.Empty || !long.TryParse(form["announcementVersion"], out version)) CommunicationService.Invalid("announcementId", ErrorCatalog.ContentInvalid);
-            announcement = id;
-        }
         // Limited copy even if a forged multipart length reports a smaller file.
         using var content = new MemoryStream(); using var source = file.OpenReadStream(); var buffer = new byte[81920]; int read;
         while ((read = await source.ReadAsync(buffer, token)) > 0) {
             if (content.Length + read > StoredDocument.MaxBytes) throw new DocumentSizeException();
             await content.WriteAsync(buffer.AsMemory(0, read), token);
         }
-        var result = await service.Upload(propertyId, new(requestId, announcement, version, CommunicationService.Audience(form["audience"]), file.FileName, file.ContentType, content.ToArray()), token);
-        return result is null ? Results.NotFound() : result.Replayed ? Results.Ok(result) : Results.Created($"/api/v1/properties/{propertyId}/documents/{result.Id}/download", result);
+        return (form, file, content.ToArray());
     }
     private static IResult Found<T>(T? value) where T : class => value is null ? Results.NotFound() : Results.Ok(value);
 }

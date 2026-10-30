@@ -57,7 +57,7 @@ test('nested and parent active state rejects sibling scopes and prefix collision
 
 test('disabled placeholders stay routeless, unsearchable, and inactive; destinations keep OIDC compatibility',()=>{
  const m=createNavigation(context({roles:['SUPER_ADMIN'],propertyId:P,property:{id:P,type:'SITE'}}),'/');
- for(const id of ['suppliers','definitions']){
+ for(const id of ['definitions']){
   const item=byId(m,id);assert.equal(item.disabled,true);assert.equal(item.href,undefined);assert.equal(isNavigationActive(item,'/'),false);assert.ok(!m.searchable.some(i=>i.id===id));
  }
  assert.deepEqual(m.shortcuts.map(i=>i.id),['dashboard','properties','units','people']);
