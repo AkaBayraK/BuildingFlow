@@ -20,8 +20,8 @@ const money=(v:unknown)=>typeof v==="string"&&normalizeAmount(v)===v;
 const cents=(v:string)=>BigInt(v.replace(".",""));
 export function vatPreview(net:string,rate:string){
  const n=normalizeAmount(net);if(!n||!/^(\d{1,3})(\.\d{1,2})?$/.test(rate))return null;const r=Number(rate);if(r>100)return null;
- const rateBasis=BigInt(Math.round(r*100)),netCents=cents(n),vat=(netCents*rateBasis+5000n)/10000n,gross=netCents+vat;if(gross>9999999999n)return null;
- const fmt=(x:bigint)=>`${x/100n}.${String(x%100n).padStart(2,"0")}`;return {vat:fmt(vat),gross:fmt(gross)};
+ const rateBasis=BigInt(Math.round(r*100)),netCents=cents(n),vat=(netCents*rateBasis+BigInt(5000))/BigInt(10000),gross=netCents+vat;if(gross>BigInt(9999999999))return null;
+ const fmt=(x:bigint)=>`${x/BigInt(100)}.${String(x%BigInt(100)).padStart(2,"0")}`;return {vat:fmt(vat),gross:fmt(gross)};
 }
 export function readInvoice(v:unknown,tenant:string,supplier:string):SupplierInvoice{
  if(!obj(v)||!supplierId(v.id)||v.tenantId!==tenant||v.supplierId!==supplier||!supplierId(v.propertyId)||!text(v.propertyName,200)||!text(v.number,50)||!day(v.issueDate)||!day(v.dueDate)||String(v.dueDate)<String(v.issueDate)||!int(v.version,1)||!stamp(v.createdAt))throw new Error("Invalid supplier invoice");
