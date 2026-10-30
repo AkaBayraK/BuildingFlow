@@ -110,3 +110,15 @@ Faturaya bağlı gider Gider ekranından ayrıca iptal edilemez (`BF_SUPPLIER_IN
 Backend eklemeleri: `GET /api/v2/tenants/{tenantId}/supplier-work-orders?propertyId&status&page&pageSize` (`CanManagePeople`, tenant üyeliği + PropertyScope + alan MANAGER değerlendirmesi; tüm bağlı tedarikçilerin iş emirleri, `{record, supplierName}`) ve `POST /suppliers/{supplierId}/work-orders/{orderId}/notes` (`operationId, version, note≤2000`; kapalı/red/iptal iş emrinde 409; UUID replay; immutable `NOTE` revizyonu, migration `SupplierWorkOrderNotes` yalnız check constraint genişletir, NOTE varken Down reddeder).
 
 Mobil (`mobile/buildingflow-mobile/src/supplier-work`): yalnız yeni yetki modelindeki MANAGEMENT bağlamı ve SUPER_ADMIN/SITE_ADMIN/MANAGER; istek yolları seçili tenant/Property ve yöntemle beyaz listededir. Liste kopyası hesap başına SQLCipher şifreli SQLite'ta (`owner_snapshots`) 1 saat; durum, not ve fotoğraf işlemleri `supplier_work_jobs` kuyruğunda (şema 10), fotoğraf AES ile şifreli özel dosyada. İş emri başına tek aktif işlem; gönderim sırayla, aynı `operationId` ile (sunucu replay'i tekrarı engeller). 200 gönderildi; 409 çakışma, otomatik yazılmaz, yönetici vazgeçer ve güncel listeden yeniden dener; 401 durur ve işlem bekler; 403/404 engellendi; ağ/429/5xx üstel bekleme, 6 denemeden sonra elle yeniden deneme. Hesap değişince şifreli depo anahtarıyla birlikte silinir (mevcut altyapı); yetkisi kalkan bağlamın işlemleri, fotoğrafları ve kopyası temizlenir. VERIFIED/CLOSED geçişleri yalnız SITE_ADMIN/SUPER_ADMIN'e gösterilir; son karar yine sunucudadır.
+
+## FAZ10 — Bildirimler, performans, raporlar
+
+Kök `/api/v2/tenants/{tenantId}`, politika `CanManagePeople`; veriler kullanıcının tenant PropertyScope'u ve tedarikçinin aktif alan bağlantısıyla süzülür.
+
+| Uç | Davranış |
+| --- | --- |
+| `GET /supplier-alerts?kind&page&pageSize` | Okuma anında hesaplanan uyarılar: `CONTRACT_EXPIRY` (aktif, bitiş − hatırlatma günü ≤ bugün ≤ bitiş), `WORK_ORDER_OVERDUE` (ASSIGNED/ACCEPTED/IN_PROGRESS ve SLA geçmiş), `MAINTENANCE_OVERDUE`/`MAINTENANCE_DUE` (PLANNED, tarih − hatırlatma ≤ bugün). `days` negatifse gecikme. Tür başına ilk 500, aşılırsa `truncated=true`. Yanıt kullanıcının tercihini içerir; kapalı türler listelenmez. |
+| `GET/PUT /supplier-alert-preferences` | Kullanıcı (issuer+subject) ve tenant başına üç anahtar; yoksa hepsi açık ve version 0; beklenen version ile kaydedilir, yarış 409. |
+| `GET /supplier-performance?from&to&propertyId&page` | En fazla 366 gün. Tedarikçi başına tamamlanan iş emri, atama→tamamlanma ortalama saat, SLA zamanında/örnek, bakım zamanında (gecikme 0)/örnek, zamanında oranı, onaylı/ödenen/mutabık fatura sayısı ve brüt toplamı. Puan = zamanında oranı, yalnız örnek ≥ `minimumSample` (3) ise; aksi `null` ve örnek sayısı her zaman döner. |
+
+Gönderim kanalı yoktur: uyarılar web "Uyarılar" görünümünde gösterilir, e-posta/SMS/push yapılmaz. Export istemcide: Excel uyumlu UTF-8 BOM'lu `;` ayraçlı CSV (formül gibi başlayan `= + - @` hücreler `'` ile etkisizleştirilir) ve tarayıcı yazdır → PDF; `.xlsx` üretilmez, yeni paket yok. Migration `SupplierAlertPreferences` tek tablo, dolu Down reddedilir.

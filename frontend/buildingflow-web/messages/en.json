@@ -536,6 +536,11 @@
     "resident": "Your current owner, tenant and resident workspaces for this website."
   },
   "ui": {
+    "supplierInsightsRoadmapTitle": "Supplier alerts and performance",
+    "supplierInsightsRoadmapDescription": "Contract, SLA and maintenance alerts; performance report with CSV and PDF output.",
+    "supplierInsightsRoadmapTask": "Alerts, performance and reports",
+    "supplierInsightsRoadmapDetail": "In-app alerts with user preferences and area scope; completion time, on-time rate, invoiced cost and scores only with enough samples; formula-safe CSV and print/PDF.",
+    "supplierInsightsRoadmapVerification": "2026-10-30: full regression integration934/936 (2 opt-in; 2 class cleanup failures passed 26/26 on rerun)+unit472/472; web343/343+typecheck/build; mobile170/170; 329 license PASS; coverage gate PASS. Report docs/suppliers/10-report.md; #100.",
     "supplierMobileRoadmapTitle": "Supplier work mobile",
     "supplierMobileRoadmapDescription": "Manager mobile work order list, field notes, photos and an encrypted offline queue.",
     "supplierMobileRoadmapTask": "Mobile work orders and offline sync",

@@ -4,18 +4,18 @@
 
 | Kalem | Sayı |
 |---|---|
-| API endpoint (çalışma zamanı) | 460 |
-| Yetkili / açık anonim / public prefix | 447 / 13 / 0 |
-| Web çağrısı: tam eşleşme / yalnız taban yol | 139 / 267 |
+| API endpoint (çalışma zamanı) | 464 |
+| Yetkili / açık anonim / public prefix | 451 / 13 / 0 |
+| Web çağrısı: tam eşleşme / yalnız taban yol | 143 / 267 |
 | Mobil çağrısı: tam eşleşme / yalnız taban yol | 23 / 35 |
-| Backend testlerinde route metni geçen endpoint | 271 |
+| Backend testlerinde route metni geçen endpoint | 275 |
 | Web/mobilde tam eşleşmesi olmayan endpoint | 301 |
 | Hiç tüketicisi bulunmayan endpoint | 19 |
 | Web sayfası | 57 |
 | Menü bağlantısı / planlı menü | 10 / 1 |
 | Mobil ekran | 10 |
 | Mobil sekme: her zaman / bağlı kişi gerekir / gizli | 2 / 4 / 2 |
-| DB tablosu (EF snapshot) | 135 |
+| DB tablosu (EF snapshot) | 136 |
 
 ## Web sayfaları ve statik sinyaller
 
@@ -67,7 +67,7 @@
 | `/sites/[id]` | - | 0 | - |
 | `/sites/[id]/blocks/[blockId]` | - | 0 | - |
 | `/sms` | navigation | 3 | filter, paging, search |
-| `/suppliers` | suppliers | 6 | create, delete, export, filter, form, paging, search, update |
+| `/suppliers` | suppliers | 9 | create, delete, export, filter, form, paging, search, update |
 | `/surveys` | navigation | 3 | filter, paging, search |
 | `/system-settings` | online-payments, qa-center, system-status | 4 | create, export, filter, form, paging, search, update |
 | `/system-settings/qa-center` | qa-center | 1 | create, filter, paging, search, update |

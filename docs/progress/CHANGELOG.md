@@ -1,3 +1,8 @@
+## TEDARİKÇİ FAZ10 — 30.10.2026 — TAMAMLANDI
+
+- Tedarikçi uyarıları (sözleşme, SLA, bakım) ve kullanıcı tercihleri (`SupplierAlertPreferences`); performans raporu.
+- Tedarikçiler ekranına ikonlu Uyarılar/Performans görünümleri, CSV ve yazdır/PDF; yol haritası SUP-10.
+
 ## TEDARİKÇİ FAZ09 — 30.10.2026 — TAMAMLANDI
 
 - Backend: mülk bazlı tedarikçi iş emri listesi ve saha notu (`SupplierWorkOrderNotes`).

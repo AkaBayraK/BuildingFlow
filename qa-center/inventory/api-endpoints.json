@@ -3220,6 +3220,30 @@
   },
   {
     "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-alert-preferences",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-alert-preferences",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-alerts",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
     "Access": "AUTHORIZED",
     "Policies": [
@@ -3253,6 +3277,14 @@
   {
     "Method": "DELETE",
     "Route": "/api/v2/tenants/{tenantId:guid}/supplier-holidays/{holidayId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-performance",
     "Access": "AUTHORIZED",
     "Policies": [
       "CanManagePeople"

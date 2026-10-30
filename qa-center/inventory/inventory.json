@@ -4424,6 +4424,39 @@
    "policies": [
     "CanManagePeople"
    ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-alert-preferences",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-alert-preferences",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-alerts",
+   "web": "EXACT"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
    "route": "/api/v2/tenants/{tenantId:guid}/supplier-categories/",
    "web": "BASE_PREFIX"
   },
@@ -4470,6 +4503,17 @@
    ],
    "route": "/api/v2/tenants/{tenantId:guid}/supplier-holidays/{holidayId:guid}",
    "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManagePeople"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/supplier-performance",
+   "web": "EXACT"
   },
   {
    "access": "AUTHORIZED",
@@ -5418,6 +5462,7 @@
   "sms_operational_preferences",
   "sms_templates",
   "stored_documents",
+  "supplier_alert_preferences",
   "supplier_area_services",
   "supplier_categories",
   "supplier_contacts",
@@ -6278,7 +6323,10 @@
    "apiCalls": [
     "/api/v2/supplier-workspaces",
     "/api/v2/tenants/{}",
+    "/api/v2/tenants/{}/supplier-alert-preferences",
+    "/api/v2/tenants/{}/supplier-alerts",
     "/api/v2/tenants/{}/supplier-holidays",
+    "/api/v2/tenants/{}/supplier-performance",
     "/api/v2/tenants/{}/supplier-property-choices",
     "/api/v2/tenants/{}/suppliers",
     "/api/v2/tenants/{}/suppliers/{}"
