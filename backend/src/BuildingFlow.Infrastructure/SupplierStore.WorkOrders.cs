@@ -155,4 +155,33 @@ public sealed partial class SupplierStore
         var count = await rows.CountAsync(token); var items = await rows.OrderByDescending(x => x.AppliedVersion).Skip((page - 1) * pageSize).Take(pageSize).Select(x => new SupplierContractHistory(x.Id, x.Action, x.AppliedVersion, x.Snapshot, x.CreatedAt)).ToArrayAsync(token);
         await tx.CommitAsync(token); return new(items, page, pageSize, count);
     }
+    public async Task<SupplierWorkOrderMutation?> AddWorkOrderNote(Guid tenant, Guid supplier, Guid id, SupplierWorkOrderNote c, CancellationToken token)
+    {
+        if (c.OperationId == Guid.Empty || c.Version < 1) InvalidSupplier("version");
+        var note = MaintenanceText(c.Note, 2000, true, "note")!;
+        await using var tx = await db.Database.BeginTransactionAsync(token); var scope = await LockOrder(tenant, supplier, id, token); if (scope is null) return null; var order = scope.Value.Order;
+        var fingerprint = Hash(new { action = "WORK_ORDER_NOTE", tenant, supplier, id, c.Version, note });
+        var replay = await OrderReplay(tenant, supplier, c.OperationId, fingerprint, scope.Value.Supplier, token); if (replay is not null) { await tx.CommitAsync(token); return replay; }
+        Expected(c.Version, order.Version);
+        if (order.Status is SupplierWorkOrderStatus.CLOSED or SupplierWorkOrderStatus.REJECTED or SupplierWorkOrderStatus.CANCELLED) throw new HierarchyConflictException(ErrorCatalog.SupplierWorkOrderState.Create());
+        OrderRevision(order, c.OperationId, fingerprint, "NOTE", c.Version + 1, new { WorkOrder = OrderSnapshot(order), Reason = note }); TouchArea((scope.Value.Supplier, scope.Value.Property)); await db.SaveChangesAsync(token);
+        var result = new SupplierWorkOrderMutation(await OrderResponse(order, token), Response(scope.Value.Supplier), false, order.Version); await tx.CommitAsync(token); return result;
+    }
+    // Mobile managers work per property, across every supplier linked to it.
+    public async Task<PagedRows<SupplierWorkOrderRow>?> PropertyWorkOrders(Guid tenant, Guid property, string? status, int page, int pageSize, CancellationToken token)
+    {
+        Page(page, pageSize); SupplierWorkOrderStatus? filter = status is null ? null : Parse<SupplierWorkOrderStatus>(status, "status");
+        await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, token);
+        if (!await Allowed(tenant, token) || !await PropertyScopes(tenant).AnyAsync(s => s.PropertyId == property, token) || !(await management.EvaluateAsync(tenant, property, "MANAGER", token)).Allowed) return null;
+        var rows = from o in db.Set<SupplierWorkOrder>().AsNoTracking().Where(o => o.TenantId == tenant && o.PropertyId == property)
+                   join s in db.Set<Supplier>() on new { o.TenantId, Id = o.SupplierId } equals new { s.TenantId, s.Id }
+                   join p in db.Properties on o.PropertyId equals p.Id
+                   join a in db.Set<SupplierAreaService>() on new { o.TenantId, o.SupplierId, o.PropertyId, Id = o.AreaServiceId } equals new { a.TenantId, a.SupplierId, a.PropertyId, a.Id }
+                   join v in db.Set<BuildingFlow.Domain.SupplierService>() on new { a.TenantId, a.SupplierId, Id = a.ServiceId } equals new { v.TenantId, v.SupplierId, v.Id }
+                   where db.Set<SupplierManagementArea>().Any(m => m.TenantId == tenant && m.SupplierId == o.SupplierId && m.PropertyId == property && m.IsEnabled)
+                   select new { Record = o, SupplierName = s.Name, PropertyName = p.Name, ServiceName = v.Name, PhotoCount = db.Set<SupplierWorkOrderPhoto>().Count(photo => photo.TenantId == tenant && photo.SupplierId == o.SupplierId && photo.PropertyId == property && photo.WorkOrderId == o.Id) };
+        if (filter.HasValue) rows = rows.Where(x => x.Record.Status == filter.Value);
+        var count = await rows.CountAsync(token); var items = await rows.OrderByDescending(x => x.Record.ModifiedAt).ThenBy(x => x.Record.Id).Skip((page - 1) * pageSize).Take(pageSize).ToArrayAsync(token);
+        await tx.CommitAsync(token); return new(items.Select(x => new SupplierWorkOrderRow(OrderResponse(x.Record, x.PropertyName, x.ServiceName, x.PhotoCount), x.SupplierName)).ToArray(), page, pageSize, count);
+    }
 }

@@ -115,4 +115,29 @@ public sealed class SupplierWorkOrderTests(SiteApiTests.SiteApiFactory factory) 
         var cancelled = await Value<SupplierWorkOrderMutation>(await c.PutAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/transition", new SupplierWorkOrderTransition(Guid.NewGuid(), 1, "CANCELLED", "Source already complete"))); Assert.Equal("CANCELLED", cancelled.Record.Status);
     }
 
+    [PostgresFact] public async Task FieldNotesAndPropertyListServeMobileManagersWithinScope()
+    {
+        var x = await Seed(); var foreign = await Seed(); using var c = TestToken.Client(factory, x.User, "MANAGER"); using var accountant = TestToken.Client(factory, x.User, "ACCOUNTANT");
+        var one = await Value<SupplierWorkOrderMutation>(await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders", Create(x)));
+        var note = new SupplierWorkOrderNote(Guid.NewGuid(), one.Record.Version, "Checked cabin on site\nWaiting for part");
+        var noted = await Value<SupplierWorkOrderMutation>(await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", note));
+        Assert.Equal(one.Record.Version + 1, noted.Record.Version); Assert.Equal("DRAFT", noted.Record.Status);
+        Assert.True((await Value<SupplierWorkOrderMutation>(await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", note))).Replayed);
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", note with { Note = "Changed" })).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", note with { OperationId = Guid.NewGuid() })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", new SupplierWorkOrderNote(Guid.NewGuid(), noted.Record.Version, " "))).StatusCode);
+        var history = await Value<PagedRows<SupplierContractHistory>>(await c.GetAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/history"));
+        Assert.Equal("NOTE", history.Items[0].Action); Assert.Contains("Waiting for part", history.Items[0].Snapshot);
+        var rows = await Value<PagedRows<SupplierWorkOrderRow>>(await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}"));
+        var row = Assert.Single(rows.Items); Assert.Equal("Work supplier", row.SupplierName); Assert.Equal(noted.Record.Version, row.Record.Version);
+        Assert.Single((await Value<PagedRows<SupplierWorkOrderRow>>(await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}&status=DRAFT"))).Items);
+        Assert.Empty((await Value<PagedRows<SupplierWorkOrderRow>>(await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}&status=CLOSED"))).Items);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}&status=DONE")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={foreign.Property}")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await accountant.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}")).StatusCode);
+        var cancelled = await Value<SupplierWorkOrderMutation>(await c.PutAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/transition", new SupplierWorkOrderTransition(Guid.NewGuid(), noted.Record.Version, "CANCELLED", "Not needed")));
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync($"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/work-orders/{one.Record.Id}/notes", new SupplierWorkOrderNote(Guid.NewGuid(), cancelled.Record.Version, "After cancel"))).StatusCode);
+        await factory.WithDb(async db => { var m = await db.PropertyMemberships.SingleAsync(m => m.PropertyId == x.Property && m.UserId == x.User); m.SetEnabled(false); await db.SaveChangesAsync(); });
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync($"/api/v2/tenants/{x.Tenant}/supplier-work-orders?propertyId={x.Property}")).StatusCode);
+    }
 }

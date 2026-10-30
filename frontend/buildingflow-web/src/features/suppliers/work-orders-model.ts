@@ -7,7 +7,7 @@ export const workOrderSources=["QUOTE","REQUEST","MAINTENANCE"] as const;
 export type WorkOrderSource=typeof workOrderSources[number];
 export type WorkOrder={id:string;tenantId:string;supplierId:string;propertyId:string;propertyName:string;areaServiceId:string;serviceName:string;title:string;description:string;source:WorkOrderSource;inquiryId:string|null;quoteId:string|null;requestId:string|null;maintenancePlanId:string|null;sourceVersion:number|null;sourceSnapshot:string;amount:string|null;currency:QuoteCurrency|null;status:WorkOrderStatus;dueAt:string|null;isOverdue:boolean;assignedAt:string|null;acceptedAt:string|null;startedAt:string|null;completedAt:string|null;verifiedAt:string|null;closedAt:string|null;completionNote:string|null;decisionReason:string|null;photoCount:number;version:number;createdAt:string;modifiedAt:string};
 export type WorkOrderSourceChoice={id:string;tenantId:string;propertyId:string;source:"REQUEST"|"MAINTENANCE";description:string;version:number};
-export const workOrderActions=["CREATE","EDIT","PHOTO","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","VERIFIED","CLOSED","REJECTED","CANCELLED"] as const;
+export const workOrderActions=["CREATE","EDIT","PHOTO","NOTE","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","VERIFIED","CLOSED","REJECTED","CANCELLED"] as const;
 export type WorkOrderAction=typeof workOrderActions[number];
 export type WorkOrderPhoto={id:string;file:SupplierFile;caption:string;createdAt:string};
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);

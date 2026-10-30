@@ -11207,7 +11207,7 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("supplier_work_order_revisions", null, t =>
                         {
-                            t.HasCheckConstraint("ck_supplier_work_order_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','EDIT','ASSIGNED','ACCEPTED','IN_PROGRESS','COMPLETED','VERIFIED','CLOSED','REJECTED','CANCELLED','PHOTO')");
+                            t.HasCheckConstraint("ck_supplier_work_order_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','EDIT','ASSIGNED','ACCEPTED','IN_PROGRESS','COMPLETED','VERIFIED','CLOSED','REJECTED','CANCELLED','PHOTO','NOTE')");
                         });
                 });
 

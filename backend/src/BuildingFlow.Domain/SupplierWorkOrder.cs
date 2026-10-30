@@ -115,7 +115,7 @@ public sealed class SupplierWorkOrderRevision : BaseEntity
     private SupplierWorkOrderRevision() { }
     public SupplierWorkOrderRevision(SupplierWorkOrder order, Guid operation, string issuer, string subject, string fingerprint, string action, string snapshot, long appliedVersion)
     {
-        if (operation == Guid.Empty || appliedVersion < 1 || action is not ("CREATE" or "EDIT" or "ASSIGNED" or "ACCEPTED" or "IN_PROGRESS" or "COMPLETED" or "VERIFIED" or "CLOSED" or "REJECTED" or "CANCELLED" or "PHOTO")) throw new ArgumentException("Invalid work order revision.");
+        if (operation == Guid.Empty || appliedVersion < 1 || action is not ("CREATE" or "EDIT" or "ASSIGNED" or "ACCEPTED" or "IN_PROGRESS" or "COMPLETED" or "VERIFIED" or "CLOSED" or "REJECTED" or "CANCELLED" or "PHOTO" or "NOTE")) throw new ArgumentException("Invalid work order revision.");
         TenantId = order.TenantId; SupplierId = order.SupplierId; PropertyId = order.PropertyId; WorkOrderId = order.Id; OperationId = operation;
         ActorIssuer = Required(issuer, nameof(issuer), 500); ActorSubject = Required(subject, nameof(subject), 200); Fingerprint = Required(fingerprint, nameof(fingerprint), 64); Action = action; Snapshot = Required(snapshot, nameof(snapshot), 20000); AppliedVersion = appliedVersion;
     }

@@ -14,6 +14,8 @@ internal static class SupplierWorkOrderEndpoints
         root.MapGet("/work-orders/{orderId:guid}/history", async (Guid tenantId, Guid supplierId, Guid orderId, ISupplierWorkOrderStore store, CancellationToken token, int page = 1, int pageSize = 10) => Found(await store.WorkOrderHistory(tenantId, supplierId, orderId, page, pageSize, token)));
         root.MapGet("/work-orders/{orderId:guid}/photos", async (Guid tenantId, Guid supplierId, Guid orderId, ISupplierWorkOrderStore store, CancellationToken token, int page = 1, int pageSize = 10) => Found(await store.WorkOrderPhotos(tenantId, supplierId, orderId, page, pageSize, token)));
         root.MapPost("/work-orders/{orderId:guid}/photos", Upload);
+        root.MapPost("/work-orders/{orderId:guid}/notes", async (Guid tenantId, Guid supplierId, Guid orderId, SupplierWorkOrderNote request, ISupplierWorkOrderStore store, CancellationToken token) => Found(await store.AddWorkOrderNote(tenantId, supplierId, orderId, request, token)));
+        app.MapGet("/api/v2/tenants/{tenantId:guid}/supplier-work-orders", async (Guid tenantId, Guid propertyId, ISupplierWorkOrderStore store, CancellationToken token, string? status = null, int page = 1, int pageSize = 20) => Found(await store.PropertyWorkOrders(tenantId, propertyId, status, page, pageSize, token))).RequireAuthorization("CanManagePeople").WithTags("Supplier work orders");
     }
     private static async Task<IResult> Upload(Guid tenantId, Guid supplierId, Guid orderId, HttpRequest request, ISupplierWorkOrderStore store, CancellationToken token)
     {

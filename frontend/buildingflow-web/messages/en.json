@@ -66,6 +66,7 @@
     "workTime_closedAt": "Closed at",
     "workHistory_CREATE": "Work order created",
     "workHistory_EDIT": "Draft scope/SLA edited",
+    "workHistory_NOTE": "Field note added",
     "workHistory_PHOTO": "Photo evidence added",
     "workHistory_ASSIGNED": "Supplier assigned",
     "workHistory_ACCEPTED": "Acceptance recorded",

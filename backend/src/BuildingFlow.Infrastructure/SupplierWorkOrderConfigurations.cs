@@ -86,6 +86,6 @@ internal sealed class SupplierWorkOrderRevisionConfiguration : IEntityTypeConfig
         b.HasOne<SupplierWorkOrder>().WithMany().HasForeignKey(x => new { x.TenantId, x.SupplierId, x.PropertyId, x.WorkOrderId }).HasPrincipalKey(x => new { x.TenantId, x.SupplierId, x.PropertyId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasIndex(x => new { x.TenantId, x.ActorIssuer, x.ActorSubject, x.OperationId }).IsUnique();
         b.HasIndex(x => new { x.WorkOrderId, x.AppliedVersion }).IsUnique();
-        b.ToTable(t => t.HasCheckConstraint("ck_supplier_work_order_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','EDIT','ASSIGNED','ACCEPTED','IN_PROGRESS','COMPLETED','VERIFIED','CLOSED','REJECTED','CANCELLED','PHOTO')"));
+        b.ToTable(t => t.HasCheckConstraint("ck_supplier_work_order_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','EDIT','ASSIGNED','ACCEPTED','IN_PROGRESS','COMPLETED','VERIFIED','CLOSED','REJECTED','CANCELLED','PHOTO','NOTE')"));
     }
 }

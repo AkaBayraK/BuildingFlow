@@ -66,6 +66,7 @@
     "workTime_closedAt": "Kapanış zamanı",
     "workHistory_CREATE": "İş emri oluşturuldu",
     "workHistory_EDIT": "Taslak kapsamı/SLA düzenlendi",
+    "workHistory_NOTE": "Saha notu eklendi",
     "workHistory_PHOTO": "Fotoğraf kanıtı eklendi",
     "workHistory_ASSIGNED": "Tedarikçiye atandı",
     "workHistory_ACCEPTED": "Kabul kaydedildi",

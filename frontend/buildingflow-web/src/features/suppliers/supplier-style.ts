@@ -18,7 +18,7 @@ export const inquiryActionStyle={CREATE:{icon:FilePenLine},QUOTE:{icon:FileText}
 
 export const workOrderStyle={DRAFT:{icon:FilePenLine,tone:"neutral"},ASSIGNED:{icon:ClipboardList,tone:"info"},ACCEPTED:{icon:CheckCircle2,tone:"info"},IN_PROGRESS:{icon:Play,tone:"warning"},COMPLETED:{icon:CheckCircle2,tone:"success"},VERIFIED:{icon:ShieldCheck,tone:"success"},CLOSED:{icon:ClipboardCheck,tone:"success"},REJECTED:{icon:ShieldBan,tone:"error"},CANCELLED:{icon:XCircle,tone:"error"}} as const;
 export const workOrderSourceStyle={QUOTE:{icon:FileText},REQUEST:{icon:Wrench},MAINTENANCE:{icon:CalendarClock}} as const;
-export const workOrderActionStyle={...workOrderStyle,CREATE:{icon:FilePenLine},EDIT:{icon:FilePenLine},PHOTO:{icon:Camera}} as const;
+export const workOrderActionStyle={...workOrderStyle,CREATE:{icon:FilePenLine},EDIT:{icon:FilePenLine},PHOTO:{icon:Camera},NOTE:{icon:FileText}} as const;
 export const workOrderSlaStyle={icon:Timer} as const;
 
 export const maintenanceFrequencyStyle={WEEKLY:{icon:Repeat},MONTHLY:{icon:CalendarDays},QUARTERLY:{icon:CalendarRange},SEMIANNUAL:{icon:CalendarRange},YEARLY:{icon:CalendarCheck}} as const;

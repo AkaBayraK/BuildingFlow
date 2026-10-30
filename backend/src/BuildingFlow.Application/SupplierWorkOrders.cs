@@ -6,6 +6,9 @@ public sealed record SupplierWorkOrderCreate(Guid OperationId, long SupplierVers
 public sealed record SupplierWorkOrderEdit(Guid OperationId, long Version, string Description, DateTimeOffset? DueAt);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SupplierWorkOrderTransition(Guid OperationId, long Version, string Status, string Reason);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record SupplierWorkOrderNote(Guid OperationId, long Version, string Note);
+public sealed record SupplierWorkOrderRow(SupplierWorkOrderResponse Record, string SupplierName);
 public sealed record SupplierWorkOrderUpload(Guid OperationId, long Version, string FileName, string ContentType, byte[] Bytes, string Caption);
 public sealed record SupplierWorkOrderSourceChoice(Guid Id, Guid TenantId, Guid PropertyId, string Source, string Description, long Version);
 public sealed record SupplierWorkOrderResponse(Guid Id, Guid TenantId, Guid SupplierId, Guid PropertyId, string PropertyName, Guid AreaServiceId, string ServiceName, string Title, string Description, string Source, Guid? InquiryId, Guid? QuoteId, Guid? RequestId, Guid? MaintenancePlanId, long? SourceVersion, string SourceSnapshot, string? Amount, string? Currency, string Status, DateTimeOffset? DueAt, bool IsOverdue, DateTimeOffset? AssignedAt, DateTimeOffset? AcceptedAt, DateTimeOffset? StartedAt, DateTimeOffset? CompletedAt, DateTimeOffset? VerifiedAt, DateTimeOffset? ClosedAt, string? CompletionNote, string? DecisionReason, int PhotoCount, long Version, DateTimeOffset CreatedAt, DateTimeOffset ModifiedAt);
@@ -21,5 +24,7 @@ public interface ISupplierWorkOrderStore
     Task<SupplierWorkOrderMutation?> TransitionWorkOrder(Guid tenant, Guid supplier, Guid id, SupplierWorkOrderTransition command, CancellationToken token);
     Task<PagedRows<SupplierContractHistory>?> WorkOrderHistory(Guid tenant, Guid supplier, Guid id, int page, int pageSize, CancellationToken token);
     Task<PagedRows<SupplierWorkOrderPhotoResponse>?> WorkOrderPhotos(Guid tenant, Guid supplier, Guid id, int page, int pageSize, CancellationToken token);
+    Task<SupplierWorkOrderMutation?> AddWorkOrderNote(Guid tenant, Guid supplier, Guid id, SupplierWorkOrderNote command, CancellationToken token);
+    Task<PagedRows<SupplierWorkOrderRow>?> PropertyWorkOrders(Guid tenant, Guid property, string? status, int page, int pageSize, CancellationToken token);
     Task<SupplierWorkOrderMutation?> UploadWorkOrderPhoto(Guid tenant, Guid supplier, Guid id, SupplierWorkOrderUpload command, CancellationToken token);
 }

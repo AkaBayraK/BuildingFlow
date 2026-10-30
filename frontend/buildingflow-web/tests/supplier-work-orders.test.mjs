@@ -37,6 +37,7 @@ test('Istanbul SLA input roundtrips without relying on the computer timezone',()
 });
 test('work history retains decision reasons but refuses unknown actions and corrupt snapshots',()=>{
  const history={id,action:'VERIFIED',appliedVersion:5,snapshot:'{"Reason":"Inspected by manager"}',createdAt:stamp};assert.equal(readWorkOrderHistory(history).reason,'Inspected by manager');
+ assert.equal(readWorkOrderHistory({...history,action:'NOTE',snapshot:'{"Reason":"Waiting for part"}'}).reason,'Waiting for part');
  for(const patch of [{action:'DRAFT'},{action:'PAY'},{snapshot:'bad JSON'},{appliedVersion:0}])assert.throws(()=>readWorkOrderHistory({...history,...patch}));
 });
 test('quote comparison keeps its approved snapshot when the linked work order is closed',()=>{
