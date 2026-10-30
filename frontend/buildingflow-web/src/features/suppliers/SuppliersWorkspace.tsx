@@ -16,10 +16,13 @@ import {readSupplierPage,statuses,type Supplier} from "./model";
 import {statusStyle} from "./supplier-style";
 import {SupplierPanel} from "./SupplierPanel";
 import {SupplierBadge} from "./SupplierBadge";
+import {SupplierAlerts,SupplierPerformance} from "./SupplierInsights";
+import {supplierViews} from "./supplier-style";
 export function SuppliersWorkspace(){const identity=useIdentity(),t=useTranslations("suppliers");if(!["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r)))return <MessageBanner>{t("accessRequired")}</MessageBanner>;return <WorkspaceBody key={(identity.tokenParsed?.iss??"")+":"+(identity.subject??identity.tokenParsed?.sub??"")}/>;}
 function WorkspaceBody(){
- const t=useTranslations("suppliers"),[tenant,setTenant]=useState<Workspace|null>(null);
- return <div className="page-enter"><WorkspaceHeading title={t("title")} description={t("help")} scope={tenant?.name??t("workspace")} icon={BriefcaseBusiness}/><div className="mb-6 max-w-md"><Choices path="/api/v2/supplier-workspaces" value={tenant?.id??""} onChange={setTenant} parse={workspace} id="supplier-workspace" label={t("workspace")}/></div>{tenant?<SupplierList key={tenant.id} tenant={tenant}/>:<p className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{t("chooseWorkspace")}</p>}</div>;
+ const t=useTranslations("suppliers"),[tenant,setTenant]=useState<Workspace|null>(null),[view,setView]=useState<keyof typeof supplierViews>("suppliers");
+ const body=!tenant?null:view==="alerts"?<SupplierAlerts key={"a"+tenant.id} tenant={tenant}/>:view==="performance"?<SupplierPerformance key={"p"+tenant.id} tenant={tenant}/>:<SupplierList key={tenant.id} tenant={tenant}/>;
+ return <div className="page-enter"><WorkspaceHeading title={t("title")} description={t("help")} scope={tenant?.name??t("workspace")} icon={BriefcaseBusiness}/><div className="mb-6 max-w-md"><Choices path="/api/v2/supplier-workspaces" value={tenant?.id??""} onChange={setTenant} parse={workspace} id="supplier-workspace" label={t("workspace")}/></div>{tenant?<><div className="print-hidden mb-4"><FilterChips label={t("supplierView")} value={view} onChange={v=>setView(v as keyof typeof supplierViews)} items={(Object.keys(supplierViews) as (keyof typeof supplierViews)[]).map(v=>({value:v,label:t(`view_${v}`),icon:supplierViews[v].icon}))}/></div>{body}</>:<p className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{t("chooseWorkspace")}</p>}</div>;
 }
 function SupplierList({tenant}:{tenant:Workspace}){
  const returnTarget=useRef<HTMLElement|null>(null),newButton=useRef<HTMLButtonElement>(null);
