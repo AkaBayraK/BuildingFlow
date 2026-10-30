@@ -15,9 +15,9 @@ export function useSupplierWork(page:number){
   error:'Tedarikçi işleri güncellenemedi. Kopya eski olabilir; bağlantı kurup yenileyin.',denied:'Bu yönetim alanındaki tedarikçi işlerine erişiminiz artık geçerli değil.'});
  const [jobs,setJobs]=useState<Job[]>([]),[message,setMessage]=useState(''),[sending,setSending]=useState(false);const alive=useRef(true);
  useEffect(()=>()=>{alive.current=false;},[]);
- const loadJobs=useCallback(async()=>{if(!allowed||!user)return setJobs([]);try{const rows=await a.supplierWorkCache(db=>visibleJobs(db,user,c!));if(alive.current)setJobs(rows);}catch{if(alive.current)setJobs([]);}},[a,allowed,user,c]);
+ const loadJobs=useCallback(async()=>{await Promise.resolve();if(!alive.current)return;if(!allowed||!user)return setJobs([]);try{const rows=await a.supplierWorkCache(db=>visibleJobs(db,user,c!));if(alive.current)setJobs(rows);}catch{if(alive.current)setJobs([]);}},[a,allowed,user,c]);
  const send=useCallback(async()=>{
-  if(!allowed||!a.session||a.offline||sending)return;setSending(true);setMessage('');
+  await Promise.resolve();if(!allowed||!a.session||a.offline||sending||!alive.current)return;setSending(true);setMessage('');
   try{
    await a.supplierWorkCache((db,files)=>purgeUnauthorized(db,files,a.session!));
    const sent=await flush({db:task=>a.supplierWorkCache(db=>task(db)),files:{read:name=>a.supplierWorkCache((_db,f)=>f.read(name)),drop:name=>a.supplierWorkCache((_db,f)=>f.drop(name))},
