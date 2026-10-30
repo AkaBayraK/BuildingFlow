@@ -3236,6 +3236,30 @@
   },
   {
     "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-holidays/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-holidays/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "DELETE",
+    "Route": "/api/v2/tenants/{tenantId:guid}/supplier-holidays/{holidayId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/supplier-property-choices",
     "Access": "AUTHORIZED",
     "Policies": [
@@ -3445,6 +3469,78 @@
   {
     "Method": "PUT",
     "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/inquiries/{inquiryId:guid}/quotes/{quoteId:guid}/reject",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-occurrences",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-occurrences/{occurrenceId:guid}/complete",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-occurrences/{occurrenceId:guid}/skip",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules/preview",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules/{scheduleId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules/{scheduleId:guid}/end",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManagePeople"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-schedules/{scheduleId:guid}/history",
     "Access": "AUTHORIZED",
     "Policies": [
       "CanManagePeople"

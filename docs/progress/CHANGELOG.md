@@ -1,3 +1,8 @@
+## TEDARİKÇİ FAZ07 — 30.10.2026 — TAMAMLANDI
+
+- Tedarikçi periyodik bakım planı, tenant tatil takvimi, iş günü kaydırma ve çakışma kontrolü, takvim/hatırlatma, tamamlanma kanıtı ve gecikme (`20261030061301_SupplierMaintenanceSchedules`).
+- Tedarikçi detayında ikonlu "Bakım planları" sekmesi; yol haritası SUP-07.
+
 ## TEDARİKÇİ FAZ06 — 30.10.2026 — TAMAMLANDI
 
 - Talep/arıza ve bakım planından iş emri; durum makinesi, SLA, gerekçeli red/iptal, özel fotoğraf kanıtı, SITE_ADMIN doğrulama/kapanış ve immutable geçmiş (`20261030052649_SupplierWorkOrders`).

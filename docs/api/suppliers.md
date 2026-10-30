@@ -72,3 +72,19 @@ Kök `/api/v2/tenants/{tenantId}/suppliers/{supplierId}`; `CanManagePeople` poli
 | `GET/POST /work-orders/{orderId}/photos` | Multipart `file`, `operationId`, `version`, `caption`; yalnız JPEG/PNG imza+MIME+uzantı, en fazla 10 fotoğraf, COMPLETED sonrası yükleme 409. İndirme mevcut supplier belge ucu üzerinden JWT kontrollü `no-store`; genel Property belge ucu 404 verir, fotoğraf kanıtı kaldırılamaz. |
 
 Kabul/başlatma tedarikçi portalı değil, iç yönetici kaydıdır. Talep veya bakım planı durumu otomatik değiştirilmez. SLA UTC saklanır, ekranda Europe/Istanbul gösterilir; `isOverdue` yalnız açık iş emrinde hesaplanır. Yazımlar tenant→Property kilidi, beklenen version ve normalize UUID fingerprint ile atomiktir; eşzamanlı iki geçişte biri 200, diğeri 409 alır. FAZ05 teklif DRAFT iş emirleri `20261030052649_SupplierWorkOrders` ile korunarak taşınır; kaynak/zaman çizgisi/fotoğraf tabloları immutable trigger'larla korunur ve dolu Down veri kaybını reddeder. Migration canlıya uygulanmadı.
+
+## FAZ07 — Periyodik bakım ve planlama
+
+Kök `/api/v2/tenants/{tenantId}/suppliers/{supplierId}`; FAZ06 ile aynı `CanManagePeople`, tenant ve alan üyeliği kuralları. Tatil takvimi tenant düzeyindedir: `/api/v2/tenants/{tenantId}/supplier-holidays`.
+
+| Uç | Davranış |
+| --- | --- |
+| `GET/POST /supplier-holidays`, `DELETE /supplier-holidays/{id}?version=` | Yıl bazlı sayfalı liste; tarih doğal anahtardır, aynı tarih+ad tekrarı mevcut kaydı döndürür, farklı ad 409. Silme soft-delete, version uyuşmazlığı 409. Tatil değişikliği yalnız yeni planlara uygulanır. |
+| `POST /maintenance-schedules/preview` | Yazmadan tarih listesi: asıl tarih, planlanan tarih, kaydırıldı ve çakışma bayrağı. |
+| `GET/POST /maintenance-schedules`, `GET /maintenance-schedules/{id}` | `operationId`, `supplierVersion`, `plan{propertyId, areaServiceId, contractId?, title, description?, type, frequency, startDate, endDate, reminderDays, nonWorkingDayRule}`. Sıklık WEEKLY/MONTHLY/QUARTERLY/SEMIANNUAL/YEARLY; dönem en fazla 731 gün ve 120 tarih; ay adımları başlangıçtan hesaplanır (31→28→31 kayma yok). |
+| `PUT /maintenance-schedules/{id}/end` | Gerekçeyle sonlandırır; kalan PLANNED tarihler SKIPPED, bağlı Planlama ve Bakımlar kayıtları CANCELLED olur. Açık iş emri varsa 409. |
+| `GET /maintenance-schedules/{id}/history` | CREATE/END/COMPLETE/SKIP immutable revizyonları. |
+| `GET /maintenance-occurrences?scheduleId&from&to&status&reminderDue` | Takvim ve hatırlatma listesi; aralık en fazla 366 gün. `isOverdue` = PLANNED ve tarih bugünden önce, `isReminderDue` = PLANNED ve tarih−hatırlatma günü ≤ bugün (Europe/Istanbul). |
+| `PUT /maintenance-occurrences/{id}/complete` / `skip` | Tamamlama: tarih ≤ bugün, kanıt notu zorunlu, isteğe bağlı `workOrderId` yalnız bu tarihten açılmış VERIFIED/CLOSED iş emri. Açık iş emri varken tamamlama veya atlama 409. Gecikme günü = max(0, tamamlanma − planlanan). |
+
+Hafta sonu her zaman iş günü dışıdır; kural NEXT_WORKING_DAY/PREVIOUS_WORKING_DAY/KEEP. Kaydırma plan dönemi dışına taşarsa veya aynı Property+hizmette aktif planın PLANNED tarihiyle çakışırsa oluşturma `BF_SUPPLIER_MAINTENANCE_CONFLICT` 409 verir. Sözleşmeye bağlı plan için sözleşme ACTIVE ve dönem sözleşme tarihleri içinde olmalı, aksi `BF_SUPPLIER_MAINTENANCE_STATE` 409. Her tarih mevcut MaintenancePlan modülünde PLANNED kayıt oluşturur (sorumlu: tedarikçi adı), böylece FAZ06 iş emri kaynağı olarak seçilebilir. Hatırlatmalar ekrandaki listedir; e-posta/push gönderimi FAZ10 kapsamındadır. Dört yeni BaseEntity tablosu, composite FK, kapsam/kanıt değişmezliği trigger'ları ve dolu Down guard `20261030061301_SupplierMaintenanceSchedules` içindedir; canlıya uygulanmadı.

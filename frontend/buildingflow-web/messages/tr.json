@@ -437,6 +437,11 @@
     "resident": "Bu web sitesindeki güncel malik, kiracı ve sakin çalışma alanlarınız."
   },
   "ui": {
+    "supplierMaintenanceRoadmapTitle": "Tedarikçi periyodik bakımları",
+    "supplierMaintenanceRoadmapDescription": "Tekrarlı bakım planı, takvim, hatırlatma, tatil ve tamamlanma kanıtı.",
+    "supplierMaintenanceRoadmapTask": "Periyodik bakım planlama ve kanıt",
+    "supplierMaintenanceRoadmapDetail": "Haftalık–yıllık tekrar, hafta sonu/tatil kaydırma, aynı hizmette çakışma engeli, sözleşme dönemi kontrolü, Planlama ve Bakımlar kaydı, gecikme günü ve iş emri kanıtı; immutable geçmiş.",
+    "supplierMaintenanceRoadmapVerification": "30.10.2026: tam regresyon Integration924/928 (2 opt-in; 2 paylaşılan PG 'out of shared memory' tekrar koşumda 19/19 geçti)+unit469/469; web336/336+typecheck/build; lisans329 PASS; kapsam kapısı GEÇTİ. Rapor docs/suppliers/07-report.md; #97. Tarayıcı UI/canlı OIDC E2E yapılmadı.",
     "supplierWorkOrdersRoadmapTitle": "Tedarikçi iş emirleri",
     "supplierWorkOrdersRoadmapDescription": "Talep/arıza ve bakımdan iş emri, SLA, fotoğraf ve yönetici kapanışı.",
     "supplierWorkOrdersRoadmapTask": "İş emri yaşam döngüsü ve Talep/Arıza bağlantısı",

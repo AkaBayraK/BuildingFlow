@@ -437,6 +437,11 @@
     "resident": "Your current owner, tenant and resident workspaces for this website."
   },
   "ui": {
+    "supplierMaintenanceRoadmapTitle": "Supplier periodic maintenance",
+    "supplierMaintenanceRoadmapDescription": "Recurring plans, calendar, reminders, holidays and completion evidence.",
+    "supplierMaintenanceRoadmapTask": "Periodic maintenance planning and evidence",
+    "supplierMaintenanceRoadmapDetail": "Weekly to yearly repetition, weekend/holiday shifting, same-service clash guard, contract period check, Planning and Maintenance entries, delay days and work order evidence; immutable history.",
+    "supplierMaintenanceRoadmapVerification": "2026-10-30: full regression integration924/928 (2 opt-in; 2 shared-PG 'out of shared memory' failures passed 19/19 on rerun)+unit469/469; web336/336+typecheck/build; 329 license PASS; coverage gate PASS. Report docs/suppliers/07-report.md; #97. Browser UI/live OIDC E2E not run.",
     "supplierWorkOrdersRoadmapTitle": "Supplier work orders",
     "supplierWorkOrdersRoadmapDescription": "Work orders from requests and maintenance, SLA, photos and manager closure.",
     "supplierWorkOrdersRoadmapTask": "Work order lifecycle and request link",

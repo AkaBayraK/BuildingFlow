@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ07 — 30.10.2026 — TAMAMLANDI
+
+**#97; resmi2/2=%100,00; akış8/13=%61,54.** Tekrarlı bakım planı, tatil takvimi, kaydırma/çakışma, takvim ve hatırlatma listesi, Planlama ve Bakımlar kaydı, tamamlanma kanıtı/gecikme, sözleşme bağı, iş emri kanıtı. Tam regresyon Integration924/928+Unit469/469 (2 PG bellek hatası tekrar koşumda geçti), web336/336+build, kapsam kapısı GEÇTİ. Çalışma worktree dalında yapılıp `buildingflow_tedarikci`'ye fast-forward edildi. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ08 (#98). Token: BİLGİ MEVCUT DEĞİL.
+
 ## TEDARİKÇİ FAZ06 — 30.10.2026 — TAMAMLANDI
 
 **#96; resmi3/3=%100,00; akış7/13=%53,85.** Talep/bakım kaynağından iş emri, durum makinesi, SLA, fotoğraf, idempotency/eşzamanlılık, yönetici onayı/kapanış ve geçmiş. Kapsam kapısı supplier test route metinleriyle ve üç anonim public okuma testiyle GEÇTİ (taban190). Tam regresyon **Integration922/924 (2 opt-in)+Unit464/464; web330/330+typecheck+build; lisans329 PASS.** Gerçek tarayıcı UI kontrolü yapılmadı. Migration canlıya uygulanmadı; push yok. Sonraki FAZ07 (#97). Token: BİLGİ MEVCUT DEĞİL.
