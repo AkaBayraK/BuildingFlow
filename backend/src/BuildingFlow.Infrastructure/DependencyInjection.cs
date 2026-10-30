@@ -90,6 +90,9 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.ISupplierMaintenanceStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierInvoiceStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierInsightStore>(p=>p.GetRequiredService<SupplierStore>());
+        services.AddSingleton(p=>new SupplierAdviceBudget(p.GetRequiredService<TimeProvider>(),configuration.GetValue("Suppliers:AdviceDailyLimit",SupplierAdviceBudget.DefaultLimit)));
+        services.AddSingleton<BuildingFlow.Application.ISupplierAdviceModel,RuleBasedSupplierAdviceModel>();
+        services.AddScoped<BuildingFlow.Application.ISupplierAdviceStore,SupplierAdviceService>();
         services.AddScoped<CommonAreaStore>();
         services.AddScoped<BuildingFlow.Application.ICommonAreaClosureStore>(p=>p.GetRequiredService<CommonAreaStore>());
         services.AddScoped<BuildingFlow.Application.ICommonAreaReservationStore>(p=>p.GetRequiredService<CommonAreaStore>());
