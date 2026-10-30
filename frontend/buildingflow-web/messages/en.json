@@ -498,6 +498,11 @@
     "resident": "Your current owner, tenant and resident workspaces for this website."
   },
   "ui": {
+    "supplierInvoicesRoadmapTitle": "Supplier invoices and expenses",
+    "supplierInvoicesRoadmapDescription": "Area-scoped invoices, Expenses link, approval, payment status and reconciliation.",
+    "supplierInvoicesRoadmapTask": "Invoice/expense integration and reconciliation",
+    "supplierInvoicesRoadmapDetail": "Duplicate number guard, exact VAT cents, one expense on approval by an administrator other than the recorder, off-system payment marker, reconciliation, reasoned cancel/correction and immutable audit; no money movement.",
+    "supplierInvoicesRoadmapVerification": "2026-10-30: full regression integration930/932 (2 opt-in)+unit472/472; web340/340+typecheck/build; 329 license PASS; coverage gate PASS. Report docs/suppliers/08-report.md; #98. Browser UI/live OIDC E2E not run.",
     "supplierMaintenanceRoadmapTitle": "Supplier periodic maintenance",
     "supplierMaintenanceRoadmapDescription": "Recurring plans, calendar, reminders, holidays and completion evidence.",
     "supplierMaintenanceRoadmapTask": "Periodic maintenance planning and evidence",

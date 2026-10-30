@@ -3476,6 +3476,70 @@
   },
   {
     "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "POST",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/approve",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/cancel",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/history",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/pay",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "PUT",
+    "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/reconcile",
+    "Access": "AUTHORIZED",
+    "Policies": [
+      "CanManageDues"
+    ]
+  },
+  {
+    "Method": "GET",
     "Route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-occurrences",
     "Access": "AUTHORIZED",
     "Policies": [

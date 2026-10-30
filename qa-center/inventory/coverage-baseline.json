@@ -156,7 +156,6 @@
   "PUT /api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/close",
   "PUT /api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/decision",
   "PUT /api/v1/properties/{propertyId:guid}/bank-accounts/{accountId:guid}/default",
-  "PUT /api/v1/properties/{propertyId:guid}/expenses/{expenseId:guid}/cancel",
   "PUT /api/v1/properties/{propertyId:guid}/late-penalties/accruals/{accrualId:guid}/waive",
   "PUT /api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}",
   "PUT /api/v1/properties/{propertyId:guid}/late-penalties/policies/{policyId:guid}/approve",

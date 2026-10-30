@@ -498,6 +498,11 @@
     "resident": "Bu web sitesindeki güncel malik, kiracı ve sakin çalışma alanlarınız."
   },
   "ui": {
+    "supplierInvoicesRoadmapTitle": "Tedarikçi faturaları ve gider",
+    "supplierInvoicesRoadmapDescription": "Alan bazlı fatura, Gider modülü bağlantısı, onay, ödeme durumu ve mutabakat.",
+    "supplierInvoicesRoadmapTask": "Fatura/gider entegrasyonu ve mutabakat",
+    "supplierInvoicesRoadmapDetail": "Mükerrer numara engeli, KDV kuruş hesabı, kaydedenden ayrı yönetici onayıyla tek gider kaydı, sistem dışı ödeme işareti, mutabakat, gerekçeli iptal/düzeltme ve immutable audit; para hareketi yok.",
+    "supplierInvoicesRoadmapVerification": "30.10.2026: tam regresyon Integration930/932 (2 opt-in)+unit472/472; web340/340+typecheck/build; lisans329 PASS; kapsam kapısı GEÇTİ. Rapor docs/suppliers/08-report.md; #98. Tarayıcı UI/canlı OIDC E2E yapılmadı.",
     "supplierMaintenanceRoadmapTitle": "Tedarikçi periyodik bakımları",
     "supplierMaintenanceRoadmapDescription": "Tekrarlı bakım planı, takvim, hatırlatma, tatil ve tamamlanma kanıtı.",
     "supplierMaintenanceRoadmapTask": "Periyodik bakım planlama ve kanıt",

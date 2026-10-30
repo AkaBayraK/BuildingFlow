@@ -1,3 +1,8 @@
+## TEDARİKÇİ FAZ08 — 30.10.2026 — TAMAMLANDI
+
+- Tedarikçi faturası, mükerrer numara engeli, onayda Gider kaydı, ödendi/mutabakat, gerekçeli iptal/düzeltme ve audit (`20261030064630_SupplierInvoices`); faturaya bağlı gider Gider ekranından iptal edilemez.
+- Tedarikçi detayında ikonlu "Faturalar" sekmesi; yol haritası SUP-08.
+
 ## TEDARİKÇİ FAZ07 — 30.10.2026 — TAMAMLANDI
 
 - Tedarikçi periyodik bakım planı, tenant tatil takvimi, iş günü kaydırma ve çakışma kontrolü, takvim/hatırlatma, tamamlanma kanıtı ve gecikme (`20261030061301_SupplierMaintenanceSchedules`).

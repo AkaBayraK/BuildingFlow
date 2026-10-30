@@ -4,18 +4,18 @@
 
 | Kalem | Sayı |
 |---|---|
-| API endpoint (çalışma zamanı) | 450 |
-| Yetkili / açık anonim / public prefix | 437 / 13 / 0 |
-| Web çağrısı: tam eşleşme / yalnız taban yol | 139 / 257 |
+| API endpoint (çalışma zamanı) | 458 |
+| Yetkili / açık anonim / public prefix | 445 / 13 / 0 |
+| Web çağrısı: tam eşleşme / yalnız taban yol | 139 / 265 |
 | Mobil çağrısı: tam eşleşme / yalnız taban yol | 20 / 30 |
-| Backend testlerinde route metni geçen endpoint | 260 |
-| Web/mobilde tam eşleşmesi olmayan endpoint | 294 |
+| Backend testlerinde route metni geçen endpoint | 269 |
+| Web/mobilde tam eşleşmesi olmayan endpoint | 302 |
 | Hiç tüketicisi bulunmayan endpoint | 19 |
 | Web sayfası | 57 |
 | Menü bağlantısı / planlı menü | 10 / 1 |
 | Mobil ekran | 9 |
 | Mobil sekme: her zaman / bağlı kişi gerekir / gizli | 2 / 4 / 1 |
-| DB tablosu (EF snapshot) | 133 |
+| DB tablosu (EF snapshot) | 135 |
 
 ## Web sayfaları ve statik sinyaller
 

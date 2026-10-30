@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ08 — 30.10.2026 — TAMAMLANDI
+
+#98 resmi3/3=%100,00; akış9/13=%69,23. Fatura/gider entegrasyonu, onay, ödeme durumu, mutabakat, iptal/düzeltme audit. Rapor `docs/suppliers/08-report.md`.
+
 ## TEDARİKÇİ FAZ07 — 30.10.2026 — TAMAMLANDI
 
 #97 resmi2/2=%100,00; akış8/13=%61,54. Periyodik bakım planı, tatil/çakışma, takvim/hatırlatma, kanıt/gecikme, sözleşme ilişkisi. Rapor `docs/suppliers/07-report.md`.

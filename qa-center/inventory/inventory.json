@@ -1386,7 +1386,7 @@
   },
   {
    "access": "AUTHORIZED",
-   "backendTestReference": false,
+   "backendTestReference": true,
    "method": "PUT",
    "mobile": null,
    "policies": [
@@ -4774,6 +4774,94 @@
    "method": "GET",
    "mobile": null,
    "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "POST",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/approve",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/cancel",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/history",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/pay",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "PUT",
+   "mobile": null,
+   "policies": [
+    "CanManageDues"
+   ],
+   "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/invoices/{invoiceId:guid}/reconcile",
+   "web": "BASE_PREFIX"
+  },
+  {
+   "access": "AUTHORIZED",
+   "backendTestReference": true,
+   "method": "GET",
+   "mobile": null,
+   "policies": [
     "CanManagePeople"
    ],
    "route": "/api/v2/tenants/{tenantId:guid}/suppliers/{supplierId:guid}/maintenance-occurrences",
@@ -5304,6 +5392,8 @@
   "supplier_inquiries",
   "supplier_inquiry_revisions",
   "supplier_invitations",
+  "supplier_invoice_revisions",
+  "supplier_invoices",
   "supplier_maintenance_occurrences",
   "supplier_maintenance_revisions",
   "supplier_maintenance_schedules",

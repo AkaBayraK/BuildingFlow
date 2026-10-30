@@ -88,3 +88,19 @@ Kök `/api/v2/tenants/{tenantId}/suppliers/{supplierId}`; FAZ06 ile aynı `CanMa
 | `PUT /maintenance-occurrences/{id}/complete` / `skip` | Tamamlama: tarih ≤ bugün, kanıt notu zorunlu, isteğe bağlı `workOrderId` yalnız bu tarihten açılmış VERIFIED/CLOSED iş emri. Açık iş emri varken tamamlama veya atlama 409. Gecikme günü = max(0, tamamlanma − planlanan). |
 
 Hafta sonu her zaman iş günü dışıdır; kural NEXT_WORKING_DAY/PREVIOUS_WORKING_DAY/KEEP. Kaydırma plan dönemi dışına taşarsa veya aynı Property+hizmette aktif planın PLANNED tarihiyle çakışırsa oluşturma `BF_SUPPLIER_MAINTENANCE_CONFLICT` 409 verir. Sözleşmeye bağlı plan için sözleşme ACTIVE ve dönem sözleşme tarihleri içinde olmalı, aksi `BF_SUPPLIER_MAINTENANCE_STATE` 409. Her tarih mevcut MaintenancePlan modülünde PLANNED kayıt oluşturur (sorumlu: tedarikçi adı), böylece FAZ06 iş emri kaynağı olarak seçilebilir. Hatırlatmalar ekrandaki listedir; e-posta/push gönderimi FAZ10 kapsamındadır. Dört yeni BaseEntity tablosu, composite FK, kapsam/kanıt değişmezliği trigger'ları ve dolu Down guard `20261030061301_SupplierMaintenanceSchedules` içindedir; canlıya uygulanmadı.
+
+## FAZ08 — Muhasebe, fatura ve gider entegrasyonu
+
+Kök `/api/v2/tenants/{tenantId}/suppliers/{supplierId}/invoices`, politika `CanManageDues` (SUPER_ADMIN/SITE_ADMIN/MANAGER/ACCOUNTANT). Erişim: aktif tenant üyeliği, tenant PropertyScope, kullanıcının aktif Property üyeliği (SUPER_ADMIN hariç) ve tedarikçinin o alana bağlı olması. Kişi yetkisi gerekmez; yanıt kişisel iletişim verisi içermez.
+
+| Uç | Davranış ve rol |
+| --- | --- |
+| `GET ?status&page` | Sayfalı liste + durum bazlı brüt toplam özeti ve vadesi geçmiş sayısı (görünür tüm faturalar). |
+| `POST` | Herhangi bir finans rolü. `operationId, propertyId, number, issueDate, dueDate, netAmount, vatRate, category, description, workOrderId?, contractId?, correctsInvoiceId?`. TRY, net ve KDV string, KDV yarım-yukarı kuruş. Fatura tarihi ≤ bugün, vade ≥ fatura tarihi. Numara boşluk/nokta/tire/eğik çizgi yok sayılarak aynı tedarikçide iptal edilmemiş faturalar arasında tekil (`BF_SUPPLIER_INVOICE_DUPLICATE`). İş emri COMPLETED/VERIFIED/CLOSED, sözleşme ACTIVE, düzeltilen fatura CANCELLED ve tek düzeltme. |
+| `GET /{id}`, `GET /{id}/history` | Fatura ve immutable CREATE/APPROVE/PAY/RECONCILE/CANCEL revizyonları. |
+| `PUT /{id}/approve` | Yalnız alan yetkili SITE_ADMIN/SUPER_ADMIN ve faturayı kaydeden kişiden farklı biri. Mevcut Gider modülünde `RequestId = faturaId`, tutar brüt, tarih fatura tarihi, belge referansı fatura numarası olan tek gider oluşturur. |
+| `PUT /{id}/pay` | ACCOUNTANT veya SITE_ADMIN/SUPER_ADMIN; `date` (fatura tarihi ≤ tarih ≤ bugün) ve `text` ödeme referansı. Yalnız sistem dışı ödemenin kaydıdır; para hareketi veya ödeme sağlayıcısı yoktur. |
+| `PUT /{id}/reconcile` | ACCOUNTANT veya SITE_ADMIN/SUPER_ADMIN; ödeme tarihinden sonra, not zorunlu. Nihai durum. |
+| `PUT /{id}/cancel` | SITE_ADMIN/SUPER_ADMIN, gerekçe zorunlu; RECORDED/APPROVED. Onaylıysa bağlı gider aynı gerekçeyle iptal edilir. Ödenmiş fatura iptal edilemez (409); düzeltme yeni fatura ile yapılır. |
+
+Faturaya bağlı gider Gider ekranından ayrıca iptal edilemez (`BF_SUPPLIER_INVOICE_LINKED`). Durum makinesi ve değer değişmezliği DB trigger'ı ile korunur; dolu Down veri kaybını reddeder (`20261030064630_SupplierInvoices`, canlıya uygulanmadı). Muhasebeci için ayrı fatura ekranı yoktur; web arayüzü tedarikçi detayındaki Faturalar sekmesidir (yönetici rolleri), muhasebeci aynı API'ye ve oluşan giderlere Gider modülünden erişir.
