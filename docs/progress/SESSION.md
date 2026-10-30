@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ12 — 30.10.2026 — OTOMATİK KAPILAR TAMAM / TARAYICI E2E BEKLİYOR
+
+#102 açık. RBAC/izolasyon matrisi, uçtan uca akış, p95, migration zinciri, idempotent SQL, yedek provası, erişilebilirlik statik kapısı, tam regresyon exit0 (945/947+472). Paylaşılan PG kilit hatası şema işlemleri sınırıyla giderildi. Bekleyen: kullanıcı onayıyla yerel DB'ye 9 tedarikçi migration'ı + API yeniden başlatma + `scripts/qa-web.sh` gerçek tarayıcı E2E. Push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
 
 **#101; resmi4/4=%100,00; akış12/13=%92,31.** Dış servissiz, modelden bağımsız, maskeli ve onaylı tedarikçi öneri katmanı (eşleştirme, gecikme riski, maliyet sapması); güvenilmez çıktı temizleme, günlük limit. Dış model bağlamak ayrı onay. Tam regresyon Integration938/942+Unit472/472 (PG bellek hatası tekrar koşumda geçti), web344/344+build. Push yok; kullanıcı onayı bekleniyor. Sonraki FAZ12 (#102). Risk: paylaşılan PG "out of shared memory". Token: BİLGİ MEVCUT DEĞİL.

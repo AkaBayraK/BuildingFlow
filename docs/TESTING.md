@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ12 — 30.10.2026 — OTOMATİK KAPILAR GEÇTİ / TARAYICI E2E BEKLİYOR
+
+`SupplierReleaseTests`: RBAC matrisi 67 uç × 3 kimlik, tenant izolasyonu 31 GET + öneri, sözleşme→iş emri→bakım→fatura→gider→rapor uçtan uca akış, p95 210 ms (41 tedarikçi/200 iş emri). `SupplierMigrationChainTests`: 9 migration/24 tablo geri al ve yeniden kur. İdempotent SQL 64×2, model eşleşmesi, yedek/geri yükleme 8/8, `supplier-accessibility.test.mjs`. `SiteApiFactory` şema migrate/drop eşzamanlılığı 4 ile sınırlandı (paylaşılan PG 53200). **Tam regresyon Integration945/947 (2 opt-in)+Unit472/472 exit0; web347/347+typecheck+build; mobil170/170; lisans329; kapsam kapısı GEÇTİ.** Gerçek tarayıcı E2E yerel migration onayı bekliyor. Rapor `docs/suppliers/12-report.md`.
+
 ## TEDARİKÇİ FAZ11 — 30.10.2026 — GEÇTİ
 
 **Resmi4/4 tamamlandı.** `SupplierAdviceTests`: maskeli girdide ad/kimlik yok; kural modeli sıralama/gecikme/maliyet kanıtları; güvenilmez model çıktısı temizleme (bilinmeyen takma ad, eylem, kod, kanıt, tekrar); günlük bütçe; API onay zorunluluğu, geçersiz tür 400, prompt injection notunun etkisizliği, yabancı alan/kategori/tenant 404, ACCOUNTANT 403, gecikme riski HIGH, maliyet sapması medyan kanıtı, öneri sonrası kayıtların değişmemesi; 20 istek sonrası 429. Web `supplier-advice.test.mjs`. **Tam regresyon Integration938/942 (2 opt-in; 2 PG bellek hatası tekrar koşumda 23/23)+Unit472/472; web344/344+typecheck+build; lisans329; kapsam kapısı GEÇTİ.** Rapor `docs/suppliers/11-report.md`.

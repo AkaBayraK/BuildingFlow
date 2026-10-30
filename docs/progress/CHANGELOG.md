@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ12 — 30.10.2026
+
+- Tedarikçi yayın kapıları: RBAC/tenant matrisi, uçtan uca akış, p95, migration zinciri, erişilebilirlik statik testi; test fabrikasında şema işlemleri eşzamanlılık sınırı.
+
 ## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
 
 - Modelden bağımsız tedarikçi öneri adaptörü (kural tabanlı varsayılan), maskeleme, onay, çıktı temizleme, günlük limit; Tedarikçiler ekranında Öneriler görünümü; yol haritası SUP-11.

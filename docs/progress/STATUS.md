@@ -1,3 +1,7 @@
+## TEDARİKÇİ FAZ12 — 30.10.2026 — TARAYICI E2E BEKLİYOR
+
+#102: otomatik kalite kapıları GEÇTİ; gerçek tarayıcı E2E kullanıcı onayı bekliyor. Rapor `docs/suppliers/12-report.md`.
+
 ## TEDARİKÇİ FAZ11 — 30.10.2026 — TAMAMLANDI
 
 #101 resmi4/4=%100,00; akış12/13=%92,31. Kural tabanlı, maskeli tedarikçi öneri adaptörü; dış servis yok. Rapor `docs/suppliers/11-report.md`.
