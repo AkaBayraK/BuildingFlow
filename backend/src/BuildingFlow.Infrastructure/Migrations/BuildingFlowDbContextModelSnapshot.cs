@@ -9810,6 +9810,312 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.ToTable("supplier_invitations", (string)null);
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierInvoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("cancellation_reason");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("category");
+
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contract_id");
+
+                    b.Property<Guid?>("CorrectsInvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("corrects_invoice_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("description");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<Guid?>("ExpenseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("expense_id");
+
+                    b.Property<decimal>("GrossAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("gross_amount");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("issue_date");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<decimal>("NetAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("net_amount");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("number");
+
+                    b.Property<string>("NumberKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("number_key");
+
+                    b.Property<DateOnly?>("PaidOn")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_on");
+
+                    b.Property<string>("PaymentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("payment_reference");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateOnly?>("ReconciledOn")
+                        .HasColumnType("date")
+                        .HasColumnName("reconciled_on");
+
+                    b.Property<string>("ReconciliationNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reconciliation_note");
+
+                    b.Property<string>("RecordedByIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("recorded_by_issuer");
+
+                    b.Property<string>("RecordedBySubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("recorded_by_subject");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("VatAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("vat_amount");
+
+                    b.Property<decimal>("VatRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("vat_rate");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<Guid?>("WorkOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_order_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrectsInvoiceId")
+                        .IsUnique()
+                        .HasFilter("corrects_invoice_id IS NOT NULL");
+
+                    b.HasIndex("ExpenseId")
+                        .IsUnique()
+                        .HasFilter("expense_id IS NOT NULL");
+
+                    b.HasIndex("TenantId", "SupplierId", "NumberKey")
+                        .IsUnique()
+                        .HasFilter("status <> 'CANCELLED' AND NOT is_deleted");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "ContractId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "CorrectsInvoiceId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "WorkOrderId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "Status", "IssueDate");
+
+                    b.ToTable("supplier_invoices", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_invoice_amounts", "net_amount > 0 AND vat_rate BETWEEN 0 AND 100 AND vat_amount >= 0 AND gross_amount = net_amount + vat_amount AND gross_amount <= 99999999.99 AND currency = 'TRY'");
+
+                            t.HasCheckConstraint("ck_supplier_invoice_lifecycle", "(status NOT IN ('APPROVED','PAID','RECONCILED') OR expense_id IS NOT NULL) AND (status NOT IN ('PAID','RECONCILED')) = (paid_on IS NULL AND payment_reference IS NULL) AND (paid_on IS NULL OR paid_on >= issue_date) AND (status <> 'RECONCILED') = (reconciled_on IS NULL AND reconciliation_note IS NULL) AND (reconciled_on IS NULL OR reconciled_on >= paid_on) AND (status = 'CANCELLED') = (cancellation_reason IS NOT NULL AND length(trim(cancellation_reason)) > 0)");
+
+                            t.HasCheckConstraint("ck_supplier_invoice_valid", "length(trim(number)) > 0 AND length(number_key) > 0 AND length(trim(description)) > 0 AND issue_date >= DATE '2000-01-01' AND due_date >= issue_date AND due_date <= DATE '2100-12-31' AND category IN ('MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER') AND status IN ('RECORDED','APPROVED','PAID','RECONCILED','CANCELLED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierInvoiceRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("ActorIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("actor_issuer");
+
+                    b.Property<string>("ActorSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_subject");
+
+                    b.Property<long>("AppliedVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("applied_version");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("snapshot");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId", "AppliedVersion")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "ActorIssuer", "ActorSubject", "OperationId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "InvoiceId");
+
+                    b.ToTable("supplier_invoice_revisions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_invoice_revision_valid", "applied_version > 0 AND length(fingerprint) = 64 AND action IN ('CREATE','APPROVE','PAY','RECONCILE','CANCEL')");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierMaintenanceOccurrence", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14302,6 +14608,49 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasOne("BuildingFlow.Domain.SupplierAreaService", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "SupplierId", "PropertyId", "AreaServiceId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierInvoice", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Expense", null)
+                        .WithMany()
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SupplierManagementArea", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierContract", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "ContractId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SupplierInvoice", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "CorrectsInvoiceId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingFlow.Domain.SupplierWorkOrder", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "WorkOrderId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierInvoiceRevision", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SupplierInvoice", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "InvoiceId")
                         .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

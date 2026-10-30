@@ -88,6 +88,7 @@ public sealed class ExpenseStore(BuildingFlowDbContext db, TimeProvider clock) :
         var value = await db.Expenses.SingleOrDefaultAsync(value => value.PropertyId == property && value.Id == expense, token); if (value is null) return null;
         if (value.Version != request.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
         if (value.IsCancelled) throw new HierarchyConflictException(ErrorCatalog.ExpenseAlreadyCancelled.Create());
+        if (await db.Set<SupplierInvoice>().AnyAsync(invoice => invoice.ExpenseId == value.Id, token)) throw new HierarchyConflictException(ErrorCatalog.SupplierInvoiceLinked.Create());
         value.Cancel(request.Reason!, clock.GetUtcNow()); Touch(parent); await Save(token); await transaction.CommitAsync(token); return Response(value);
     }
     private static BudgetResponse BudgetResponse(PropertyBudget value, bool replayed = false, int? applied = null) => new(value.Id, value.PropertyId, value.Period.ToString("yyyy-MM", CultureInfo.InvariantCulture), value.Category.ToString(), DuesService.Money(value.Amount), value.Currency, value.Version, value.Revisions.OrderByDescending(revision => revision.Sequence).Select(revision => new BudgetRevisionResponse(revision.Id, DuesService.Money(revision.Amount), revision.Sequence, revision.Explanation, revision.CreatedAt)).ToArray(), replayed, applied ?? value.RevisionCount);

@@ -97,6 +97,9 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SupplierWorkOrderState = new("BF_SUPPLIER_WORK_ORDER_STATE", "İş emrinin durumu, kaynak bağlantısı veya fotoğraf sınırı bu işleme uygun değil.", "warning");
     public static readonly ErrorDefinition SupplierMaintenanceState = new("BF_SUPPLIER_MAINTENANCE_STATE", "Bakım planının, sözleşmenin veya bağlı iş emrinin durumu bu işleme uygun değil.", "warning");
     public static readonly ErrorDefinition SupplierMaintenanceConflict = new("BF_SUPPLIER_MAINTENANCE_CONFLICT", "Planlanan bakım tarihleri aynı hizmetin başka bir bakımıyla çakışıyor veya dönem içinde iş günü bulunamıyor.", "warning");
+    public static readonly ErrorDefinition SupplierInvoiceDuplicate = new("BF_SUPPLIER_INVOICE_DUPLICATE", "Bu tedarikçi için aynı numaralı geçerli bir fatura zaten kayıtlı.", "warning");
+    public static readonly ErrorDefinition SupplierInvoiceState = new("BF_SUPPLIER_INVOICE_STATE", "Faturanın veya bağlı iş emri, sözleşme ya da düzeltilen faturanın durumu bu işleme uygun değil.", "warning");
+    public static readonly ErrorDefinition SupplierInvoiceLinked = new("BF_SUPPLIER_INVOICE_LINKED", "Tedarikçi faturasına bağlı gider yalnız fatura üzerinden iptal edilebilir.", "warning");
     public static readonly ErrorDefinition SupplierDocumentProtected = new("BF_SUPPLIER_DOCUMENT_PROTECTED", "Revizyon veya sözleşme geçmişi olan belge kaldırılamaz.", "warning");
     public static readonly ErrorDefinition SupplierInvalid = new("BF_SUPPLIER_INVALID", "Tedarikçi adı, türü, durumu ve işlem bilgilerini kontrol edin.", "error");
     public static readonly ErrorDefinition SupplierDuplicate = new("BF_SUPPLIER_DUPLICATE", "Bu yönetim kapsamında aynı adlı tedarikçi zaten mevcut.", "warning");
@@ -329,7 +332,7 @@ public static class ErrorCatalog
     {
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
-        SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierDocumentProtected, SupplierPropertyHistory,
+        SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierInvoiceDuplicate, SupplierInvoiceState, SupplierInvoiceLinked, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,
         SmsInvalid, SmsPhoneInvalid, SmsTemplateParameterInvalid, SmsAccountRequired, SmsCreditInsufficient, SmsTemplateConflict, SmsPhoneNotVerified,
