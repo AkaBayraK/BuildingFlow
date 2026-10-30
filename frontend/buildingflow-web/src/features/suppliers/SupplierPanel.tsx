@@ -22,6 +22,7 @@ import {SupplierWorkOrders} from "./SupplierWorkOrders";
 import {SupplierQuotes} from "./SupplierQuotes";
 import {SupplierContracts} from "./SupplierContracts";
 import {SupplierMaintenance} from "./SupplierMaintenance";
+import {SupplierInvoices} from "./SupplierInvoices";
 import {SupplierBadge} from "./SupplierBadge";
 export function SupplierPanel({tenant,target,editing,focusTarget,fallbackTarget,onClose,onSaved}:{tenant:string;target?:Supplier;editing:boolean;focusTarget:HTMLElement|null;fallbackTarget:HTMLElement|null;onClose:()=>void;onSaved:()=>void}){
  const t=useTranslations("suppliers"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification();
@@ -46,6 +47,7 @@ export function SupplierPanel({tenant,target,editing,focusTarget,fallbackTarget,
  {detailTab==="quotes"&&<SupplierQuotes onOpenWorkOrder={id=>{setWorkOrderId(id);setDetailTab("workOrders");}} supplier={record} onBusyChange={setRelationsBusy} onChanged={value=>{setRecord(value);setForm(supplierForm(value));onSaved();}}/>}
  {detailTab==="contracts"&&<SupplierContracts supplier={record} onBusyChange={setRelationsBusy} onChanged={value=>{setRecord(value);setForm(supplierForm(value));onSaved();}}/>}
  {detailTab==="maintenance"&&<SupplierMaintenance supplier={record} onBusyChange={setRelationsBusy} onChanged={value=>{setRecord(value);setForm(supplierForm(value));onSaved();}}/>}
+ {detailTab==="invoices"&&<SupplierInvoices supplier={record} onBusyChange={setRelationsBusy}/>}
  </div><DialogFooter><Button variant="outline" disabled={busy} onClick={onClose}>{ui("close")}</Button><Button variant="edit" disabled={busy} onClick={()=>setEdit(true)}><Pencil/>{t("edit")}</Button></DialogFooter></div>}
  </ManagementPanel></Dialog>;
 }
