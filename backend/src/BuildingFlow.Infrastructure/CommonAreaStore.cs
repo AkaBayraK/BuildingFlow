@@ -86,6 +86,7 @@ public sealed partial class CommonAreaStore(BuildingFlowDbContext db, ICurrentUs
             // A concurrent disable/delete/edit of the selected building cannot silently win.
             db.Entry(building!).Property(b => b.IsEnabled).IsModified = true;
         }
+        await DefinitionPolicy.EnsureSelectableAsync(db, property, "COMMON_AREA_TYPE", c.Type.ToString(), id is null ? null : value!.Type.ToString(), "type", token);
         if (id is null) {
             value = new(property, c.RequestId, c.Fingerprint, c.Name, c.Type, c.BuildingId, c.Visibility, c.Usage,
                 c.Capacity, c.Description, c.Rules, c.OpensAt, c.ClosesAt, c.FeeAmount); value.SetEnabled(c.IsEnabled); db.Add(value);

@@ -57,9 +57,13 @@ public sealed class MaintenanceStore(BuildingFlowDbContext db,TimeProvider clock
         if (id.HasValue) {
             var current = await db.MaintenancePlans.SingleOrDefaultAsync(x => x.PropertyId == property && x.Id == id && x.IsEnabled, token);
             if (current is null) return null; Version(command.Version, current.Version); value = current;
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "MAINTENANCE_TYPE", command.Type.ToString(), current.Type.ToString(), "type", token);
             value.Edit(command.Title, command.Description, command.Type, command.PlannedDate, command.Location, command.Responsible, command.Status);
             db.Entry(value).Property(x => x.IsEnabled).IsModified = true;
-        } else { value = new(property, command.Title, command.Description, command.Type, command.PlannedDate, command.Location, command.Responsible, command.Status); db.Add(value); }
+        } else {
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "MAINTENANCE_TYPE", command.Type.ToString(), null, "type", token);
+            value = new(property, command.Title, command.Description, command.Type, command.PlannedDate, command.Location, command.Responsible, command.Status); db.Add(value);
+        }
         await CommonAreaMaintenanceEvents.PlanChanged(db,value,false,clock.GetUtcNow(),token);
         db.Entry(parent).Property(x => x.IsEnabled).IsModified = true;
         await db.SaveChangesAsync(token); await tx.CommitAsync(token); return Response(value);

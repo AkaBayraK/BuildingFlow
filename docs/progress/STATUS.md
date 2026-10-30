@@ -1,3 +1,7 @@
+## TNM 03 — 30.10.2026 — TAMAMLANDI
+
+TNM akışı 3/6=%50,00. `property_definition_settings`, alan tanımları API'si, 7 yazım noktasında koruma, 6 web formu etkin listeyi okuyor; Tanımlar ekranında Yönetim alanı görünümü. Alana özel ek değer (P_ kodu) ertelendi.
+
 ## TNM 02 — 30.10.2026 — TAMAMLANDI
 
 Tanımlar resmi1/1=%100,00; TNM akışı 2/6=%33,33. `definition_values` + `DefinitionValues` migration, SUPER_ADMIN PUT ucu ve Tanımlar ekranında sağ düzenleme paneli. Formlara yansıma TNM 03'te.

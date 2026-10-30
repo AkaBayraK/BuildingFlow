@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import Link from "next/link";
 import {useLocale,useTranslations} from "next-intl";
-import {CheckCircle2,ExternalLink,FileText,Lock,PauseCircle,Pencil,RefreshCw,Save,SlidersHorizontal} from "lucide-react";
+import {Building2,CheckCircle2,Eye,EyeOff,ExternalLink,FileText,Layers,Lock,PauseCircle,Pencil,RefreshCw,Save,SlidersHorizontal} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {ApiError,useAuthorizedApi,errorMessage} from "@/services/api";
 import {Button} from "@/components/ui/button";
@@ -16,7 +16,11 @@ import {FieldError,MessageBanner} from "@/components/feedback/MessageBanner";
 import {FilterChips} from "@/components/management/FilterChips";
 import {ToneBadge,WorkspaceHeading,type Tone} from "@/components/management/WorkspacePresentation";
 import {allIcon,catalogIcon,groupStyle,iconByKey,levelStyle,listIcon,resolvedStyle} from "./definition-style";
-import {definitionBody,definitionEditorRole,definitionForm,definitionFormErrors,definitionGroups,definitionIconKeys,definitionLabelKey,definitionLevels,definitionRoles,definitionTones,definitionValuePath,definitionsPath,filterLists,maxDefinitionName,maxDefinitionOrder,overrideName,readDefinitionValue,readDefinitions,sortedValues,type DefinitionForm,type DefinitionGroup,type DefinitionLevel,type DefinitionList,type DefinitionValue,type Definitions} from "./model";
+import {dashboardAreas,selectedDashboardArea} from "@/features/dashboard/area-selection";
+import {toolbarSelectClass} from "@/components/management/WorkspacePresentation";
+import type {Property} from "@/services/api";
+import {clearDefinitionCache} from "./useDefinitionOptions";
+import {definitionBody,definitionEditorRole,definitionForm,definitionFormErrors,definitionGroups,definitionIconKeys,definitionLabelKey,definitionLevels,definitionRoles,definitionTones,definitionValuePath,definitionsPath,filterLists,maxDefinitionName,maxDefinitionOrder,overrideName,propertyDefinitionValuePath,propertyDefinitionsPath,readDefinitionValue,readDefinitions,readPropertyDefinitionValue,readPropertyDefinitions,sortedValues,type PropertyDefinitionList,type PropertyDefinitionValue,type PropertyDefinitions,type DefinitionForm,type DefinitionGroup,type DefinitionLevel,type DefinitionList,type DefinitionValue,type Definitions} from "./model";
 
 const panel="min-w-0 rounded-2xl border bg-card shadow-sm";
 const levelTone:Record<DefinitionLevel,Tone>={FIXED:"neutral",SYSTEM:"info",PROPERTY:"success"};
@@ -27,6 +31,7 @@ export function DefinitionsWorkspace(){
  const allowed=definitionRoles.some(role=>identity.hasRealmRole(role)),canEdit=identity.hasRealmRole(definitionEditorRole);
  const [data,setData]=useState<Definitions|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
  const [editing,setEditing]=useState<{list:DefinitionList;value:DefinitionValue;trigger:HTMLElement|null}|null>(null);
+ const [mode,setMode]=useState<"SYSTEM"|"AREA">("SYSTEM");
  const [group,setGroup]=useState<DefinitionGroup|"ALL">("ALL"),[level,setLevel]=useState<DefinitionLevel|"ALL">("ALL");
 
  const load=useCallback(async(signal?:AbortSignal)=>{
@@ -48,6 +53,8 @@ export function DefinitionsWorkspace(){
   <WorkspaceHeading title={t("title")} description={t("subtitle")} scope={t("scope")} icon={SlidersHorizontal} action={<Button variant="view" onClick={()=>void load()} disabled={loading}><RefreshCw className={loading?"animate-spin":undefined}/>{t("refresh")}</Button>}/>
   <MessageBanner kind="info">{t(canEdit?"editNotice":"readOnlyNotice")}</MessageBanner>
   {error&&<MessageBanner>{error}</MessageBanner>}
+  <FilterChips label={t("modeFilter")} items={[{value:"SYSTEM",label:t("modeSystem"),icon:Layers,tone:"blue"},{value:"AREA",label:t("modeArea"),icon:Building2,tone:"green"}]} value={mode} onChange={value=>setMode(value as "SYSTEM"|"AREA")}/>
+  {mode==="AREA"?<AreaDefinitions/>:<>
   <section className={panel+" flex flex-col gap-3 p-4"} aria-label={t("filters")}>
    <FilterChips label={t("groupFilter")} items={groupChips} value={group} onChange={value=>setGroup(value as DefinitionGroup|"ALL")}/>
    <FilterChips label={t("levelFilter")} items={levelChips} value={level} onChange={value=>setLevel(value as DefinitionLevel|"ALL")}/>
@@ -66,6 +73,7 @@ export function DefinitionsWorkspace(){
       {c.route?<Button asChild variant="view" size="sm"><Link href={c.route}><ExternalLink aria-hidden="true"/>{t("openCatalog")}</Link></Button>:<ToneBadge tone="warning" icon={Lock}>{t("catalogPlanned")}</ToneBadge>}</div>
     </div>;})}</div>
    </section>}
+  </>}
   </>}
   {editing&&<DefinitionEditor list={editing.list} value={editing.value} trigger={editing.trigger} onClose={()=>setEditing(null)} onSaved={saved=>setData(current=>current&&{...current,lists:current.lists.map(l=>l.key!==editing.list.key?l:{...l,values:l.values.map(v=>v.code===saved.code?saved:v)})})}/>}
  </div>;
@@ -105,7 +113,7 @@ function DefinitionEditor({list,value,trigger,onClose,onSaved}:{list:DefinitionL
   e.preventDefault();if(lock.current)return;
   const problems=definitionFormErrors(form,current.locked);setInvalid(problems);if(problems.length)return;
   lock.current=true;setBusy(true);setError("");setConflict(false);setFields({});
-  try{const saved=readDefinitionValue(await api<unknown>(definitionValuePath(list.key,current.code),{method:"PUT",body:JSON.stringify(definitionBody(form,current.version))}));onSaved(saved);notice.success(t("saved"));onClose();}
+  try{const saved=readDefinitionValue(await api<unknown>(definitionValuePath(list.key,current.code),{method:"PUT",body:JSON.stringify(definitionBody(form,current.version))}));clearDefinitionCache();onSaved(saved);notice.success(t("saved"));onClose();}
   catch(err){setError(errorMessage(err,locale));setFields(err instanceof ApiError?err.errors:{});setConflict(err instanceof ApiError&&err.status===409);}
   finally{lock.current=false;setBusy(false);}
  }
@@ -127,6 +135,61 @@ function DefinitionEditor({list,value,trigger,onClose,onSaved}:{list:DefinitionL
     <Button type="button" role="radio" aria-checked={form.isEnabled} variant={form.isEnabled?"default":"outline"} onClick={()=>setForm({...form,isEnabled:true})}><CheckCircle2 aria-hidden="true"/>{ui("active")}</Button>
     <Button type="button" role="radio" aria-checked={!form.isEnabled} variant={!form.isEnabled?"default":"outline"} disabled={current.locked} onClick={()=>setForm({...form,isEnabled:false})}><PauseCircle aria-hidden="true"/>{ui("inactive")}</Button>
    </div><p className="mt-1 text-xs text-muted-foreground">{t(current.locked?"lockedHelp":"passiveHelp")}</p>{issue("isEnabled")&&<FieldError>{issue("isEnabled")}</FieldError>}</div>
+  </fieldset>
+  {error&&<MessageBanner kind={conflict?"warning":"error"} action={conflict?<Button type="button" variant="view" disabled={busy} onClick={()=>void reload()}><RefreshCw/>{ui("loadCurrentRecord")}</Button>:undefined}>{error}</MessageBanner>}
+  <DialogFooter><Button type="button" variant="outline" disabled={busy} onClick={onClose}>{ui("close")}</Button><Button type="submit" disabled={busy}><Save aria-hidden="true"/>{t("save")}</Button></DialogFooter>
+  </form>
+ </ManagementPanel></Dialog>;
+}
+
+function AreaDefinitions(){
+ const t=useTranslations("definitions"),locale=useLocale(),api=useAuthorizedApi();
+ const [areas,setAreas]=useState<Property[]>([]),[area,setArea]=useState(""),[data,setData]=useState<PropertyDefinitions|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
+ const [editing,setEditing]=useState<{list:PropertyDefinitionList;value:PropertyDefinitionValue;trigger:HTMLElement|null}|null>(null);
+ useEffect(()=>{const c=new AbortController();dashboardAreas((path,o)=>api<unknown>(path,o),c.signal).then(items=>{setAreas(items);setArea(selectedDashboardArea(items,null));if(!items.length)setLoading(false);}).catch(e=>{if(!c.signal.aborted){setError(errorMessage(e,locale));setLoading(false);}});return()=>c.abort();},[api,locale]);
+ useEffect(()=>{if(!area)return;const c=new AbortController();setLoading(true);setData(null);api<unknown>(propertyDefinitionsPath(area),{signal:c.signal}).then(v=>{setData(readPropertyDefinitions(v,area));setError("");}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});return()=>c.abort();},[api,area,locale]);
+ return <div className="flex flex-col gap-4">
+  <section className={panel+" flex flex-wrap items-end gap-3 p-4"}><div className="min-w-0 flex-1"><Label htmlFor="definition-area">{t("areaSelect")}</Label><select id="definition-area" className={toolbarSelectClass+" block w-full"} value={area} onChange={e=>setArea(e.target.value)} disabled={!areas.length}>{areas.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></div><p className="basis-full text-sm text-muted-foreground">{t("areaHelp")}</p></section>
+  {error&&<MessageBanner>{error}</MessageBanner>}
+  {!loading&&!areas.length&&<p className="py-6 text-center text-sm text-muted-foreground">{t("noAreas")}</p>}
+  {loading?<div className="grid gap-4 lg:grid-cols-2">{Array.from({length:4},(_,i)=><Skeleton key={i} className="h-40 rounded-2xl"/>)}</div>:data&&<div className="grid gap-4 lg:grid-cols-2">{data.lists.map(list=><AreaCard key={list.key} list={list} onEdit={(value,trigger)=>setEditing({list,value,trigger})}/>)}</div>}
+  {editing&&data&&<AreaEditor property={data.propertyId} list={editing.list} value={editing.value} trigger={editing.trigger} onClose={()=>setEditing(null)} onSaved={saved=>{clearDefinitionCache(data.propertyId);setData(current=>current&&{...current,lists:current.lists.map(l=>l.key!==editing.list.key?l:{...l,values:l.values.map(v=>v.code===saved.code?saved:v)})});}}/>}
+ </div>;
+}
+
+function AreaCard({list,onEdit}:{list:PropertyDefinitionList;onEdit:(value:PropertyDefinitionValue,trigger:HTMLElement)=>void}){
+ const t=useTranslations("definitions"),label=useValueLabel(list as unknown as DefinitionList);
+ const Icon=listIcon[list.key],style=groupStyle[list.group],editable=list.level==="PROPERTY";
+ return <section className={panel+" flex flex-col gap-3 p-4"} aria-labelledby={`area-definition-${list.key}`}>
+  <div className="flex flex-wrap items-start justify-between gap-2"><div className="flex min-w-0 items-center gap-2"><span className={`request-type-icon tone-${style.tone}`}><Icon aria-hidden="true"/></span><h2 id={`area-definition-${list.key}`} className="font-semibold">{t(`list_${list.key}`)}</h2></div><ToneBadge tone={levelTone[list.level]} icon={levelStyle[list.level].icon}>{t(`level_${list.level}`)}</ToneBadge></div>
+  <p className="text-sm text-muted-foreground">{t(editable?"areaEditableHint":"areaSystemHint")}</p>
+  <ul className="flex flex-wrap gap-2" aria-label={t("valuesOf",{list:t(`list_${list.key}`)})}>{[...list.values].sort((a,b)=>a.sortOrder-b.sortOrder).map(value=>{const s=resolvedStyle(list.key,value);const V=s.icon;const state=!value.isEnabled?t("systemPassive"):value.isHidden?t("hiddenHere"):"";const content=<><span className={`request-type-icon tone-${s.tone}`}><V aria-hidden="true"/></span>{label(value as unknown as DefinitionValue)}{state&&<span className="text-xs text-muted-foreground">({state})</span>}{editable&&(value.isHidden?<EyeOff aria-hidden="true" className="size-3.5 text-muted-foreground"/>:<Eye aria-hidden="true" className="size-3.5 text-muted-foreground"/>)}</>;
+   return <li key={value.code} title={value.code}>{editable?<button type="button" className={"request-type rounded-lg border px-2 py-1 text-sm hover:bg-accent"+(value.selectable?"":" opacity-60")} aria-label={t("editAreaValue",{value:label(value as unknown as DefinitionValue)})} onClick={e=>onEdit(value,e.currentTarget)}>{content}</button>:<span className={"request-type rounded-lg border px-2 py-1 text-sm"+(value.selectable?"":" opacity-60")}>{content}</span>}</li>;})}</ul>
+ </section>;
+}
+
+function AreaEditor({property,list,value,trigger,onClose,onSaved}:{property:string;list:PropertyDefinitionList;value:PropertyDefinitionValue;trigger:HTMLElement|null;onClose:()=>void;onSaved:(value:PropertyDefinitionValue)=>void}){
+ const t=useTranslations("definitions"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification(),label=useValueLabel(list as unknown as DefinitionList);
+ const [current,setCurrent]=useState(value),[hidden,setHidden]=useState(value.isHidden),[order,setOrder]=useState(value.version?String(value.sortOrder):"");
+ const [busy,setBusy]=useState(false),[error,setError]=useState(""),[conflict,setConflict]=useState(false),[invalid,setInvalid]=useState(false);const lock=useRef(false);
+ async function reload(){setBusy(true);try{const fresh=readPropertyDefinitions(await api<unknown>(propertyDefinitionsPath(property)),property).lists.find(l=>l.key===list.key)?.values.find(v=>v.code===current.code);if(fresh){setCurrent(fresh);setHidden(fresh.isHidden);setOrder(fresh.version?String(fresh.sortOrder):"");onSaved(fresh);}setError("");setConflict(false);}catch(e){setError(errorMessage(e,locale));}finally{setBusy(false);}}
+ async function save(e:React.FormEvent){
+  e.preventDefault();if(lock.current)return;
+  const trimmed=order.trim();if(trimmed&&!/^\d{1,3}$/.test(trimmed)){setInvalid(true);return;}setInvalid(false);
+  lock.current=true;setBusy(true);setError("");setConflict(false);
+  try{const saved=readPropertyDefinitionValue(await api<unknown>(propertyDefinitionValuePath(property,list.key,current.code),{method:"PUT",body:JSON.stringify({isHidden:hidden,sortOrder:trimmed?Number(trimmed):null,version:current.version})}));onSaved(saved);notice.success(t("saved"));onClose();}
+  catch(err){setError(errorMessage(err,locale));setConflict(err instanceof ApiError&&err.status===409);}
+  finally{lock.current=false;setBusy(false);}
+ }
+ return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel className="grid-cols-1 [&>*]:min-w-0" showCloseButton={!busy} onCloseAutoFocus={e=>{e.preventDefault();requestAnimationFrame(()=>trigger?.isConnected&&trigger.focus());}} onEscapeKeyDown={e=>{if(busy)e.preventDefault();}} onPointerDownOutside={e=>{if(busy)e.preventDefault();}}>
+  <DialogHeader><DialogTitle>{t("editTitle",{value:label(current as unknown as DefinitionValue)})}</DialogTitle><DialogDescription>{t("areaEditHelp",{list:t(`list_${list.key}`)})}</DialogDescription></DialogHeader>
+  <form noValidate onSubmit={save} className="space-y-5"><fieldset disabled={busy} className="space-y-5">
+   {!current.isEnabled&&<MessageBanner kind="info" presentation="inline">{t("systemPassiveHelp")}</MessageBanner>}
+   <div role="radiogroup" aria-labelledby="area-visibility-label"><p id="area-visibility-label" className="mb-2 text-sm font-medium">{t("visibility")}</p><div className="flex flex-wrap gap-2">
+    <Button type="button" role="radio" aria-checked={!hidden} variant={!hidden?"default":"outline"} onClick={()=>setHidden(false)}><Eye aria-hidden="true"/>{t("shownHere")}</Button>
+    <Button type="button" role="radio" aria-checked={hidden} variant={hidden?"default":"outline"} disabled={current.locked} onClick={()=>setHidden(true)}><EyeOff aria-hidden="true"/>{t("hiddenHere")}</Button>
+   </div><p className="mt-1 text-xs text-muted-foreground">{t(current.locked?"lockedHelp":"hiddenHelp")}</p></div>
+   <div><Label htmlFor="area-sortOrder">{t("areaSortOrder")}</Label><Input id="area-sortOrder" inputMode="numeric" maxLength={3} value={order} onChange={e=>setOrder(e.target.value)} aria-invalid={invalid} aria-describedby="area-sortOrder-help"/><p id="area-sortOrder-help" className="mt-1 text-xs text-muted-foreground">{t("areaSortOrderHelp",{max:maxDefinitionOrder})}</p>{invalid&&<FieldError>{t("invalid_sortOrder")}</FieldError>}</div>
   </fieldset>
   {error&&<MessageBanner kind={conflict?"warning":"error"} action={conflict?<Button type="button" variant="view" disabled={busy} onClick={()=>void reload()}><RefreshCw/>{ui("loadCurrentRecord")}</Button>:undefined}>{error}</MessageBanner>}
   <DialogFooter><Button type="button" variant="outline" disabled={busy} onClick={onClose}>{ui("close")}</Button><Button type="submit" disabled={busy}><Save aria-hidden="true"/>{t("save")}</Button></DialogFooter>

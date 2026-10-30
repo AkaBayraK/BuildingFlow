@@ -1,3 +1,7 @@
+## TNM 03 — 30.10.2026 — TAMAMLANDI
+
+**TNM akışı 3/6=%50,00.** Kullanıcı Property mi tenant+Property mi sorusunu yanıtlamadan onayladı; öneri uygulandı (yalnız Property). Alan seviyesi yalnız PROPERTY listelerinde (ortak alan, talep kategorisi, bakım, duyuru); araç/anket/öncelik yalnız sistem. Alana özel ek değer (`P_` kodu) enum kolonları string'e çevrilmeden yapılamadığı için ertelendi; kullanıcıya soruldu. Sonraki: TNM 04 (mevcut kataloglar) onayı.
+
 ## TNM 02 — 30.10.2026 — TAMAMLANDI
 
 **TNM akışı 2/6=%33,33.** Sistem geneli override tablosu ve düzenleme. Kullanıcı sabit liste sorusunu yanıtlamadan 02'yi onayladı; öneri uygulandı (yönetim alanı/bölüm türü, ödeme yöntemi, park yeri türü, tedarikçi türü, bakım periyodu sabit). Override'lar henüz modül formlarına yansımıyor; TNM 03 (alan seviyesi + formların etkin listeyi okuması + pasif değerin backend'de reddi) onay bekliyor.

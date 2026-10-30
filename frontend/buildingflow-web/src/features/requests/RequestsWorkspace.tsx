@@ -19,6 +19,7 @@ import {RecordList} from "@/components/management/RecordList";
 import {WorkspaceHeading,DetailField,toolbarSelectClass} from "@/components/management/WorkspacePresentation";
 import {formatDateTime} from "@/lib/format";
 import {categoryStyle} from "./category-style";
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {statuses,categories,priorities,transitions,readPage,readDetail,type RequestRow,type Detail,type PhotoConsent,type Page,type Status} from "./model";
 export function RequestsWorkspace({propertyId}:{propertyId:string}) {
  const t=useTranslations("requests"),ui=useTranslations("ui"),locale=useLocale(),identity=useIdentity(),api=useAuthorizedApi(),scope=usePropertyScope();
@@ -40,6 +41,7 @@ function RequestCreate({propertyId,onClose,onSaved}:{propertyId:string;onClose:(
  const t=useTranslations("requests"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification();
  const [category,setCategory]=useState<typeof categories[number]>("OTHER"),[priority,setPriority]=useState<typeof priorities[number]>("NORMAL"),[unit,setUnit]=useState(""),[description,setDescription]=useState(""),[units,setUnits]=useState<{id:string;number:string}[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const lock=useRef(false),operation=useRef<{payload:string;id:string}|null>(null);
+ const categoryChoices=useDefinitionOptions(propertyId,"REQUEST_CATEGORY",categories),priorityChoices=useDefinitionOptions(propertyId,"REQUEST_PRIORITY",priorities);
  useEffect(()=>{const c=new AbortController();void api<{items?:{id:string;number:string;isEnabled:boolean}[]}>(`/api/v1/properties/${propertyId}/units?page=1&pageSize=100&sortBy=number`,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setUnits((v.items??[]).filter(u=>u.isEnabled));}).catch(()=>{});return()=>c.abort();},[api,propertyId]);
  async function save(e:React.FormEvent){e.preventDefault();if(lock.current||!description.trim())return;lock.current=true;setBusy(true);setError("");
   const payload=JSON.stringify({unitId:unit||null,category,priority,description:description.trim()});if(operation.current?.payload!==payload)operation.current={payload,id:crypto.randomUUID()};
@@ -48,9 +50,9 @@ function RequestCreate({propertyId,onClose,onSaved}:{propertyId:string;onClose:(
  return <Dialog open onOpenChange={v=>{if(!v&&!lock.current)onClose();}}><ManagementPanel showCloseButton={!busy}><DialogHeader><DialogTitle>{t("create")}</DialogTitle><DialogDescription>{t("createHelp")}</DialogDescription></DialogHeader>{error&&<MessageBanner>{error}</MessageBanner>}
   <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4">
    <div role="radiogroup" aria-labelledby="request-type-label" aria-describedby="request-type-help"><p id="request-type-label" className="text-sm font-medium">{t("type")} *</p><p id="request-type-help" className="mb-2 text-sm text-muted-foreground">{t("typeHelp")}</p>
-    <div className="request-type-grid">{categories.map(v=>{const c=categoryStyle[v];return <button key={v} type="button" role="radio" aria-checked={category===v} onClick={()=>setCategory(v)} className={`request-type-option${category===v?` tone-${c.tone}`:""}`}><span className={`dashboard-icon tone-${c.tone}`}><c.icon aria-hidden="true"/></span><span>{t(`category_${v}`)}</span></button>;})}</div></div>
+    <div className="request-type-grid">{categoryChoices.options.map(v=>{const c=categoryChoices.style(v,categoryStyle[v]);return <button key={v} type="button" role="radio" aria-checked={category===v} onClick={()=>setCategory(v)} className={`request-type-option${category===v?` tone-${c.tone}`:""}`}><span className={`dashboard-icon tone-${c.tone}`}><c.icon aria-hidden="true"/></span><span>{categoryChoices.label(v,t(`category_${v}`))}</span></button>;})}</div></div>
    <div className="grid gap-3 sm:grid-cols-2"><div><Label htmlFor="request-new-unit">{t("unitOptional")}</Label><select id="request-new-unit" className={toolbarSelectClass+" block w-full"} value={unit} onChange={e=>setUnit(e.target.value)}><option value="">{t("commonArea")}</option>{units.map(u=><option key={u.id} value={u.id}>{u.number}</option>)}</select></div>
-    <div><Label htmlFor="request-new-priority">{t("priority")}</Label><select id="request-new-priority" className={toolbarSelectClass+" block w-full"} value={priority} onChange={e=>setPriority(e.target.value as typeof priorities[number])}>{priorities.map(v=><option key={v} value={v}>{t(`priority_${v}`)}</option>)}</select></div></div>
+    <div><Label htmlFor="request-new-priority">{t("priority")}</Label><select id="request-new-priority" className={toolbarSelectClass+" block w-full"} value={priority} onChange={e=>setPriority(e.target.value as typeof priorities[number])}>{priorityChoices.options.map(v=><option key={v} value={v}>{priorityChoices.label(v,t(`priority_${v}`))}</option>)}</select></div></div>
    <div><Label htmlFor="request-new-description">{t("description")} *</Label><Textarea id="request-new-description" required maxLength={2000} value={description} onChange={e=>setDescription(e.target.value)}/></div>
   </fieldset><DialogFooter><Button type="button" variant="outline" disabled={busy} onClick={onClose}>{ui("cancel")}</Button><Button type="submit" disabled={busy||!description.trim()}>{busy?ui("saving"):t("createSubmit")}</Button></DialogFooter></form></ManagementPanel></Dialog>;
 }

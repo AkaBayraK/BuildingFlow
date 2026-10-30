@@ -15,11 +15,13 @@ import {formatDecimalCurrency,formatNumber} from '@/lib/format';
 import {areaPath,readArea,areaTypes,blankArea,areaErrors,areaBody,usages,visibilities,type Area,type Context,type AreaForm} from './model';
 import {typeStyle,visibilityStyle,usageStyle,statusStyle,badgeTone} from './type-style';
 import {CommonAreaGallery} from './CommonAreaGallery';
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {CommonAreaSchedule} from './CommonAreaSchedule';
 export function CommonAreaPanel({propertyId,context,target,editing,canWrite,propertyType,onClose,onSaved}:{propertyId:string;context?:Context;target?:Area;editing:boolean;canWrite:boolean;propertyType?:string;onClose:()=>void;onSaved:()=>void}){
  const t=useTranslations('commonAreas'),ui=useTranslations('ui'),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification();
  const [record,setRecord]=useState(target),[edit,setEdit]=useState(editing),[form,setForm]=useState(()=>blankArea(target)),[errors,setErrors]=useState<string[]>([]),[busy,setBusy]=useState(false),[loading,setLoading]=useState(!!target),[failure,setFailure]=useState(''),[stale,setStale]=useState(false),[confirm,setConfirm]=useState(false),[tab,setTab]=useState('about'),[ambiguous,setAmbiguous]=useState(false);
  const lock=useRef(false),requestId=useRef(target?.requestId??''),focus=useRef<HTMLDivElement>(null);
+ const typeChoices=useDefinitionOptions(propertyId,'COMMON_AREA_TYPE',areaTypes,record?.type);
  const path=(id?:string)=>areaPath(propertyId,context,id);
  useEffect(()=>{if(edit&&!loading)document.getElementById('area-name')?.focus();},[edit,loading]);
  useEffect(()=>{if(!target)return;const c=new AbortController();void api<unknown>(areaPath(propertyId,context,target.id),{signal:c.signal}).then(v=>{if(!c.signal.aborted){const a=readArea(v,propertyId);setRecord(a);setForm(blankArea(a));}}).catch(e=>{if(!c.signal.aborted)setFailure(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});return()=>c.abort();},[api,propertyId,target?.id,context?.relationId,locale]);
@@ -36,7 +38,7 @@ export function CommonAreaPanel({propertyId,context,target,editing,canWrite,prop
  return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy} onOpenAutoFocus={e=>{if(edit){e.preventDefault();document.getElementById('area-name')?.focus();}}} onInteractOutside={e=>{if(busy)e.preventDefault();}} onEscapeKeyDown={e=>{if(busy)e.preventDefault();}}><div ref={focus}/><DialogHeader><Shapes aria-hidden className="size-9 text-primary"/><DialogTitle>{t(!record?'new':edit?'edit':'details')}</DialogTitle><DialogDescription>{t(edit?'formHelp':'detailHelp')}</DialogDescription></DialogHeader>{help}
   {loading?<p role="status">{ui('loading')}</p>:failure&&!record?null:edit?<form onSubmit={save} noValidate className="space-y-5"><fieldset disabled={busy||!canWrite||ambiguous} className="space-y-4">
    <div><Label htmlFor="area-name">{t('name')} *</Label><Input id="area-name" value={form.name} maxLength={150} aria-invalid={errors.includes('name')} aria-describedby={errors.includes('name')?'area-errors':undefined} onChange={e=>set('name',e.target.value)}/></div>
-   <FilterChips label={t('type')} value={form.type} onChange={v=>set('type',v as Area['type'])} items={areaTypes.map(v=>({value:v,label:t('type_'+v),...typeStyle[v]}))}/>
+   <FilterChips label={t('type')} value={form.type} onChange={v=>set('type',v as Area['type'])} items={typeChoices.options.map(v=>({value:v,label:typeChoices.label(v,t('type_'+v)),...typeChoices.style(v,typeStyle[v])}))}/>
    <div><Label htmlFor="area-capacity">{t('capacity')} *</Label><Input id="area-capacity" type="number" min={1} max={10000} inputMode="numeric" value={form.capacity} aria-invalid={errors.includes('capacity')} onChange={e=>set('capacity',e.target.value)}/></div>
    <FilterChips label={t('usage')} value={form.usage} onChange={v=>set('usage',v as Area['usage'])} items={usages.map(v=>({value:v,label:t('usage_'+v),icon:usageStyle[v]}))}/>
    {propertyType!=='APARTMENT'&&<BuildingChoice propertyId={propertyId} value={form.buildingId} onChange={v=>set('buildingId',v)}/>}

@@ -15,6 +15,7 @@ import {MessageBanner,FieldError} from "@/components/feedback/MessageBanner";
 import {businessToday,formatDateOnly,formatDateTime} from "@/lib/format";
 import {MaintenanceStatusBadge,MaintenanceType} from "./MaintenanceType";
 import {typeStyle} from "./type-style";
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {limits,maintenanceStatuses,maintenanceTypes,planBody,readPlan,validPlanForm,type MaintenancePlan,type MaintenanceStatus,type MaintenanceType as Type} from "./model";
 
 type Locale="tr"|"en";
@@ -23,6 +24,7 @@ export function MaintenancePanel({propertyId,target,editing,canWrite,initialType
  const [record,setRecord]=useState(target),[edit,setEdit]=useState(!target||editing);
  const blank=(p?:MaintenancePlan)=>({title:p?.title??"",description:p?.description??"",type:p?.type??initialType??"MAINTENANCE" as Type,plannedDate:p?.plannedDate??businessToday(),location:p?.location??"",responsible:p?.responsible??"",status:p?.status??"PLANNED" as MaintenanceStatus});
  const [form,setForm]=useState(()=>blank(target));
+ const typeChoices=useDefinitionOptions(propertyId,"MAINTENANCE_TYPE",maintenanceTypes,record?.type);
  const [busy,setBusy]=useState(false),[invalid,setInvalid]=useState(false),[stale,setStale]=useState(false),[confirm,setConfirm]=useState(false),[loadingCurrent,setLoadingCurrent]=useState(false);
  const lock=useRef(false),root=`/api/v1/properties/${propertyId}/maintenance-plans`;
  const set=<K extends keyof typeof form>(key:K,value:(typeof form)[K])=>{setForm(f=>({...f,[key]:value}));setInvalid(false);};
@@ -42,7 +44,7 @@ export function MaintenancePanel({propertyId,target,editing,canWrite,initialType
  return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy}>
   <DialogHeader><CalendarCheck2 className="size-9 text-primary"/><DialogTitle>{t(!record?"new":edit?"edit":"details")}</DialogTitle><DialogDescription>{t("panelHelp")}</DialogDescription></DialogHeader>
   {edit?<form onSubmit={save} noValidate className="space-y-5">{staleBanner}<fieldset disabled={busy||!canWrite} className="space-y-5">
-   <div role="radiogroup" aria-labelledby="plan-type-label"><p id="plan-type-label" className="mb-2 text-sm font-medium">{t("type")} *</p><div className="request-type-grid">{maintenanceTypes.map(k=>{const c=typeStyle[k];return <button key={k} type="button" role="radio" aria-checked={form.type===k} onClick={()=>set("type",k)} className={`request-type-option${form.type===k?` tone-${c.tone}`:""}`}><span className={`dashboard-icon tone-${c.tone}`}><c.icon aria-hidden="true"/></span><span>{t(`type_${k}`)}</span></button>;})}</div></div>
+   <div role="radiogroup" aria-labelledby="plan-type-label"><p id="plan-type-label" className="mb-2 text-sm font-medium">{t("type")} *</p><div className="request-type-grid">{typeChoices.options.map(k=>{const c=typeChoices.style(k,typeStyle[k]);return <button key={k} type="button" role="radio" aria-checked={form.type===k} onClick={()=>set("type",k)} className={`request-type-option${form.type===k?` tone-${c.tone}`:""}`}><span className={`dashboard-icon tone-${c.tone}`}><c.icon aria-hidden="true"/></span><span>{typeChoices.label(k,t(`type_${k}`))}</span></button>;})}</div></div>
    <div><Label htmlFor="plan-title">{t("title")} *</Label><Input id="plan-title" maxLength={limits.title} value={form.title} aria-invalid={invalid&&!form.title.trim()} onChange={e=>set("title",e.target.value)}/></div>
    <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="plan-date">{t("date")} *</Label><Input id="plan-date" type="date" min="2000-01-01" max="2100-12-31" value={form.plannedDate} aria-invalid={invalid&&!form.plannedDate} onChange={e=>set("plannedDate",e.target.value)}/></div>
     <div><Label htmlFor="plan-status">{ui("status")} *</Label><select id="plan-status" className={toolbarSelectClass+" w-full"} value={form.status} onChange={e=>set("status",e.target.value as MaintenanceStatus)}>{maintenanceStatuses.map(s=><option key={s} value={s}>{t(`status_${s}`)}</option>)}</select></div></div>

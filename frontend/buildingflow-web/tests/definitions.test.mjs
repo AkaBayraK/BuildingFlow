@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {catalogKeys,definitionBody,definitionForm,definitionFormErrors,definitionIconKeys,definitionKeys,definitionLabelKey,definitionLevels,definitionTones,definitionValuePath,filterLists,overrideName,readDefinitionValue,readDefinitions,sortedValues} from '../src/features/definitions/model.ts';
+import {catalogKeys,definitionBody,definitionForm,definitionFormErrors,definitionIconKeys,definitionKeys,definitionLabelKey,definitionLevels,definitionTones,definitionValuePath,filterLists,overrideName,readDefinitionValue,readDefinitions,sortedValues,definitionOptions,readPropertyDefinitions,propertyDefinitionValuePath} from '../src/features/definitions/model.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
 import {isWorkspaceReturnPath} from '../src/auth/return-path.ts';
 const tr=JSON.parse(readFileSync(new URL('../messages/tr.json',import.meta.url),'utf8')),en=JSON.parse(readFileSync(new URL('../messages/en.json',import.meta.url),'utf8'));
@@ -66,4 +66,19 @@ test('TNM02 editor form: blank names fall back, order and lock validated, body c
  assert.deepEqual(definitionFormErrors({...form,isEnabled:false},true),['isEnabled']);
  const view=readFileSync(new URL('../src/features/definitions/DefinitionsWorkspace.tsx',import.meta.url),'utf8');
  assert.match(view,/ManagementPanel/);assert.match(view,/definitionEditorRole/);assert.match(view,/loadCurrentRecord/);
+});
+
+test('TNM03 area contract and form options: hidden/passive leave forms, current code stays, fallback keeps module list',()=>{
+ const P='77777777-7777-4777-8777-777777777777';
+ const av=(code,patch={})=>({...value(code),isHidden:false,selectable:true,...patch});
+ const area={propertyId:P,lists:[{key:'REQUEST_CATEGORY',group:'REQUEST',level:'PROPERTY',values:[av('WATER',{sortOrder:0}),av('ELEVATOR',{sortOrder:1,isHidden:true,selectable:false,version:1}),av('FAULT',{sortOrder:2,isEnabled:false,selectable:false}),av('OTHER',{sortOrder:3})]},{key:'FUTURE',group:'REQUEST',level:'SYSTEM',values:[]}]};
+ const read=readPropertyDefinitions(area,P);assert.equal(read.lists.length,1);
+ const codes=['ELEVATOR','WATER','FAULT','CLEANING','OTHER'];
+ assert.deepEqual(definitionOptions(codes,read.lists[0]),['WATER','OTHER','CLEANING']);
+ assert.deepEqual(definitionOptions(codes,read.lists[0],'ELEVATOR'),['WATER','ELEVATOR','OTHER','CLEANING']);
+ assert.deepEqual(definitionOptions(codes,undefined),codes);
+ for(const bad of [{...area,propertyId:'x'},{propertyId:P,lists:[{...area.lists[0],values:[av('OTHER',{isHidden:true,selectable:false})]}]},{propertyId:P,lists:[{...area.lists[0],values:[av('WATER',{isHidden:true,selectable:true})]}]},{propertyId:P,lists:[{...area.lists[0],level:'FIXED'}]}])assert.throws(()=>readPropertyDefinitions(bad,P));
+ assert.equal(propertyDefinitionValuePath(P,'REQUEST_CATEGORY','WATER'),`/api/v1/properties/${P}/definitions/REQUEST_CATEGORY/values/WATER`);
+ for(const [file,key] of [['requests/RequestsWorkspace.tsx','REQUEST_CATEGORY'],['requests/RequestsWorkspace.tsx','REQUEST_PRIORITY'],['maintenance/MaintenancePanel.tsx','MAINTENANCE_TYPE'],['common-areas/CommonAreaPanel.tsx','COMMON_AREA_TYPE'],['parking/VehiclesTab.tsx','VEHICLE_TYPE'],['communication/CommunicationPanels.tsx','ANNOUNCEMENT_CATEGORY'],['surveys/SurveyEditor.tsx','SURVEY_CATEGORY']])
+  assert.match(readFileSync(new URL(`../src/features/${file}`,import.meta.url),'utf8'),new RegExp(`useDefinitionOptions\\(propertyId,["']${key}["']`),`${file}:${key}`);
 });

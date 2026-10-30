@@ -53,6 +53,7 @@ public sealed partial class ParkingStore
     private async Task<Vehicle> NewVehicle(Guid property, Guid person, Guid unit, string plate, VehicleType type, string? brand, string? model, string? color, Guid requestId, CancellationToken token)
     {
         if (!await HasRelation(property, unit, person, token)) throw Conflict(ErrorCatalog.ParkingRelationRequired);
+        await DefinitionPolicy.EnsureSelectableAsync(db, property, "VEHICLE_TYPE", type.ToString(), null, "type", token);
         var policy = await CurrentPolicy(property, token) ?? throw Conflict(ErrorCatalog.ParkingPolicyRequired);
         await EnsureVehicleQuota(policy, unit, person, token);
         if (await db.Vehicles.AnyAsync(v => v.PropertyId == property && v.Plate == plate && (v.Status == VehicleStatus.PENDING || v.Status == VehicleStatus.APPROVED), token))
@@ -67,6 +68,7 @@ public sealed partial class ParkingStore
         var parent = await Lock(property, access, token); if (parent is null) return null;
         var value = await db.Vehicles.SingleOrDefaultAsync(x => x.PropertyId == property && x.Id == id && x.IsEnabled, token); if (value is null) return null;
         Version(r.Version, value.Version);
+        await DefinitionPolicy.EnsureSelectableAsync(db, property, "VEHICLE_TYPE", type.ToString(), value.Type.ToString(), "type", token);
         Transition(() => value.Edit(type, r.Brand, r.Model, r.Color));
         await Commit(parent, tx, token); return await VehicleResponse(value, token);
     }

@@ -34,8 +34,13 @@ public sealed class CommunicationStore(BuildingFlowDbContext db, IFileStorage st
         Announcement value;
         if (id.HasValue) {
             value = (await db.Announcements.SingleOrDefaultAsync(a => a.PropertyId == property && a.Id == id && a.IsEnabled, token))!;
-            if (value is null) return null; Version(request.Version, value.Version); Draft(value); value.Edit(request.Title!, request.Content!, audience, category ?? value.Category); Touch(value);
-        } else { value = new(property, request.Title!, request.Content!, audience, category ?? AnnouncementCategory.GENERAL); db.Add(value); }
+            if (value is null) return null; Version(request.Version, value.Version); Draft(value);
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "ANNOUNCEMENT_CATEGORY", (category ?? value.Category).ToString(), value.Category.ToString(), "category", token);
+            value.Edit(request.Title!, request.Content!, audience, category ?? value.Category); Touch(value);
+        } else {
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "ANNOUNCEMENT_CATEGORY", (category ?? AnnouncementCategory.GENERAL).ToString(), null, "category", token);
+            value = new(property, request.Title!, request.Content!, audience, category ?? AnnouncementCategory.GENERAL); db.Add(value);
+        }
         Touch(parent); await db.SaveChangesAsync(token); await tx.CommitAsync(token); return Response(value);
     }
     public async Task<AnnouncementResponse?> ChangeStatusAsync(Guid property, Guid id, long version, bool publish, AccessScope access, CancellationToken token)

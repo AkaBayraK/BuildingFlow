@@ -168,11 +168,16 @@ public sealed class SurveyStore(BuildingFlowDbContext db, IMobileSessionStore se
         {
             var current = await Load(property, id.Value, true, token); if (current is null) return null;
             Version(c.Version, current.Version); if (current.Status != SurveyStatus.DRAFT) throw State(); value = current;
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "SURVEY_CATEGORY", c.Category.ToString(), current.Category.ToString(), "category", token);
             value.Edit(c.Title, c.Description, c.Category, c.StartDate, c.EndDate, c.Audience, c.ResponseMode, c.IsAnonymous);
             foreach (var old in value.ClearQuestions()) { foreach (var option in old.Options) db.Remove(option); db.Remove(old); }
             db.Entry(value).Property(x => x.IsEnabled).IsModified = true;
         }
-        else { value = new(property, c.Title, c.Description, c.Category, c.StartDate, c.EndDate, c.Audience, c.ResponseMode, c.IsAnonymous); db.Add(value); }
+        else
+        {
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "SURVEY_CATEGORY", c.Category.ToString(), null, "category", token);
+            value = new(property, c.Title, c.Description, c.Category, c.StartDate, c.EndDate, c.Audience, c.ResponseMode, c.IsAnonymous); db.Add(value);
+        }
         foreach (var q in c.Questions) db.Add(value.AddQuestion(q.Text, q.Type, q.IsRequired, q.Options));
         db.Entry(parent).Property(x => x.IsEnabled).IsModified = true;
         await db.SaveChangesAsync(token); await tx.CommitAsync(token);

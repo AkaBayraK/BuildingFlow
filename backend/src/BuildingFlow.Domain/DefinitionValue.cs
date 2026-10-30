@@ -34,3 +34,27 @@ public sealed class DefinitionValue : BaseEntity
 
     private static string? Optional(string? value, string field, int max) => string.IsNullOrWhiteSpace(value) ? null : Required(value, field, max);
 }
+
+// TNM 03: per managed area visibility and order of a system value. Hidden values are not offered for new records in
+// that area; records that already carry the code keep it.
+public sealed class PropertyDefinitionSetting : BaseEntity
+{
+    private PropertyDefinitionSetting() { }
+    public PropertyDefinitionSetting(Guid propertyId, string listKey, string code)
+    {
+        if (propertyId == Guid.Empty) throw new ArgumentException("Property required.", nameof(propertyId));
+        PropertyId = propertyId;
+        ListKey = Required(listKey, nameof(listKey), DefinitionValue.MaxKeyLength);
+        Code = Required(code, nameof(code), DefinitionValue.MaxKeyLength);
+    }
+    public Guid PropertyId { get; private set; }
+    public string ListKey { get; private set; } = null!;
+    public string Code { get; private set; } = null!;
+    public bool IsHidden { get; private set; }
+    public int? SortOrder { get; private set; }
+    public void Set(bool hidden, int? sortOrder)
+    {
+        if (sortOrder is < 0 or > DefinitionValue.MaxSortOrder) throw new ArgumentOutOfRangeException(nameof(sortOrder));
+        IsHidden = hidden; SortOrder = sortOrder;
+    }
+}

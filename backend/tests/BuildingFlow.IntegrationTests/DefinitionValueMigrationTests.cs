@@ -32,5 +32,24 @@ public sealed class DefinitionValueMigrationTests
         }
         finally { await using var drop = new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE", admin); await drop.ExecuteNonQueryAsync(); }
     }
+    [PostgresFact] public async Task PropertyDefinitionSettingsUpgradeRepeatRollbackGuardAndPropertyForeignKey()
+    {
+        var original = Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE")!; var schema = "property_definitions_verify_" + Guid.NewGuid().ToString("N");
+        await using var admin = new NpgsqlConnection(original); await admin.OpenAsync(); await using (var create = new NpgsqlCommand($"CREATE SCHEMA \"{schema}\"", admin)) await create.ExecuteNonQueryAsync();
+        try
+        {
+            var cs = new NpgsqlConnectionStringBuilder(original) { SearchPath = schema + ",public" };
+            var options = new DbContextOptionsBuilder<BuildingFlowDbContext>().UseNpgsql(cs.ConnectionString, x => x.MigrationsHistoryTable("__EFMigrationsHistory", schema)).AddInterceptors(new AuditInterceptor(new Actor(), TimeProvider.System)).Options;
+            await using var db = new BuildingFlowDbContext(options); var migrations = db.Database.GetMigrations().ToList(); var target = migrations.Single(x => x.EndsWith("_PropertyDefinitionSettings", StringComparison.Ordinal)); var previous = migrations[migrations.IndexOf(target) - 1];
+            await db.GetService<IMigrator>().MigrateAsync(previous); await db.Database.MigrateAsync(); await db.Database.MigrateAsync();
+            await db.GetService<IMigrator>().MigrateAsync(previous); await db.Database.MigrateAsync(); db.ChangeTracker.Clear();
+            var property = new Property("Fixture", "City", "District", "Address"); db.Add(property); await db.SaveChangesAsync();
+            var setting = new PropertyDefinitionSetting(property.Id, "REQUEST_CATEGORY", "WATER"); setting.Set(true, 2); db.Add(setting); await db.SaveChangesAsync();
+            db.Add(new PropertyDefinitionSetting(Guid.NewGuid(), "REQUEST_CATEGORY", "WATER")); await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync()); db.ChangeTracker.Clear();
+            await Assert.ThrowsAsync<PostgresException>(() => db.GetService<IMigrator>().MigrateAsync(previous)); Assert.True(await db.Set<PropertyDefinitionSetting>().AnyAsync(x => x.Id == setting.Id));
+            await using var columns = new NpgsqlCommand("SELECT count(*) FROM information_schema.columns WHERE table_schema=@schema AND table_name='property_definition_settings' AND column_name IN ('id','version','created_at','created_by','modified_at','modified_by','is_deleted','is_enabled') AND is_nullable='NO'", admin); columns.Parameters.AddWithValue("schema", schema); Assert.Equal(8L, await columns.ExecuteScalarAsync());
+        }
+        finally { await using var drop = new NpgsqlCommand($"DROP SCHEMA \"{schema}\" CASCADE", admin); await drop.ExecuteNonQueryAsync(); }
+    }
     private sealed class Actor : ICurrentUserService { public string? UserId => "fixture"; public string? Username => "fixture"; public bool IsAuthenticated => true; public bool IsInRole(string role) => role == "SUPER_ADMIN"; }
 }

@@ -1,3 +1,10 @@
+## TNM 03 — 30.10.2026 — TAMAMLANDI
+
+- `property_definition_settings` (Property FK, silinmemiş property+list+code tekil, sort_order check, Down guard).
+- `GET /api/v1/properties/{id}/definitions` (aktif üyelik) ve `PUT .../definitions/{list}/values/{code}` (yönetici + üyelik, version/409).
+- `DefinitionPolicy`: duyuru, anket, bakım, ortak alan, araç, merkez talep ve mobil talep yazımında gizli/pasif kod reddi (`BF_DEFINITION_UNAVAILABLE`); mevcut kod korunur.
+- Web formları `useDefinitionOptions` ile alan sırası, gizleme ve sistem ad/ikon ayarını kullanır; Tanımlar ekranında Yönetim alanı görünümü.
+
 ## TNM 02 — 30.10.2026 — TAMAMLANDI
 
 - `definition_values` tablosu (BaseEntity, silinmemiş list_key+code tekil, sort_order 0–999 check, dolu tabloda Down guard).

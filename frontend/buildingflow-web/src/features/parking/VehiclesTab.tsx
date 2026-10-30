@@ -19,6 +19,7 @@ import {ParkingBadge,ParkingKind} from "./ParkingBadges";
 import {vehicleStatusStyle,vehicleTypeIcon} from "./parking-style";
 import {UnitPicker} from "./UnitPicker";
 import {limits,readPage,readResidents,readVehicle,vehicleBody,vehicleStatuses,vehicleTypes,type Vehicle,type VehicleStatus,type VehicleType} from "./model";
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {parkingRoot,useParkingAction,useParkingRead,useRequestId} from "./useParking";
 
 type Locale="tr"|"en";
@@ -91,6 +92,7 @@ function VehicleReviewPanel({propertyId,vehicle,canWrite,onClose,onSaved}:{prope
 function VehicleCreatePanel({propertyId,onClose,onSaved}:{propertyId:string;onClose:()=>void;onSaved:()=>void}){
  const t=useTranslations("parking"),ui=useTranslations("ui");
  const [form,setForm]=useState({unitId:"",personId:"",plate:"",type:"CAR" as VehicleType,brand:"",model:"",color:""}),[invalid,setInvalid]=useState(false);
+ const typeChoices=useDefinitionOptions(propertyId,"VEHICLE_TYPE",vehicleTypes);
  const residents=useParkingRead(form.unitId?`${parkingRoot(propertyId)}/units/${form.unitId}/residents`:null,readResidents,0);
  const requestId=useRequestId(JSON.stringify(form));const action=useParkingAction();
  const set=<K extends keyof typeof form>(k:K,v:(typeof form)[K])=>{setForm(f=>({...f,[k]:v}));setInvalid(false);};
@@ -104,7 +106,7 @@ function VehicleCreatePanel({propertyId,onClose,onSaved}:{propertyId:string;onCl
     <option value="">{!form.unitId?t("chooseUnitFirst"):residents.loading?t("loading"):residents.data?.length?t("choosePerson"):t("noResidents")}</option>
     {residents.data?.map(r=><option key={r.personId+r.relation} value={r.personId}>{r.name} · {t(`relation_${r.relation}`)}</option>)}</select></div>
    <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="vehicle-plate">{t("plate")} *</Label><Input id="vehicle-plate" className="font-mono uppercase" maxLength={16} value={form.plate} placeholder="34 ABC 123" aria-invalid={invalid} onChange={e=>set("plate",e.target.value)}/></div>
-    <div><Label htmlFor="vehicle-type">{t("vehicleType")} *</Label><select id="vehicle-type" className={toolbarSelectClass+" w-full"} value={form.type} onChange={e=>set("type",e.target.value as VehicleType)}>{vehicleTypes.map(v=><option key={v} value={v}>{t(`type_${v}`)}</option>)}</select></div></div>
+    <div><Label htmlFor="vehicle-type">{t("vehicleType")} *</Label><select id="vehicle-type" className={toolbarSelectClass+" w-full"} value={form.type} onChange={e=>set("type",e.target.value as VehicleType)}>{typeChoices.options.map(v=><option key={v} value={v}>{typeChoices.label(v,t(`type_${v}`))}</option>)}</select></div></div>
    <div className="grid gap-4 sm:grid-cols-3">{(["brand","model","color"] as const).map(k=><div key={k}><Label htmlFor={`vehicle-${k}`}>{t(k)}</Label><Input id={`vehicle-${k}`} maxLength={limits.text} value={form[k]} onChange={e=>set(k,e.target.value)}/></div>)}</div>
    {invalid&&<FieldError>{t("vehicleInvalid")}</FieldError>}
   </fieldset><DialogFooter><Button type="button" variant="outline" disabled={action.busy} onClick={onClose}>{ui("cancel")}</Button><Button type="submit" disabled={action.busy}>{action.busy?<LoaderCircle className="animate-spin"/>:<Save/>}{t("save")}</Button></DialogFooter></form>

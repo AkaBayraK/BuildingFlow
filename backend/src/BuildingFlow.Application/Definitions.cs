@@ -48,10 +48,17 @@ public sealed record DefinitionListView(string Key, string Group, string Level, 
 public sealed record DefinitionsView(IReadOnlyList<DefinitionListView> Lists, IReadOnlyList<DefinitionCatalog> Catalogs);
 public sealed record SaveDefinitionValueRequest(string? NameTr, string? NameEn, string? IconKey, string? Tone, int? SortOrder, bool? IsEnabled, long Version);
 
+public sealed record PropertyDefinitionValueView(string Code, string? NameTr, string? NameEn, string? IconKey, string? Tone, int SortOrder, bool IsEnabled, bool IsHidden, bool Selectable, bool Locked, long Version);
+public sealed record PropertyDefinitionListView(string Key, string Group, string Level, IReadOnlyList<PropertyDefinitionValueView> Values);
+public sealed record PropertyDefinitionsView(Guid PropertyId, IReadOnlyList<PropertyDefinitionListView> Lists);
+public sealed record SavePropertyDefinitionRequest(bool? IsHidden, int? SortOrder, long Version);
+
 public interface IDefinitionStore
 {
     Task<DefinitionsView> ListAsync(CancellationToken token);
     Task<DefinitionValueView?> SaveAsync(string listKey, string code, SaveDefinitionValueRequest request, CancellationToken token);
+    Task<PropertyDefinitionsView?> PropertyListAsync(Guid propertyId, AccessScope access, CancellationToken token);
+    Task<PropertyDefinitionValueView?> SavePropertyAsync(Guid propertyId, string listKey, string code, SavePropertyDefinitionRequest request, AccessScope access, CancellationToken token);
 }
 
 public static class DefinitionRules
@@ -66,6 +73,7 @@ public static class DefinitionRules
         "ellipsis", "megaphone", "calendar-check-2", "car-front", "bike", "truck", "trees", "dog", "users", "coins",
         "concierge-bell", "party-popper", "square-parking", "messages-square", "waves", "dumbbell", "presentation", "baby",
         "flower-2", "trash-2", "package", "siren", "bell", "clipboard-check", "leaf", "key-round"], StringComparer.Ordinal);
+    public static readonly string[] ManagementRoles = ["SUPER_ADMIN", "SITE_ADMIN", "MANAGER"];
     public static bool Editable(DefinitionList list) => list.Level != nameof(DefinitionLevel.FIXED) && list.PlannedPhase == EditablePhase;
     public static bool Locked(string code) => LockedCodes.Contains(code);
 }

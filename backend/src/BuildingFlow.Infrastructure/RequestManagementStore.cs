@@ -59,6 +59,8 @@ public sealed class RequestManagementStore(BuildingFlowDbContext db,ICurrentUser
    var replay=await Read(property,prior.Id,true,token)??throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());await tx.CommitAsync(token);return replay;
   }
   if(c.UnitId is Guid unit && !await db.Units.AnyAsync(u=>u.PropertyId==property && u.Id==unit && u.IsEnabled,token))throw new ArgumentException("Invalid request unit.");
+  await DefinitionPolicy.EnsureSelectableAsync(db,property,"REQUEST_CATEGORY",c.Category,null,"category",token);
+  await DefinitionPolicy.EnsureSelectableAsync(db,property,"REQUEST_PRIORITY",c.Priority,null,"priority",token);
   var record=new MobileRequest(c.OperationId,property,c.UnitId,"CENTER",actor.UserId!,description);record.Details(c.Category,c.Priority,null);
   db.Add(record);await db.SaveChangesAsync(token);
   var result=await Read(property,record.Id,false,token);await tx.CommitAsync(token);return result!;

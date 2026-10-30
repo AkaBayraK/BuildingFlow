@@ -102,3 +102,41 @@ export function definitionLabelKey(key:DefinitionKey,value:string):{namespace:st
 export function filterLists(lists:readonly DefinitionList[],group:DefinitionGroup|"ALL",level:DefinitionLevel|"ALL"){
  return lists.filter(list=>(group==="ALL"||list.group===group)&&(level==="ALL"||list.level===level));
 }
+
+// TNM 03: yönetim alanının etkin listeleri (formlar) ve alan ayarı (gizle/sırala).
+export const propertyDefinitionsPath=(property:string)=>`/api/v1/properties/${encodeURIComponent(property)}/definitions`;
+export const propertyDefinitionValuePath=(property:string,list:string,code:string)=>`${propertyDefinitionsPath(property)}/${encodeURIComponent(list)}/values/${encodeURIComponent(code)}`;
+export type PropertyDefinitionValue={code:string;nameTr:string|null;nameEn:string|null;iconKey:DefinitionIconKey|null;tone:DefinitionTone|null;sortOrder:number;isEnabled:boolean;isHidden:boolean;selectable:boolean;locked:boolean;version:number};
+export type PropertyDefinitionList={key:DefinitionKey;group:DefinitionGroup;level:DefinitionLevel;values:PropertyDefinitionValue[]};
+export type PropertyDefinitions={propertyId:string;lists:PropertyDefinitionList[]};
+
+export function readPropertyDefinitionValue(value:unknown):PropertyDefinitionValue{
+ const row=record(value);
+ if(!row||typeof row.isHidden!=="boolean"||typeof row.selectable!=="boolean")throw Error("Invalid area definition value");
+ const base=readDefinitionValue({...row,version:row.version});
+ if(base.locked&&(row.isHidden||!row.selectable)||row.selectable!==(base.locked||base.isEnabled&&!row.isHidden))throw Error("Invalid area definition value");
+ return {...base,isHidden:row.isHidden,selectable:row.selectable};
+}
+
+export function readPropertyDefinitions(value:unknown,property:string):PropertyDefinitions{
+ const body=record(value);
+ if(!body||body.propertyId!==property||!Array.isArray(body.lists))throw Error("Invalid area definitions");
+ const lists=body.lists.flatMap(item=>{
+  const row=record(item);
+  if(!row||!oneOf(definitionKeys,row.key))return [];
+  if(!oneOf(definitionGroups,row.group)||!oneOf(definitionLevels,row.level)||row.level==="FIXED"||!Array.isArray(row.values)||!row.values.length)throw Error("Invalid area definition list");
+  const values=row.values.map(readPropertyDefinitionValue);
+  if(new Set(values.map(v=>v.code)).size!==values.length)throw Error("Invalid area definition list");
+  return [{key:row.key,group:row.group,level:row.level,values}];
+ });
+ return {propertyId:property,lists};
+}
+
+// Form seçenekleri: sunucu sırası, seçilebilir değerler ve kaydın mevcut kodu (gizli/pasif olsa da düzenlemede korunur).
+// Liste okunamazsa modülün kendi sabit listesi aynen kullanılır; yazım kuralını backend uygular.
+export function definitionOptions<T extends string>(codes:readonly T[],list:PropertyDefinitionList|undefined,current?:string|null):T[]{
+ if(!list)return [...codes];
+ const known=list.values.filter(v=>codes.includes(v.code as T));
+ const ordered=known.filter(v=>v.selectable||v.code===current).map(v=>v.code as T);
+ return [...ordered,...codes.filter(c=>!known.some(v=>v.code===c))];
+}

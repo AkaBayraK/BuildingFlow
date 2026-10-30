@@ -15,6 +15,7 @@ import {businessToday} from "@/lib/format";
 import {cn} from "@/lib/utils";
 import {categoryStyle} from "./category-style";
 import {SurveyPreview} from "./SurveyPreview";
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {addDays,formFrom,isChoice,limits,move,questionKey,questionTypes,readDetail,responseModes,retype,surveyAudiences,surveyBody,surveyCategories,surveyIssues,surveyTemplates,templateForm,
  type FormIssue,type QuestionForm,type QuestionType,type SurveyDetail,type SurveyForm,type SurveyTemplate} from "./model";
 
@@ -29,6 +30,7 @@ export function SurveyEditor({propertyId,detail,startWithTemplates,preset,canWri
  const blank=():SurveyForm=>({title:"",description:"",category:"GENERAL",startDate:today,endDate:addDays(today,14),audience:"ALL_RESIDENTS",responseMode:"PER_UNIT",isAnonymous:false,questions:[blankQuestion()]});
  const initial=():SurveyForm=>{const tpl=surveyTemplates.find(x=>x.id===preset);return detail?formFrom(detail):tpl?templateForm(tpl,today,label):blank();};
  const [form,setForm]=useState<SurveyForm>(initial),[record,setRecord]=useState(detail),[picking,setPicking]=useState(startWithTemplates&&!detail);
+ const categoryChoices=useDefinitionOptions(propertyId,"SURVEY_CATEGORY",surveyCategories,record?.survey.category);
  const [tab,setTab]=useState<"questions"|"preview">("questions"),[busy,setBusy]=useState(false),[shown,setShown]=useState<FormIssue[]>([]),[stale,setStale]=useState(false);
  const lock=useRef(false),root=`/api/v1/properties/${propertyId}/surveys`;
  const set=<K extends keyof SurveyForm>(key:K,value:SurveyForm[K])=>{setForm(f=>({...f,[key]:value}));setShown([]);};
@@ -60,7 +62,7 @@ export function SurveyEditor({propertyId,detail,startWithTemplates,preset,canWri
      <h3 className="survey-editor-heading">{t("settingsTitle")}</h3>
      <div><Label htmlFor="survey-title">{t("field_title")} *</Label><Input id="survey-title" maxLength={limits.title} value={form.title} placeholder={t("titleHint")} aria-invalid={has("title")} aria-describedby={has("title")?"survey-title-error":undefined} onChange={e=>set("title",e.target.value)}/>{has("title")&&<FieldError id="survey-title-error">{t("invalidTitle")}</FieldError>}</div>
      <div><Label htmlFor="survey-description">{t("field_description")}</Label><Textarea id="survey-description" className="min-h-24" maxLength={limits.description} value={form.description} placeholder={t("descriptionHint")} aria-invalid={has("description")} onChange={e=>set("description",e.target.value)}/><p className="mt-1 text-right text-xs text-muted-foreground">{form.description.length}/{limits.description}</p></div>
-     <div role="radiogroup" aria-labelledby="survey-category-label"><p id="survey-category-label" className="mb-2 text-sm font-medium">{t("col_category")} *</p><div className="survey-choice-grid">{surveyCategories.map(c=>{const S=categoryStyle[c];return <button key={c} type="button" role="radio" aria-checked={form.category===c} onClick={()=>set("category",c)} className={cn("survey-choice",form.category===c&&"survey-choice-active")} style={{"--survey-cat":S.color} as CSSProperties}><span className="survey-tile survey-tile-sm"><S.icon aria-hidden="true"/></span>{t(`category_${c}`)}</button>;})}</div></div>
+     <div role="radiogroup" aria-labelledby="survey-category-label"><p id="survey-category-label" className="mb-2 text-sm font-medium">{t("col_category")} *</p><div className="survey-choice-grid">{categoryChoices.options.map(c=>{const S=categoryChoices.style(c,{...categoryStyle[c],tone:""});return <button key={c} type="button" role="radio" aria-checked={form.category===c} onClick={()=>set("category",c)} className={cn("survey-choice",form.category===c&&"survey-choice-active")} style={{"--survey-cat":S.color} as CSSProperties}><span className="survey-tile survey-tile-sm"><S.icon aria-hidden="true"/></span>{categoryChoices.label(c,t(`category_${c}`))}</button>;})}</div></div>
      <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="survey-start">{t("startDate")} *</Label><Input id="survey-start" type="date" min="2000-01-01" max="2100-12-31" value={form.startDate} aria-invalid={has("dates")} onChange={e=>set("startDate",e.target.value)}/></div>
       <div><Label htmlFor="survey-end">{t("endDate")} *</Label><Input id="survey-end" type="date" min={form.startDate||"2000-01-01"} max="2100-12-31" value={form.endDate} aria-invalid={has("dates")} onChange={e=>set("endDate",e.target.value)}/></div></div>
      {has("dates")&&<FieldError>{t("invalidDates")}</FieldError>}

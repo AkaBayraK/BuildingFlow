@@ -82,6 +82,11 @@ public sealed class MobileSyncStore(BuildingFlowDbContext db, IMobileSessionStor
             photoId=null;
             if(c.Action!="DELETE" && staged!=null && bytes!=null){await db.Entry(staged).ReloadAsync(token);using var content=new MemoryStream(bytes);await storage.UploadAsync(staged.ObjectKey,content,"image/jpeg",token);staged.Current();photoId=staged.Id;}
         }
+        if(c.Action!="DELETE"){
+            var created=c.Action=="CREATE";
+            await DefinitionPolicy.EnsureSelectableAsync(db,c.PropertyId,"REQUEST_CATEGORY",c.Category??record.Category,created?null:record.Category,"category",token);
+            await DefinitionPolicy.EnsureSelectableAsync(db,c.PropertyId,"REQUEST_PRIORITY",c.Priority??record.Priority,created?null:record.Priority,"priority",token);
+        }
         record.Details(c.Category??record.Category,c.Priority??record.Priority,photoId);
         await db.SaveChangesAsync(token);
         var result=Dto(record);

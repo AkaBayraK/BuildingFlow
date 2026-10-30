@@ -22,8 +22,84 @@ internal sealed class DefinitionValueConfiguration : IEntityTypeConfiguration<De
     }
 }
 
+internal sealed class PropertyDefinitionSettingConfiguration : IEntityTypeConfiguration<PropertyDefinitionSetting>
+{
+    public void Configure(EntityTypeBuilder<PropertyDefinitionSetting> b)
+    {
+        BaseEntityConfiguration.Configure(b, "property_definition_settings");
+        b.Property(x => x.PropertyId).HasColumnName("property_id");
+        b.Property(x => x.ListKey).HasColumnName("list_key").HasMaxLength(DefinitionValue.MaxKeyLength);
+        b.Property(x => x.Code).HasColumnName("code").HasMaxLength(DefinitionValue.MaxKeyLength);
+        b.Property(x => x.IsHidden).HasColumnName("is_hidden");
+        b.Property(x => x.SortOrder).HasColumnName("sort_order");
+        b.HasOne<Property>().WithMany().HasForeignKey(x => x.PropertyId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => new { x.PropertyId, x.ListKey, x.Code }).IsUnique().HasFilter("NOT is_deleted").HasDatabaseName("uidx_property_definition_settings_property_list_code");
+        b.ToTable(t => t.HasCheckConstraint("chk_property_definition_settings_sort_order", $"sort_order IS NULL OR sort_order BETWEEN 0 AND {DefinitionValue.MaxSortOrder}"));
+    }
+}
+
+// Write-side guard used by module stores: a new or changed code must be enabled system-wide and not hidden in the area.
+// Keeping the record's current code is always allowed so old records stay editable.
+public static class DefinitionPolicy
+{
+    public static async Task EnsureSelectableAsync(BuildingFlowDbContext db, Guid property, string listKey, string code, string? current, string field, CancellationToken token)
+    {
+        if (code == current || DefinitionRules.Locked(code)) return;
+        var disabled = await db.Set<DefinitionValue>().AnyAsync(x => x.ListKey == listKey && x.Code == code && !x.IsEnabled, token);
+        var hidden = !disabled && await db.Set<PropertyDefinitionSetting>().AnyAsync(x => x.PropertyId == property && x.ListKey == listKey && x.Code == code && x.IsHidden && x.IsEnabled, token);
+        if (disabled || hidden) throw new RequestValidationException(new() { [field] = [ErrorCatalog.DefinitionUnavailable.Create()] });
+    }
+}
+
 public sealed class DefinitionStore(BuildingFlowDbContext db, ILogger<DefinitionStore> logger) : IDefinitionStore
 {
+    private IQueryable<Property> Properties(AccessScope scope) => db.Properties.Where(p => !p.IsDeleted && (scope.ReadAll || db.PropertyMemberships.Any(m => m.PropertyId == p.Id && m.UserId == scope.UserId && m.IsEnabled && !m.IsDeleted)));
+
+    public async Task<PropertyDefinitionsView?> PropertyListAsync(Guid propertyId, AccessScope access, CancellationToken token)
+    {
+        if (!await Properties(access).AnyAsync(p => p.Id == propertyId, token)) return null;
+        var system = (await db.Set<DefinitionValue>().AsNoTracking().ToListAsync(token)).ToDictionary(x => (x.ListKey, x.Code));
+        var local = (await db.Set<PropertyDefinitionSetting>().AsNoTracking().Where(x => x.PropertyId == propertyId && x.IsEnabled).ToListAsync(token)).ToDictionary(x => (x.ListKey, x.Code));
+        var lists = DefinitionRegistry.Current.Lists.Where(DefinitionRules.Editable).Select(list => new PropertyDefinitionListView(list.Key, list.Group, list.Level,
+            list.Values.Select((code, index) => PropertyValue(list.Key, code, index, system.GetValueOrDefault((list.Key, code)), local.GetValueOrDefault((list.Key, code))))
+                .OrderBy(x => x.SortOrder).ThenBy(x => list.Values.ToList().IndexOf(x.Code)).ToArray())).ToArray();
+        return new(propertyId, lists);
+    }
+
+    public async Task<PropertyDefinitionValueView?> SavePropertyAsync(Guid propertyId, string listKey, string code, SavePropertyDefinitionRequest request, AccessScope access, CancellationToken token)
+    {
+        var list = DefinitionRegistry.Current.Lists.SingleOrDefault(x => x.Key == listKey);
+        if (list is null || !list.Values.Contains(code)) return null;
+        if (list.Level != nameof(DefinitionLevel.PROPERTY) || !DefinitionRules.Editable(list)) Invalid("listKey");
+        if (request.IsHidden is null || request.SortOrder is < 0 or > DefinitionValue.MaxSortOrder || request.Version < 0)
+            throw new RequestValidationException(new() { [request.IsHidden is null ? "isHidden" : request.Version < 0 ? "version" : "sortOrder"] = [ErrorCatalog.DefinitionInvalid.Create()] });
+        if (request.IsHidden.Value && DefinitionRules.Locked(code))
+            throw new RequestValidationException(new() { ["isHidden"] = [ErrorCatalog.DefinitionLocked.Create()] });
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        if (!await Properties(access).AnyAsync(p => p.Id == propertyId, token)) return null;
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtext({"property_definition_settings:" + propertyId + ":" + listKey}))", token);
+        var row = await db.Set<PropertyDefinitionSetting>().SingleOrDefaultAsync(x => x.PropertyId == propertyId && x.ListKey == listKey && x.Code == code, token);
+        var index = list.Values.ToList().IndexOf(code);
+        var system = await db.Set<DefinitionValue>().AsNoTracking().SingleOrDefaultAsync(x => x.ListKey == listKey && x.Code == code, token);
+        if (request.Version != (row?.Version ?? 0))
+        {
+            if (row is not null && row.IsHidden == request.IsHidden && row.SortOrder == request.SortOrder) return PropertyValue(listKey, code, index, system, row);
+            throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+        }
+        if (row is null) { row = new PropertyDefinitionSetting(propertyId, listKey, code); db.Add(row); }
+        row.Set(request.IsHidden.Value, request.SortOrder);
+        await db.SaveChangesAsync(token);
+        await tx.CommitAsync(token);
+        logger.LogInformation("BuildingFlow.Definitions area setting updated {ListKey} {Code} {Version}", listKey, code, row.Version);
+        return PropertyValue(listKey, code, index, system, row);
+    }
+
+    private static PropertyDefinitionValueView PropertyValue(string listKey, string code, int index, DefinitionValue? system, PropertyDefinitionSetting? local)
+    {
+        var enabled = system?.IsEnabled ?? true; var hidden = local?.IsHidden ?? false; var locked = DefinitionRules.Locked(code);
+        return new(code, system?.NameTr, system?.NameEn, system?.IconKey, system?.Tone, local?.SortOrder ?? system?.SortOrder ?? index, enabled, hidden, locked || enabled && !hidden, locked, local?.Version ?? 0);
+    }
+
     public async Task<DefinitionsView> ListAsync(CancellationToken token)
     {
         var rows = await db.Set<DefinitionValue>().AsNoTracking().ToListAsync(token);
