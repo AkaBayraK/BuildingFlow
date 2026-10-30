@@ -1,6 +1,6 @@
 # Yönetim → Tanımlar — analiz ve faz önerisi
 
-Durum: TNM 01 TAMAMLANDI (30.10.2026); TNM 02–06 kullanıcı onayı bekler.
+Durum: TNM 01–02 TAMAMLANDI (30.10.2026); TNM 03–06 kullanıcı onayı bekler.
 Faz kimlikleri (TNM 01–06) öneridir; onaylanırsa milestones.ts ve TESTING.md'ye aynı kimlikle bağlanır.
 
 ## 1. Menü neden pasif?

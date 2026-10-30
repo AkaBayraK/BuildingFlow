@@ -1,3 +1,7 @@
+## TNM 02 — 30.10.2026 — TAMAMLANDI
+
+**TNM akışı 2/6=%33,33.** Sistem geneli override tablosu ve düzenleme. Kullanıcı sabit liste sorusunu yanıtlamadan 02'yi onayladı; öneri uygulandı (yönetim alanı/bölüm türü, ödeme yöntemi, park yeri türü, tedarikçi türü, bakım periyodu sabit). Override'lar henüz modül formlarına yansımıyor; TNM 03 (alan seviyesi + formların etkin listeyi okuması + pasif değerin backend'de reddi) onay bekliyor.
+
 ## TNM 01 — 30.10.2026 — TAMAMLANDI
 
 **Tanımlar resmi1/1=%100,00; TNM akışı 1/6=%16,67.** Kod-sahipli `DefinitionRegistry` + `GET /api/v1/definitions` (CanManageHierarchy), salt okunur `/definitions` ekranı, bağlı katalog kartları. Sonraki: TNM 02 (sistem seviyesi düzenleme, `definition_values` + seed migration) kullanıcı onayı ve açık kararlar (Property mi tenant+Property mi; alan özel değere açık listeler; sabit liste kararları) bekliyor.

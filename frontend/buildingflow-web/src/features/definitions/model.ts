@@ -1,6 +1,15 @@
-// TNM 01 sözleşmesi: GET /api/v1/definitions. Kod-sahipli liste kaydı; yalnız bilinen anahtar ve değerler gösterilir.
+// TNM 01/02 sözleşmesi: GET /api/v1/definitions ve PUT .../{list}/values/{code}. Kod-sahipli liste kaydı; yalnız bilinen
+// anahtar ve değerler gösterilir. Sistem geneli ad/ikon/ton/sıra/aktiflik yalnız SUPER_ADMIN tarafından yazılır.
 export const definitionsPath="/api/v1/definitions";
 export const definitionRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER"] as const;
+export const definitionEditorRole="SUPER_ADMIN";
+export const definitionValuePath=(list:string,code:string)=>`${definitionsPath}/${encodeURIComponent(list)}/values/${encodeURIComponent(code)}`;
+// Backend DefinitionRules.IconKeys ve Tones ile aynı; serbest metin ikon kabul edilmez.
+export const definitionIconKeys=["wrench","droplet","zap","flame","paint-roller","hammer","sparkles","shield-check","building-2","lightbulb","ellipsis","megaphone","calendar-check-2","car-front","bike","truck","trees","dog","users","coins","concierge-bell","party-popper","square-parking","messages-square","waves","dumbbell","presentation","baby","flower-2","trash-2","package","siren","bell","clipboard-check","leaf","key-round"] as const;
+export const definitionTones=["blue","green","amber","teal","red","violet","neutral"] as const;
+export type DefinitionIconKey=typeof definitionIconKeys[number];
+export type DefinitionTone=typeof definitionTones[number];
+export const maxDefinitionName=100,maxDefinitionOrder=999;
 export const definitionGroups=["PROPERTY","UNIT","FINANCE","REQUEST","MAINTENANCE","PARKING","SUPPLIER","COMMUNICATION","DOCUMENT"] as const;
 export const definitionLevels=["FIXED","SYSTEM","PROPERTY"] as const;
 export const catalogScopes=["SYSTEM","TENANT","PROPERTY"] as const;
@@ -32,7 +41,8 @@ export const definitionKeys=Object.keys(definitionLabels) as DefinitionKey[];
 export const catalogKeys=["SUPPLIER_CATEGORIES","DUES_CANCELLATION_REASONS","CONSENT_TYPES","SMS_TEMPLATES","PAYMENT_PROVIDERS"] as const;
 export type CatalogKey=typeof catalogKeys[number];
 
-export type DefinitionList={key:DefinitionKey;group:DefinitionGroup;level:DefinitionLevel;source:string;plannedPhase:string|null;values:string[]};
+export type DefinitionValue={code:string;nameTr:string|null;nameEn:string|null;iconKey:DefinitionIconKey|null;tone:DefinitionTone|null;sortOrder:number;isEnabled:boolean;locked:boolean;version:number};
+export type DefinitionList={key:DefinitionKey;group:DefinitionGroup;level:DefinitionLevel;source:string;plannedPhase:string|null;editable:boolean;values:DefinitionValue[]};
 export type DefinitionCatalog={key:CatalogKey;group:DefinitionGroup;scope:CatalogScope;route:string|null};
 export type Definitions={lists:DefinitionList[];catalogs:DefinitionCatalog[]};
 
@@ -48,8 +58,10 @@ export function readDefinitions(value:unknown):Definitions{
  const lists=body.lists.flatMap(item=>{
   const row=record(item);
   if(!row||!oneOf(definitionKeys,row.key))return [];
-  if(!oneOf(definitionGroups,row.group)||!oneOf(definitionLevels,row.level)||typeof row.source!=="string"||!phase(row.plannedPhase)||!Array.isArray(row.values)||!row.values.length||!row.values.every(code)||new Set(row.values).size!==row.values.length||(row.level==="FIXED")!==(row.plannedPhase===null))throw Error("Invalid definition list");
-  return [{key:row.key,group:row.group,level:row.level,source:row.source,plannedPhase:row.plannedPhase as string|null,values:row.values as string[]}];
+  if(!oneOf(definitionGroups,row.group)||!oneOf(definitionLevels,row.level)||typeof row.source!=="string"||!phase(row.plannedPhase)||typeof row.editable!=="boolean"||!Array.isArray(row.values)||!row.values.length||(row.level==="FIXED")!==(row.plannedPhase===null)||row.level==="FIXED"&&row.editable)throw Error("Invalid definition list");
+  const values=row.values.map(readDefinitionValue);
+  if(new Set(values.map(v=>v.code)).size!==values.length||!row.editable&&values.some(v=>v.version!==0))throw Error("Invalid definition list");
+  return [{key:row.key,group:row.group,level:row.level,source:row.source,plannedPhase:row.plannedPhase as string|null,editable:row.editable,values}];
  });
  const catalogs=body.catalogs.flatMap(item=>{
   const row=record(item);
@@ -59,6 +71,28 @@ export function readDefinitions(value:unknown):Definitions{
  });
  return {lists,catalogs};
 }
+
+const name=(value:unknown)=>value===null||typeof value==="string"&&value.trim().length>0&&value.length<=maxDefinitionName;
+export function readDefinitionValue(value:unknown):DefinitionValue{
+ const row=record(value);
+ if(!row||!code(row.code)||!name(row.nameTr)||!name(row.nameEn)||!(row.iconKey===null||oneOf(definitionIconKeys,row.iconKey))||!(row.tone===null||oneOf(definitionTones,row.tone))||!Number.isInteger(row.sortOrder)||(row.sortOrder as number)<0||(row.sortOrder as number)>maxDefinitionOrder||typeof row.isEnabled!=="boolean"||typeof row.locked!=="boolean"||!Number.isSafeInteger(row.version)||(row.version as number)<0||row.locked&&!row.isEnabled)throw Error("Invalid definition value");
+ return {code:row.code,nameTr:row.nameTr as string|null,nameEn:row.nameEn as string|null,iconKey:row.iconKey as DefinitionIconKey|null,tone:row.tone as DefinitionTone|null,sortOrder:row.sortOrder as number,isEnabled:row.isEnabled,locked:row.locked,version:row.version as number};
+}
+
+export function sortedValues(values:readonly DefinitionValue[]){return values.map((v,i)=>({v,i})).sort((a,b)=>a.v.sortOrder-b.v.sortOrder||a.i-b.i).map(x=>x.v);}
+export function overrideName(value:DefinitionValue,locale:string){return (locale.startsWith("en")?value.nameEn:value.nameTr)??null;}
+
+export type DefinitionForm={nameTr:string;nameEn:string;iconKey:DefinitionIconKey|"";tone:DefinitionTone|"";sortOrder:string;isEnabled:boolean};
+export const definitionForm=(v:DefinitionValue):DefinitionForm=>({nameTr:v.nameTr??"",nameEn:v.nameEn??"",iconKey:v.iconKey??"",tone:v.tone??"",sortOrder:String(v.sortOrder),isEnabled:v.isEnabled});
+export function definitionFormErrors(form:DefinitionForm,locked:boolean){
+ const errors:string[]=[];
+ if(form.nameTr.trim().length>maxDefinitionName)errors.push("nameTr");
+ if(form.nameEn.trim().length>maxDefinitionName)errors.push("nameEn");
+ if(!/^\d{1,3}$/.test(form.sortOrder.trim()))errors.push("sortOrder");
+ if(locked&&!form.isEnabled)errors.push("isEnabled");
+ return errors;
+}
+export const definitionBody=(form:DefinitionForm,version:number)=>({nameTr:form.nameTr.trim()||null,nameEn:form.nameEn.trim()||null,iconKey:form.iconKey||null,tone:form.tone||null,sortOrder:Number(form.sortOrder.trim()),isEnabled:form.isEnabled,version});
 
 export function definitionLabelKey(key:DefinitionKey,value:string):{namespace:string;key:string}{
  const label:{namespace:string;prefix?:string;key?:Record<string,string>}=definitionLabels[key];

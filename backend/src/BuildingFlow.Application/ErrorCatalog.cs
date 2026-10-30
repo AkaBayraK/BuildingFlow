@@ -101,6 +101,8 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition SupplierInvoiceState = new("BF_SUPPLIER_INVOICE_STATE", "Faturanın veya bağlı iş emri, sözleşme ya da düzeltilen faturanın durumu bu işleme uygun değil.", "warning");
     public static readonly ErrorDefinition SupplierInvoiceLinked = new("BF_SUPPLIER_INVOICE_LINKED", "Tedarikçi faturasına bağlı gider yalnız fatura üzerinden iptal edilebilir.", "warning");
     public static readonly ErrorDefinition SupplierDocumentProtected = new("BF_SUPPLIER_DOCUMENT_PROTECTED", "Revizyon veya sözleşme geçmişi olan belge kaldırılamaz.", "warning");
+    public static readonly ErrorDefinition DefinitionInvalid = new("BF_DEFINITION_INVALID", "Tanım adı, ikon, renk tonu, sıra ve sürüm bilgilerini kontrol edin.", "error");
+    public static readonly ErrorDefinition DefinitionLocked = new("BF_DEFINITION_LOCKED", "Bu değer formlarda varsayılan seçenek olduğu için pasife alınamaz.", "warning");
     public static readonly ErrorDefinition SupplierInvalid = new("BF_SUPPLIER_INVALID", "Tedarikçi adı, türü, durumu ve işlem bilgilerini kontrol edin.", "error");
     public static readonly ErrorDefinition SupplierDuplicate = new("BF_SUPPLIER_DUPLICATE", "Bu yönetim kapsamında aynı adlı tedarikçi zaten mevcut.", "warning");
     public static readonly ErrorDefinition PlanInvalid = new("BF_PLAN_INVALID", "Planlama için 1–200 karakter başlık, geçerli tür, durum ve 2000–2100 arası tarih gerekli; açıklama en fazla 2000, konum ve sorumlu en fazla 200 karakter olabilir.", "error");
@@ -332,6 +334,7 @@ public static class ErrorCatalog
     {
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
+        DefinitionInvalid, DefinitionLocked,
         SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierInvoiceDuplicate, SupplierInvoiceState, SupplierInvoiceLinked, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,

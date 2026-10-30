@@ -1,4 +1,4 @@
-# Tanımlar (TNM 01)
+# Tanımlar (TNM 01–02)
 
 `GET /api/v1/definitions` — salt okunur, `CanManageHierarchy` (SUPER_ADMIN, SITE_ADMIN, MANAGER). Anonim 401; ACCOUNTANT/SECURITY 403.
 
@@ -6,7 +6,8 @@ Yanıt kod-sahipli `DefinitionRegistry`'dir (`backend/src/BuildingFlow.Applicati
 
 ```json
 {
-  "lists": [{"key": "REQUEST_CATEGORY", "group": "REQUEST", "level": "PROPERTY", "source": "MobileRequest.Categories", "plannedPhase": "TNM_02", "values": ["ELEVATOR", "..."]}],
+  "lists": [{"key": "REQUEST_CATEGORY", "group": "REQUEST", "level": "PROPERTY", "source": "MobileRequest.Categories", "plannedPhase": "TNM_02", "editable": true,
+    "values": [{"code": "ELEVATOR", "nameTr": null, "nameEn": null, "iconKey": null, "tone": null, "sortOrder": 0, "isEnabled": true, "locked": false, "version": 0}]}],
   "catalogs": [{"key": "CONSENT_TYPES", "group": "COMMUNICATION", "scope": "SYSTEM", "route": "/consents"}]
 }
 ```
@@ -19,3 +20,12 @@ Yanıt kod-sahipli `DefinitionRegistry`'dir (`backend/src/BuildingFlow.Applicati
 Frontend `features/definitions/model.ts` yanıtı sıkı doğrular: bilinmeyen liste/katalog anahtarı yok sayılır; geçersiz kod, tekrar eden değer, FIXED↔plannedPhase uyumsuzluğu veya göreli olmayan route hata verir. Etiketler mevcut modül sözlüklerinden (`definitionLabels`), ikonlar modüllerin `*-style.ts` eşlemelerinden gelir.
 
 Analiz ve sonraki fazlar: [DEFINITIONS_ANALYSIS.md](../analysis/DEFINITIONS_ANALYSIS.md).
+
+## TNM 02 — sistem geneli düzenleme
+
+`PUT /api/v1/definitions/{listKey}/values/{code}` — yalnız SUPER_ADMIN (`CanManageProperties`). Gövde: `nameTr`, `nameEn` (boş/null → modül varsayılanı, max 100), `iconKey` ve `tone` (null veya `DefinitionRules.IconKeys`/`Tones` listesinden), `sortOrder` 0–999 (zorunlu), `isEnabled` (zorunlu), `version` (ilk kayıt 0). Yanıt güncel değer.
+
+- Yalnız `editable=true` listeler (FIXED değil ve `plannedPhase=TNM_02`): ortak alan türü, talep kategorisi/önceliği, bakım türü, araç tipi, duyuru ve anket kategorisi. Diğerleri 400 `BF_DEFINITION_INVALID`; bilinmeyen liste/kod 404.
+- OTHER/GENERAL/NORMAL kilitlidir; pasife alma 400 `BF_DEFINITION_LOCKED`.
+- Sürüm uyuşmazlığı 409 `BF_RECORD_CHANGED`; aynı içerik eski sürümle tekrar gönderilirse güncel değer döner. Liste başına advisory lock, silinmemiş `(list_key, code)` tekil index.
+- Tablo `definition_values` yalnız override tutar; satırı olmayan kod varsayılan değerlerle (`version=0`) listelenir. Kayıtlardaki kod değişmez. Override'ların modül formlarına ve pasif değerin yeni kayıtta reddine yansıması TNM 03 kapsamındadır.

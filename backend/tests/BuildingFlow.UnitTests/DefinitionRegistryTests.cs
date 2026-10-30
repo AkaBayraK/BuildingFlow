@@ -29,3 +29,20 @@ public sealed class DefinitionRegistryTests
         Assert.Equal("TNM_05",Registry.Lists.Single(x=>x.Key=="EXPENSE_CATEGORY").PlannedPhase);
     }
 }
+public sealed class DefinitionValueTests
+{
+    [Fact] public void OverridesTrimBlankToNullAndBoundSortOrder()
+    {
+        var value=new DefinitionValue("REQUEST_CATEGORY","ELEVATOR");value.Set("  Asansör ","",null," red ",5,false);
+        Assert.Equal("Asansör",value.NameTr);Assert.Null(value.NameEn);Assert.Equal("red",value.Tone);Assert.False(value.IsEnabled);
+        Assert.Throws<ArgumentOutOfRangeException>(()=>value.Set(null,null,null,null,1000,true));
+        Assert.Throws<ArgumentException>(()=>value.Set(new string('a',101),null,null,null,0,true));
+    }
+    [Fact] public void OnlyTnm02ListsAreEditableAndFallbacksAreLocked()
+    {
+        var editable=DefinitionRegistry.Current.Lists.Where(DefinitionRules.Editable).Select(x=>x.Key).ToArray();
+        Assert.Equal(new[]{"COMMON_AREA_TYPE","REQUEST_CATEGORY","REQUEST_PRIORITY","MAINTENANCE_TYPE","VEHICLE_TYPE","ANNOUNCEMENT_CATEGORY","SURVEY_CATEGORY"},editable);
+        Assert.All(DefinitionRegistry.Current.Lists.Where(DefinitionRules.Editable),x=>Assert.Contains(x.Values,DefinitionRules.Locked));
+        Assert.All(DefinitionRules.IconKeys,k=>Assert.Matches("^[a-z0-9-]{2,40}$",k));
+    }
+}

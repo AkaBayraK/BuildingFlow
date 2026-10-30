@@ -10,7 +10,8 @@ import {typeStyle as maintenanceStyle} from "../maintenance/type-style.ts";
 import {typeStyle as commonAreaStyle} from "../common-areas/type-style.ts";
 import {spaceStyle,vehicleTypeIcon} from "../parking/parking-style.ts";
 import {kindStyle as supplierKindStyle} from "../suppliers/supplier-style.ts";
-import type {CatalogKey,DefinitionGroup,DefinitionKey,DefinitionLevel} from "./model.ts";
+import {Baby,Bell,Bike,CarFront,ClipboardCheck,Coins,ConciergeBell,Dog,Droplet,Dumbbell,Ellipsis,Flame,Flower2,Hammer,KeyRound,Leaf,Lightbulb,Megaphone,MessagesSquare,Package,PaintRoller,PartyPopper,Presentation,Siren,Sparkles,SquareParking,Trash2,Trees,Truck,Users,Waves,Zap} from "lucide-react";
+import type {CatalogKey,DefinitionGroup,DefinitionIconKey,DefinitionKey,DefinitionLevel,DefinitionValue} from "./model.ts";
 
 type Style={icon:LucideIcon;tone:Tone};
 // Finans ve tedarikçi eşlemeleri WorkspacePresentation tonlarını kullanır; aynı görsel tona çevrilir.
@@ -43,3 +44,10 @@ export const groupStyle:Record<DefinitionGroup,Style>={PROPERTY:{icon:Building2,
 export const levelStyle:Record<DefinitionLevel,Style>={FIXED:{icon:ShieldCheck,tone:"neutral"},SYSTEM:{icon:Layers,tone:"blue"},PROPERTY:{icon:Building2,tone:"green"}};
 export const catalogIcon:Record<CatalogKey,LucideIcon>={SUPPLIER_CATEGORIES:BriefcaseBusiness,DUES_CANCELLATION_REASONS:CircleX,CONSENT_TYPES:ShieldCheck,SMS_TEMPLATES:MessageSquareText,PAYMENT_PROVIDERS:CreditCard};
 export const allIcon=LayoutGrid;
+
+// Sistem geneli ikon seçimi: anahtarlar backend DefinitionRules.IconKeys ile birebir.
+export const iconByKey:Record<DefinitionIconKey,LucideIcon>={wrench:Wrench,droplet:Droplet,zap:Zap,flame:Flame,"paint-roller":PaintRoller,hammer:Hammer,sparkles:Sparkles,"shield-check":ShieldCheck,"building-2":Building2,lightbulb:Lightbulb,ellipsis:Ellipsis,megaphone:Megaphone,"calendar-check-2":CalendarCheck2,"car-front":CarFront,bike:Bike,truck:Truck,trees:Trees,dog:Dog,users:Users,coins:Coins,"concierge-bell":ConciergeBell,"party-popper":PartyPopper,"square-parking":SquareParking,"messages-square":MessagesSquare,waves:Waves,dumbbell:Dumbbell,presentation:Presentation,baby:Baby,"flower-2":Flower2,"trash-2":Trash2,package:Package,siren:Siren,bell:Bell,"clipboard-check":ClipboardCheck,leaf:Leaf,"key-round":KeyRound};
+export function resolvedStyle(key:DefinitionKey,value:DefinitionValue):Style{
+ const base=valueStyle[key][value.code]??fallbackStyle;
+ return {icon:value.iconKey?iconByKey[value.iconKey]:base.icon,tone:value.tone??base.tone};
+}

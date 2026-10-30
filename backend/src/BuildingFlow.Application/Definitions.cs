@@ -2,7 +2,8 @@ using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
 // TNM 01: code-owned registry of parametric lists. Values come from the domain enums/arrays that already validate
-// writes, so this endpoint can never advertise a code the backend would reject. Editing arrives in TNM 02/03.
+// writes, so this endpoint can never advertise a code the backend would reject. TNM 02 adds system-wide presentation
+// overrides for lists planned for TNM 02; area-specific settings arrive with TNM 03.
 public enum DefinitionGroup { PROPERTY, UNIT, FINANCE, REQUEST, MAINTENANCE, PARKING, SUPPLIER, COMMUNICATION, DOCUMENT }
 public enum DefinitionLevel { FIXED, SYSTEM, PROPERTY }
 public sealed record DefinitionList(string Key, string Group, string Level, string Source, string? PlannedPhase, IReadOnlyList<string> Values);
@@ -40,4 +41,31 @@ public static class DefinitionRegistry
 
     private static DefinitionList List<T>(string key, DefinitionGroup group, DefinitionLevel level, string? phase) where T : struct, Enum =>
         new(key, group.ToString(), level.ToString(), typeof(T).Name, phase, Enum.GetNames<T>());
+}
+
+public sealed record DefinitionValueView(string Code, string? NameTr, string? NameEn, string? IconKey, string? Tone, int SortOrder, bool IsEnabled, bool Locked, long Version);
+public sealed record DefinitionListView(string Key, string Group, string Level, string Source, string? PlannedPhase, bool Editable, IReadOnlyList<DefinitionValueView> Values);
+public sealed record DefinitionsView(IReadOnlyList<DefinitionListView> Lists, IReadOnlyList<DefinitionCatalog> Catalogs);
+public sealed record SaveDefinitionValueRequest(string? NameTr, string? NameEn, string? IconKey, string? Tone, int? SortOrder, bool? IsEnabled, long Version);
+
+public interface IDefinitionStore
+{
+    Task<DefinitionsView> ListAsync(CancellationToken token);
+    Task<DefinitionValueView?> SaveAsync(string listKey, string code, SaveDefinitionValueRequest request, CancellationToken token);
+}
+
+public static class DefinitionRules
+{
+    public const string EditablePhase = "TNM_02";
+    // Fallback codes stay selectable so every form always has a neutral choice.
+    public static readonly IReadOnlySet<string> LockedCodes = new HashSet<string>(["OTHER", "GENERAL", "NORMAL"], StringComparer.Ordinal);
+    public static readonly IReadOnlySet<string> Tones = new HashSet<string>(["blue", "green", "amber", "teal", "red", "violet", "neutral"], StringComparer.Ordinal);
+    // Icon keys the web and mobile clients can render from their existing icon sets; free text is rejected.
+    public static readonly IReadOnlySet<string> IconKeys = new HashSet<string>([
+        "wrench", "droplet", "zap", "flame", "paint-roller", "hammer", "sparkles", "shield-check", "building-2", "lightbulb",
+        "ellipsis", "megaphone", "calendar-check-2", "car-front", "bike", "truck", "trees", "dog", "users", "coins",
+        "concierge-bell", "party-popper", "square-parking", "messages-square", "waves", "dumbbell", "presentation", "baby",
+        "flower-2", "trash-2", "package", "siren", "bell", "clipboard-check", "leaf", "key-round"], StringComparer.Ordinal);
+    public static bool Editable(DefinitionList list) => list.Level != nameof(DefinitionLevel.FIXED) && list.PlannedPhase == EditablePhase;
+    public static bool Locked(string code) => LockedCodes.Contains(code);
 }

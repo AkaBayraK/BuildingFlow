@@ -1,3 +1,7 @@
+## TNM 02 — 30.10.2026 — TAMAMLANDI
+
+Tanımlar resmi1/1=%100,00; TNM akışı 2/6=%33,33. `definition_values` + `DefinitionValues` migration, SUPER_ADMIN PUT ucu ve Tanımlar ekranında sağ düzenleme paneli. Formlara yansıma TNM 03'te.
+
 ## TNM 01 — 30.10.2026 — TAMAMLANDI
 
 Tanımlar resmi1/1=%100,00; önerilen TNM akışı 1/6=%16,67. Menü aktif, salt okunur Tanımlar ekranı ve `GET /api/v1/definitions`. TNM 02 onay bekliyor. Analiz `docs/analysis/DEFINITIONS_ANALYSIS.md`.

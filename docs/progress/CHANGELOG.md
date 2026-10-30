@@ -1,3 +1,9 @@
+## TNM 02 — 30.10.2026 — TAMAMLANDI
+
+- `definition_values` tablosu (BaseEntity, silinmemiş list_key+code tekil, sort_order 0–999 check, dolu tabloda Down guard).
+- `PUT /api/v1/definitions/{list}/values/{code}` (SUPER_ADMIN, version/409, aynı içerik tekrarı); GET değerleri nesne olarak döner (`editable`, `locked`, `version`).
+- Tanımlar ekranı: düzenlenebilir listede değer → sağ panel (TR/EN ad, ikon, ton, sıra, aktif/pasif); `BF_DEFINITION_INVALID`, `BF_DEFINITION_LOCKED`.
+
 ## TNM 01 — 30.10.2026 — TAMAMLANDI
 
 - Yönetim → Tanımlar menüsü aktif; `/definitions` ekranı 16 kod-sahipli listeyi seviye/grup filtresi ve ikonlarıyla, 5 mevcut kataloğu bağlantı kartıyla gösterir.

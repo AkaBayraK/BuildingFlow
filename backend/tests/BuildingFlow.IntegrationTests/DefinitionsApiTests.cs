@@ -19,7 +19,7 @@ public sealed class DefinitionsApiTests(SiteApiTests.SiteApiFactory factory):ICl
         using var json=JsonDocument.Parse(await response.Content.ReadAsStringAsync());var root=json.RootElement;
         var request=root.GetProperty("lists").EnumerateArray().Single(x=>x.GetProperty("key").GetString()=="REQUEST_CATEGORY");
         Assert.Equal("REQUEST",request.GetProperty("group").GetString());Assert.Equal("PROPERTY",request.GetProperty("level").GetString());
-        Assert.Contains("ELEVATOR",request.GetProperty("values").EnumerateArray().Select(x=>x.GetString()));
+        Assert.Contains("ELEVATOR",request.GetProperty("values").EnumerateArray().Select(x=>x.GetProperty("code").GetString()));Assert.True(request.GetProperty("editable").GetBoolean());
         Assert.Contains(root.GetProperty("catalogs").EnumerateArray(),x=>x.GetProperty("key").GetString()=="CONSENT_TYPES"&&x.GetProperty("route").GetString()=="/consents");
         Assert.Equal(JsonValueKind.Null,root.GetProperty("catalogs").EnumerateArray().Single(x=>x.GetProperty("key").GetString()=="DUES_CANCELLATION_REASONS").GetProperty("route").ValueKind);
     }

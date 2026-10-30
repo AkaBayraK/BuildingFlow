@@ -1,3 +1,9 @@
+## TNM 02 — 30.10.2026 — Sistem geneli tanım düzenleme GEÇTİ
+
+**Senaryolar:** SUPER_ADMIN ilk kayıt (version 0→1), aynı içerik tekrarı aynı sürümü döndürür, güncelleme 1→2, eski sürüm farklı içerik 409 `BF_RECORD_CHANGED`; SITE_ADMIN/MANAGER/ACCOUNTANT 403, anonim 401; FIXED (UNIT_TYPE) ve TNM 05 (EXPENSE_CATEGORY) listeleri 400, bilinmeyen liste/kod 404; varsayılan (OTHER/GENERAL/NORMAL) pasife alınamaz 400 `BF_DEFINITION_LOCKED`; izinsiz ikon/ton, sıra 1000, negatif sürüm, 101 karakter ad, eksik sıra/aktiflik 400 `BF_DEFINITION_INVALID`; GET pasif değeri `isEnabled=false`, kilitli varsayılanı `locked=true` döndürür. Migration: önceki sürümden yükseltme, tekrar uygulama, boş geri alma, (list_key, code) silinmemiş tekilliği, sort_order check, dolu tabloda Down guard, sekiz BaseEntity kolonu NOT NULL. FE: değer sözleşmesi, ikon/ton listesinin backend ile birebirliği, form doğrulaması, sıralama ve ad geri dönüşü.
+
+**Komut kanıtı:** unit **477/477**; ayrı geçici PostgreSQL veritabanında `Definition*`, `ErrorContract`, `PersistenceTests`, `MigrationTests`, `AutoMigrationTests`, `RequestManagement` **49/49**, 0 atlanan. Web `npm test` **353/353**, typecheck 0 hata, build ana klasörde. Yeni bağımlılık yok. Tam integration suite bu turda çalıştırılmadı.
+
 ## TNM 01 — 30.10.2026 — Tanımlar merkezi GEÇTİ
 
 **Senaryolar:** menü aktif ve `/definitions` OIDC dönüş listesinde; SUPER_ADMIN/SITE_ADMIN/MANAGER görür, ACCOUNTANT/SECURITY/RESIDENT görmez ve aramada bulamaz; API anonim 401, ACCOUNTANT/SECURITY 403, yönetici rolleri string kodlu kayıt okur; kayıt değerleri domain enum/dizileriyle birebir; FIXED listeler planlı faz taşımaz; FE sözleşmesi bilinmeyen anahtarı yok sayar, bozuk kod/tekrar/route reddeder; etiketler TR/EN modül sözlüklerinde; her liste/katalog/grup/seviye ikonlu.

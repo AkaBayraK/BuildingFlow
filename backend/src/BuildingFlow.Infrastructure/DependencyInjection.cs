@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddScoped<BuildingFlow.Application.IMobileSessionStore, MobileSessionStore>();
         services.AddScoped<BuildingFlow.Application.ICentralPeopleStore, CentralPeopleStore>();
+        services.AddScoped<BuildingFlow.Application.IDefinitionStore, DefinitionStore>();
         services.AddScoped<BuildingFlow.Application.IPersonTransitionStore, PersonTransitionStore>();
         services.AddScoped<ManagementAccess>();
         services.AddScoped<BuildingFlow.Application.IManagementAccess>(p=>p.GetRequiredService<ManagementAccess>());

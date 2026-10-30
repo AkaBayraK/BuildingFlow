@@ -187,3 +187,12 @@ Katalog **113 kod** içerir: önceki105 +8 duyuru/belge kodu. `content`, `audien
 | BF_CONTENT_PROPERTY_HISTORY | 409 | warning | — |
 
 Validasyon sorunları BF_VALIDATION_FAILED+fieldIssues içinde kodlanabilir; ham SDK/exception mesajı gösterilmez. Ayrıntı [duyuru/belge sözleşmesi](communication.md).
+
+## TNM 02 ile eklenen kodlar — 30.10.2026
+
+| Kod | HTTP | Seviye | Parametre |
+| --- | --- | --- | --- |
+| BF_DEFINITION_INVALID | 400 (fieldIssues) | error | — |
+| BF_DEFINITION_LOCKED | 400 (fieldIssues) | warning | — |
+
+Sürüm uyuşmazlığı mevcut `BF_RECORD_CHANGED` (409) ile döner. Ayrıntı [definitions.md](definitions.md).
