@@ -8956,6 +8956,82 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierAlertPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActorIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("actor_issuer");
+
+                    b.Property<string>("ActorSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_subject");
+
+                    b.Property<bool>("ContractExpiry")
+                        .HasColumnType("boolean")
+                        .HasColumnName("contract_expiry");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<bool>("MaintenanceDue")
+                        .HasColumnType("boolean")
+                        .HasColumnName("maintenance_due");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<bool>("WorkOrderOverdue")
+                        .HasColumnType("boolean")
+                        .HasColumnName("work_order_overdue");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "ActorIssuer", "ActorSubject")
+                        .IsUnique()
+                        .HasFilter("NOT is_deleted");
+
+                    b.ToTable("supplier_alert_preferences", (string)null);
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierAreaService", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14442,6 +14518,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.Supplier", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.PersonTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierAlertPreference", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.PersonTenant", null)
                         .WithMany()

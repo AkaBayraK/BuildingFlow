@@ -89,6 +89,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.ISupplierWorkOrderStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierMaintenanceStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierInvoiceStore>(p=>p.GetRequiredService<SupplierStore>());
+        services.AddScoped<BuildingFlow.Application.ISupplierInsightStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<CommonAreaStore>();
         services.AddScoped<BuildingFlow.Application.ICommonAreaClosureStore>(p=>p.GetRequiredService<CommonAreaStore>());
         services.AddScoped<BuildingFlow.Application.ICommonAreaReservationStore>(p=>p.GetRequiredService<CommonAreaStore>());
