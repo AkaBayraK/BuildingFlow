@@ -1,4 +1,4 @@
-import {Gauge,BellRing,Receipt,BadgeCheck,Banknote,Scale,Layers,Zap,Users,Shield,Umbrella,Landmark,Repeat,CalendarDays,CalendarRange,CalendarCheck,CalendarX,AlarmClock,ArrowRight,ArrowLeft,Pin,TriangleAlert,SkipForward,Ban,Sparkles,Search,Siren,CalendarSync,ClipboardCheck,Play,Camera,Timer,ShieldCheck,Coins,ClipboardList,Building2,Wrench,Info,Paperclip,FileText,CalendarClock,XCircle,History,UserRound,FilePenLine,CheckCircle2,PauseCircle,ShieldBan,type LucideIcon} from "lucide-react";
+import {Lightbulb,UserCheck,TrendingUp,SignalHigh,SignalMedium,SignalLow,Gauge,BellRing,Receipt,BadgeCheck,Banknote,Scale,Layers,Zap,Users,Shield,Umbrella,Landmark,Repeat,CalendarDays,CalendarRange,CalendarCheck,CalendarX,AlarmClock,ArrowRight,ArrowLeft,Pin,TriangleAlert,SkipForward,Ban,Sparkles,Search,Siren,CalendarSync,ClipboardCheck,Play,Camera,Timer,ShieldCheck,Coins,ClipboardList,Building2,Wrench,Info,Paperclip,FileText,CalendarClock,XCircle,History,UserRound,FilePenLine,CheckCircle2,PauseCircle,ShieldBan,type LucideIcon} from "lucide-react";
 import type {SupplierKind,SupplierStatus} from "./model";
 import type {Tone} from "@/components/management/WorkspacePresentation";
 export const kindStyle:Record<SupplierKind,{icon:LucideIcon;tone:Tone}>={COMPANY:{icon:Building2,tone:"info"},INDIVIDUAL:{icon:UserRound,tone:"violet"}};
@@ -35,4 +35,6 @@ export const invoiceCategoryStyle={MAINTENANCE:{icon:Wrench},CLEANING:{icon:Spar
 export const invoiceOverdueStyle={icon:TriangleAlert} as const;
 
 export const alertStyle={ALL:{icon:Layers,tone:"neutral"},CONTRACT_EXPIRY:{icon:CalendarClock,tone:"warning"},WORK_ORDER_OVERDUE:{icon:Timer,tone:"error"},MAINTENANCE_OVERDUE:{icon:TriangleAlert,tone:"error"},MAINTENANCE_DUE:{icon:AlarmClock,tone:"info"}} as const;
-export const supplierViews={suppliers:{icon:Building2},alerts:{icon:BellRing},performance:{icon:Gauge}} as const;
+export const supplierViews={suppliers:{icon:Building2},alerts:{icon:BellRing},performance:{icon:Gauge},advice:{icon:Lightbulb}} as const;
+export const adviceStyle={MATCH:{icon:UserCheck},DELAY_RISK:{icon:Timer},COST_ANOMALY:{icon:TrendingUp}} as const;
+export const adviceLevelStyle={HIGH:{icon:SignalHigh,tone:"warning"},MEDIUM:{icon:SignalMedium,tone:"info"},LOW:{icon:SignalLow,tone:"neutral"}} as const;
