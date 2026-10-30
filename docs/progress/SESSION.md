@@ -1,3 +1,7 @@
+## TNM 01 — 30.10.2026 — TAMAMLANDI
+
+**Tanımlar resmi1/1=%100,00; TNM akışı 1/6=%16,67.** Kod-sahipli `DefinitionRegistry` + `GET /api/v1/definitions` (CanManageHierarchy), salt okunur `/definitions` ekranı, bağlı katalog kartları. Sonraki: TNM 02 (sistem seviyesi düzenleme, `definition_values` + seed migration) kullanıcı onayı ve açık kararlar (Property mi tenant+Property mi; alan özel değere açık listeler; sabit liste kararları) bekliyor.
+
 ## TEDARİKÇİ FAZ12 — 30.10.2026 — OTOMATİK KAPILAR TAMAM / TARAYICI E2E BEKLİYOR
 
 #102 açık. RBAC/izolasyon matrisi, uçtan uca akış, p95, migration zinciri, idempotent SQL, yedek provası, erişilebilirlik statik kapısı, tam regresyon exit0 (945/947+472). Paylaşılan PG kilit hatası şema işlemleri sınırıyla giderildi. Bekleyen: kullanıcı onayıyla yerel DB'ye 9 tedarikçi migration'ı + API yeniden başlatma + `scripts/qa-web.sh` gerçek tarayıcı E2E. Push yok. Token: BİLGİ MEVCUT DEĞİL.

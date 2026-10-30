@@ -1,3 +1,7 @@
+## TNM 01 — 30.10.2026 — TAMAMLANDI
+
+Tanımlar resmi1/1=%100,00; önerilen TNM akışı 1/6=%16,67. Menü aktif, salt okunur Tanımlar ekranı ve `GET /api/v1/definitions`. TNM 02 onay bekliyor. Analiz `docs/analysis/DEFINITIONS_ANALYSIS.md`.
+
 ## TEDARİKÇİ FAZ12 — 30.10.2026 — TARAYICI E2E BEKLİYOR
 
 #102: otomatik kalite kapıları GEÇTİ; gerçek tarayıcı E2E kullanıcı onayı bekliyor. Rapor `docs/suppliers/12-report.md`.

@@ -8,6 +8,7 @@ const planned = (title: string, detail: string): RoadmapTask => ({ title, detail
 
 export const milestones: Milestone[] = [
   {number:"SUP-11",title:"supplierAdviceRoadmapTitle",description:"supplierAdviceRoadmapDescription",tasks:[done("supplierAdviceRoadmapTask","supplierAdviceRoadmapDetail","supplierAdviceRoadmapVerification")]},
+  {number:"TNM-01",title:"definitionsRoadmapTitle",description:"definitionsRoadmapDescription",tasks:[done("definitionsRoadmapTask","definitionsRoadmapDetail","definitionsRoadmapVerification")]},
   {number:"SUP-10",title:"supplierInsightsRoadmapTitle",description:"supplierInsightsRoadmapDescription",tasks:[done("supplierInsightsRoadmapTask","supplierInsightsRoadmapDetail","supplierInsightsRoadmapVerification")]},
   {number:"SUP-09",title:"supplierMobileRoadmapTitle",description:"supplierMobileRoadmapDescription",tasks:[done("supplierMobileRoadmapTask","supplierMobileRoadmapDetail","supplierMobileRoadmapVerification")]},
   {number:"SUP-08",title:"supplierInvoicesRoadmapTitle",description:"supplierInvoicesRoadmapDescription",tasks:[done("supplierInvoicesRoadmapTask","supplierInvoicesRoadmapDetail","supplierInvoicesRoadmapVerification")]},

@@ -178,6 +178,7 @@ app.MapReportEndpoints();
 app.MapDashboardEndpoints();
 app.MapWeatherEndpoints();
 app.MapSystemStatusEndpoints();
+app.MapDefinitionEndpoints();
 app.MapQaCenterEndpoints();
 app.MapCommunicationEndpoints();
 app.MapWebsiteInquiryEndpoints();

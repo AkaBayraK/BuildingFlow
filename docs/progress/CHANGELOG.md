@@ -1,3 +1,8 @@
+## TNM 01 — 30.10.2026 — TAMAMLANDI
+
+- Yönetim → Tanımlar menüsü aktif; `/definitions` ekranı 16 kod-sahipli listeyi seviye/grup filtresi ve ikonlarıyla, 5 mevcut kataloğu bağlantı kartıyla gösterir.
+- `GET /api/v1/definitions` (kod kaydı, tablo yok); `MobileRequest.Priorities` sabiti; yol haritası TNM-01.
+
 ## TEDARİKÇİ FAZ12 — 30.10.2026
 
 - Tedarikçi yayın kapıları: RBAC/tenant matrisi, uçtan uca akış, p95, migration zinciri, erişilebilirlik statik testi; test fabrikasında şema işlemleri eşzamanlılık sınırı.

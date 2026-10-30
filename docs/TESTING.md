@@ -1,3 +1,9 @@
+## TNM 01 — 30.10.2026 — Tanımlar merkezi GEÇTİ
+
+**Senaryolar:** menü aktif ve `/definitions` OIDC dönüş listesinde; SUPER_ADMIN/SITE_ADMIN/MANAGER görür, ACCOUNTANT/SECURITY/RESIDENT görmez ve aramada bulamaz; API anonim 401, ACCOUNTANT/SECURITY 403, yönetici rolleri string kodlu kayıt okur; kayıt değerleri domain enum/dizileriyle birebir; FIXED listeler planlı faz taşımaz; FE sözleşmesi bilinmeyen anahtarı yok sayar, bozuk kod/tekrar/route reddeder; etiketler TR/EN modül sözlüklerinde; her liste/katalog/grup/seviye ikonlu.
+
+**Komut kanıtı:** `DefinitionRegistryTests` + `RequestCategoryTests` unit **4/4**; `DefinitionsApiTests` + `SystemStatusApiTests` ayrı geçici PostgreSQL test veritabanında (shared `test-db.py create/cleanup`) **9/9**, 0 atlanan. Web `npm test` **351/351**, `npm run typecheck` 0 hata, `npm run build` ana klasörde. Migration yok (tablo eklenmedi). Yeni bağımlılık yok.
+
 ## TEDARİKÇİ FAZ12 — 30.10.2026 — OTOMATİK KAPILAR GEÇTİ / TARAYICI E2E BEKLİYOR
 
 `SupplierReleaseTests`: RBAC matrisi 67 uç × 3 kimlik, tenant izolasyonu 31 GET + öneri, sözleşme→iş emri→bakım→fatura→gider→rapor uçtan uca akış, p95 210 ms (41 tedarikçi/200 iş emri). `SupplierMigrationChainTests`: 9 migration/24 tablo geri al ve yeniden kur. İdempotent SQL 64×2, model eşleşmesi, yedek/geri yükleme 8/8, `supplier-accessibility.test.mjs`. `SiteApiFactory` şema migrate/drop eşzamanlılığı 4 ile sınırlandı (paylaşılan PG 53200). **Tam regresyon Integration945/947 (2 opt-in)+Unit472/472 exit0; web347/347+typecheck+build; mobil170/170; lisans329; kapsam kapısı GEÇTİ.** Gerçek tarayıcı E2E yerel migration onayı bekliyor. Rapor `docs/suppliers/12-report.md`.

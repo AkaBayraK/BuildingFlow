@@ -55,11 +55,12 @@ test('nested and parent active state rejects sibling scopes and prefix collision
  assert.equal(isNavigationActive(parent,`/people/${Q}`),true);
 });
 
-test('disabled placeholders stay routeless, unsearchable, and inactive; destinations keep OIDC compatibility',()=>{
+test('system destinations are routed, searchable and keep OIDC compatibility',()=>{
  const m=createNavigation(context({roles:['SUPER_ADMIN'],propertyId:P,property:{id:P,type:'SITE'}}),'/');
- for(const id of ['definitions']){
-  const item=byId(m,id);assert.equal(item.disabled,true);assert.equal(item.href,undefined);assert.equal(isNavigationActive(item,'/'),false);assert.ok(!m.searchable.some(i=>i.id===id));
- }
+ // TNM 01: Tanımlar is no longer a planned placeholder.
+ const definitions=byId(m,'definitions');assert.equal(definitions.disabled,false);assert.equal(definitions.href,'/definitions');assert.ok(m.searchable.some(i=>i.id==='definitions'));
+ assert.equal(byId(createNavigation(context({roles:['SUPER_ADMIN']}),'/definitions'),'definitions').active,true);
+ assert.ok(entries(m).every(i=>!i.disabled));
  assert.deepEqual(m.shortcuts.map(i=>i.id),['dashboard','properties','units','people']);
  // Yönetim > Sistem Ayarları sistem durumu ekranına açılır ve aranabilir.
  assert.equal(byId(m,'settings').href,'/system-settings');assert.equal(byId(m,'settings').disabled,false);assert.ok(m.searchable.some(i=>i.id==='settings'));

@@ -76,7 +76,6 @@ export function createNavigation(context: NavigationContext, path: string): Navi
     const item: NavigationLink = {id, href, label: {namespace: "ui", key}, icon, section, active: false, disabled: false};
     return {...item, active: isNavigationActive(item, path)};
   }
-  const planned = (id: string, key: LabelKey, icon: NavigationIcon): NavigationItem => ({id, label: {namespace: "ui", key}, icon, disabled: true, active: false});
   const module = (id: ManagementSection, key: LabelKey, icon: NavigationIcon) => link(id, `${base ?? ""}/${id}`, key, icon, id);
   const dashboard = link("dashboard", "/dashboard", "navDashboard", "LayoutDashboard");
   const propertyLink = link("properties", "/properties", "properties", "Building2");
@@ -89,7 +88,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
     ...(permissions.manager ? [module("surveys", "navSurveys", "ClipboardList"), module("website", "navWebsite", "Building2"), module("requests", "shellRequests", "Wrench"), module("sms", "navSms", "MessageSquareText")] : []),
     ...(permissions.users ? [link("users", "/users", "navUsers", "UserCog")] : [])
   ];
-  const administration = permissions.administration ? [link("consents", "/consents", "navConsents", "ShieldCheck"), planned("definitions", "shellDefinitions", "SlidersHorizontal"), link("settings", "/system-settings", "shellSettings", "Settings"), ...(permissions.qaCenter ? [link("qa-center", "/system-settings/qa-center", "shellQaCenter", "FlaskConical")] : [])] : [];
+  const administration = permissions.administration ? [link("consents", "/consents", "navConsents", "ShieldCheck"), link("definitions", "/definitions", "shellDefinitions", "SlidersHorizontal"), link("settings", "/system-settings", "shellSettings", "Settings"), ...(permissions.qaCenter ? [link("qa-center", "/system-settings/qa-center", "shellQaCenter", "FlaskConical")] : [])] : [];
   const home: NavigationLink = context.sessionContexts ? {...link("home", "/workspaces", "overview", "ListChecks"), label: {namespace: "sessionWorkspaces", key: "title"}} : link("home", "/", "overview", "ListChecks");
   const account = link("account", "/account", "navAccount", "UserRound");
   const visibleItems = [...main, ...operations, ...administration];
