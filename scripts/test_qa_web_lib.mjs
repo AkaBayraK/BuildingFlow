@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { judge, plan, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
+import { judge, plan, requestedPages, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
 
 const clean = { overflow: 0, imagesWithoutAlt: 0, unnamedControls: 0, unlabelledFields: 0, tabsWithoutState: 0, headings: 1, alerts: [] };
 const base = { documentStatus: 200, finalPath: '/dues', expectedPath: '/dues', exceptions: [], serverErrors: [], audit: clean, viewport: 'desktop' };
@@ -39,3 +39,12 @@ test('recording player lists frames in order and handles an empty capture', () =
   assert.match(html, /<img id="f" alt=/);
   assert.match(recordingPlayer([]), /Kare yok/);
 });
+
+test('explicit route missing from stale inventory is resolved from source or fails',()=>{
+ const pages=[{route:'/dues'}];assert.deepEqual(requestedPages(pages,null,()=>false),pages);
+ assert.deepEqual(requestedPages(pages,['/definitions'],r=>r==='/definitions'),[{route:'/definitions'}]);
+ assert.deepEqual(requestedPages(pages,['/dues','/dues'],()=>false),pages);
+ for(const route of ['/absent','/../secrets','https://example.test'])assert.throws(()=>requestedPages(pages,[route],()=>false));
+});
+
+test('API 4xx fails the browser gate instead of passing an empty error screen',()=>{const r=judge({...base,clientErrors:['404 /api/v1/definitions']});assert.equal(r.status,'FAIL');assert.match(r.problems.join(' '),/API 4xx/);});

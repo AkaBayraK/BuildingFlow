@@ -19,6 +19,7 @@ import {ChargeStatusBadge} from "./ChargeStatusBadge";
 import {normalizeAmount,previewTotal,submissionKey,readUnitChoices,readAssessment,readCharge,readCancellationReasons,type CancellationReason,type SubmissionKey,type DuesCharge} from "./model";
 import {ChargePeople} from "./ChargePeople";
 import {FilterChips} from "@/components/management/FilterChips";
+import {useDefinitionOptions} from "@/features/definitions/useDefinitionOptions";
 import {ChargeKindBadge} from "./ChargeKindBadge";
 import {chargeCategories,chargeKinds,categoryStyle,kindStyle,type ChargeCategory,type ChargeKind} from "./charge-kind-style";
 
@@ -30,6 +31,7 @@ export function AssessmentEditor({root,propertyId,allowParties=false,onClose,onS
  const rows=useRows<UnitChoice>(root+"/unit-choices?"+new URLSearchParams({page:String(page),pageSize:"10",search}),revision,true,readUnitChoices);
  const [selected,setSelected]=useState<Map<string,UnitChoice>>(new Map());
  const [debtorType,setDebtorType]=useState('UNIT');
+ const definitions=useDefinitionOptions(propertyId,"CHARGE_CATEGORY",chargeCategories);
  const [kind,setKind]=useState<ChargeKind>("DUES");const [category,setCategory]=useState<ChargeCategory|"">("");
  const [selecting,setSelecting]=useState(false);const [selectionError,setSelectionError]=useState("");const selectionRequest=useRef<AbortController|null>(null);
  useEffect(()=>()=>selectionRequest.current?.abort(),[root]);
@@ -58,7 +60,7 @@ export function AssessmentEditor({root,propertyId,allowParties=false,onClose,onS
   event.preventDefault();if(lock.current||selectionRequest.current)return;const validation:Record<string,string[]>={};const normalized=normalizeAmount(amount);
   if(!selected.size)validation.unitIds=[t("selectUnits")];if(!/^(?:20[0-9]{2}|[3-9][0-9]{3})-(?:0[1-9]|1[0-2])$/.test(period))validation.period=[t("invalidPeriod")];
   if(!normalized)validation.amount=[t("invalidAmount")];if(!dueDate||dueDate<period+"-01")validation.dueDate=[t("invalidDue")];
-  if(!description.trim())validation.description=[t("descriptionRequired")];if(kind==="EXTRA"&&!category)validation.category=[t("categoryRequired")];setErrors(validation);setError("");setConflict(false);
+  if(!description.trim())validation.description=[t("descriptionRequired")];if(kind==="EXTRA"&&(!category||!definitions.isSelectable(category)))validation.category=[t("categoryRequired")];setErrors(validation);setError("");setConflict(false);
   if(Object.keys(validation).length){requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());return;}
   const payload={unitIds:[...selected.keys()].sort(),period,amount:normalized!,currency:"TRY",dueDate,description:description.trim(),debtorType,...(kind==="EXTRA"?{kind,category}:{})};
   lastSubmission.current=submissionKey(lastSubmission.current,JSON.stringify({propertyId,...payload}),()=>crypto.randomUUID());
@@ -79,7 +81,7 @@ export function AssessmentEditor({root,propertyId,allowParties=false,onClose,onS
    <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
    <div className="assessment-selection min-w-0 space-y-4">
    <div className="space-y-2"><FilterChips label={t("chargeKind")} value={kind} onChange={value=>{setKind(value as ChargeKind);if(value==="DUES")setCategory("");clear("category");}} items={chargeKinds.map(value=>({value,label:t("kind_"+value),icon:kindStyle[value].icon,tone:undefined}))}/><p className="text-xs text-muted-foreground">{t(kind==="EXTRA"?"extraHelp":"duesHelp")}</p>
-    {kind==="EXTRA"&&<div className="space-y-2"><FilterChips label={t("chargeCategory")} value={category} onChange={value=>{setCategory(value as ChargeCategory);clear("category");}} items={chargeCategories.map(value=>({value,label:t("category_"+value),icon:categoryStyle[value].icon}))}/>{field("category")}</div>}</div>
+    {kind==="EXTRA"&&<div className="space-y-2"><FilterChips label={t("chargeCategory")} value={category} onChange={value=>{setCategory(value as ChargeCategory);clear("category");}} items={definitions.options.map(value=>({value,label:definitions.label(value,t("category_"+value)),icon:definitions.style(value,categoryStyle[value]).icon}))}/>{field("category")}</div>}</div>
    <div className="space-y-2"><Label htmlFor="assessment-debtorType">{t('debtorRequired')}</Label><select id="assessment-debtorType" className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={debtorType} aria-invalid={!!errors.debtorType?.length} aria-describedby={errors.debtorType?.length?'assessment-error-debtorType':'assessment-debtor-help'} onChange={e=>{setDebtorType(e.target.value);clear('debtorType');}}>{(allowParties?['UNIT','TENANT','OWNER']:['UNIT']).map(type=><option key={type} value={type}>{t('debtor_'+type)}</option>)}</select>{field('debtorType')}<p id="assessment-debtor-help" className="text-xs text-muted-foreground">{t('debtorHelp')}</p></div>
    <div className="space-y-2"><Label htmlFor="assessment-unitIds">{t("unitsRequired")}</Label><Input id="assessment-unitIds" maxLength={200} value={term} onChange={event=>setTerm(event.target.value)} placeholder={ui("searchBuildingOrUnitNumber")} aria-invalid={!!errors.unitIds?.length} aria-describedby={errors.unitIds?.length?"assessment-error-unitIds":undefined}/>{field("unitIds")}
     <div className="flex flex-wrap gap-2" role="group" aria-label={t("selectionActions")}>
@@ -116,7 +118,7 @@ export function ChargeDetail({root,propertyId,target,parentEnabled,onPayment,onC
   catch(err){setError(errorMessage(err,locale));if(err instanceof ApiError){setReasonError(err.errors.reason?.join(" ")??"");setReasonIdError(err.errors.reasonId?.join(' ')??'');setConflict(err.status===409);}}
   finally{lock.current=false;setBusy(false);}
  }
- return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy}><DialogHeader><DialogTitle>{t("chargeDetails")}</DialogTitle><DialogDescription>{record.buildingName?record.buildingName+" · ":""}{record.unitNumber} · {record.period} <ChargeKindBadge kind={record.kind} category={record.category}/></DialogDescription></DialogHeader>
+ return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy}><DialogHeader><DialogTitle>{t("chargeDetails")}</DialogTitle><DialogDescription>{record.buildingName?record.buildingName+" · ":""}{record.unitNumber} · {record.period} <ChargeKindBadge propertyId={propertyId} kind={record.kind} category={record.category}/></DialogDescription></DialogHeader>
   {error&&<MessageBanner kind={conflict?"warning":"error"}>{error}<Button variant="view" disabled={busy} onClick={()=>void reload()}><RefreshCw/>{ui(conflict?"loadCurrentRecord":"tryAgain")}</Button></MessageBanner>}
   <ChargeStatusBadge charge={record}/><dl className="grid grid-cols-2 gap-3 text-sm"><dt>{t("amountRequired")}</dt><dd>{formatCurrency(Number(record.amount),locale)}</dd><dt>{t("balance")}</dt><dd>{formatCurrency(Number(record.balance),locale)}</dd><dt>{t("dueDate")}</dt><dd>{formatDateOnly(record.dueDate,locale)}</dd><dt>{t("createdAt")}</dt><dd>{formatDateTime(record.createdAt,locale)}</dd></dl><p className="wrap-anywhere rounded-lg border p-3 text-sm">{record.description}</p>
   <section className="rounded-xl border p-4" aria-label={t('chargePeople')}><h3 className="mb-3 text-sm font-semibold">{t('chargePeople')}</h3><ChargePeople charge={record} detail/></section>

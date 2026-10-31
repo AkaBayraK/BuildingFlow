@@ -18,8 +18,8 @@ public static class DefinitionRegistry
         List<CommonAreaType>("COMMON_AREA_TYPE", DefinitionGroup.PROPERTY, DefinitionLevel.PROPERTY, "TNM_02"),
         List<UnitType>("UNIT_TYPE", DefinitionGroup.UNIT, DefinitionLevel.FIXED, null),
         List<ChargeKind>("CHARGE_KIND", DefinitionGroup.FINANCE, DefinitionLevel.FIXED, null),
-        List<ChargeCategory>("CHARGE_CATEGORY", DefinitionGroup.FINANCE, DefinitionLevel.SYSTEM, "TNM_05"),
-        List<ExpenseCategory>("EXPENSE_CATEGORY", DefinitionGroup.FINANCE, DefinitionLevel.SYSTEM, "TNM_05"),
+        List<ChargeCategory>("CHARGE_CATEGORY", DefinitionGroup.FINANCE, DefinitionLevel.PROPERTY, "TNM_05"),
+        List<ExpenseCategory>("EXPENSE_CATEGORY", DefinitionGroup.FINANCE, DefinitionLevel.PROPERTY, "TNM_05"),
         List<PaymentMethod>("PAYMENT_METHOD", DefinitionGroup.FINANCE, DefinitionLevel.FIXED, null),
         new("REQUEST_CATEGORY", nameof(DefinitionGroup.REQUEST), nameof(DefinitionLevel.PROPERTY), nameof(MobileRequest) + "." + nameof(MobileRequest.Categories), "TNM_02", MobileRequest.Categories),
         new("REQUEST_PRIORITY", nameof(DefinitionGroup.REQUEST), nameof(DefinitionLevel.SYSTEM), nameof(MobileRequest) + "." + nameof(MobileRequest.Priorities), "TNM_02", MobileRequest.Priorities),
@@ -80,6 +80,6 @@ public static class DefinitionRules
         "concierge-bell", "party-popper", "square-parking", "messages-square", "waves", "dumbbell", "presentation", "baby",
         "flower-2", "trash-2", "package", "siren", "bell", "clipboard-check", "leaf", "key-round"], StringComparer.Ordinal);
     public static readonly string[] ManagementRoles = ["SUPER_ADMIN", "SITE_ADMIN", "MANAGER"];
-    public static bool Editable(DefinitionList list) => list.Level != nameof(DefinitionLevel.FIXED) && list.PlannedPhase == EditablePhase;
+    public static bool Editable(DefinitionList list) => list.Level != nameof(DefinitionLevel.FIXED) && list.PlannedPhase is EditablePhase or "TNM_05";
     public static bool Locked(string code) => LockedCodes.Contains(code);
 }

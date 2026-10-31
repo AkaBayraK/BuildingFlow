@@ -13,6 +13,7 @@ internal static class MobileSyncEndpoints {
             return command==null?Results.BadRequest():Results.Ok(await store.PushAsync(command,token));
         }).Accepts<MobileSyncCommand>("application/json");
         root.MapGet("/requests/{id:guid}/photo",async(Guid id,IMobileSyncStore store,CancellationToken token,string? contextKind=null,Guid? contextId=null)=>{var bytes=await store.PhotoAsync(id,token,contextKind,contextId);return bytes==null?Results.NotFound():Results.File(bytes,"image/jpeg");});
+        root.MapGet("/definitions",async(Guid propertyId,string role,IMobileSyncStore store,CancellationToken token,Guid? unitId=null,string? contextKind=null,Guid? contextId=null)=>Results.Ok(await store.DefinitionsAsync(propertyId,unitId,role,token,contextKind,contextId)));
         root.MapGet("/requests",async(Guid propertyId,string role,IMobileSyncStore store,CancellationToken token,Guid? unitId=null,string? contextKind=null,Guid? contextId=null)=>Results.Ok(await store.PullAsync(propertyId,unitId,role,token,contextKind,contextId)));
     }
 }

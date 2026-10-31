@@ -90,8 +90,8 @@ function DialogContent({
         className={cn(
           "fixed z-50 grid w-full gap-4 border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=open]:animate-in motion-reduce:animate-none",
           placement === "right"
-            ? "inset-y-0 right-0 h-dvh max-w-full content-start overflow-y-auto rounded-none data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-lg"
-            : "top-[50%] left-[50%] max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
+            ? "inset-y-3 right-3 h-[calc(100dvh-24px)] max-w-[calc(100vw-24px)] content-start overflow-y-auto rounded-3xl data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-lg"
+            : "top-[50%] left-[50%] max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-3xl data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
           className
         )}
         {...props}

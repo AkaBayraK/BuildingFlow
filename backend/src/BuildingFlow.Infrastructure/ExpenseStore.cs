@@ -45,6 +45,7 @@ public sealed class ExpenseStore(BuildingFlowDbContext db, TimeProvider clock) :
             await transaction.CommitAsync(token); return Response(previous, true);
         }
         Active(parent);
+        await DefinitionPolicy.EnsureSelectableAsync(db, property, "EXPENSE_CATEGORY", command.Category.ToString(), null, "category", token);
         if (command.OccurredDate > BusinessDate.Today(clock)) throw new RequestValidationException(new() { ["occurredDate"] = [ErrorCatalog.ExpenseDateInvalid.Create()] });
         var expense = new Expense(property, command.RequestId, fingerprint, command.Category, command.Amount, command.OccurredDate, command.Description, command.DocumentReference);
         db.Expenses.Add(expense); Touch(parent); await Save(token); await transaction.CommitAsync(token); return Response(expense);
@@ -107,6 +108,8 @@ public sealed class ExpenseStore(BuildingFlowDbContext db, TimeProvider clock) :
         Active(parent);
         var budget = await db.PropertyBudgets.Include(value => value.Revisions).SingleOrDefaultAsync(value => value.PropertyId == property && value.Period == command.Period && value.Category == command.Category, token);
         if ((budget?.Version ?? 0) != command.Version) throw new HierarchyConflictException(ErrorCatalog.RecordChanged.Create());
+        // Existing plans remain revisable even after a category is hidden or disabled.
+        if (budget is null) await DefinitionPolicy.EnsureSelectableAsync(db, property, "EXPENSE_CATEGORY", command.Category.ToString(), null, "category", token);
         if (budget is null) { budget = new PropertyBudget(property, command.Period, command.Category); db.PropertyBudgets.Add(budget); }
         budget.Revise(command.RequestId, fingerprint, command.Amount, command.Explanation); Touch(parent); await Save(token); await transaction.CommitAsync(token); return BudgetResponse(budget);
     }

@@ -1,3 +1,45 @@
+## BAKIM — 31.10.2026 — Ortak oval form panelleri — TAMAMLANDI
+
+Kullanıcının onayladığı daire örneği ortak DialogContent altyapısına taşındı. Tüm ManagementPanel create/update ve detay sağ panelleri24px oval,üst/alt/sağ12px boşluk ve100dvh−24px yükseklik; centered dialoglar da24px oval. Geniş kişi panelinin768px genişliği korunarak dar ekranda24px payla sınırlanır; anket/tahakkuk genişlikleri korunur. Daireye özel örnek class/CSS kaldırıldı. Inline form yerleşimleri yeniden düzenlenmedi; mobil menünün özel görünümü korunur.
+
+**Bu tur:web356/356,typecheck,production build,diff PASS.** Yeni test/paket/API/DB/migration yok. Önceki daire örneğinin görsel kabulü tarihsel kanıttır; bu genellemede tüm ekranların tarayıcı/ayrı mobil viewport görsel kontrolü yeniden yapılmadı. Backend/mobil testleri çalıştırılmadı. Bu tur2/2=%100,00; ürün fazı sayaçları değişmedi. Önceki TNM ve kullanıcı değişiklikleri korunur; commit/push yok. Token giriş/çıkış/toplam/kalan context:BİLGİ MEVCUT DEĞİL. SonCodexusage31.10.2026:300dk kullanılan%22/kalan%78;10080dk kullanılan%95/kalan%5; reset31.10.2026 16:02:50 /04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM — 31.10.2026 — Oval daire paneli örneği — TAMAMLANDI
+
+Yalnız EntityEditor kind=unit create/edit paneline unit-editor-rounded-preview sınıfı eklendi. 24px oval köşe, ekranın üst/alt/sağından12px boşluk,100dvh−24px yükseklik ve dar ekranda24px toplam kenar payı. Diğer ManagementPanel kullanımları değişmedi. Chrome'da açık eski düzenleme paneli kaydetmeden kapatıldı; sayfa yenilenip Yeni Daire açıldı, oval köşeler/kenar boşlukları ve alt düğmeler görsel olarak doğrulandı. Panel kullanıcı incelemesi için açık bırakıldı; veri yazılmadı.
+
+**Web356/356, typecheck/build ve diff kontrolü PASS.** Yeni uygulama testi/paket/API/DB değişikliği yok; backend/mobil testleri ve ayrı mobil viewport kontrolü çalıştırılmadı. Düzenleme/create aynı koşullu panel sınıfını kullanır; son yenileme sonrası create görseli kontrol edildi. Önceki TNM ve diğer kullanıcı değişiklikleri korunur. Bu tur2/2=%100,00; ürün fazı sayaçları değişmedi. Örnek diğer ekranlara yayılmadı; commit/push yok. Token giriş/çıkış/toplam/kalan context:BİLGİ MEVCUT DEĞİL. SonCodexusage31.10.2026:300dk kullanılan%8/kalan%92;10080dk kullanılan%93/kalan%7. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM — 30.10.2026 — Sabit başlık geri alındı
+
+Kullanıcı isteğiyle yalnız son sticky başlık değişikliği geri alındı. WorkspaceHeading ve globals.css önceki hâline döndü; başlık içerikle birlikte kayar. İlgili frontend yönergesi kaldırıldı. Önceki TNM işleri korunur. İki kaynak dosyanın HEAD ile farkının sıfır olduğu ve diff whitespace kontrolü doğrulandı. Uygulama testleri yeniden çalıştırılmadı. Bu tur1/1=%100,00; ürün fazı sayaçları değişmedi.
+
+## BAKIM — 30.10.2026 — Sabit modül başlığı — TAMAMLANDI
+
+Ortak WorkspaceHeading köküne workspace-page-heading sınıfı, globals.css içine sticky/top0/z20/flex-shrink0 ve print static kuralı eklendi. Ortak başlığı kullanan menülerde koyu başlık üstte kalır; mevcut workspace-content alt içeriği kaydırır. Açık gerçek Chrome Tanımlar ekranında aşağı kaydırma ve ekran görüntüsüyle görsel olarak doğrulandı. Yeni tasarım/paket/API/DB değişikliği yok; önceki TNM değişiklikleri korunur.
+
+**Bu tur: web356/356, typecheck ve production build PASS; diff PASS.** İlk komut kökte package.json olmadığı için çalışmadı; web klasöründeki doğru komutlar geçti. Backend/mobil testleri bu CSS değişikliği için çalıştırılmadı. Ayrı mobil viewport/native/print görsel kabulü yapılmadı. Bu tur2/2=%100,00; ürün fazı ve yolharitası sayaçları değişmedi. Commit/push yok. Token giriş/çıkış/toplam/kalan context:BİLGİ MEVCUT DEĞİL. SonCodexusage30.10.2026:300dk kullanılan%78/kalan%22 reset31.10.2026 00:31:56;10080dk%91/%9 reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## TNM 06 — 30.10.2026 — TAMAMLANDI (teknik teslim)
+
+**Mobil talep kategorisi/önceliği etkin sunucu listesini kullanır.** Yeni GET /api/v1/mobile/sync/definitions mevcut exact legacy/canonical senkron yetki sınırındadır; ACCOUNTANT ve anonim/foreign/iptal context reddedilir. Sistem TR ad/ikon/ton/sıra ve alan gizleme formda uygulanır; pasif kod tarihsel okumada kalır. Mevcut şifreli önbellekte hesap/bağlam ayrımı ve 24 saat/saat geri alma kontrolü, offline uyarı, taslak açıklama/fotoğraf koruması vardır. Bağlam değişiminde eski taslak gösterilmez/başka bağlama autosave edilmez. Yeni paket/tablo/migration yok; P_ yeni kod ekleme ertelenmiş kalır.
+
+**Bu tur: unit 477/477; PostgreSQL seçili seri koşu 58 geçti/4 storage testi atlandı; mobil check (typecheck/lint +174/174), iOS/Android/web export; web 356/356/typecheck/build; QA helper6/6; gerçek Chrome E2E5/5; lisans metadata329 PASS.** E2E gerçek Keycloak PKCE ile, yalnız geçici DB'ye bağlı güncel API'de desktop1280×800/mobile375×812; kategori paneli/alanlar/ikonlar/Escape/odak dönüşü. Geçici hesap silindi, izole API durduruldu; yalnız bu turun geçici DB/rolü temizlendi. Kanıt artifacts/qa/qa-20261030T165841Z-ee8465/web/report.md ve docs/TESTING.md.
+
+İlk geniş migration filtresi ilgisiz sınıfları da seçti; PropertyDefinition cleanup Npgsql hatası ve ParkingMigration failure sonrası testhost exit1; ayrıntılı SQL durumu alınamadı. Tam ad filtreli seri koşu başarılıdır. İlk QA envanteri Tanımlar'ı sessizce atladı; ikinci koşu eski yerel API'nin404'ünü PASS saydı. QA kaynağı bulunmayan explicit rotayı ve API4xx'i artık reddeder; bu önceki koşular nihai başarı kanıtı değildir. İlgili6regresyon geçti. İzole API ilk açılışında relative contentRoot hatası absolute yol ile düzeltildi. Gerçek native SQLCipher/galeri/cihaz görsel kabulü ve atlanan4fotoğraf/storage senaryosu DOĞRULANAMADI; tam integration suite çalıştırılmadı. Çalışan yerel eski API hâlâ güncel olmayan servis olabilir; yeniden başlatılmadı/anaDB migration uygulanmadı.
+
+Bu tur3/3=%100,00; TNM6/6=%100,00 (onaylı daraltılmış kapsam). Yeni kategori oluşturma ayrı karardır; mobil15faz/İŞ/UI sayaçları yeniden numaralandırılmaz. Yeni kapsam başlatılmadı; commit/push yok. Önceki TNM05 değişiklikleri ve üç izlenmeyen kullanıcı dosyası/klasörü korunur. Phase/contract/verify/security/docs yerel yönergeleri kullanıldı; altagent/yeni skill/paket yok. Giriş/çıkış/toplam token ve kalan context: BİLGİ MEVCUT DEĞİL. Son Codex usage (30.10.2026): 300dk kullanılan%66/kalan%34, reset31.10.2026 00:31:56;10080dk kullanılan%89/kalan%11, reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## TNM 05 — 30.10.2026 — TAMAMLANDI
+
+**Mevcut 8 gider + 6 ek ödeme kodunda sistem sunumu/aktiflik ve Property gizleme/sıralama tamamlandı.** Yeni kategori ekleme ertelenmiş kalır; yeni tablo/migration/paket yok. SUPER_ADMIN sistem ayarını, mevcut yönetici rolü + aktif üyelik alan ayarını düzenler. ACCOUNTANT etkin listeyi okuyup finans işlemi yapar; tanım yönetimi ve Person yetkisi açılmaz.
+
+Yeni gider, EXTRA tahakkuk, yeni kategori/dönem bütçesi ve yeni tedarikçi faturası gizli/pasif kodu BF_DEFINITION_UNAVAILABLE ile reddeder. Mevcut bütçe revizyonu (sıfır plan dahil), eski UUID/fingerprint replay ve kayıtlı faturanın onayı korunur. Web form seçenekleri ve finans etiketleri ayarlardan; geçmiş filtreleri, sekiz kategorili aylık özet ve rapor toplamları kategorileri düşürmez. Yeni bütçe butonu uygun olmayan kategoride açıklamayla kapalıdır.
+
+**Bu tur: birim 477/477; izole PostgreSQL seçili regresyon 73/73, son ek bütçe reddi kontrolüyle dar tekrar 7/7; web 356/356; typecheck, üretim build, 329 paket lisans metadata ve diff kontrolü başarılı.** İlk sandbox MSBuild IPC ve SWC cache erişim hataları izinli yeniden koşuyla aşıldı. npm typecheck ilk denemesi kökte package.json olmadığı için çalışmadı; doğru web klasöründe geçti. Geçici PostgreSQL DB/rol temizlendi. Tam integration suite ve gerçek tarayıcı/native kabulü ÇALIŞTIRILMADI; mobil uyum TNM 06 kapsamındadır. Ana DB, .env, Keycloak ve servisler değişmedi; commit/push yok.
+
+Bu tur 3/3=%100,00; TNM akışı 5/6=%83,33. TNM-05 mevcut uygulama yol haritasına bağlandı; TNM 06 onaysız başlamadı. Mimari başlangıç/UI kaynakları frontend/buildingflow-ui-plan/MASTER_PROMPT.md ve PHASES.md altında; kökte yok. Önceden mevcut üç izlenmeyen dosya/klasör korunur. Yeni skill/alt agent yok; contract/verify/docs yönergeleri uygulandı. Devam: kullanıcı onayıyla TNM 06 mobil ve son kalite kontrolleri. Token giriş/çıkış/toplam/kalan context: BİLGİ MEVCUT DEĞİL. Codex usage (30.10.2026 son okuma): 300dk kullanılan %21/kalan %79, reset 31.10.2026 00:31:56; 10080dk %82/%18, reset 04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
 ## TNM 04 — 30.10.2026 — TAMAMLANDI
 
 TNM akışı 4/6=%66,67. Aidat iptal nedeni yönetimi (Tanımlar paneli, SUPER_ADMIN) ve tedarikçi kategorisi yeniden adlandırma/pasif (Tedarikçiler → Kategoriler).

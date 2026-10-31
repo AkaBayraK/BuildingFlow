@@ -94,6 +94,7 @@ public sealed partial class SupplierStore
         var parent = await LockFinance(tenant, supplier, c.PropertyId, token); if (parent is null) return null;
         var fingerprint = Hash(new { action = "INVOICE_CREATE", tenant, supplier, c.PropertyId, number, c.IssueDate, c.DueDate, net = Money(net), rate = rate.ToString("F2", CultureInfo.InvariantCulture), category = c.Category, description, c.WorkOrderId, c.ContractId, c.CorrectsInvoiceId });
         var replay = await InvoiceReplay(tenant, supplier, c.OperationId, fingerprint, token); if (replay is not null) { await tx.CommitAsync(token); return replay; }
+        await DefinitionPolicy.EnsureSelectableAsync(db, c.PropertyId, "EXPENSE_CATEGORY", category.ToString(), null, "category", token);
         var key = SupplierInvoice.Key(number);
         if (await InvoiceRows(tenant, supplier).AnyAsync(x => x.NumberKey == key && x.Status != SupplierInvoiceStatus.CANCELLED, token)) throw new HierarchyConflictException(ErrorCatalog.SupplierInvoiceDuplicate.Create());
         if (c.WorkOrderId.HasValue)

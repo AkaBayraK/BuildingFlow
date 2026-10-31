@@ -26,6 +26,23 @@ public sealed class SupplierInvoiceTests(SiteApiTests.SiteApiFactory factory) : 
     private static SupplierInvoiceCreate Create(Fixture x, string number = "INV-2027/001", Guid? corrects = null) => new(Guid.NewGuid(), x.Property, number, Today.AddDays(-5), Today.AddDays(25), "1000.00", "20.00", "MAINTENANCE", "Elevator repair", null, x.Contract, corrects);
     private static async Task<T> Value<T>(HttpResponseMessage r) { Assert.Equal(HttpStatusCode.OK, r.StatusCode); return (await r.Content.ReadFromJsonAsync<T>())!; }
 
+    [PostgresFact] public async Task HiddenCategoryBlocksNewInvoiceButExistingInvoiceCanReplayAndApprove()
+    {
+        var x = await Seed(); using var recorder = TestToken.Client(factory, x.Recorder, "ACCOUNTANT"); using var admin = TestToken.Client(factory, x.Approver, "SITE_ADMIN");
+        var root = $"/api/v2/tenants/{x.Tenant}/suppliers/{x.Supplier}/invoices";
+        var command = Create(x);
+        var created = await Value<SupplierInvoiceMutation>(await recorder.PostAsJsonAsync(root, command));
+        var hide = await admin.PutAsJsonAsync($"/api/v1/properties/{x.Property}/definitions/EXPENSE_CATEGORY/values/MAINTENANCE", new SavePropertyDefinitionRequest(true, null, 0));
+        Assert.Equal(HttpStatusCode.OK, hide.StatusCode);
+        var refused = await recorder.PostAsJsonAsync(root, Create(x, "NEW-002"));
+        Assert.Equal(HttpStatusCode.BadRequest, refused.StatusCode); Assert.Contains("BF_DEFINITION_UNAVAILABLE", await refused.Content.ReadAsStringAsync());
+        Assert.True((await Value<SupplierInvoiceMutation>(await recorder.PostAsJsonAsync(root, command))).Replayed);
+        var approved = await Value<SupplierInvoiceMutation>(await admin.PutAsJsonAsync(root+$"/{created.Record.Id}/approve", new SupplierInvoiceAction(Guid.NewGuid(), created.Record.Version, null, null)));
+        Assert.NotNull(approved.Record.ExpenseId);
+        var summary = await Value<FinanceSummary>(await recorder.GetAsync($"/api/v1/properties/{x.Property}/finance-summary?period={Today:yyyy-MM}"));
+        Assert.Equal("1200.00", summary.ExpenseAmount);
+    }
+
     [PostgresFact] public async Task InvoiceLifecycleCreatesOneExpenseSeparatesDutiesAndKeepsAudit()
     {
         var x = await Seed(); using var accountant = TestToken.Client(factory, x.Recorder, "ACCOUNTANT"); using var selfAdmin = TestToken.Client(factory, x.Recorder, "SITE_ADMIN"); using var admin = TestToken.Client(factory, x.Approver, "SITE_ADMIN"); using var manager = TestToken.Client(factory, x.Approver, "MANAGER");

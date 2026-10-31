@@ -30,7 +30,7 @@ Finans kaydı için DELETE/pasife alma/üzerine gider tutarı yazma endpoint'i y
 }
 ```
 
-Örnek yalnız sözleşmedir; gerçek veri/ödeme emri değildir. Kategoriler sabittir: MAINTENANCE, CLEANING, STAFF, ENERGY, SECURITY, INSURANCE, ADMINISTRATION, OTHER. Sayısal enum değerleri kabul edilmez.
+Örnek yalnız sözleşmedir; gerçek veri/ödeme emri değildir. Kategori kodları sabittir (TNM 05 ile ad/ikon/sıra/aktiflik ve Property gizleme ayarı düzenlenebilir): MAINTENANCE, CLEANING, STAFF, ENERGY, SECURITY, INSURANCE, ADMINISTRATION, OTHER. Sayısal enum değerleri kabul edilmez.
 
 Tutar noktalı ondalık **string**, 0.01–99,999,999.99 TRY, en fazla iki ondalık; bilimsel gösterim, binlik ayırıcı, virgül, negatif ve sıfır gider reddedilir. FE virgülü normalize eder, API'ye noktayla gönderir. Açıklama trim sonrası 1–500, referans opsiyonel/en fazla 100 karakter. Tarih DateOnly, 2000-01-01 ile Europe/Istanbul iş günü arasında; gelecekte gider kaydı yoktur. Dosya yükleme bu fazın parçası değildir; referans bir numara/metin alanıdır.
 
@@ -77,3 +77,5 @@ Yanıt `propertyId`, `period`, `currency`, `incomeAmount`, `expenseAmount`, `bud
 Yeni migration `20261009213050_ExpensesAndBudgets`; eski migration'lar korunur. Up yalnız üç tabloyu ekler. Down üç tablodan herhangi birinde tarihçe varsa hiçbirini silmeye başlamadan reddeder; iptal gider ve sıfır plan da tarihçedir. Ana DB'de rollback yapılmaz. Kurulum/yükseltme akışı [MIGRATIONS.md](../MIGRATIONS.md), test/kabul ve gerçek sınırlar [TESTING.md](../TESTING.md).
 
 400/401/403/404/409/500 HTTP anlamları korunur; error/warning merkezi [ErrorCatalog ve TR/EN bildirim sözleşmesi](errors.md) üzerinden gelir. Yeni yedi kod ve alan çevirileri bu ortak sözleşmeye eklenmiştir. Yeni paket/ücretli bileşen kullanılmadı. Kategori CRUD, dosya eki, banka mutabakatı, gider dağıtımı/tedarikçi/ödeme emri bu fazın kapsamı değildir.
+
+TNM 05: yeni gider ve yeni kategori/dönem bütçesi etkin kategori ister; mevcut bütçe revizyonu ve UUID replay korunur. Pasif/gizli kategori geçmişten, filtrelerden, sekiz kategorili aylık özetten veya toplamdan çıkarılmaz. Ayrıntı [Tanımlar sözleşmesi](definitions.md#tnm-05--finans-kategorileri-30102026).

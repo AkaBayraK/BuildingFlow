@@ -37,13 +37,13 @@ public sealed class DefinitionValueApiTests(SiteApiTests.SiteApiFactory factory)
     [PostgresFact] public async Task FixedFinanceUnknownLockedAndInvalidValuesAreRejected()
     {
         using var c=TestToken.Client(factory,Guid.NewGuid().ToString(),"SUPER_ADMIN");
-        foreach(var (list,code) in new[]{("UNIT_TYPE","VILLA"),("EXPENSE_CATEGORY","ENERGY")}){var r=await c.PutAsJsonAsync(Path(list,code),Body(0));Assert.Equal(HttpStatusCode.BadRequest,r.StatusCode);}
+        foreach(var (list,code) in new[]{("UNIT_TYPE","VILLA"),("PAYMENT_METHOD","CASH")}){var r=await c.PutAsJsonAsync(Path(list,code),Body(0));Assert.Equal(HttpStatusCode.BadRequest,r.StatusCode);}
         Assert.Equal(HttpStatusCode.NotFound,(await c.PutAsJsonAsync(Path("REQUEST_CATEGORY","PLUMBING"),Body(0))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound,(await c.PutAsJsonAsync(Path("UNKNOWN_LIST","OTHER"),Body(0))).StatusCode);
         var locked=await c.PutAsJsonAsync(Path("ANNOUNCEMENT_CATEGORY","OTHER"),Body(0,enabled:false));Assert.Equal(HttpStatusCode.BadRequest,locked.StatusCode);Assert.Contains("BF_DEFINITION_LOCKED",await locked.Content.ReadAsStringAsync());
         foreach(var body in new[]{Body(0,icon:"<svg>"),Body(0,order:1000),Body(-1),Body(0,new string('a',101)),new SaveDefinitionValueRequest(null,null,null,"pink",0,true,0),new SaveDefinitionValueRequest(null,null,null,null,null,true,0),new SaveDefinitionValueRequest(null,null,null,null,0,null,0)})
         {var r=await c.PutAsJsonAsync(Path("SURVEY_CATEGORY","SOCIAL"),body);Assert.Equal(HttpStatusCode.BadRequest,r.StatusCode);Assert.Contains("BF_DEFINITION_INVALID",await r.Content.ReadAsStringAsync());}
         using var json=JsonDocument.Parse(await c.GetStringAsync("/api/v1/definitions"));
-        Assert.All(json.RootElement.GetProperty("lists").EnumerateArray(),x=>Assert.Equal(x.GetProperty("level").GetString()!="FIXED"&&x.GetProperty("plannedPhase").GetString()=="TNM_02",x.GetProperty("editable").GetBoolean()));
+        Assert.All(json.RootElement.GetProperty("lists").EnumerateArray(),x=>Assert.Equal(x.GetProperty("level").GetString()!="FIXED"&&(x.GetProperty("plannedPhase").GetString() is "TNM_02" or "TNM_05"),x.GetProperty("editable").GetBoolean()));
     }
 }

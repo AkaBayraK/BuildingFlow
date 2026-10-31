@@ -38,10 +38,10 @@ public sealed class DefinitionValueTests
         Assert.Throws<ArgumentOutOfRangeException>(()=>value.Set(null,null,null,null,1000,true));
         Assert.Throws<ArgumentException>(()=>value.Set(new string('a',101),null,null,null,0,true));
     }
-    [Fact] public void OnlyTnm02ListsAreEditableAndFallbacksAreLocked()
+    [Fact] public void ReleasedListsAreEditableAndFallbacksAreLocked()
     {
         var editable=DefinitionRegistry.Current.Lists.Where(DefinitionRules.Editable).Select(x=>x.Key).ToArray();
-        Assert.Equal(new[]{"COMMON_AREA_TYPE","REQUEST_CATEGORY","REQUEST_PRIORITY","MAINTENANCE_TYPE","VEHICLE_TYPE","ANNOUNCEMENT_CATEGORY","SURVEY_CATEGORY"},editable);
+        Assert.Equal(new[]{"COMMON_AREA_TYPE","CHARGE_CATEGORY","EXPENSE_CATEGORY","REQUEST_CATEGORY","REQUEST_PRIORITY","MAINTENANCE_TYPE","VEHICLE_TYPE","ANNOUNCEMENT_CATEGORY","SURVEY_CATEGORY"},editable);
         Assert.All(DefinitionRegistry.Current.Lists.Where(DefinitionRules.Editable),x=>Assert.Contains(x.Values,DefinitionRules.Locked));
         Assert.All(DefinitionRules.IconKeys,k=>Assert.Matches("^[a-z0-9-]{2,40}$",k));
     }

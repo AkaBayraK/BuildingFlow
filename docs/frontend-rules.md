@@ -292,3 +292,6 @@ SIDEBAR FAZ07.1: menü/rol/flag/alan görünürlüğü features/navigation/navig
 22.10.2026 BAKIM: ortak üst/alt menü oval köşeleri ve responsive boşlukları doğrulandı; UI03/Shell sunum kanıtı, yeni faz onayı/tiki değildir. [Kanıt](navigation-refactor/ROUNDED_MENUS.md).
 
 22.10.2026 hesap iletişim bakımı: kişisel bilgilerde e-posta giriş hesabından salt okunur; yeni kullanıcıda optional PhoneInput,mevcut ortak profile ilk kayıt ve owner güncelleme. phone alanı kodlu hata allowlistinde; [sözleşme/kanıt](navigation-refactor/ACCOUNT_CONTACT.md).
+
+### Oval form pencereleri (31.10.2026)
+Ortak DialogContent/ManagementPanel sağ panelleri24px oval köşe ve12px ekran kenar boşluğu kullanır; yükseklik viewport içinde kalır. Centered pencereler de ovaldir. Yeni create/update pencerelerinde mevcut ortak altyapıyı kullanın; feature başına köşe CSS sistemi eklemeyin. Geniş paneller dar ekranda kenar payını korumalıdır.

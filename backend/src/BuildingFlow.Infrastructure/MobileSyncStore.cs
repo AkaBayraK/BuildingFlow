@@ -6,7 +6,7 @@ using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 namespace BuildingFlow.Infrastructure;
-public sealed class MobileSyncStore(BuildingFlowDbContext db, IMobileSessionStore sessions, ICurrentUserService actor,IFileStorage storage,TimeProvider clock,ISessionContextStore contexts,IConfiguration config) : IMobileSyncStore {
+public sealed class MobileSyncStore(BuildingFlowDbContext db, IMobileSessionStore sessions, ICurrentUserService actor,IFileStorage storage,TimeProvider clock,ISessionContextStore contexts,IConfiguration config,IDefinitionStore definitions) : IMobileSyncStore {
     private static readonly string[] Management=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"];
     private static string Key(Guid property,Guid? unit,string role)=>$"{property}:{(unit.HasValue?unit.Value.ToString():"-")}:{role}";
     private string User()=>actor.IsAuthenticated && !string.IsNullOrWhiteSpace(actor.UserId)?actor.UserId:throw new UnauthorizedAccessException();
@@ -23,6 +23,16 @@ public sealed class MobileSyncStore(BuildingFlowDbContext db, IMobileSessionStor
         var session=await sessions.ReadAsync(user,actor.Username,Management.Where(actor.IsInRole).ToArray(),token);
         if(session.HasMore || role=="ACCOUNTANT" || !session.Contexts.Any(c=>c.PropertyId==property && c.UnitId==unit && c.Role==role)) throw new UnauthorizedAccessException();
         return null;
+    }
+    public async Task<MobileRequestDefinitions> DefinitionsAsync(Guid property,Guid? unit,string role,CancellationToken token,string? contextKind=null,Guid? contextId=null)
+    {
+        var user=User();
+        var context=await Authorize(property,unit,role,token,contextKind,contextId);
+        // Exact mobile context authorization above also covers residents without a PropertyMembership.
+        // ReadAll applies only to this authorized Property; no generic hierarchy access is granted.
+        var values=await definitions.PropertyListAsync(property,new AccessScope(user,true),token) ?? throw new UnauthorizedAccessException();
+        return new(user,context==null?Key(property,unit,role):$"{context.TenantId}:{context.Kind}:{context.Id}",property,
+            values.Lists.Where(x=>x.Key is "REQUEST_CATEGORY" or "REQUEST_PRIORITY").ToArray());
     }
     private MobileRequestDto Dto(MobileRequest r)=>new(r.Id,r.PropertyId,r.UnitId,r.ContextRole,r.IsDeleted?null:r.Description,r.Version,r.IsDeleted,r.ModifiedAt,r.Category,r.Priority,r.IsDeleted||r.PhotoId==null||!ConsentGate.VisibleToOwner(db,db.Set<MobileRequestPhoto>().Where(p=>p.Id==r.PhotoId && p.State=="CURRENT")).Any()?null:r.PhotoId,r.IsDeleted||r.PhotoId==null?null:ConsentGate.VisibleToOwner(db,db.Set<MobileRequestPhoto>().Where(p=>p.Id==r.PhotoId && p.OwnerUserId==r.OwnerUserId && p.PropertyId==r.PropertyId && p.State=="CURRENT")).Select(p=>p.Sha256).SingleOrDefault(),r.ManagementStatus,r.ManagementResponse,r.HasManagementHistory);
     public async Task<MobileSyncResult> PushAsync(MobileSyncCommand c,CancellationToken token) {

@@ -1,3 +1,35 @@
+## BAKIM — 31.10.2026 — Ortak oval form panelleri
+
+- Onaylı24px köşe/12px kenar tasarımı ortak right dialoga; centered pencerelere24px köşe uygulandı. Kişi panelinin dar ekran genişliği korundu. Daireye özel örnek kaldırıldı.
+- Web356/356,typecheck/build PASS; yeni paket/şema yok.
+
+## BAKIM — 31.10.2026 — Oval daire paneli örneği
+
+- Yalnız daire oluştur/düzenle panelinde24px köşe,12px ekran boşluğu; diğer paneller değişmedi.
+- Gerçek Chrome create görseli; web356/356, typecheck/build PASS.
+
+## BAKIM — 30.10.2026 — Sabit başlık geri alındı
+
+Kullanıcı isteğiyle yalnız son sticky başlık değişikliği geri alındı. WorkspaceHeading ve globals.css önceki hâline döndü; başlık içerikle birlikte kayar. İlgili frontend yönergesi kaldırıldı. Önceki TNM işleri korunur. İki kaynak dosyanın HEAD ile farkının sıfır olduğu ve diff whitespace kontrolü doğrulandı. Uygulama testleri yeniden çalıştırılmadı. Bu tur1/1=%100,00; ürün fazı sayaçları değişmedi.
+
+## BAKIM — 30.10.2026 — Sabit modül başlığı
+
+- Ortak WorkspaceHeading kaydırma sırasında üstte kalır; alt filtre/liste alanları kayar. Yazdırmada normal akış korunur.
+- Gerçek Chrome görsel kontrolü, web356/356, typecheck ve build başarılı.
+
+## TNM 06 — 30.10.2026 — TAMAMLANDI
+
+- Exact mobil senkron bağlamında read-only kategori/öncelik endpoint'i; yönetici kataloğu sakinlere açılmaz.
+- Mobil form sunucu ad/ikon/ton/sıra/etkinliği kullanır; mevcut şifreli kopyada hesap/bağlam ayrımı,24saat/saat geri alma; offline uyarı ve draft kapsamı korunur.
+- QA explicit rota atlama ve API4xx yanlış başarı ölçütü düzeltildi; loopback izole API hedefiyle gerçek tarayıcı kontrolü eklendi. Testler/kısıtlar TESTING.md'de; yeni paket veya migration yok.
+
+## TNM 05 — 30.10.2026 — TAMAMLANDI
+
+- Gider/ek ödeme mevcut kategori kodları sistem ayarlarına ve Property gizle/sırala yönetimine açıldı; OTHER kilidi korunur.
+- Gider, EXTRA, yeni bütçe ve yeni fatura yazımları etkin kategori doğrular; UUID replay, mevcut plan revizyonu ve kayıtlı fatura onayı korunur.
+- Web finans form/etiketleri tanımları okur; geçmiş filtreleri ve bütçe/rapor toplamları pasif/gizli kategorileri korur. TR/EN TNM-05 yol haritası ve sözleşme/test kayıtları güncellendi.
+- Yeni paket/tablo/migration yok; yeni kategori ekleme ve mobil uyum bu teslimin dışında. Kanıt: TESTING.md TNM 05.
+
 ## TNM 04 — 30.10.2026 — TAMAMLANDI
 
 - `GET/POST/PUT /api/v1/definitions/dues-cancellation-reasons`: kullanım sayısı, kilitli OTHER/TENANT_MOVED_OUT, kod değişmez, `BF_DEFINITION_DUPLICATE`.

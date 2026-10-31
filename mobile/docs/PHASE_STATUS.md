@@ -9,3 +9,6 @@
 
 
 ## OTOPARK FAZ06 — 27.10.2026 — Teknik teslim
+
+## TNM 06 — 30.10.2026 (ayrı Tanımlar akışı)
+Mobil talep seçenekleri exact sunucu bağlamından okunur; mevcut şifreli kopya ve taslak kapsamı korunur. Check174/174+lint/typecheck ve iOS/Android/web export başarılı. Gerçek native kabulü yapılmadı. Mobil15faz numaralandırması değişmedi; ayrıntı ../../docs/TESTING.md TNM06.

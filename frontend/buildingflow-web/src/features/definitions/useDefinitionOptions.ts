@@ -22,10 +22,12 @@ export function useDefinitionOptions<T extends string>(propertyId:string|null|un
   value.then(v=>{if(live)setData(v);},()=>{cache.delete(propertyId);if(live)setData(null);});
   return()=>{live=false;};
  },[api,propertyId]);
- const list=data?.lists.find(l=>l.key===key);
+ const list=data&&data.propertyId===propertyId?data.lists.find(l=>l.key===key):undefined;
  const value=(code:string)=>list?.values.find(v=>v.code===code);
  return {
   options:definitionOptions(codes,list,current),
+  allOptions:list?[...list.values.map(v=>v.code as T).filter(c=>codes.includes(c)),...codes.filter(c=>!list.values.some(v=>v.code===c))]:[...codes],
+  isSelectable:(code:string)=>value(code)?.selectable??true,
   label:(code:string,fallback:string)=>{const v=value(code);return (v&&overrideName(v,locale))??fallback;},
   style:<S extends Style>(code:string,base:S):S=>{const v=value(code);if(!v||!v.iconKey&&!v.tone)return base;const r=resolvedStyle(key,v);return {...base,icon:v.iconKey?r.icon:base.icon,tone:v.tone??base.tone};},
  };

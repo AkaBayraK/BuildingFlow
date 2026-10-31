@@ -41,12 +41,13 @@ export const PAGE_AUDIT = `(() => {
 })()`;
 
 // Rules turn raw observations into the pass/fail decision; console noise is reported but does not decide alone.
-export function judge({ documentStatus, finalPath, expectedPath, exceptions, serverErrors, audit, viewport }) {
+export function judge({ documentStatus, finalPath, expectedPath, exceptions, serverErrors, clientErrors = [], audit, viewport }) {
   const problems = [];
   if (documentStatus && documentStatus >= 400) problems.push(`sayfa HTTP ${documentStatus}`);
   if (finalPath !== expectedPath) problems.push(`yönlendirme ${finalPath}`);
   if (exceptions.length) problems.push(`${exceptions.length} JS hatası`);
   if (serverErrors.length) problems.push(`${serverErrors.length} API 5xx`);
+  if (clientErrors.length) problems.push(`${clientErrors.length} API 4xx`);
   if (!audit.headings) problems.push('başlık yok');
   if (viewport === 'mobile' && audit.overflow > 1) problems.push(`yatay taşma ${audit.overflow}px`);
   for (const [key, label] of [['imagesWithoutAlt', 'alt metinsiz görsel'], ['unnamedControls', 'adsız kontrol'], ['unlabelledFields', 'etiketsiz alan'], ['tabsWithoutState', 'aria-selected yok']])
@@ -65,4 +66,15 @@ export function recordingPlayer(frames) {
     + `<img id="f" alt="QA ekran kaydı karesi"><p id="t"></p><script>const frames=${list};let i=0;const img=document.getElementById('f'),t=document.getElementById('t');`
     + `function show(){if(!frames.length){t.textContent='Kare yok';return;}img.src=frames[i].file;t.textContent=(i+1)+'/'+frames.length;`
     + `const next=frames[i+1];i=(i+1)%frames.length;setTimeout(show,next?Math.max(40,(next.at-frames[i===0?frames.length-1:i-1].at)*1000):1500);}show();</script>`;
+}
+
+// Explicit targets must never silently vanish because the generated inventory is stale.
+export function requestedPages(pages, only, hasStaticPage) {
+  if (!only) return pages;
+  return [...new Set(only)].map(route => {
+    const recorded = pages.find(page => page.route === route);
+    if (recorded) return recorded;
+    if (/^\/[a-z][a-z/-]*$/.test(route) && hasStaticPage(route)) return { route };
+    throw new Error(`Requested QA route has no inventory or source page: ${route}`);
+  });
 }

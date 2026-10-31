@@ -71,6 +71,8 @@ public sealed class DuesStore(BuildingFlowDbContext db, TimeProvider clock) : ID
             return Assessment(existing, true);
         }
         Active(parent);
+        if (command.Kind == ChargeKind.EXTRA)
+            await DefinitionPolicy.EnsureSelectableAsync(db, property, "CHARGE_CATEGORY", command.Category!.Value.ToString(), null, "category", token);
         var units = await db.Units.Where(value => value.PropertyId == property && command.UnitIds.Contains(value.Id)).ToListAsync(token);
         if (units.Count != command.UnitIds.Count) return null;
         foreach (var unit in units) Active(unit);

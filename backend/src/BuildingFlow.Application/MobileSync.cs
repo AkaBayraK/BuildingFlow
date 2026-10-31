@@ -3,7 +3,9 @@ public sealed record MobileSyncCommand(Guid OperationId, Guid RecordId, Guid Pro
 public sealed record MobileRequestDto(Guid Id, Guid PropertyId, Guid? UnitId, string Role, string? Description, long Version, bool Deleted, DateTimeOffset ModifiedAt,string Category="OTHER",string Priority="NORMAL",Guid? PhotoId=null,string? PhotoSha256=null,string ManagementStatus="RECORDED",string? ManagementResponse=null,bool HasManagementHistory=false);
 public sealed record MobileSyncResult(Guid OperationId, MobileRequestDto Record, bool Replayed);
 public sealed record MobileRequestSnapshot(string UserId, string ContextKey, MobileRequestDto[] Records, bool HasMore);
+public sealed record MobileRequestDefinitions(string UserId, string ContextKey, Guid PropertyId, IReadOnlyList<PropertyDefinitionListView> Lists);
 public interface IMobileSyncStore {
+    Task<MobileRequestDefinitions> DefinitionsAsync(Guid property,Guid? unit,string role,CancellationToken token,string? contextKind=null,Guid? contextId=null);
     Task<byte[]?> PhotoAsync(Guid request,CancellationToken token,string? contextKind=null,Guid? contextId=null);
     Task MaintainAsync(CancellationToken token);
     Task<MobileSyncResult> PushAsync(MobileSyncCommand command,CancellationToken token);

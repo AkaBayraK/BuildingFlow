@@ -96,3 +96,14 @@ test('TNM04 catalogues: reason and supplier category contracts, form rules and v
  assert.match(readFileSync(new URL('../src/features/suppliers/supplier-style.ts',import.meta.url),'utf8'),/categories:\{icon:/);
  assert.match(readFileSync(new URL('../src/features/definitions/DefinitionsWorkspace.tsx',import.meta.url),'utf8'),/CancellationReasonsPanel canEdit=\{canEdit\}/);
 });
+
+test('TNM05 finance choices preserve codes/history while hiding unavailable new selections',()=>{
+ const P='77777777-7777-4777-8777-777777777777';
+ const av=(code,patch={})=>({...value(code),isHidden:false,selectable:true,...patch});
+ const read=readPropertyDefinitions({propertyId:P,lists:[{key:'EXPENSE_CATEGORY',group:'FINANCE',level:'PROPERTY',values:[av('OTHER'),av('ENERGY',{isHidden:true,selectable:false}),av('STAFF',{isEnabled:false,selectable:false})]},{key:'CHARGE_CATEGORY',group:'FINANCE',level:'PROPERTY',values:[av('REPAIR',{nameTr:'Onarım',nameEn:'Repair',iconKey:'wrench',sortOrder:0}),av('OTHER',{sortOrder:1})]}]},P);
+ assert.deepEqual(definitionOptions(['ENERGY','STAFF','OTHER'],read.lists[0]),['OTHER']);
+ assert.deepEqual(definitionOptions(['ENERGY','STAFF','OTHER'],read.lists[0],'ENERGY'),['OTHER','ENERGY']);
+ assert.equal(overrideName(read.lists[1].values[0],'tr'),'Onarım');
+ assert.equal(overrideName(read.lists[1].values[0],'en'),'Repair');
+ assert.deepEqual(definitionOptions(['OTHER','REPAIR'],read.lists[1]),['REPAIR','OTHER']);
+});

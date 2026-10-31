@@ -252,3 +252,7 @@ Bu tur akadev-phase/contract/security/verify/docs yönergeleri ortak web iletiş
 28.10.2026 OTOPARK-07: akadev-phase/contract/security/verify/docs mevcut yönergeleri tek agent ile uygulandı. Yeni agent/skill/MCP/paket kurulmadı. Mevcut mesaj kutusu/işlem makbuzu, Property scope, opt-in worker ve ayrı fiziksel donanım sınırı korundu. [Kanıt](parking/07-report.md).
 
 28.10.2026 OTOPARK-08: akadev-phase/verify/security/license/docs mevcut yönergeleri tek agent ile uygulandı. Yeni agent/MCP/Skill/tarayıcı paketi kurulmadı. Yeni paket adı yok; mevcut node-forge güvenlik yaması resmi lisansla incelendi. Gerçek yerel Docker/OIDC/API/PG ile kayıtlı senaryolar; üretim/native/CI ve Zod audit engeli ayrı tutulur. [Rapor](parking/08-report.md).
+
+30.10.2026 TNM 05: `akadev-contract`, `akadev-verify`, `akadev-docs` mevcut yerel yönergeleri uygulandı; yeni skill/alt agent yok. Gerçek doğrulama [TESTING.md](TESTING.md) TNM 05 kaydındadır.
+
+30.10.2026 TNM06: mevcut akadev-phase/contract/verify/security/docs yönergeleri kullanıldı; yeni skill/agent kurulmadı. Kanıt TESTING.md TNM06.

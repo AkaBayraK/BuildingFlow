@@ -4,11 +4,14 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { PAGE_AUDIT, VIEWPORTS, judge, plan, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
+import { PAGE_AUDIT, VIEWPORTS, judge, plan, requestedPages, recordingPlayer, reportLine, slug } from './qa-web-lib.mjs';
 
 const CHROME = process.env.BF_QA_CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const WEB = `http://localhost:${process.env.WEB_PORT ?? 3003}`;
 const API = `http://localhost:${process.env.API_PORT ?? 5005}`;
+const apiTarget = process.env.BF_QA_API_TARGET;
+if (apiTarget && (!/^http:\/\/localhost:[0-9]{4,5}$/.test(apiTarget) || new URL(apiTarget).port === new URL(API).port)) throw new Error('Isolated QA API must use a separate localhost port');
+const isApi = url => url.startsWith(API + '/') || !!apiTarget && url.startsWith(apiTarget + '/');
 const runId = process.env.BF_QA_RUN_ID;
 const username = process.env.BF_QA_WEB_USERNAME, password = process.env.BF_QA_WEB_PASSWORD;
 if (!runId || !username || !password) throw new Error('Run bash scripts/qa-web.sh');
@@ -42,16 +45,22 @@ try {
   const page = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(target => target.type === 'page');
   const cdp = new Cdp(page.webSocketDebuggerUrl); await cdp.open();
   await Promise.all(['Page.enable', 'Runtime.enable', 'Network.enable'].map(method => cdp.send(method)));
+  if (apiTarget) {
+    cdp.on(({ method, params }) => {
+      if (method === 'Fetch.requestPaused') void cdp.send('Fetch.continueRequest', { requestId: params.requestId, url: params.request.url.replace(API, apiTarget) }).catch(() => {});
+    });
+    await cdp.send('Fetch.enable', { patterns: [{ urlPattern: API + '/*', requestStage: 'Request' }] });
+  }
   const state = { exceptions: [], serverErrors: [], clientErrors: [], inflight: new Set(), documentStatus: null };
   cdp.on(({ method, params }) => {
     if (method === 'Runtime.exceptionThrown') state.exceptions.push(params.exceptionDetails.exception?.className ?? 'Error');
-    if (method === 'Network.requestWillBeSent' && params.request.url.startsWith(API)) state.inflight.add(params.requestId);
+    if (method === 'Network.requestWillBeSent' && isApi(params.request.url)) state.inflight.add(params.requestId);
     if (method === 'Network.loadingFinished' || method === 'Network.loadingFailed') state.inflight.delete(params.requestId);
     if (method === 'Network.responseReceived') {
       const { url, status } = params.response, path = new URL(url).pathname;
       if (params.type === 'Document' && url.startsWith(WEB)) state.documentStatus = status;
-      if (url.startsWith(API) && status >= 500) state.serverErrors.push(`${status} ${path}`);
-      else if (url.startsWith(API) && status >= 400) state.clientErrors.push(`${status} ${path}`);
+      if (isApi(url) && status >= 500) state.serverErrors.push(`${status} ${path}`);
+      else if (isApi(url) && status >= 400) state.clientErrors.push(`${status} ${path}`);
     }
   });
   const reset = () => { state.exceptions = []; state.serverErrors = []; state.clientErrors = []; state.documentStatus = null; };
@@ -77,17 +86,28 @@ try {
   const propertyId = await cdp.value(`(() => { const link = [...document.querySelectorAll('a[href^="/properties/"]')].map(a => a.getAttribute('href').match(/^\\/properties\\/([0-9a-f-]{36})/i)).find(Boolean); return link ? link[1] : null; })()`);
   const inventory = JSON.parse(readFileSync('qa-center/inventory/inventory.json', 'utf8'));
   const only = process.env.BF_QA_ROUTES ? process.env.BF_QA_ROUTES.split(',') : null;
-  for (const target of plan(inventory.webPages, propertyId, { sessionContexts: process.env.BUILDINGFLOW_SESSION_CONTEXTS_ENABLED === 'true' }, only)) {
+  const pages = requestedPages(inventory.webPages, only, route => existsSync(join('frontend/buildingflow-web/src/app/(workspace)', route.slice(1), 'page.tsx')));
+  for (const target of plan(pages, propertyId, { sessionContexts: process.env.BUILDINGFLOW_SESSION_CONTEXTS_ENABLED === 'true' }, only)) {
     if (!target.path) { items.push({ route: target.route, viewport: '-', action: 'Ekran atlandı', expected: 'açılabilir örnek kayıt', actual: target.skip, status: 'SKIPPED', evidence: '' }); continue; }
     for (const v of VIEWPORTS) {
       await viewport(v); reset();
       await cdp.send('Page.navigate', { url: WEB + target.path }); await settle();
       const audit = await cdp.value(PAGE_AUDIT);
       const finalPath = await cdp.value('location.pathname');
-      const result = judge({ documentStatus: state.documentStatus, finalPath, expectedPath: target.expectedPath, exceptions: state.exceptions, serverErrors: state.serverErrors, audit, viewport: v.name });
+      const result = judge({ documentStatus: state.documentStatus, finalPath, expectedPath: target.expectedPath, exceptions: state.exceptions, serverErrors: state.serverErrors, clientErrors: state.clientErrors, audit, viewport: v.name });
       const notes = [...result.problems, ...(state.clientErrors.length ? [`API 4xx: ${[...new Set(state.clientErrors)].join(', ')}`] : []), ...(audit.alerts.length ? [`uyarı: ${audit.alerts.join(' | ')}`] : [])];
       items.push({ route: target.route, path: target.path, viewport: v.name, action: 'Ekran açıldı ve denetlendi', expected: 'HTTP 200, yönlendirme/JS/5xx yok, başlık var, mobilde taşma yok, a11y kuralları temiz',
         actual: notes.length ? notes.join('; ') : 'tüm kontroller temiz', status: result.status, evidence: await shot(`${slug(target.route)}-${v.name}`) });
+      if (target.route === '/definitions' && result.status === 'PASS') {
+        const opened = await cdp.value(`(() => { const b=document.querySelector('#definition-REQUEST_CATEGORY')?.closest('section')?.querySelector('li[title="WATER"] button'); if(!b)return false;b.click();return true; })()`)
+          && await cdp.until(`!!document.querySelector('[role="dialog"] #definition-nameTr')`);
+        const fields = opened && await cdp.value(`!!document.querySelector('[role="dialog"] #definition-nameEn') && document.querySelectorAll('[role="dialog"] [role="radio"]').length > 1`);
+        const evidence = await shot(`definitions-editor-${v.name}`);
+        if (opened) { await cdp.send('Input.dispatchKeyEvent', { type:'keyDown', key:'Escape', code:'Escape' }); await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key:'Escape', code:'Escape' }); }
+        const restored = opened && await cdp.until(`!document.querySelector('[role="dialog"]') && document.activeElement?.closest('li')?.title === 'WATER'`);
+        items.push({route:target.route,viewport:v.name,action:'Kategori paneli açıldı ve Escape ile kaydetmeden kapatıldı',expected:'TR/EN alanları, ikon seçenekleri ve tetikleyiciye odak dönüşü',actual:opened&&fields&&restored?'tüm etkileşim kontrolleri temiz':'panel/alan/odak kontrolü başarısız',status:opened&&fields&&restored?'PASS':'FAIL',evidence});
+      }
+
     }
   }
 

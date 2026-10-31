@@ -1,6 +1,6 @@
 # Yönetim → Tanımlar — analiz ve faz önerisi
 
-Durum: TNM 01–04 TAMAMLANDI (30.10.2026); TNM 05–06 kullanıcı onayı bekler. Alana özel ek değer ertelendi.
+Durum: TNM 01–06 teknik teslim tamamlandı (30.10.2026); native cihaz kabulü ve ertelenen yeni kategori kodları kapsam dışında. TNM 05 onayı mevcut kodlarda sistem ayarı + Property gizleme/sıralama içindir; alana özel yeni kod ekleme ertelendi.
 Faz kimlikleri (TNM 01–06) öneridir; onaylanırsa milestones.ts ve TESTING.md'ye aynı kimlikle bağlanır.
 
 ## 1. Menü neden pasif?

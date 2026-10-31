@@ -66,5 +66,20 @@ public sealed class MobileCanonicalSyncTests(SiteApiTests.SiteApiFactory factory
         var serialized="request-v2:"+System.Text.Json.JsonSerializer.Serialize(new{cmd.OperationId,cmd.RecordId,cmd.PropertyId,cmd.UnitId,cmd.Role,cmd.Action,cmd.ExpectedVersion,cmd.Description,cmd.Category,cmd.Priority,cmd.PhotoAction,cmd.PhotoBase64});var fingerprint=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(serialized)));
         await factory.WithDb(async db=>{db.Add(record);await db.SaveChangesAsync();var dto=new MobileRequestDto(record.Id,record.PropertyId,null,"MANAGER",record.Description,record.Version,false,record.ModifiedAt,record.Category,record.Priority);db.Add(new MobileOperationReceipt(s.User,cmd.OperationId,fingerprint,System.Text.Json.JsonSerializer.Serialize(dto)));await db.SaveChangesAsync();});Assert.True((await Ok(await Push(c,cmd))).Replayed);
     }
+    [PostgresTheory][InlineData("MANAGER")][InlineData("RESIDENT")]
+    public async Task CanonicalDefinitionChoicesRequireExactCurrentContext(string role)
+    {
+        var (s,id)=await Setup(role);using var c=Client(s.User,role=="RESIDENT"?"RESIDENT":"MANAGER");
+        var command=Command(s,id,role);var path=Pull(command).Replace("/requests?","/definitions?");
+        var response=await c.GetAsync(path);Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+        var choices=(await response.Content.ReadFromJsonAsync<MobileRequestDefinitions>())!;
+        Assert.Equal($"{s.Tenant}:{command.ContextKind}:{id}",choices.ContextKey);Assert.Equal(2,choices.Lists.Count);
+        Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(path.Replace(id.ToString(),Guid.NewGuid().ToString()))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(path.Replace(s.Property.ToString(),Guid.NewGuid().ToString()))).StatusCode);
+        using var disabled=Client(s.User,role=="RESIDENT"?"RESIDENT":"MANAGER",sync:false);
+        Assert.Equal(HttpStatusCode.Forbidden,(await disabled.GetAsync(path)).StatusCode);
+        await factory.WithDb(async db=>{if(role=="RESIDENT"){var r=await db.Set<UnitResidency>().FindAsync(id);r!.SetEnabled(false);}else{var a=await db.Set<ManagementAssignment>().FindAsync(id);a!.SetEnabled(false);}await db.SaveChangesAsync();});
+        Assert.Equal(HttpStatusCode.Forbidden,(await c.GetAsync(path)).StatusCode);
+    }
     public void Dispose(){foreach(var child in children)child.Dispose();}
 }

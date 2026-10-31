@@ -25,3 +25,13 @@ Doğrulama:52/52 seçili MobileSync/MobileSession/Authentication/ReleaseSecurity
 
 ## PERSON FAZ09 —18.10.2026
 Canonical contextKind/contextId, scope anahtarı, güncel görev/ilişki denetimi, korunmuş legacy kuyruk ve fingerprint biçimleri için [yeni sözleşme](mobile-canonical-sync.md). Bayraklar kapalıyken mevcut legacy akış korunur; canlı geçiş yapılmadı.
+
+## TNM 06 — etkin talep seçenekleri (30.10.2026)
+
+`GET /api/v1/mobile/sync/definitions?propertyId=...&role=...&unitId=...&contextKind=...&contextId=...` yalnız GET; query kapsamı mevcut `/sync/requests` ile aynıdır. Yanıt `userId`, `contextKey`, `propertyId`, yalnız `REQUEST_CATEGORY` ve `REQUEST_PRIORITY` listeleri. Her değer kod, TR/EN ad, ikon/ton, sıra, aktif/gizli/seçilebilir/kilitli ve sürüm taşır. Seçilemeyen kodlar tarihsel ad çözümü için yanıtta kalır.
+
+Aynı MobileSyncStore.Authorize sınırı her okumada doğrulanır: legacy aktif Property üyeliği + tam rol/Unit ve gerekiyorsa güncel kişi/ilişki; canonical açık bayraklar + issuer/subject/tenant/aktif context. Başka alan/Unit/role/context veya iptal edilmiş üyelik/ilişki 403; anonim 401; ACCOUNTANT talep bağlamı kapalıdır. Yetki doğrulamasından sonra yalnız o Property'nin iki listesi okunur; genel yönetim/katalog yetkisi verilmez. Var olan komut UUID/fingerprint, kod doğrulama ve eski kodu koruma davranışları değişmez.
+
+Mobil form bu listeden sıra/seçilebilirlik/TR ad/ikon/ton kullanır. Tanınmayan/mükerrer/eksik kod, yanlış hesap/bağlam veya tutarsız seçilebilirlik reddedilir; yeni kategori ekleme bu sözleşmede yoktur. Metadata, mevcut şifreli cache içindeki owner_snapshots tablosunda `userId + contextKey + :request-definitions` alanına kaydedilir; yeni SQLite/PG şeması yok. Kopya en fazla 24 saat, saat geri alınmışsa geçersiz; canonical modun daha kısa yetki süresi ayrıca requestCache tarafından korunur. Güncel okuma başarısızsa uygun son kopya veya varsayılan seçenekle taslak hazırlanabilir ve güncellik uyarısı görünür; merkezde yetki/aktiflik yeniden doğrulanır. Çevrimdışı kopya o andaki sunucu ayarını garanti etmez.
+
+Gizli/pasif seçimli mevcut taslak açıklama/fotoğrafıyla kalır; etkin seçim istenir, otomatik kategori veya operationId dönüşümü yok. Hesap/bağlam değişiminde eski taslak ekranda gösterilmez ve eski async autosave yeni bağlama yazamaz. Önceden gönderilen taleplerin kategori adı güncel metadata ile çözülür; kayıt içeriği/sürümü yeniden yazılmaz. Native SQLCipher/galeri/gerçek cihaz görsel kabulü bu turun export/test kanıtından ayrı tutulur.
