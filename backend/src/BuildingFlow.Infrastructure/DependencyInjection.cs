@@ -81,6 +81,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
         services.AddScoped<BuildingFlow.Application.IDashboardStore, DashboardStore>();
         services.AddScoped<BuildingFlow.Application.IAssistantStore, AssistantStore>();
+        services.AddScoped<BuildingFlow.Application.IAssistantSupplierSource, AssistantSupplierSource>();
         services.AddScoped<BuildingFlow.Application.IMeterStore, MeterStore>();
         services.AddScoped<BuildingFlow.Application.IMaintenanceStore, MaintenanceStore>();
         services.AddScoped<SupplierStore>();

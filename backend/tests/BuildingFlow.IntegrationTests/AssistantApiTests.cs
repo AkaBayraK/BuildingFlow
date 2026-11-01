@@ -171,7 +171,7 @@ public sealed class AssistantApiTests(SiteApiTests.SiteApiFactory factory) : ICl
         var daily = await Json(await c.PostAsJsonAsync(Root + "/chat", Prompt(x.P.Id, "TODAY_FOCUS")), HttpStatusCode.OK);
         Assert.DoesNotContain(daily.GetProperty("sources").EnumerateArray(), card => card.GetProperty("key").GetString()!.StartsWith("openRequests", StringComparison.Ordinal));
         using var manager = TestToken.Client(app, x.Actor, "MANAGER");
-        Assert.Equal(13, (await Json(await manager.GetAsync(Root + "/prompts"), HttpStatusCode.OK)).EnumerateArray().Count(p => p.GetProperty("code").GetString()!.Length > 0 && p.GetProperty("id").GetGuid().ToString().StartsWith("a1a55150", StringComparison.Ordinal)));
+        Assert.Equal(20, (await Json(await manager.GetAsync(Root + "/prompts"), HttpStatusCode.OK)).EnumerateArray().Count(p => p.GetProperty("code").GetString()!.Length > 0 && p.GetProperty("id").GetGuid().ToString().StartsWith("a1a55150", StringComparison.Ordinal)));
     }
 
     [PostgresFact] public async Task DailyQuotaReturns429PerUser()

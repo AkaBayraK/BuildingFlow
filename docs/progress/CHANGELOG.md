@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 2 — 01.11.2026
+
+- Talep, tedarikçi ve anket araçları (takma ad + backend etiket çözümleme), duyuru taslağı uç noktası ve paneli, derin bağlantılar.
+- `AssistantOperations` migration: 7 hazır soru, COMMUNICATION kategorisi, DRAFT audit türü.
+- 6 yeni entegrasyon/birim testi, 3 yeni FE sözleşme testi.
+
 ## AI ASİSTAN FAZ 0 + FAZ 1 — 01.11.2026
 
 - Salt okunur yönetici özet asistanı API'si, hazır soru yönetimi, audit/kota tabloları (`AssistantFoundation` migration), kural tabanlı mod ve AkaAI istemcisi.

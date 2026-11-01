@@ -2071,3 +2071,19 @@ Senaryolar (`AssistantApiTests`, `tests/assistant.test.mjs`):
 12. FE: okuyucular bilinmeyen araç/tür/dış veya başka Property bağlantısını reddeder; sohbet gövdesi; form doğrulaması; menü/sidebar (dört rol görür, SECURITY/RESIDENT görmez), dönüş yolu; backend fact anahtarlarının TR/EN karşılığı; boyut sözlükleri.
 
 **Bu tur kanıt:** projenin `test-db.py` ile oluşturulan geçici PostgreSQL veritabanı/rolünde `AssistantApiTests` + `QaAiAssistantApiTests` **19/19**; regresyon (MigrationTests, PersistenceTests, ErrorContractTests, AutoMigrationTests, DashboardApiTests, ExpenseApiTests, MaintenanceApiTests, RequestManagementTests) **80/80**; geçici DB/rol temizlendi. Backend birim **477/477**. EF `has-pending-model-changes`: değişiklik yok. Web `npm test` **364/364**, `tsc --noEmit` PASS, `npm run build` PASS (`/assistant` rotası). `python3 scripts/check-licenses.py` **329 paket PASS**. Tam integration suite ve gerçek tarayıcı E2E bu turda çalıştırılmadı; ekran görüntüsü kanıtı aşağıda ayrıca belirtilir.
+
+## AI ASİSTAN FAZ 2 — 01.11.2026 — Operasyon asistanı teknik teslim
+
+Kapsam: talep/tedarikçi/anket araçları takma adla, duyuru taslağı (kaydetmez), derin bağlantılar, 7 yeni hazır soru (`AssistantOperations` migration). Yeni paket yok. AkaPrivacy entegrasyonu yok; talep metni ve açık uçlu anket cevapları modele gönderilmez.
+
+Senaryolar (`AssistantOperationsTests`, güncellenen `AssistantApiTests`, `tests/assistant.test.mjs`):
+
+1. ACCOUNTANT: yeni araçlar status/prompts'ta yok, kodla 400; duyuru taslağı 403. RESIDENT taslak 403. Yönetici 20 seed hazır soru görür.
+2. Talep takma adı: modele `T1..T3` + gün + kategori gider; bölüm numarası, talep metni ve etiket gitmez; cevapta `T#` gerçek etikete çevrilir; kartlarda `ref`/`label`/`?request=` bağlantısı; `RESOLVED` durum sayısı; uydurma `T9` → RULES + fallback.
+3. Tedarikçi: geciken iş emri (2 gün), 10 gün kalan sözleşme, 1.200,00 bekleyen fatura; cevapta tedarikçi adı · iş emri başlığı; modele ad/başlık gitmez; başka tenant/Property tedarikçisi görünmez; başka Property yöneticisi 404.
+4. Anket: katılım %60,0; 6 yanıtlı soru 2 seçenek kartı; 2 yanıtlı soru yalnız `surveySmallGroup`; açık uçlu cevap metni (telefon dahil) yanıtta ve model yükünde yok; anket/soru/seçenek metni modele gitmez.
+5. Duyuru taslağı: telefon/e-posta/TCKN maskelenir, RULES şablonu; model taslağı kabul; notta olmayan telefon/sayı, `publish` alanı, JSON dışı cevap → RULES; doğrulama hataları 400, başka Property 404; duyuru sayısı değişmez; 6 DRAFT audit kaydı.
+6. Birim: maskeleme (cep, +90, sabit hat parantezli, TCKN, IBAN, e-posta; tarih/tutar/daire korunur), takma ad çözümleme ve bilinmeyen alias reddi, taslak ayrıştırıcı.
+7. FE: kart `ref`/`label`, yeni bağlantı kalıpları ve red listesi, `SCORE`, durum boyutu sözlüğü, taslak okuyucu/gövde/sessionStorage tek kullanımlık aktarım, derin bağlantı parametre doğrulaması, backend araç listesi eşleşmesi.
+
+**Bu tur kanıt:** geçici PostgreSQL veritabanı/rolünde `AssistantApiTests` + `QaAiAssistantApiTests` + `AssistantOperationsTests` + regresyon (ErrorContract, MigrationTests, PersistenceTests, SupplierInsightTests, SupplierAdviceTests, SurveyApiTests) **64/64**; geçici DB/rol temizlendi. EF bekleyen model değişikliği yok. Web `npm test` **367/367**, `tsc --noEmit` PASS, `npm run build` PASS. Gerçek AkaAI, tam integration suite, tarayıcı E2E ve ekran görüntüsü bu turda çalıştırılmadı (ekran görüntüsü kararı açık).

@@ -2,9 +2,11 @@
 export const assistantPath="/api/v1/assistant";
 export const assistantRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"] as const;
 export const assistantAdminRoles=["SUPER_ADMIN","SITE_ADMIN"] as const;
-export const assistantTools=["DAILY_SUMMARY","DUES_COLLECTION","BUDGET_VARIANCE","UPCOMING_MAINTENANCE","OPEN_REQUESTS"] as const;
-export const assistantCategories=["OVERVIEW","FINANCE","OPERATIONS","REQUESTS"] as const;
-export const assistantFactKinds=["MONEY","COUNT","PERCENT","DATE","DAYS"] as const;
+export const assistantTools=["DAILY_SUMMARY","DUES_COLLECTION","BUDGET_VARIANCE","UPCOMING_MAINTENANCE","OPEN_REQUESTS","REQUEST_BACKLOG","SUPPLIER_WATCH","SURVEY_SUMMARY"] as const;
+export const assistantCategories=["OVERVIEW","FINANCE","OPERATIONS","REQUESTS","COMMUNICATION"] as const;
+export const assistantFactKinds=["MONEY","COUNT","PERCENT","DATE","DAYS","SCORE"] as const;
+export const announcementCategories=["GENERAL","MEETING","DUES","MAINTENANCE","URGENT","OTHER"] as const;
+export const assistantNoteLimit=1000;
 export const assistantMessageLimit=500;
 export type AssistantTool=typeof assistantTools[number];
 export type AssistantCategory=typeof assistantCategories[number];
@@ -13,12 +15,14 @@ export type AssistantSource="AKAAI"|"RULES";
 export type AssistantQuota={dailyLimit:number;usedToday:number;remaining:number};
 export type AssistantStatus={enabled:boolean;mode:AssistantSource;quota:AssistantQuota;tools:AssistantTool[];canManagePrompts:boolean;readOnly:true};
 export type AssistantPrompt={id:string;code:string;category:AssistantCategory;toolKey:AssistantTool;titleTr:string;titleEn:string;textTr:string;textEn:string;sortOrder:number;isEnabled:boolean;version:number};
-export type AssistantCard={tool:AssistantTool;key:string;value:string;kind:AssistantFactKind;dimension:string|null;from:string;to:string;href:string};
+export type AssistantCard={tool:AssistantTool;key:string;value:string;kind:AssistantFactKind;dimension:string|null;from:string;to:string;href:string;ref:string|null;label:string|null};
+export type AnnouncementDraftCategory=typeof announcementCategories[number];
+export type AssistantDraft={title:string;content:string;category:AnnouncementDraftCategory;source:AssistantSource;modelFallback:boolean;masked:boolean;quota:AssistantQuota;saved:false};
 export type AssistantAnswer={status:"ANSWERED"|"UNSUPPORTED";tool:AssistantTool|null;source:AssistantSource;modelFallback:boolean;answer:string;sources:AssistantCard[];quota:AssistantQuota;readOnly:true};
 export type AssistantPromptForm={code:string;category:AssistantCategory;toolKey:AssistantTool;titleTr:string;titleEn:string;textTr:string;textEn:string;sortOrder:string;isEnabled:boolean};
 
 const guid="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const hrefPattern=new RegExp(`^(?:/dashboard\\?property=${guid}|/properties/${guid}/(?:dues|expenses|maintenance|requests))$`,"i");
+const hrefPattern=new RegExp(`^(?:/dashboard\\?property=${guid}|/properties/${guid}/(?:dues|expenses|maintenance|requests(?:\\?(?:status=(?:RECORDED|IN_PROGRESS|RESOLVED|REJECTED)|request=${guid}))?|surveys(?:\\?survey=${guid})?)|/suppliers(?:\\?view=alerts)?)$`,"i");
 const datePattern=/^\d{4}-\d{2}-\d{2}$/;
 const codePattern=/^[A-Z][A-Z0-9_]{1,39}$/;
 type Row=Record<string,unknown>;
@@ -40,9 +44,11 @@ export function readPrompt(value:unknown):AssistantPrompt{
 export function readPrompts(value:unknown):AssistantPrompt[]{return list(value).map(readPrompt);}
 export function readCard(value:unknown,propertyId:string):AssistantCard{
  const v=object(value);const href=text(v.href,200);const from=text(v.from,10),to=text(v.to,10);
- if(!hrefPattern.test(href)||!href.toLowerCase().includes(propertyId.toLowerCase())||!datePattern.test(from)||!datePattern.test(to)||!/^[a-zA-Z0-9]{1,40}$/.test(text(v.key,40))||!/^[0-9.-]{1,24}$/.test(text(v.value,24)))throw new Error("Invalid assistant source");
+ if(!hrefPattern.test(href)||!href.startsWith("/suppliers")&&!href.toLowerCase().includes(propertyId.toLowerCase())||!datePattern.test(from)||!datePattern.test(to)||!/^[a-zA-Z0-9]{1,40}$/.test(text(v.key,40))||!/^[0-9.-]{1,24}$/.test(text(v.value,24)))throw new Error("Invalid assistant source");
  const dimension=v.dimension===null||v.dimension===undefined?null:text(v.dimension,40);if(dimension!==null&&!/^[A-Z0-9_-]{1,40}$/.test(dimension))throw new Error("Invalid assistant dimension");
- return {tool:member(v.tool,assistantTools),key:v.key as string,value:v.value as string,kind:member(v.kind,assistantFactKinds),dimension,from,to,href};
+ const ref=v.ref===null||v.ref===undefined?null:text(v.ref,4);if(ref!==null&&!/^[A-Z]\d{1,3}$/.test(ref))throw new Error("Invalid assistant alias");
+ const label=v.label===null||v.label===undefined?null:text(v.label,600);
+ return {tool:member(v.tool,assistantTools),key:v.key as string,value:v.value as string,kind:member(v.kind,assistantFactKinds),dimension,from,to,href,ref,label};
 }
 export function readAnswer(value:unknown,propertyId:string):AssistantAnswer{
  const v=object(value);if(v.readOnly!==true||typeof v.modelFallback!=="boolean")throw new Error("Invalid assistant answer");
@@ -52,6 +58,21 @@ export function readAnswer(value:unknown,propertyId:string):AssistantAnswer{
  return {status,tool,source:member(v.source,["AKAAI","RULES"] as const),modelFallback:v.modelFallback,answer:text(v.answer,1200),sources,quota:readQuota(v.quota),readOnly:true};
 }
 
+export function readDraft(value:unknown):AssistantDraft{
+ const v=object(value);if(v.saved!==false||typeof v.modelFallback!=="boolean"||typeof v.masked!=="boolean")throw new Error("Invalid assistant draft");
+ const title=text(v.title,200),content=text(v.content,2000);if(!title.trim()||!content.trim())throw new Error("Invalid assistant draft");
+ return {title,content,category:member(v.category,announcementCategories),source:member(v.source,["AKAAI","RULES"] as const),modelFallback:v.modelFallback,masked:v.masked,quota:readQuota(v.quota),saved:false};
+}
+export function draftBody(propertyId:string,locale:"tr"|"en",note:string,category:AnnouncementDraftCategory){return {propertyId,note:note.trim(),category,locale};}
+export function canDraft(note:string){const value=note.trim();return value.length>0&&value.length<=assistantNoteLimit&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value);}
+// The draft travels to the announcement editor through this tab's session storage once, then is removed; it is never saved by the assistant.
+export const draftStorageKey=(propertyId:string)=>`bf.assistant.announcementDraft.${propertyId.toLowerCase()}`;
+export function draftEditorHref(propertyId:string){return `/properties/${propertyId}/announcements?assistantDraft=1`;}
+export function takeStoredDraft(storage:Pick<Storage,"getItem"|"removeItem">,propertyId:string):{title:string;content:string;category:AnnouncementDraftCategory}|null{
+ const key=draftStorageKey(propertyId);let raw:string|null=null;try{raw=storage.getItem(key);storage.removeItem(key);}catch{return null;}
+ if(!raw)return null;
+ try{const v=object(JSON.parse(raw));const title=text(v.title,200).trim(),content=text(v.content,10000).trim();if(!title||!content)return null;return {title,content,category:member(v.category,announcementCategories)};}catch{return null;}
+}
 export function chatBody(propertyId:string,locale:"tr"|"en",input:{promptCode:string}|{message:string}){
  return "promptCode" in input?{propertyId,promptCode:input.promptCode,locale}:{propertyId,message:input.message.trim(),locale};
 }
@@ -61,7 +82,8 @@ export function promptText(prompt:AssistantPrompt,locale:"tr"|"en"){return local
 // Category codes are translated with the owning module's existing dictionary; periods (YYYY or YYYY-MM) stay as they are.
 export function dimensionKey(card:AssistantCard):{namespace:"requests"|"expenses"|"maintenance";key:string}|null{
  if(!card.dimension||/^\d{4}(?:-\d{2})?$/.test(card.dimension))return null;
- if(card.tool==="OPEN_REQUESTS")return {namespace:"requests",key:`category_${card.dimension}`};
+ if(card.tool==="REQUEST_BACKLOG"&&card.key==="requestsByStatus")return {namespace:"requests",key:`status_${card.dimension}`};
+ if(card.tool==="OPEN_REQUESTS"||card.tool==="REQUEST_BACKLOG")return {namespace:"requests",key:`category_${card.dimension}`};
  if(card.tool==="BUDGET_VARIANCE")return {namespace:"expenses",key:card.dimension};
  if(card.tool==="UPCOMING_MAINTENANCE")return {namespace:"maintenance",key:`type_${card.dimension}`};
  return null;

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {assistantCategories,assistantFactKinds,assistantTools,canAsk,chatBody,dimensionKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readPrompts,readStatus} from '../src/features/assistant/model.ts';
+import {assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
+import {announcementDraftLink,requestLink,supplierViewLink,surveyLink} from '../src/features/assistant/deep-links.ts';
 import {assistantCategoryStyle,assistantKindIcon,assistantToolStyle} from '../src/features/assistant/assistant-style.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
 import {sidebarRows} from '../src/features/navigation/sidebar-layout.ts';
@@ -73,7 +74,9 @@ test('every tool, category, fact key and error code has an icon and TR/EN text',
  for(const tool of assistantTools)assert.ok(assistantToolStyle[tool].icon);
  for(const category of assistantCategories)assert.ok(assistantCategoryStyle[category].icon);
  for(const kind of assistantFactKinds)assert.ok(assistantKindIcon[kind]);
- assert.deepEqual([...backend.matchAll(/public const string DailySummary = "([A-Z_]+)", DuesCollection = "([A-Z_]+)", BudgetVariance = "([A-Z_]+)",\s+UpcomingMaintenance = "([A-Z_]+)", OpenRequests = "([A-Z_]+)"/g)][0].slice(1),[...assistantTools]);
+ const constants=Object.fromEntries([...backend.matchAll(/(\w+) = "([A-Z_]+)"/g)].map(m=>[m[1],m[2]]));
+ const all=backend.match(/IReadOnlyList<string> All = \[([^\]]+)\]/)[1].split(',').map(name=>constants[name.trim()]);
+ assert.deepEqual(all,[...assistantTools]);
  assert.equal(errorCodes.BF_ASSISTANT_BUDGET.status,429);assert.equal(errorCodes.BF_ASSISTANT_PROMPT_DUPLICATE.status,409);
 });
 
@@ -85,4 +88,41 @@ test('category dimensions reuse the owning module dictionaries and keep periods 
  for(const code of ['ELEVATOR','WATER','OTHER'])assert.ok(tr.requests[`category_${code}`]&&en.requests[`category_${code}`]);
  for(const code of ['MAINTENANCE','CLEANING','INSPECTION','DRILL','OTHER'])assert.ok(tr.maintenance[`type_${code}`]&&en.maintenance[`type_${code}`]);
  for(const code of ['MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER'])assert.ok(tr.expenses[code]&&en.expenses[code]);
+});
+
+test('FAZ 2 cards carry aliases and labels, link only to known screens, and keep the model alias out of display',()=>{
+ const R='33333333-3333-4333-8333-333333333333';
+ const backlog=card({tool:'REQUEST_BACKLOG',key:'openRequestAge',value:'9',kind:'DAYS',dimension:'ELEVATOR',href:`/properties/${P}/requests?request=${R}`,ref:'T1',label:'12 numaralı bölüm talebi'});
+ const parsed=readAnswer(answer({tool:'REQUEST_BACKLOG',sources:[backlog,card({tool:'REQUEST_BACKLOG',key:'requestsByStatus',kind:'COUNT',value:'1',dimension:'RESOLVED',href:`/properties/${P}/requests?status=RESOLVED`})]}),P);
+ assert.equal(parsed.sources[0].ref,'T1');assert.equal(parsed.sources[0].label,'12 numaralı bölüm talebi');assert.equal(parsed.sources[1].ref,null);
+ assert.deepEqual(dimensionKey(parsed.sources[1]),{namespace:'requests',key:'status_RESOLVED'});
+ for(const href of ['/suppliers?view=alerts','/suppliers',`/properties/${P}/surveys?survey=${R}`])
+  assert.equal(readAnswer(answer({tool:'SUPPLIER_WATCH',sources:[card({tool:'SUPPLIER_WATCH',href})]}),P).sources[0].href,href);
+ for(const href of ['/suppliers?view=all','/suppliers/x',`/properties/${P}/requests?status=DONE`,`/properties/${P}/requests?request=x`,`/properties/${Q}/surveys?survey=${R}`,'//evil.example/suppliers'])
+  assert.throws(()=>readAnswer(answer({tool:'SUPPLIER_WATCH',sources:[card({tool:'SUPPLIER_WATCH',href})]}),P),href);
+ for(const ref of ['t1','T1000','<b>','PEOPLE'])assert.throws(()=>readAnswer(answer({sources:[card({ref})]}),P));
+ assert.equal(readAnswer(answer({tool:'SURVEY_SUMMARY',sources:[card({tool:'SURVEY_SUMMARY',kind:'SCORE',value:'4.25',href:`/properties/${P}/surveys`})]}),P).sources[0].kind,'SCORE');
+});
+
+test('announcement draft is read strictly, travels once through session storage and is never marked saved',()=>{
+ const draft={title:'Su kesintisi',content:'Değerli sakinlerimiz,\n\nSu kesintisi var.',category:'MAINTENANCE',source:'RULES',modelFallback:false,masked:true,quota,saved:false};
+ assert.equal(readDraft(draft).category,'MAINTENANCE');
+ for(const bad of [{saved:true},{category:'PARTY'},{title:''},{content:'x'.repeat(2001)},{source:'GPT'}])assert.throws(()=>readDraft({...draft,...bad}));
+ assert.deepEqual(draftBody(P,'tr','  not  ','URGENT'),{propertyId:P,note:'not',category:'URGENT',locale:'tr'});
+ assert.equal(canDraft(''),false);assert.equal(canDraft('x'.repeat(1001)),false);assert.equal(canDraft('ok\u0007'),false);assert.equal(canDraft('Su kesintisi'),true);
+ const store=new Map();const storage={getItem:k=>store.get(k)??null,removeItem:k=>store.delete(k)};
+ store.set(draftStorageKey(P),JSON.stringify({title:'T',content:'C',category:'GENERAL'}));
+ assert.deepEqual(takeStoredDraft(storage,P),{title:'T',content:'C',category:'GENERAL'});assert.equal(takeStoredDraft(storage,P),null);assert.equal(store.size,0);
+ for(const raw of ['{bad',JSON.stringify({title:'',content:'C',category:'GENERAL'}),JSON.stringify({title:'T',content:'C',category:'PARTY'})]){store.set(draftStorageKey(P),raw);assert.equal(takeStoredDraft(storage,P),null);assert.equal(store.size,0);}
+ assert.equal(draftEditorHref(P),`/properties/${P}/announcements?assistantDraft=1`);
+});
+
+test('deep links accept only the parameters the assistant sets',()=>{
+ const R='33333333-3333-4333-8333-333333333333';
+ assert.deepEqual(requestLink(`?status=IN_PROGRESS&request=${R}`),{status:'IN_PROGRESS',request:R});
+ assert.deepEqual(requestLink('?status=DONE&request=1'),{status:null,request:null});
+ assert.deepEqual(requestLink('?request=00000000-0000-0000-0000-000000000000'),{status:null,request:null});
+ assert.equal(surveyLink(`?survey=${R}`),R);assert.equal(surveyLink('?survey=../x'),null);
+ assert.equal(supplierViewLink('?view=alerts'),'alerts');assert.equal(supplierViewLink('?view=performance'),null);
+ assert.equal(announcementDraftLink('?assistantDraft=1'),true);assert.equal(announcementDraftLink('?assistantDraft=true'),false);
 });

@@ -15,6 +15,7 @@ import {cn} from "@/lib/utils";
 import {useDashboardArea} from "@/features/dashboard/DashboardArea";
 import {assistantBadgeTone,assistantCategoryAll,assistantCategoryStyle,assistantKindIcon,assistantToolStyle,assistantWarningIcon} from "./assistant-style";
 import {PromptManager} from "./PromptManager";
+import {DraftPanel} from "./DraftPanel";
 import {assistantCategories,assistantMessageLimit,assistantPath,assistantRoles,canAsk,chatBody,dimensionKey,promptText,promptTitle,readAnswer,readPrompts,readStatus,type AssistantAnswer,type AssistantCard,type AssistantCategory,type AssistantPrompt,type AssistantStatus} from "./model";
 
 type Locale="tr"|"en";
@@ -29,6 +30,7 @@ function AssistantContent(){
  const [category,setCategory]=useState<"ALL"|AssistantCategory>("ALL"),[message,setMessage]=useState(""),[turns,setTurns]=useState<Turn[]>([]),[busy,setBusy]=useState(false),[managing,setManaging]=useState(false);
  const lock=useRef(false),serial=useRef(0),end=useRef<HTMLDivElement>(null),manageButton=useRef<HTMLButtonElement>(null);
  const roleAllowed=allowed&&assistantRoles.some(r=>identity.hasRealmRole(r));
+ const manager=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r));
  const property=properties?.find(p=>p.id===propertyId);
 
  useEffect(()=>{if(!roleAllowed)return;const c=new AbortController();setLoadError("");setStatus(null);setPrompts(null);
@@ -101,6 +103,7 @@ function AssistantContent(){
        <span className={`request-type-icon tone-${style.tone}`}><style.icon aria-hidden="true"/></span><span className="min-w-0 flex-1">{promptTitle(p,locale)}</span></button></li>;})}</ul>}
      {exhausted&&<MessageBanner kind="warning" presentation="inline">{t("quotaReached")}</MessageBanner>}
      <p className="text-xs text-muted-foreground">{t("privacyNote")}</p>
+     {manager&&propertyId&&<DraftPanel propertyId={propertyId} disabled={exhausted} onQuota={quota=>setStatus(current=>current?{...current,quota}:current)}/>}
     </aside>
    </div>
   </>}
@@ -130,12 +133,12 @@ function TurnView({turn,locale}:{turn:Turn;locale:Locale}){
 function SourceCard({card,locale}:{card:AssistantCard;locale:Locale}){
  const t=useTranslations("assistant"),requests=useTranslations("requests"),expenses=useTranslations("expenses"),maintenance=useTranslations("maintenance");
  const Icon=assistantKindIcon[card.kind];const dimension=dimensionKey(card);
- const dimensionLabel=dimension?(dimension.namespace==="requests"?requests:dimension.namespace==="expenses"?expenses:maintenance)(dimension.key as never):card.dimension;
- const value=card.kind==="MONEY"?formatDecimalCurrency(card.value,locale):card.kind==="PERCENT"?`%${formatNumber(Number(card.value),locale)}`:card.kind==="DATE"?formatDateOnly(card.value,locale):card.kind==="DAYS"?t("days",{count:Number(card.value)}):formatNumber(Number(card.value),locale);
+ const dimensionLabel=card.label??(dimension?(dimension.namespace==="requests"?requests:dimension.namespace==="expenses"?expenses:maintenance)(dimension.key as never):card.dimension&&!/^[A-Z]\d{1,3}$/.test(card.dimension)?card.dimension:null);
+ const value=card.kind==="MONEY"?formatDecimalCurrency(card.value,locale):card.kind==="PERCENT"?`%${formatNumber(Number(card.value),locale)}`:card.kind==="DATE"?formatDateOnly(card.value,locale):card.kind==="DAYS"?t("days",{count:Number(card.value)}):card.kind==="SCORE"?t("score",{value:formatNumber(Number(card.value),locale)}):formatNumber(Number(card.value),locale);
  const range=card.from===card.to?formatDateOnly(card.from,locale):`${formatDateOnly(card.from,locale)} – ${formatDateOnly(card.to,locale)}`;
  return <div className="flex h-full items-start gap-2 rounded-xl border bg-card p-3">
   <span className={cn("request-type-icon",`tone-${assistantToolStyle[card.tool].tone}`)}><Icon aria-hidden="true"/></span>
-  <div className="min-w-0 flex-1"><p className="text-base font-semibold tabular-nums">{value}</p><p className="text-xs">{t(`fact_${card.key}` as never)}{dimensionLabel&&<> · {dimensionLabel}</>}</p><p className="text-xs text-muted-foreground">{range}</p></div>
+  <div className="min-w-0 flex-1"><p className="text-base font-semibold tabular-nums">{value}</p><p className="text-xs">{t(`fact_${card.key}` as never)}{dimensionLabel&&<> · <span className="wrap-anywhere">{dimensionLabel}</span></>}</p><p className="text-xs text-muted-foreground">{range}</p></div>
   <Link href={card.href} className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("openScreen")} title={t("openScreen")}><ArrowUpRight aria-hidden="true" className="size-4"/></Link>
  </div>;
 }

@@ -92,12 +92,13 @@ internal static class AssistantEndpoints
         root.MapPost("/chat", async (AssistantChatRequest request, AssistantService service, HttpResponse response, CancellationToken token) =>
         {
             try { return NoStore(response, await service.Chat(request, token) is { } answer ? Results.Ok(answer) : Results.NotFound()); }
-            catch (AssistantBudgetException)
-            {
-                var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = StatusCodes.Status429TooManyRequests };
-                ApiProblems.Apply(problem, ErrorCatalog.AssistantBudget.Create());
-                return Results.Problem(problem);
-            }
+            catch (AssistantBudgetException) { return Budget(); }
+        });
+        // Drafts are returned to the caller only; nothing is saved or published here.
+        root.MapPost("/announcement-draft", async (AssistantDraftRequest request, AssistantService service, HttpResponse response, CancellationToken token) =>
+        {
+            try { return NoStore(response, await service.DraftAnnouncement(request, token) is { } draft ? Results.Ok(draft) : Results.NotFound()); }
+            catch (AssistantBudgetException) { return Budget(); }
         });
         var admin = app.MapGroup("/api/v1/assistant/admin/prompts").RequireAuthorization("CanManageAssistantPrompts").WithTags("Assistant");
         admin.MapGet("", async (AssistantService service, CancellationToken token) => Results.Ok(await service.ManagedPrompts(token)));
@@ -110,6 +111,13 @@ internal static class AssistantEndpoints
             await service.UpdatePrompt(id, request, token) is { } prompt ? Results.Ok(prompt) : Results.NotFound());
         admin.MapDelete("/{id:guid}", async (Guid id, long version, AssistantService service, CancellationToken token) =>
             await service.DeletePrompt(id, version, token) ? Results.NoContent() : Results.NotFound());
+    }
+
+    private static IResult Budget()
+    {
+        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = StatusCodes.Status429TooManyRequests };
+        ApiProblems.Apply(problem, ErrorCatalog.AssistantBudget.Create());
+        return Results.Problem(problem);
     }
 
     private static IResult NoStore(HttpResponse response, IResult result)

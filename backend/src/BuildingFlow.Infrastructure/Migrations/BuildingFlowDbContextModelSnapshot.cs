@@ -296,7 +296,7 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                             t.HasCheckConstraint("chk_assistant_audit_entries_outcome", "outcome IN ('STARTED','ANSWERED','UNSUPPORTED','FAILED')");
 
-                            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT')");
+                            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT')");
                         });
                 });
 
@@ -394,11 +394,11 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("assistant_prompts", null, t =>
                         {
-                            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS')");
+                            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION')");
 
                             t.HasCheckConstraint("chk_assistant_prompts_sort_order", "sort_order BETWEEN 0 AND 999");
 
-                            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS')");
+                            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY')");
                         });
 
                     b.HasData(
@@ -647,6 +647,139 @@ namespace BuildingFlow.Infrastructure.Migrations
                             TitleEn = "Request categories",
                             TitleTr = "Talep kategorileri",
                             ToolKey = "OPEN_REQUESTS",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000014"),
+                            Category = "REQUESTS",
+                            Code = "OLDEST_REQUESTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 140,
+                            TextEn = "Which requests have been open the longest?",
+                            TextTr = "En uzun süredir açık olan talepler hangileri?",
+                            TitleEn = "Longest waiting",
+                            TitleTr = "En uzun bekleyenler",
+                            ToolKey = "REQUEST_BACKLOG",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000015"),
+                            Category = "REQUESTS",
+                            Code = "REQUEST_STATUS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 150,
+                            TextEn = "How are requests distributed by status?",
+                            TextTr = "Talepler durumlarına göre nasıl dağılıyor?",
+                            TitleEn = "Request statuses",
+                            TitleTr = "Talep durumları",
+                            ToolKey = "REQUEST_BACKLOG",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000016"),
+                            Category = "OPERATIONS",
+                            Code = "OVERDUE_WORK_ORDERS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 160,
+                            TextEn = "Which supplier work orders are overdue?",
+                            TextTr = "Hangi tedarikçi iş emirleri gecikiyor?",
+                            TitleEn = "Overdue work orders",
+                            TitleTr = "Geciken iş emirleri",
+                            ToolKey = "SUPPLIER_WATCH",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000017"),
+                            Category = "OPERATIONS",
+                            Code = "EXPIRING_CONTRACTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 170,
+                            TextEn = "Which supplier contracts are about to expire?",
+                            TextTr = "Süresi dolmak üzere olan tedarikçi sözleşmeleri hangileri?",
+                            TitleEn = "Expiring contracts",
+                            TitleTr = "Biten sözleşmeler",
+                            ToolKey = "SUPPLIER_WATCH",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000018"),
+                            Category = "FINANCE",
+                            Code = "PENDING_INVOICES",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 180,
+                            TextEn = "What supplier invoices are waiting for approval or payment?",
+                            TextTr = "Ödeme veya onay bekleyen tedarikçi faturaları ne durumda?",
+                            TitleEn = "Pending invoices",
+                            TitleTr = "Bekleyen faturalar",
+                            ToolKey = "SUPPLIER_WATCH",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000019"),
+                            Category = "COMMUNICATION",
+                            Code = "SURVEY_RESULTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 190,
+                            TextEn = "Summarise the latest survey's results.",
+                            TextTr = "Son anketin sonuçlarını özetle.",
+                            TitleEn = "Survey results",
+                            TitleTr = "Anket sonuçları",
+                            ToolKey = "SURVEY_SUMMARY",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000020"),
+                            Category = "COMMUNICATION",
+                            Code = "SURVEY_PARTICIPATION",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 200,
+                            TextEn = "What was the participation rate of the latest survey?",
+                            TextTr = "Son ankete katılım oranı nedir?",
+                            TitleEn = "Survey participation",
+                            TitleTr = "Anket katılımı",
+                            ToolKey = "SURVEY_SUMMARY",
                             Version = 1L
                         });
                 });

@@ -7,6 +7,7 @@ import {BarChart3,CalendarRange,ChevronRight,CircleCheckBig,ClipboardList,Copy,E
 import {useIdentity} from "@/auth/AuthGate";
 import {usePropertyScope} from "@/features/navigation/PropertyScope";
 import {useSearch} from "@/features/people/useRows";
+import {surveyLink} from "@/features/assistant/deep-links";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {useNotification} from "@/components/feedback/Notifications";
 import {Button} from "@/components/ui/button";
@@ -46,6 +47,9 @@ export function SurveysWorkspace({propertyId}:{propertyId:string}){
  const query=new URLSearchParams({page:String(page),pageSize:String(pageSize)});if(search)query.set("search",search);if(state)query.set("state",state);if(category)query.set("category",category);if(from)query.set("from",from);if(to)query.set("to",to);
  const path=`${root}?${query}`;
  useEffect(()=>setPage(1),[search,state,category,from,to,pageSize]);
+ useEffect(()=>{const id=surveyLink(window.location.search);if(!id)return;const c=new AbortController();
+  void api<unknown>(`${root}/${id}`,{signal:c.signal},"json",[404]).then(v=>{if(!c.signal.aborted)setPanel({kind:"detail",survey:readDetail(v,propertyId).survey});}).catch(()=>{});
+  return()=>c.abort();},[api,root,propertyId]);
  useEffect(()=>{if(!manager||rangeInvalid)return;const c=new AbortController();setLoading(true);setError("");setData(null);
   void api<unknown>(path,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setData(readPage(v,propertyId));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});
   return()=>c.abort();},[api,path,propertyId,locale,revision,manager,rangeInvalid]);

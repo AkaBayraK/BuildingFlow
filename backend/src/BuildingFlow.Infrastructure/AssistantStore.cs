@@ -21,7 +21,14 @@ internal sealed class AssistantPromptConfiguration : IEntityTypeConfiguration<As
         ("MAINTENANCE_TYPES", "OPERATIONS", AssistantTools.UpcomingMaintenance, "Bakım türleri", "Maintenance types", "Yaklaşan bakımlar hangi türlerde?", "What types of maintenance are coming up?"),
         ("OPEN_REQUESTS", "REQUESTS", AssistantTools.OpenRequests, "Açık talepler", "Open requests", "Kaç açık talep var?", "How many requests are open?"),
         ("STALE_REQUESTS", "REQUESTS", AssistantTools.OpenRequests, "Bekleyen talepler", "Waiting requests", "En uzun süredir açık talepler ne kadar bekliyor?", "How long have the oldest open requests been waiting?"),
-        ("REQUEST_CATEGORIES", "REQUESTS", AssistantTools.OpenRequests, "Talep kategorileri", "Request categories", "Açık talepler hangi kategorilerde yoğunlaşıyor?", "Which categories do open requests concentrate in?")
+        ("REQUEST_CATEGORIES", "REQUESTS", AssistantTools.OpenRequests, "Talep kategorileri", "Request categories", "Açık talepler hangi kategorilerde yoğunlaşıyor?", "Which categories do open requests concentrate in?"),
+        ("OLDEST_REQUESTS", "REQUESTS", AssistantTools.RequestBacklog, "En uzun bekleyenler", "Longest waiting", "En uzun süredir açık olan talepler hangileri?", "Which requests have been open the longest?"),
+        ("REQUEST_STATUS", "REQUESTS", AssistantTools.RequestBacklog, "Talep durumları", "Request statuses", "Talepler durumlarına göre nasıl dağılıyor?", "How are requests distributed by status?"),
+        ("OVERDUE_WORK_ORDERS", "OPERATIONS", AssistantTools.SupplierWatch, "Geciken iş emirleri", "Overdue work orders", "Hangi tedarikçi iş emirleri gecikiyor?", "Which supplier work orders are overdue?"),
+        ("EXPIRING_CONTRACTS", "OPERATIONS", AssistantTools.SupplierWatch, "Biten sözleşmeler", "Expiring contracts", "Süresi dolmak üzere olan tedarikçi sözleşmeleri hangileri?", "Which supplier contracts are about to expire?"),
+        ("PENDING_INVOICES", "FINANCE", AssistantTools.SupplierWatch, "Bekleyen faturalar", "Pending invoices", "Ödeme veya onay bekleyen tedarikçi faturaları ne durumda?", "What supplier invoices are waiting for approval or payment?"),
+        ("SURVEY_RESULTS", "COMMUNICATION", AssistantTools.SurveySummary, "Anket sonuçları", "Survey results", "Son anketin sonuçlarını özetle.", "Summarise the latest survey's results."),
+        ("SURVEY_PARTICIPATION", "COMMUNICATION", AssistantTools.SurveySummary, "Anket katılımı", "Survey participation", "Son ankete katılım oranı nedir?", "What was the participation rate of the latest survey?")
     ];
 
     public void Configure(EntityTypeBuilder<AssistantPrompt> b)
@@ -39,8 +46,8 @@ internal sealed class AssistantPromptConfiguration : IEntityTypeConfiguration<As
         b.ToTable(t =>
         {
             t.HasCheckConstraint("chk_assistant_prompts_sort_order", $"sort_order BETWEEN 0 AND {AssistantPrompt.MaxSortOrder}");
-            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS')");
-            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS')");
+            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION')");
+            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY')");
         });
         var at = new DateTimeOffset(2026, 11, 1, 0, 0, 0, TimeSpan.Zero);
         b.HasData(Seed.Select((p, i) => new
@@ -70,7 +77,7 @@ internal sealed class AssistantAuditEntryConfiguration : IEntityTypeConfiguratio
         b.HasIndex(x => x.PropertyId).HasDatabaseName("idx_assistant_audit_entries_property_id");
         b.ToTable(t =>
         {
-            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT')");
+            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT')");
             t.HasCheckConstraint("chk_assistant_audit_entries_outcome", "outcome IN ('STARTED','ANSWERED','UNSUPPORTED','FAILED')");
             t.HasCheckConstraint("chk_assistant_audit_entries_duration", "duration_ms IS NULL OR duration_ms >= 0");
         });
@@ -168,4 +175,33 @@ public sealed class AssistantStore(BuildingFlowDbContext db, ILogger<AssistantSt
     private static bool Same(AssistantPrompt p, AssistantPromptCommand c) =>
         p.Code == c.Code && p.Category == c.Category && p.ToolKey == c.ToolKey && p.TitleTr == c.TitleTr && p.TitleEn == c.TitleEn
         && p.TextTr == c.TextTr && p.TextEn == c.TextEn && p.SortOrder == c.SortOrder && p.IsEnabled == c.IsEnabled;
+}
+
+// Supplier facts for the assistant come only from the supplier module's own scoped reads (alerts and advice data).
+public sealed class AssistantSupplierSource(BuildingFlowDbContext db, SupplierStore store) : IAssistantSupplierSource
+{
+    public const int PageSize = 100;
+    public async Task<AssistantSupplierData> Read(Guid property, CancellationToken token)
+    {
+        var tenants = await db.Set<PersonPropertyScope>().AsNoTracking().Where(s => s.PropertyId == property && s.IsEnabled).Select(s => s.TenantId).Distinct().OrderBy(t => t).ToListAsync(token);
+        var items = new List<AssistantSupplierItem>(); var workspaces = 0; var truncated = false;
+        foreach (var tenant in tenants)
+        {
+            var overdue = await store.Alerts(tenant, "WORK_ORDER_OVERDUE", 1, PageSize, token);
+            if (overdue is null) continue;
+            var contracts = await store.Alerts(tenant, "CONTRACT_EXPIRY", 1, PageSize, token);
+            var advice = await store.AdviceData(tenant, property, "COST_ANOMALY", null, token);
+            workspaces++;
+            foreach (var page in new[] { overdue, contracts })
+            {
+                if (page is null) continue;
+                truncated |= page.Truncated || page.TotalCount > PageSize;
+                items.AddRange(page.Items.Where(a => a.PropertyId == property).Select(a => new AssistantSupplierItem(a.Kind, a.SupplierName, a.RecordId, a.Title, a.Date, a.Days, null)));
+            }
+            if (advice is null) continue;
+            var names = advice.Suppliers.ToDictionary(s => s.Id, s => s.Name);
+            items.AddRange(advice.Bills.Where(b => names.ContainsKey(b.SupplierId)).Select(b => new AssistantSupplierItem("INVOICE_PENDING", names[b.SupplierId], b.Id, "", default, 0, b.Gross)));
+        }
+        return new(workspaces, items, truncated);
+    }
 }

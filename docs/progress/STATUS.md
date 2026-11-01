@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 2 — 01.11.2026 — TEKNİK TESLİM (ekran görüntüsü kararı açık)
+
+Operasyon asistanı: `REQUEST_BACKLOG` (durum dağılımı + en eski açık talepler takma adla), `SUPPLIER_WATCH` (geciken iş emri, biten sözleşme, bekleyen fatura; tedarikçi modülünün kendi tenant/yönetici kontrolüyle), `SURVEY_SUMMARY` (katılım, seçenek dağılımı; <5 yanıt gizli, açık uçlu metin yok) ve duyuru taslağı (`/announcement-draft`, maskeli not, kayıt yok; editöre önceden doldurulmuş açılır). Derin bağlantılar: talep durumu/detayı, anket sonucu, tedarikçi uyarıları. Yeni migration `AssistantOperations` (7 hazır soru, kısıt güncellemeleri). AkaPrivacy entegrasyonu yok → talep metni modele gönderilmez. Talep için alanda SLA yok; uydurulmadı.
+
+**Bu tur: backend seçili 64/64 (geçici PostgreSQL), web 367/367, typecheck/build PASS.** Yeni paket yok. Yerel geliştirme DB'sine migration uygulanmadı, çalışan API'ye dokunulmadı; gerçek AkaAI, tarayıcı E2E ve ekran görüntüleri DOĞRULANAMADI. Dal `buildingflow_ai_asistan`, yerel commit; push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## AI ASİSTAN FAZ 0 + FAZ 1 — 01.11.2026 — TEKNİK TESLİM (ekran görüntüsü onay bekliyor)
 
 Salt okunur yönetici özet asistanı: `/api/v1/assistant` status/prompts/chat ve SUPER_ADMIN/SITE_ADMIN hazır soru yönetimi; beş araç (günün özeti, aidat/tahsilat, gider-bütçe, 30 gün bakım, açık talep sayıları) mevcut servisler üzerinden. AkaAI (`Assistant:AkaAi`) yoksa kural tabanlı mod; model cevabı kapalı şema + araç sayılarıyla doğrulanır. Kullanıcı başına günlük kota (30) audit tablosundan; soru/cevap saklanmaz. Web `/assistant` (Dashboard altında), dashboard "Asistana sor" kısayolu, TR/EN. Yeni migration `20261101193632_AssistantFoundation` (2 tablo, 13 seed); yeni paket yok. Aydınlatma maddesi taslağı yayınlanmadı.
