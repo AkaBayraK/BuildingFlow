@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 3 — 01.11.2026 — TEKNİK TESLİM, VARSAYILAN KAPALI
+
+Sakin asistanı (mobil): kendi borç/son ödeme/son ödemeler, kendi talep durumları, yayınlanmış duyurular (maskeli) ve belge yayın tarihleri; mevcut mobil servislerle, her çağrıda bayrak + `AI_ASSISTANT` rızası + kendi bağlam kontrolü. Bayrak kapalı, rıza türü pasif ve metinsiz (KVKK geçidi sağlanmadı). Ayrı kota 10/gün. Mobil Asistan ekranı/ana sayfa kartı (MOBİL kaydı). Belge gövdesi soru-cevabı sonraki faza bırakıldı. Migration `AssistantResident`.
+
+**Bu tur: backend seçili 114/114 (+4 ortam atlaması), birim 477/477, web 367/367 + build, mobil check 174/174 + build, lisans 329 PASS.** Yerel geliştirme DB'si/çalışan API'ye dokunulmadı; ekran görüntüsü, gerçek AkaAI, cihaz kabulü DOĞRULANAMADI. Ana klasördeki commit'lenmemiş mobil `src/definitions` eksikliği ve ay başı tarihli MobileFinance fixture hatası raporlandı. Dal `buildingflow_ai_asistan`, yerel commit; push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## AI ASİSTAN FAZ 2 — 01.11.2026 — TEKNİK TESLİM (ekran görüntüsü kararı açık)
 
 Operasyon asistanı: `REQUEST_BACKLOG` (durum dağılımı + en eski açık talepler takma adla), `SUPPLIER_WATCH` (geciken iş emri, biten sözleşme, bekleyen fatura; tedarikçi modülünün kendi tenant/yönetici kontrolüyle), `SURVEY_SUMMARY` (katılım, seçenek dağılımı; <5 yanıt gizli, açık uçlu metin yok) ve duyuru taslağı (`/announcement-draft`, maskeli not, kayıt yok; editöre önceden doldurulmuş açılır). Derin bağlantılar: talep durumu/detayı, anket sonucu, tedarikçi uyarıları. Yeni migration `AssistantOperations` (7 hazır soru, kısıt güncellemeleri). AkaPrivacy entegrasyonu yok → talep metni modele gönderilmez. Talep için alanda SLA yok; uydurulmadı.

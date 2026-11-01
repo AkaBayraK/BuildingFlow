@@ -1,6 +1,6 @@
 import type {SyncDb} from '../sync/outbox';
 import type {PrivateFiles} from '../profile/files';
-import {CONSENT_HOLD,parseCommand,parseList,type Command,type ConsentItem,type ConsentList,type ConsentState,type Feature,type ServerState} from './contracts.ts';
+import {CONSENT_HOLD,photoFeatures,parseCommand,parseList,type Command,type ConsentItem,type ConsentList,type ConsentState,type Feature,type ServerState} from './contracts.ts';
 // Local consent data lives in the same encrypted per-account SQLite as the profile; logout destroys it with the database key.
 export type JobStatus='pending'|'sending'|'retry'|'conflict'|'failed';
 export type Job={operation_id:string;user_id:string;type_code:string;action:'APPROVE'|'WITHDRAW';payload:string;status:JobStatus;attempts:number;next_attempt_at:number;created_at:number;error:string|null};
@@ -57,16 +57,19 @@ export async function discard(db:SyncDb,user:string,operation:string){
 }
 // Photo jobs the server refused for missing consent go back to the queue once that consent is ACTIVE.
 export async function releaseHeld(db:SyncDb,user:string,feature:Feature,now:number){
+ if(!photoFeatures.includes(feature))return;
  if(feature==='PROFILE_PHOTO')await db.runAsync("UPDATE profile_jobs SET status='retry',error_code=NULL,next_attempt_at=? WHERE user_id=? AND status='failed' AND error_code=?",now,user,CONSENT_HOLD);
  else await db.runAsync("UPDATE sync_outbox SET status='retry',error_code=NULL,next_attempt_at=?,updated_at=? WHERE user_id=? AND status='blocked' AND error_code=?",now,now,user,CONSENT_HOLD);
 }
 export async function heldCount(db:SyncDb,user:string,feature:Feature){
+ if(!photoFeatures.includes(feature))return 0;
  const row=feature==='PROFILE_PHOTO'?await db.getFirstAsync<{n:number}>("SELECT COUNT(*) AS n FROM profile_jobs WHERE user_id=? AND status='failed' AND error_code=?",user,CONSENT_HOLD)
   :await db.getFirstAsync<{n:number}>("SELECT COUNT(*) AS n FROM sync_outbox WHERE user_id=? AND status='blocked' AND error_code=?",user,CONSENT_HOLD);
  return row?.n??0;
 }
 // After a withdrawal the photos it covered leave this device at once, even before the server hears about it.
 export async function dropLocalPhotos(db:SyncDb,files:PrivateFiles,user:string,feature:Feature){
+ if(!photoFeatures.includes(feature))return;
  if(feature==='PROFILE_PHOTO'){
   const row=await db.getFirstAsync<{photo_file:string|null}>('SELECT photo_file FROM profile_cache WHERE user_id=?',user);
   await db.runAsync('UPDATE profile_cache SET photo_file=NULL WHERE user_id=?',user);if(row?.photo_file)await files.drop(row.photo_file);

@@ -1,5 +1,9 @@
 {
   "assistant": {
+    "tool_RESIDENT_BALANCE": "Resident: balance",
+    "tool_RESIDENT_REQUESTS": "Resident: requests",
+    "tool_RESIDENT_NOTICES": "Resident: announcements",
+    "category_RESIDENT": "Resident (mobile)",
     "tool_REQUEST_BACKLOG": "Waiting requests",
     "tool_SUPPLIER_WATCH": "Supplier watch",
     "tool_SURVEY_SUMMARY": "Survey summary",
@@ -2515,6 +2519,7 @@
     "BF_ASSISTANT_QUESTION_INVALID": "Choose a management area and either a ready question or a question of 1-500 characters.",
     "BF_ASSISTANT_PROMPT_INVALID": "Check the ready question code, category, tool, titles, texts, order and version.",
     "BF_ASSISTANT_PROMPT_DUPLICATE": "A ready question with this code already exists.",
+    "BF_ASSISTANT_RESIDENT_DISABLED": "The resident assistant is not enabled in this environment yet.",
     "BF_QA_AI_PROMPT_INVALID": "The test request must be 1-1000 characters without control characters.",
     "BF_SMS_PHONE_NOT_VERIFIED": "Verify your phone number before allowing promotional SMS.",
     "BF_PARKING_INVALID": "Check the parking fields: plate 2–12 letters/digits, valid type, date range and maximum lengths.",

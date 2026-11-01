@@ -1,7 +1,9 @@
 import {parseMarkup} from './markup.ts';
 // İŞ18: shapes of GET /api/v1/mobile/consents and POST /commands (docs/api/mobile-consents.md). Unknown or foreign data is refused.
 export type Kind='INFORMATION'|'EXPLICIT_CONSENT';
-export type Feature='PROFILE_PHOTO'|'REQUEST_PHOTO';
+export type Feature='PROFILE_PHOTO'|'REQUEST_PHOTO'|'AI_ASSISTANT';
+// Only these features keep photos on the device; the AI assistant consent gates a screen, not stored files.
+export const photoFeatures:readonly Feature[]=['PROFILE_PHOTO','REQUEST_PHOTO'];
 export type ServerState='NONE'|'ACTIVE'|'OUTDATED'|'WITHDRAWN';
 export type Action='APPROVE'|'WITHDRAW';
 export type ConsentText={id:string;textVersion:number;title:string;body:string;bodySha256:string;requiresReconsent:boolean;publishedAt:string};
@@ -35,7 +37,7 @@ export function parseText(value:unknown):ConsentText{
 }
 export function parseState(value:unknown):ConsentState{
  const s=object(value,'Rıza durumu');
- if(typeof s.typeCode!=='string'||!code.test(s.typeCode)||!['INFORMATION','EXPLICIT_CONSENT'].includes(String(s.kind))||!(s.feature===null||s.feature==='PROFILE_PHOTO'||s.feature==='REQUEST_PHOTO')||typeof s.sortOrder!=='number'||!Number.isSafeInteger(s.sortOrder)||!['NONE','ACTIVE','OUTDATED','WITHDRAWN'].includes(String(s.state)))throw Error('Rıza durumu geçersiz.');
+ if(typeof s.typeCode!=='string'||!code.test(s.typeCode)||!['INFORMATION','EXPLICIT_CONSENT'].includes(String(s.kind))||!(s.feature===null||s.feature==='PROFILE_PHOTO'||s.feature==='REQUEST_PHOTO'||s.feature==='AI_ASSISTANT')||typeof s.sortOrder!=='number'||!Number.isSafeInteger(s.sortOrder)||!['NONE','ACTIVE','OUTDATED','WITHDRAWN'].includes(String(s.state)))throw Error('Rıza durumu geçersiz.');
  const approved=s.approvedVersion===null&&s.approvedAt===null||version(s.approvedVersion)&&date(s.approvedAt);
  const current=s.currentTextId===null&&s.currentVersion===null||id(s.currentTextId)&&version(s.currentVersion);
  const state=s.state as ServerState;

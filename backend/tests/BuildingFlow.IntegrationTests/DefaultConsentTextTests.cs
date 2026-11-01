@@ -15,8 +15,11 @@ public sealed class DefaultConsentTextTests(SiteApiTests.SiteApiFactory factory)
         {
             var texts = await db.ConsentTexts.AsNoTracking().ToListAsync();
             Assert.Equal(3, texts.Count);
-            var types = await db.ConsentTypes.AsNoTracking().Where(t => t.IsSystem).ToListAsync();
+            // AI_ASSISTANT ships disabled and without text until the KVKK review (AI Asistan FAZ 3 gate).
+            var types = await db.ConsentTypes.AsNoTracking().Where(t => t.IsSystem && t.Feature != ConsentFeature.AI_ASSISTANT).ToListAsync();
             Assert.All(types, type => Assert.Single(texts, x => x.ConsentTypeId == type.Id));
+            var assistant = await db.ConsentTypes.AsNoTracking().SingleAsync(t => t.Feature == ConsentFeature.AI_ASSISTANT);
+            Assert.False(assistant.IsEnabled); Assert.DoesNotContain(texts, x => x.ConsentTypeId == assistant.Id);
             foreach (var text in texts)
             {
                 Assert.Equal(1, text.TextVersion); Assert.True(text.RequiresReconsent);

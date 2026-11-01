@@ -2087,3 +2087,21 @@ Senaryolar (`AssistantOperationsTests`, güncellenen `AssistantApiTests`, `tests
 7. FE: kart `ref`/`label`, yeni bağlantı kalıpları ve red listesi, `SCORE`, durum boyutu sözlüğü, taslak okuyucu/gövde/sessionStorage tek kullanımlık aktarım, derin bağlantı parametre doğrulaması, backend araç listesi eşleşmesi.
 
 **Bu tur kanıt:** geçici PostgreSQL veritabanı/rolünde `AssistantApiTests` + `QaAiAssistantApiTests` + `AssistantOperationsTests` + regresyon (ErrorContract, MigrationTests, PersistenceTests, SupplierInsightTests, SupplierAdviceTests, SurveyApiTests) **64/64**; geçici DB/rol temizlendi. EF bekleyen model değişikliği yok. Web `npm test` **367/367**, `tsc --noEmit` PASS, `npm run build` PASS. Gerçek AkaAI, tam integration suite, tarayıcı E2E ve ekran görüntüsü bu turda çalıştırılmadı (ekran görüntüsü kararı açık).
+
+## AI ASİSTAN FAZ 3 — 01.11.2026 — Sakin asistanı (mobil), VARSAYILAN KAPALI — Teknik teslim
+
+Kapsam: `/api/v1/mobile/assistant` (status/prompts/chat), `RESIDENT_BALANCE/REQUESTS/NOTICES` araçları yalnız mevcut mobil servislerle, pasif `AI_ASSISTANT` rıza türü, `Assistant:Resident:Enabled=false`, ayrı günlük kota (10), mobil Asistan ekranı + ana sayfa girişi (MOBİL kaydı). Migration `AssistantResident`. Yeni paket yok. Belge gövdesi modele gitmez (sonraki faz).
+
+Senaryolar (`AssistantResidentTests`, güncellenen `DefaultConsentTextTests`, mobil `tests/assistant.test.mjs`):
+
+1. Varsayılan: rıza türü sistem/EXPLICIT/AI_ASSISTANT; bayrak kapalıyken status/prompts/chat 403 `BF_ASSISTANT_RESIDENT_DISABLED`; anonim 401; tür metinsiz ve pasif.
+2. Rıza: bayrak açık + rıza yok → 403 `BF_CONSENT_REQUIRED`; rıza sonrası 200, 6 sakin hazır sorusu; geri çekme sonrası chat/status anında 403.
+3. Kendi verisi: borç 320,00 / geciken 200,00 / ödenen 100,00 / sonraki son ödeme tarihi kendi kaydından; gizli kiracı (999) ve komşu bölüm (777) tutarları yok; kendi talebi sayılır, başka kullanıcının aynı bölümdeki talebi sayılmaz; taslak duyuru yok.
+4. PII: modele giden 3 yükte kişi adı/soyadı, telefon, e-posta, kimlik, bölüm numaraları, talep metni, banka açıklaması, Property adı/kimliği, kullanıcı kimliği yok; duyuru metnindeki telefon `[telefon]` olarak maskeli.
+5. IDOR/BOLA: başka bölüm, başka Property bölümü, sahip olunmayan rol 403; MANAGER rolü, boş bölüm, yönetici hazır sorusu, bilinmeyen alan 400; hiçbiri kota tüketmez.
+6. Injection/kota: model yönetici aracını (`OPEN_REQUESTS`) seçerse UNSUPPORTED; araçta olmayan sayı (777) → RULES + fallback; limit 2'de üçüncü 429; audit yalnız `RESIDENT_*`; yönetici kotası 0 kalır.
+7. Mobil: kapı (`ready/consent/hidden`), yalnız sakin araçları ve uygulama içi rotalar, sayısal kart değeri, OWNER/TENANT bağlamı, mesaj sınırı; rıza listesinde AI_ASSISTANT; fotoğraf temizliğinin (drop/release/held) asistan rızasına uygulanmaması; istemci yol izin listesi; gizli sekme rotası.
+
+**Bu tur kanıt:** geçici PostgreSQL'de asistan (FAZ 0–3) + rıza + mobil bildirim/senkron + migration/persistence/hata sözleşmesi + tedarikçi/anket regresyonu **114/114** (4 depolama testi ortam nedeniyle atlandı); geçici DB/rol temizlendi. Backend birim **477/477**. Web `npm test` **367/367**, typecheck/build PASS. Mobil `npm run check` **174/174** + typecheck + lint, `npm run build` iOS/Android/web export PASS. Lisans metadata **329 PASS**, yeni paket yok.
+
+**Notlar:** (a) Ana klasörde commit'lenmemiş `mobile/buildingflow-mobile/src/definitions/` (TNM 06) dosyaları olmadan commit'li mobil kod typecheck'ten geçmez; doğrulama için geçici kopyalandı, bu commit'e eklenmedi. (b) `MobileFinanceTests.ChargesAndAllocationsArePagedWithoutTruncatingTotals` bugün (ay başı) "Due date cannot precede the assessed month" ile kendi fixture'ında başarısız; dosyaya dokunulmadı, main'de ayrıca doğrulanmadı. Gerçek AkaAI, cihaz/native kabul, tarayıcı E2E ve ekran görüntüleri DOĞRULANAMADI.

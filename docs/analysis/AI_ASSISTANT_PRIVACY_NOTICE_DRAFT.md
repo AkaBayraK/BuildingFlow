@@ -49,10 +49,27 @@ records. If configured, the summary text is produced by the controller's authori
 deterministic rules. Who asked, when, in which area, with which tool and how long it took is recorded;
 **questions and answers are not stored or logged**. Managers must not type personal data into the question box.
 
+## Sakin (mobil) maddesi — FAZ 3 (TASLAK, açık rıza metni önerisi)
+
+> Bu metin `AI_ASSISTANT` rıza türü için önerilen **açık rıza** taslağıdır; rıza modülünde yayınlanmadı. Tür pasif gelir.
+
+**Yapay zekâ asistanı açık rıza metni**
+
+Mobil uygulamadaki asistan, yalnız sizin seçtiğiniz bağımsız bölüm için kendi borç ve ödeme özetinizi, kendi açtığınız taleplerin
+durumunu ve size yayınlanmış duyuruları kısa bir metinle özetler. Bu amaçla şu veriler işlenir: borç/ödeme tutarları ve tarihleri,
+talep kategorisi ve durumu, yayınlanmış duyuru başlık ve metni (telefon, e-posta, kimlik numarası ve IBAN otomatik maskelenir).
+Adınız, telefonunuz, daire numaranız, talep açıklamalarınız ve başka sakinlerin hiçbir verisi yapay zekâ hizmetine gönderilmez.
+Yazdığınız soru metni özet üretimi için iletilir; sorular ve cevaplar saklanmaz, yalnız ne zaman ve hangi araçla soru sorduğunuz
+kaydedilir. Özet, veri sorumlusunun yetkilendirdiği AkaAI hizmeti ile **[barındırma yeri / aktarım dayanağı doldurulacak]** veya
+yapay zekâ olmadan kural tabanlı olarak üretilir. Rızanızı istediğiniz zaman Hesabım > Rızalar bölümünden geri çekebilirsiniz;
+geri çektiğinizde asistan hemen kapanır, diğer uygulama işlevleri etkilenmez. Rıza vermemeniz hiçbir hizmeti engellemez.
+
 ## Yayın öncesi kontrol listesi
 
 - [ ] KVKK danışmanı görüşü
 - [ ] AkaAI barındırma yeri / aktarım dayanağı
 - [ ] Audit saklama süresi
 - [ ] Rıza/aydınlatma modülünde yeni metin sürümü (mevcut `consent_texts` akışı) — ayrı karar
-- [ ] Sakin tarafı (Faz 3) için ayrı rıza türü — bu fazda yok
+- [x] Sakin tarafı (Faz 3) için ayrı rıza türü — `AI_ASSISTANT`, pasif ve metinsiz eklendi
+- [ ] `AI_ASSISTANT` metninin rıza modülünde yayınlanması ve türün etkinleştirilmesi
+- [ ] `Assistant:Resident:Enabled=true` (yalnız yukarıdakilerden sonra)

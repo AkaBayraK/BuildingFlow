@@ -3,7 +3,7 @@ namespace BuildingFlow.Domain;
 // INFORMATION is an acknowledged notice (KVKK aydınlatma); EXPLICIT_CONSENT is freely given and can be withdrawn.
 public enum ConsentKind { INFORMATION, EXPLICIT_CONSENT }
 // A feature type gates a code path (photo upload); a free type is only offered to the user.
-public enum ConsentFeature { PROFILE_PHOTO, REQUEST_PHOTO }
+public enum ConsentFeature { PROFILE_PHOTO, REQUEST_PHOTO, AI_ASSISTANT }
 public enum ConsentChannel { MOBILE, WEB }
 public enum ConsentRevokeReason { WITHDRAWN, SUPERSEDED }
 

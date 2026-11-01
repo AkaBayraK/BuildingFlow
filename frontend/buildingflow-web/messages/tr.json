@@ -1,5 +1,9 @@
 {
   "assistant": {
+    "tool_RESIDENT_BALANCE": "Sakin: borç",
+    "tool_RESIDENT_REQUESTS": "Sakin: talepler",
+    "tool_RESIDENT_NOTICES": "Sakin: duyurular",
+    "category_RESIDENT": "Sakin (mobil)",
     "tool_REQUEST_BACKLOG": "Bekleyen talepler",
     "tool_SUPPLIER_WATCH": "Tedarikçi takibi",
     "tool_SURVEY_SUMMARY": "Anket özeti",
@@ -2515,6 +2519,7 @@
     "BF_ASSISTANT_QUESTION_INVALID": "Yönetim alanı ile bir hazır soru veya 1-500 karakterlik bir soru seçin.",
     "BF_ASSISTANT_PROMPT_INVALID": "Hazır soru kodu, kategori, araç, başlık, metin, sıra ve sürüm bilgilerini kontrol edin.",
     "BF_ASSISTANT_PROMPT_DUPLICATE": "Bu kodla bir hazır soru zaten var.",
+    "BF_ASSISTANT_RESIDENT_DISABLED": "Sakin asistanı bu ortamda henüz açılmadı.",
     "BF_QA_AI_PROMPT_INVALID": "Test isteği 1-1000 karakter olmalı ve kontrol karakteri içermemeli.",
     "BF_SMS_PHONE_NOT_VERIFIED": "Pazarlama SMS izni için önce telefon numaranızı doğrulayın.",
     "BF_PARKING_INVALID": "Otopark alanlarını kontrol edin: plaka 2–12 harf/rakam, geçerli tür, tarih aralığı ve en fazla izin verilen uzunluklar.",

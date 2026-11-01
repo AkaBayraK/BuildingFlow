@@ -22,7 +22,7 @@ internal sealed class ConsentTypeConfiguration : IEntityTypeConfiguration<Consen
         {
             t.HasCheckConstraint("chk_consent_types_code", "code ~ '^[A-Z][A-Z0-9_]{1,39}$'");
             t.HasCheckConstraint("chk_consent_types_kind", "kind IN ('INFORMATION','EXPLICIT_CONSENT')");
-            t.HasCheckConstraint("chk_consent_types_feature", "feature IS NULL OR (is_system AND feature IN ('PROFILE_PHOTO','REQUEST_PHOTO'))");
+            t.HasCheckConstraint("chk_consent_types_feature", "feature IS NULL OR (is_system AND feature IN ('PROFILE_PHOTO','REQUEST_PHOTO','AI_ASSISTANT'))");
             t.HasCheckConstraint("chk_consent_types_sort_order", "sort_order BETWEEN 0 AND 10000");
         });
     }

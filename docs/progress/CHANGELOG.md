@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 3 — 01.11.2026
+
+- Sakin asistanı API'si (`/api/v1/mobile/assistant`), üç sakin aracı, pasif `AI_ASSISTANT` rıza türü, kapalı bayrak, ayrı kota.
+- Mobil Asistan ekranı ve ana sayfa kartı; rıza akışına AI_ASSISTANT eklendi (fotoğraf temizliği uygulanmaz).
+- `AssistantResident` migration: 6 sakin hazır sorusu, kısıt güncellemeleri, pasif rıza türü.
+
 ## AI ASİSTAN FAZ 2 — 01.11.2026
 
 - Talep, tedarikçi ve anket araçları (takma ad + backend etiket çözümleme), duyuru taslağı uç noktası ve paneli, derin bağlantılar.

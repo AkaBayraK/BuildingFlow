@@ -13,6 +13,7 @@ const when=(value:string)=>new Date(value).toLocaleString('tr-TR',{dateStyle:'me
 export function withdrawEffect(entry:Effective){
  const f=entry.item.status.feature;
  return f==='PROFILE_PHOTO'?'Profil fotoğrafınız merkezden ve bu cihazdan kaldırılır. İsterseniz daha sonra yeniden rıza verip yeni fotoğraf ekleyebilirsiniz.'
+  :f==='AI_ASSISTANT'?'Yapay zekâ asistanı hemen kapanır; yeni soru soramazsınız. Asistan sorularınızı ve cevaplarını zaten saklamaz.'
   :f==='REQUEST_PHOTO'?'Gönderdiğiniz talep fotoğrafları size artık gösterilmez ve bu cihazdan silinir. Yönetim talebin takibi için fotoğrafları saklamaya devam edebilir. Yeni taleplere fotoğraf ekleyemezsiniz.'
   :'Bu rızaya bağlı işlemler durdurulur. Geri çekme önceki işlemleri geçersiz kılmaz.';
 }

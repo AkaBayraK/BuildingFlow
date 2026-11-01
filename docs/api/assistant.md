@@ -127,3 +127,26 @@ Talep tarafında alanda tanımlı bir SLA yoktur; uydurulmadı. Bekleme süresi 
 ### Derin bağlantılar
 
 Kaynak kartları: `/properties/{id}/requests?status=…`, `/properties/{id}/requests?request={uuid}` (detay paneli açılır), `/properties/{id}/surveys?survey={uuid}` (sonuç paneli açılır), `/suppliers?view=alerts` (tedarikçi Uyarılar görünümü; çalışma alanı seçimi yine kullanıcıdadır). FE okuyucusu yalnız bu kalıpları ve seçili Property'yi kabul eder.
+
+## FAZ 3 — Sakin asistanı (mobil) — VARSAYILAN KAPALI (01.11.2026)
+
+Analizdeki geçit (KVKK danışman görüşü, ayrı rıza türü, yayınlanmış aydınlatma metni) henüz sağlanmadığı için kod teslim edildi ama sakin tarafı **kapalı** gelir:
+
+- Bayrak `Assistant:Resident:Enabled` varsayılan `false`. Kapalıyken bütün sakin uçları 403 `BF_ASSISTANT_RESIDENT_DISABLED`; mobil ekran asistanı göstermez.
+- Rıza türü `AI_ASSISTANT` (`EXPLICIT_CONSENT`, sistem türü, feature `AI_ASSISTANT`) migration `AssistantResident` ile **pasif ve metinsiz** eklenir. Hiçbir metin yayınlanmadı. Açmak için: KVKK görüşü → yönetici türü etkinleştirir → mevcut rıza modülünden metin yayınlar → bayrak açılır. Rıza yoksa/geri çekilmişse/yeni metin yeniden onay istiyorsa her çağrı 403 `BF_CONSENT_REQUIRED`; mobil, mevcut rıza akışını (`ConsentSheet`) açar. Geri çekme bir sonraki çağrıda asistanı kapatır.
+
+### Uçlar (`/api/v1/mobile/assistant`, oturum açmış hesap; servis bayrak + rıza + bağlamı her çağrıda doğrular)
+
+- `GET /status` → `{enabled, mode, quota, tools, readOnly}`; `GET /prompts` → yalnız `RESIDENT_*` araçlı aktif hazır sorular (seed 6).
+- `POST /chat` `{propertyId, unitId, role: OWNER|TENANT, promptCode|message, locale}`; bilinmeyen alan 400. Bağlam önce mevcut `IMobileFinanceStore` ile doğrulanır: kişinin kendi oturum bağlamında olmayan bölüm, Property veya rol 403 ve **kota tüketmez**.
+- Kota ayrı: varsayılan 10/gün (`Assistant:Resident:DailyRequestLimit`, 1–100); audit `request_kind` `RESIDENT_PROMPT`/`RESIDENT_FREE`; yönetici kotası etkilenmez. Soru/cevap saklanmaz.
+
+### Araçlar (yalnız mevcut mobil servisler)
+
+| Araç | Kaynak | Modele giden |
+| --- | --- | --- |
+| `RESIDENT_BALANCE` | IMobileFinanceStore (charges + payments, sakin borç kapsamı) | kendi toplam/geciken/ödenen/tazminat tutarı, sonraki son ödeme tarihi ve tutarı, son 3 ödeme; Property/bölüm/kişi adı yok |
+| `RESIDENT_REQUESTS` | IMobileSyncStore.PullAsync (yalnız kendi açtığı talepler) | durum sayıları, son 5 talebin kategori + son güncellemeden bu yana gün (`R#`); talep metni ve yönetim cevabı yok |
+| `RESIDENT_NOTICES` | IMobileNoticeStore (yalnız yayınlanmış duyurular) + CommunicationService.Documents (yetkiliyse) | duyuru/okunmamış sayısı; son 5 duyuru için tarih ve **maskeli, 400 karakterle sınırlı** başlık+metin (`excerpt`, `N#`); belge için yalnız yayın tarihi (`B#`). **Belge gövdesi okunmaz/gönderilmez** (PDF metin çıkarma yok, yeni paket yok) — belge içeriği soru-cevabı sonraki faza bırakıldı. |
+
+Mobil sakin bağlamı olmayan hesaplarda `documentDate` kartı gelmeyebilir (CommunicationService üyelik ister). Kanonik yetki modelinde (`canonicalMode`) mobil istemci asistan yolunu açmaz; mevcut finans/duyuru yollarıyla aynı davranış.

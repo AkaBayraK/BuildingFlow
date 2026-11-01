@@ -296,7 +296,7 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                             t.HasCheckConstraint("chk_assistant_audit_entries_outcome", "outcome IN ('STARTED','ANSWERED','UNSUPPORTED','FAILED')");
 
-                            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT')");
+                            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT','RESIDENT_PROMPT','RESIDENT_FREE')");
                         });
                 });
 
@@ -394,11 +394,11 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.ToTable("assistant_prompts", null, t =>
                         {
-                            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION')");
+                            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION','RESIDENT')");
 
                             t.HasCheckConstraint("chk_assistant_prompts_sort_order", "sort_order BETWEEN 0 AND 999");
 
-                            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY')");
+                            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY','RESIDENT_BALANCE','RESIDENT_REQUESTS','RESIDENT_NOTICES')");
                         });
 
                     b.HasData(
@@ -780,6 +780,120 @@ namespace BuildingFlow.Infrastructure.Migrations
                             TitleEn = "Survey participation",
                             TitleTr = "Anket katılımı",
                             ToolKey = "SURVEY_SUMMARY",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000021"),
+                            Category = "RESIDENT",
+                            Code = "MY_BALANCE",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 210,
+                            TextEn = "What is my total balance and overdue amount for this unit?",
+                            TextTr = "Bu bölüm için toplam borcum ve geciken tutarım ne kadar?",
+                            TitleEn = "What do I owe?",
+                            TitleTr = "Borcum ne kadar?",
+                            ToolKey = "RESIDENT_BALANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000022"),
+                            Category = "RESIDENT",
+                            Code = "MY_NEXT_DUE",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 220,
+                            TextEn = "When is my next payment due and how much is it?",
+                            TextTr = "Bir sonraki ödemem ne zaman ve ne kadar?",
+                            TitleEn = "My next due date",
+                            TitleTr = "Son ödeme tarihim",
+                            ToolKey = "RESIDENT_BALANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000023"),
+                            Category = "RESIDENT",
+                            Code = "MY_PAYMENTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 230,
+                            TextEn = "What were my recent payments?",
+                            TextTr = "Son ödemelerim nelerdi?",
+                            TitleEn = "My recent payments",
+                            TitleTr = "Son ödemelerim",
+                            ToolKey = "RESIDENT_BALANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000024"),
+                            Category = "RESIDENT",
+                            Code = "MY_REQUESTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 240,
+                            TextEn = "What is the status of my requests?",
+                            TextTr = "Taleplerimin durumu nedir?",
+                            TitleEn = "My requests",
+                            TitleTr = "Taleplerim",
+                            ToolKey = "RESIDENT_REQUESTS",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000025"),
+                            Category = "RESIDENT",
+                            Code = "MY_ANNOUNCEMENTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 250,
+                            TextEn = "What do the latest announcements say?",
+                            TextTr = "Son duyurularda ne var?",
+                            TitleEn = "Latest announcements",
+                            TitleTr = "Son duyurular",
+                            ToolKey = "RESIDENT_NOTICES",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000026"),
+                            Category = "RESIDENT",
+                            Code = "MY_UNREAD",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 260,
+                            TextEn = "How many unread announcements do I have?",
+                            TextTr = "Kaç okunmamış duyurum var?",
+                            TitleEn = "Unread announcements",
+                            TitleTr = "Okunmamış duyurular",
+                            ToolKey = "RESIDENT_NOTICES",
                             Version = 1L
                         });
                 });
@@ -2106,7 +2220,7 @@ namespace BuildingFlow.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("chk_consent_types_code", "code ~ '^[A-Z][A-Z0-9_]{1,39}$'");
 
-                            t.HasCheckConstraint("chk_consent_types_feature", "feature IS NULL OR (is_system AND feature IN ('PROFILE_PHOTO','REQUEST_PHOTO'))");
+                            t.HasCheckConstraint("chk_consent_types_feature", "feature IS NULL OR (is_system AND feature IN ('PROFILE_PHOTO','REQUEST_PHOTO','AI_ASSISTANT'))");
 
                             t.HasCheckConstraint("chk_consent_types_kind", "kind IN ('INFORMATION','EXPLICIT_CONSENT')");
 

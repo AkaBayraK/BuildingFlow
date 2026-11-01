@@ -2,8 +2,10 @@
 export const assistantPath="/api/v1/assistant";
 export const assistantRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"] as const;
 export const assistantAdminRoles=["SUPER_ADMIN","SITE_ADMIN"] as const;
-export const assistantTools=["DAILY_SUMMARY","DUES_COLLECTION","BUDGET_VARIANCE","UPCOMING_MAINTENANCE","OPEN_REQUESTS","REQUEST_BACKLOG","SUPPLIER_WATCH","SURVEY_SUMMARY"] as const;
-export const assistantCategories=["OVERVIEW","FINANCE","OPERATIONS","REQUESTS","COMMUNICATION"] as const;
+export const assistantTools=["DAILY_SUMMARY","DUES_COLLECTION","BUDGET_VARIANCE","UPCOMING_MAINTENANCE","OPEN_REQUESTS","REQUEST_BACKLOG","SUPPLIER_WATCH","SURVEY_SUMMARY","RESIDENT_BALANCE","RESIDENT_REQUESTS","RESIDENT_NOTICES"] as const;
+// Resident tools only run in the mobile assistant; the web reads them to administer their ready questions.
+export const residentTools=["RESIDENT_BALANCE","RESIDENT_REQUESTS","RESIDENT_NOTICES"] as const;
+export const assistantCategories=["OVERVIEW","FINANCE","OPERATIONS","REQUESTS","COMMUNICATION","RESIDENT"] as const;
 export const assistantFactKinds=["MONEY","COUNT","PERCENT","DATE","DAYS","SCORE"] as const;
 export const announcementCategories=["GENERAL","MEETING","DUES","MAINTENANCE","URGENT","OTHER"] as const;
 export const assistantNoteLimit=1000;

@@ -81,6 +81,10 @@ internal static class AssistantEndpoints
         services.AddHttpClient(AkaAiAssistantModel.ClientName, client => client.Timeout = TimeSpan.FromSeconds(150))
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false });
         services.AddScoped<AssistantService>();
+        // The resident assistant stays off until the KVKK review, consent type and notice text are in place (FAZ 3 gate).
+        services.AddSingleton(new ResidentAssistantSettings(configuration.GetValue("Assistant:Resident:Enabled", false),
+            Math.Clamp(configuration.GetValue("Assistant:Resident:DailyRequestLimit", ResidentAssistantSettings.DefaultLimit), 1, 100)));
+        services.AddScoped<ResidentAssistantService>();
         return services;
     }
 
@@ -98,6 +102,15 @@ internal static class AssistantEndpoints
         root.MapPost("/announcement-draft", async (AssistantDraftRequest request, AssistantService service, HttpResponse response, CancellationToken token) =>
         {
             try { return NoStore(response, await service.DraftAnnouncement(request, token) is { } draft ? Results.Ok(draft) : Results.NotFound()); }
+            catch (AssistantBudgetException) { return Budget(); }
+        });
+        // Residents: any signed-in account; the service checks the flag, consent and the caller's own unit context on every call.
+        var resident = app.MapGroup("/api/v1/mobile/assistant").RequireAuthorization().WithTags("Mobile assistant");
+        resident.MapGet("/status", async (ResidentAssistantService service, HttpResponse response, CancellationToken token) => NoStore(response, Results.Ok(await service.Status(token))));
+        resident.MapGet("/prompts", async (ResidentAssistantService service, CancellationToken token) => Results.Ok(await service.Prompts(token)));
+        resident.MapPost("/chat", async (ResidentChatRequest request, ResidentAssistantService service, HttpResponse response, CancellationToken token) =>
+        {
+            try { return NoStore(response, Results.Ok(await service.Chat(request, token))); }
             catch (AssistantBudgetException) { return Budget(); }
         });
         var admin = app.MapGroup("/api/v1/assistant/admin/prompts").RequireAuthorization("CanManageAssistantPrompts").WithTags("Assistant");

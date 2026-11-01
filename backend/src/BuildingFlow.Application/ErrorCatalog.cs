@@ -273,6 +273,7 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition AssistantBudget = new("BF_ASSISTANT_BUDGET", "Bugünkü AI asistan kullanım sınırına ulaştınız. Yarın tekrar deneyebilirsiniz.", "warning");
     public static readonly ErrorDefinition AssistantQuestionInvalid = new("BF_ASSISTANT_QUESTION_INVALID", "Yönetim alanı ile bir hazır soru veya 1-500 karakterlik bir soru seçin.", "error");
     public static readonly ErrorDefinition AssistantPromptInvalid = new("BF_ASSISTANT_PROMPT_INVALID", "Hazır soru kodu, kategori, araç, başlık, metin, sıra ve sürüm bilgilerini kontrol edin.", "error");
+    public static readonly ErrorDefinition AssistantResidentDisabled = new("BF_ASSISTANT_RESIDENT_DISABLED", "Sakin asistanı bu ortamda henüz açılmadı.", "warning");
     public static readonly ErrorDefinition AssistantPromptDuplicate = new("BF_ASSISTANT_PROMPT_DUPLICATE", "Bu kodla bir hazır soru zaten var.", "warning");
     public static readonly ErrorDefinition QaAiPromptInvalid = new("BF_QA_AI_PROMPT_INVALID", "Test isteği 1-1000 karakter olmalı ve kontrol karakteri içermemeli.", "error");
     public static readonly ErrorDefinition QaDataProtected = new("BF_QA_DATA_PROTECTED", "Demo verisi korunur; temizlenemez.", "warning");
@@ -341,7 +342,7 @@ public static class ErrorCatalog
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
         DefinitionInvalid, DefinitionLocked, DefinitionUnavailable, DefinitionDuplicate,
-        AssistantBudget, AssistantQuestionInvalid, AssistantPromptInvalid, AssistantPromptDuplicate,
+        AssistantBudget, AssistantQuestionInvalid, AssistantPromptInvalid, AssistantPromptDuplicate, AssistantResidentDisabled,
         SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierInvoiceDuplicate, SupplierInvoiceState, SupplierInvoiceLinked, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,

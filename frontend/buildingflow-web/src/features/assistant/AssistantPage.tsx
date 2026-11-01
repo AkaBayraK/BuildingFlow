@@ -94,7 +94,7 @@ function AssistantContent(){
     <aside className="order-1 min-w-0 space-y-3 rounded-2xl border bg-card p-4 lg:order-2" aria-labelledby="assistant-prompts-title">
      <h2 id="assistant-prompts-title" className="font-semibold">{t("promptsTitle")}</h2>
      <FilterChips label={t("categoryFilter")} value={category} onChange={value=>setCategory(value as "ALL"|AssistantCategory)} disabled={!prompts}
-      items={[{value:"ALL",label:t("categoryAll"),icon:assistantCategoryAll},...assistantCategories.map(c=>({value:c,label:t(`category_${c}`),icon:assistantCategoryStyle[c].icon,tone:assistantCategoryStyle[c].tone}))]}/>
+      items={[{value:"ALL",label:t("categoryAll"),icon:assistantCategoryAll},...assistantCategories.filter(c=>c!=="RESIDENT").map(c=>({value:c,label:t(`category_${c}`),icon:assistantCategoryStyle[c].icon,tone:assistantCategoryStyle[c].tone}))]}/>
      {!prompts?<div className="space-y-2" aria-busy="true" aria-label={ui("loading")}>{Array.from({length:5},(_,i)=><Skeleton key={i} className="h-11 rounded-lg"/>)}</div>
      :visible.length===0?<p className="text-sm text-muted-foreground">{t("promptsEmpty")}</p>
      :<ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">{visible.map(p=>{const style=assistantToolStyle[p.toolKey];return <li key={p.id}>

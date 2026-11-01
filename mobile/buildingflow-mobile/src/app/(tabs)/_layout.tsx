@@ -24,6 +24,7 @@ export default function TabLayout() {
     <Tabs.Screen name="requests" options={{ href: linked ? undefined : null, title: 'Talepler', tabBarIcon: icon('construct-outline') }} />
     <Tabs.Screen name="parking" options={{href:null,title:"Araçlar / Otopark"}} />
     <Tabs.Screen name="supplier-work" options={{href:null,title:"Tedarikçi işleri"}} />
+    <Tabs.Screen name="assistant" options={{href:null,title:"Asistan"}} />
     <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: icon('person-outline') }} />
   </Tabs>;
 }

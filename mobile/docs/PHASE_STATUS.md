@@ -12,3 +12,6 @@
 
 ## TNM 06 — 30.10.2026 (ayrı Tanımlar akışı)
 Mobil talep seçenekleri exact sunucu bağlamından okunur; mevcut şifreli kopya ve taslak kapsamı korunur. Check174/174+lint/typecheck ve iOS/Android/web export başarılı. Gerçek native kabulü yapılmadı. Mobil15faz numaralandırması değişmedi; ayrıntı ../../docs/TESTING.md TNM06.
+
+## MOBİL — AI Asistan (sakin) — 01.11.2026 — Teknik teslim, VARSAYILAN KAPALI (mobil 15 faz sayacına eklenmez)
+Ana sayfada OWNER/TENANT bağlamında sunucu izin verirse "Asistan" kartı; gizli `assistant` sekme rotasında hazır sorular, kısa özet ve uygulama içi kaynak kartları. Sunucu bayrağı kapalıyken kart görünmez; rıza yoksa mevcut ConsentSheet ile `AI_ASSISTANT` rızası istenir. Yeni paket yok. `npm run check` 174/174 + typecheck/lint, `npm run build` iOS/Android/web export geçti. Cihaz kabulü yapılmadı. Ayrıntı ../../docs/api/assistant.md (FAZ 3) ve ../../docs/TESTING.md.

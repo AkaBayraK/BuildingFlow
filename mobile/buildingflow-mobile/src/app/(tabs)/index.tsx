@@ -5,13 +5,14 @@ import { Link } from 'expo-router';
 import { Icon, Screen, styles } from '../../components/Screen';
 import { useAuth } from '../../auth/AuthProvider';
 import {OwnerPanel} from '../../components/OwnerPanel';
+import {AssistantEntry} from '../../components/AssistantScreen';
 import { roleLabels } from '../../auth/contracts';
 import { PersonCodeCard } from '../../components/PersonCodeCard';
 export default function Home() {
   const { selected, session } = useAuth();
   if(session&&session.contexts.length===0)return <Screen title="Ana sayfa" home><View style={styles.emptyCard}><Icon name="person-circle-outline" size={36}/><Text style={styles.cardTitle}>Hesabın hazır</Text><Text style={styles.emptyDescription}>Şimdilik yalnız hesap bilgilerini görebilir ve güncelleyebilirsin. Kişi kodunu girince ev bilgilerin, ödemeler, duyurular ve talepler açılır.</Text></View><PersonCodeCard linked={false}/></Screen>;
   if(selected&&managerRoles.includes(selected.role))return <ManagerScreen section="overview"/>;
-  if(selected&&['OWNER','TENANT'].includes(selected.role))return <Screen title="Ana sayfa" home><OwnerPanel key={selected.propertyId+selected.unitId+selected.role+session?.userId}/></Screen>;
+  if(selected&&['OWNER','TENANT'].includes(selected.role))return <Screen title="Ana sayfa" home><OwnerPanel key={selected.propertyId+selected.unitId+selected.role+session?.userId}/><AssistantEntry key={'assistant'+selected.propertyId+selected.unitId+selected.role}/></Screen>;
   return <Screen title="Ana sayfa" home>
     <View style={s.propertyCard}>
       <View style={s.propertyVisual} accessible={false} aria-hidden={true}><View style={s.visualCircle} /><Icon name="business-outline" size={94} color="#adcddd" /><View style={s.visualLine} /><View style={s.visualLabel}><Icon name="home-outline" color="#d7eaf4" size={17} /><Text style={s.visualLabelText}>Bina yaşamın, tek yerde.</Text></View></View>

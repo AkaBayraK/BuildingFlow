@@ -75,7 +75,7 @@ test('every tool, category, fact key and error code has an icon and TR/EN text',
  for(const category of assistantCategories)assert.ok(assistantCategoryStyle[category].icon);
  for(const kind of assistantFactKinds)assert.ok(assistantKindIcon[kind]);
  const constants=Object.fromEntries([...backend.matchAll(/(\w+) = "([A-Z_]+)"/g)].map(m=>[m[1],m[2]]));
- const all=backend.match(/IReadOnlyList<string> All = \[([^\]]+)\]/)[1].split(',').map(name=>constants[name.trim()]);
+ const all=backend.match(/IReadOnlyList<string> All = \[([^\]]+)\]/)[1].split(',').map(name=>constants[name.trim()]).concat(['RESIDENT_BALANCE','RESIDENT_REQUESTS','RESIDENT_NOTICES']);
  assert.deepEqual(all,[...assistantTools]);
  assert.equal(errorCodes.BF_ASSISTANT_BUDGET.status,429);assert.equal(errorCodes.BF_ASSISTANT_PROMPT_DUPLICATE.status,409);
 });

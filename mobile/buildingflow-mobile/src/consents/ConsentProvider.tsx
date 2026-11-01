@@ -14,7 +14,7 @@ type Value={items:store.Effective[];loaded:boolean;busy:boolean;message:string;c
  refresh:()=>Promise<store.Effective[]>;flush:()=>Promise<void>;decide:(entry:store.Effective,action:Action)=>Promise<void>;
  retry:(operationId:string)=>Promise<void>;discard:(operationId:string)=>Promise<void>};
 const Context=createContext<Value|null>(null);
-const noHeld:Held={PROFILE_PHOTO:0,REQUEST_PHOTO:0};
+const noHeld:Held={PROFILE_PHOTO:0,REQUEST_PHOTO:0,AI_ASSISTANT:0};
 const appVersion=()=>{const v=Constants.expoConfig?.version;return typeof v==='string'&&v.length<=40?v:null;};
 // İŞ18: one place that keeps consent texts, queued decisions and the launch gate for the signed-in account.
 export function ConsentProvider({children}:{children:ReactNode}){
@@ -30,7 +30,7 @@ export function ConsentProvider({children}:{children:ReactNode}){
  // Reads the encrypted local copy; the browser preview keeps consent data only in memory.
  const load=useCallback(async(id:string)=>{
   if(web)return;
-  const value=await ref.current.profileCache(async db=>({cached:await store.cachedList(db,id),jobs:await store.jobs(db,id),seen:await store.seen(db,id),held:{PROFILE_PHOTO:await store.heldCount(db,id,'PROFILE_PHOTO'),REQUEST_PHOTO:await store.heldCount(db,id,'REQUEST_PHOTO')}}));
+  const value=await ref.current.profileCache(async db=>({cached:await store.cachedList(db,id),jobs:await store.jobs(db,id),seen:await store.seen(db,id),held:{PROFILE_PHOTO:await store.heldCount(db,id,'PROFILE_PHOTO'),REQUEST_PHOTO:await store.heldCount(db,id,'REQUEST_PHOTO'),AI_ASSISTANT:0}}));
   if(owner.current!==id)return null;
   setList(value.cached?.list??null);setCheckedAt(value.cached?.checkedAt??null);setQueue(value.jobs);setSeen(value.seen);setHeld(value.held);setLoaded(true);
   return store.effective(value.cached?.list??null,value.jobs);

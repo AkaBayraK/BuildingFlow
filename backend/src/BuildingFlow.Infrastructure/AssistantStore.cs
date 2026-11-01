@@ -28,7 +28,13 @@ internal sealed class AssistantPromptConfiguration : IEntityTypeConfiguration<As
         ("EXPIRING_CONTRACTS", "OPERATIONS", AssistantTools.SupplierWatch, "Biten sözleşmeler", "Expiring contracts", "Süresi dolmak üzere olan tedarikçi sözleşmeleri hangileri?", "Which supplier contracts are about to expire?"),
         ("PENDING_INVOICES", "FINANCE", AssistantTools.SupplierWatch, "Bekleyen faturalar", "Pending invoices", "Ödeme veya onay bekleyen tedarikçi faturaları ne durumda?", "What supplier invoices are waiting for approval or payment?"),
         ("SURVEY_RESULTS", "COMMUNICATION", AssistantTools.SurveySummary, "Anket sonuçları", "Survey results", "Son anketin sonuçlarını özetle.", "Summarise the latest survey's results."),
-        ("SURVEY_PARTICIPATION", "COMMUNICATION", AssistantTools.SurveySummary, "Anket katılımı", "Survey participation", "Son ankete katılım oranı nedir?", "What was the participation rate of the latest survey?")
+        ("SURVEY_PARTICIPATION", "COMMUNICATION", AssistantTools.SurveySummary, "Anket katılımı", "Survey participation", "Son ankete katılım oranı nedir?", "What was the participation rate of the latest survey?"),
+        ("MY_BALANCE", "RESIDENT", ResidentAssistantTools.Balance, "Borcum ne kadar?", "What do I owe?", "Bu bölüm için toplam borcum ve geciken tutarım ne kadar?", "What is my total balance and overdue amount for this unit?"),
+        ("MY_NEXT_DUE", "RESIDENT", ResidentAssistantTools.Balance, "Son ödeme tarihim", "My next due date", "Bir sonraki ödemem ne zaman ve ne kadar?", "When is my next payment due and how much is it?"),
+        ("MY_PAYMENTS", "RESIDENT", ResidentAssistantTools.Balance, "Son ödemelerim", "My recent payments", "Son ödemelerim nelerdi?", "What were my recent payments?"),
+        ("MY_REQUESTS", "RESIDENT", ResidentAssistantTools.Requests, "Taleplerim", "My requests", "Taleplerimin durumu nedir?", "What is the status of my requests?"),
+        ("MY_ANNOUNCEMENTS", "RESIDENT", ResidentAssistantTools.Notices, "Son duyurular", "Latest announcements", "Son duyurularda ne var?", "What do the latest announcements say?"),
+        ("MY_UNREAD", "RESIDENT", ResidentAssistantTools.Notices, "Okunmamış duyurular", "Unread announcements", "Kaç okunmamış duyurum var?", "How many unread announcements do I have?")
     ];
 
     public void Configure(EntityTypeBuilder<AssistantPrompt> b)
@@ -46,8 +52,8 @@ internal sealed class AssistantPromptConfiguration : IEntityTypeConfiguration<As
         b.ToTable(t =>
         {
             t.HasCheckConstraint("chk_assistant_prompts_sort_order", $"sort_order BETWEEN 0 AND {AssistantPrompt.MaxSortOrder}");
-            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION')");
-            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY')");
+            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS','COMMUNICATION','RESIDENT')");
+            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS','REQUEST_BACKLOG','SUPPLIER_WATCH','SURVEY_SUMMARY','RESIDENT_BALANCE','RESIDENT_REQUESTS','RESIDENT_NOTICES')");
         });
         var at = new DateTimeOffset(2026, 11, 1, 0, 0, 0, TimeSpan.Zero);
         b.HasData(Seed.Select((p, i) => new
@@ -77,7 +83,7 @@ internal sealed class AssistantAuditEntryConfiguration : IEntityTypeConfiguratio
         b.HasIndex(x => x.PropertyId).HasDatabaseName("idx_assistant_audit_entries_property_id");
         b.ToTable(t =>
         {
-            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT')");
+            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT','DRAFT','RESIDENT_PROMPT','RESIDENT_FREE')");
             t.HasCheckConstraint("chk_assistant_audit_entries_outcome", "outcome IN ('STARTED','ANSWERED','UNSUPPORTED','FAILED')");
             t.HasCheckConstraint("chk_assistant_audit_entries_duration", "duration_ms IS NULL OR duration_ms >= 0");
         });
@@ -147,12 +153,12 @@ public sealed class AssistantStore(BuildingFlowDbContext db, ILogger<AssistantSt
         return true;
     }
 
-    public async Task<Guid?> Reserve(string userId, Guid property, DateOnly day, int limit, string kind, string? promptCode, CancellationToken token)
+    public async Task<Guid?> Reserve(string userId, Guid property, DateOnly day, int limit, string kind, string? promptCode, IReadOnlyCollection<string> counted, CancellationToken token)
     {
         await using var tx = await db.Database.BeginTransactionAsync(token);
         // One counter per user and day: concurrent calls cannot both pass the last free slot.
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({"assistant-quota:" + userId}, 0))", token);
-        if (await db.Set<AssistantAuditEntry>().CountAsync(a => a.UserId == userId && a.BusinessDay == day, token) >= limit) return null;
+        if (await db.Set<AssistantAuditEntry>().CountAsync(a => a.UserId == userId && a.BusinessDay == day && counted.Contains(a.RequestKind), token) >= limit) return null;
         var entry = new AssistantAuditEntry(userId, property, day, kind, promptCode);
         db.Add(entry);
         await db.SaveChangesAsync(token); await tx.CommitAsync(token);
@@ -167,8 +173,8 @@ public sealed class AssistantStore(BuildingFlowDbContext db, ILogger<AssistantSt
         logger.LogInformation("BuildingFlow.Assistant call {Tool} {Source} {Outcome} {DurationMs}", tool ?? "-", source ?? "-", outcome, durationMs);
     }
 
-    public Task<int> Used(string userId, DateOnly day, CancellationToken token) =>
-        db.Set<AssistantAuditEntry>().CountAsync(a => a.UserId == userId && a.BusinessDay == day, token);
+    public Task<int> Used(string userId, DateOnly day, IReadOnlyCollection<string> counted, CancellationToken token) =>
+        db.Set<AssistantAuditEntry>().CountAsync(a => a.UserId == userId && a.BusinessDay == day && counted.Contains(a.RequestKind), token);
 
     private Task Lock(CancellationToken token) => db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtext({"assistant_prompts"}))", token);
 
@@ -204,4 +210,10 @@ public sealed class AssistantSupplierSource(BuildingFlowDbContext db, SupplierSt
         }
         return new(workspaces, items, truncated);
     }
+}
+
+// Resident assistant gate: the same ACTIVE rule as the photo features (enabled type, unrevoked, no newer text that asks for re-consent).
+public sealed class AssistantConsent(BuildingFlowDbContext db) : IAssistantConsent
+{
+    public Task<bool> Active(string user, CancellationToken token) => ConsentGate.ActiveAsync(db, user, ConsentFeature.AI_ASSISTANT, token);
 }
