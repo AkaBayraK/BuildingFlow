@@ -13,7 +13,7 @@ Her endpoint `/api/v1/properties/{propertyId}` altındadır; JWT realm rolü+akt
 |GET|`/meters/{meterId}/readings`|Yeni tarih önce; sayfalama ve revizyon geçmişi|
 |POST|`/meters/{meterId}/readings`|Yeni tarih,endeks,gerekçe; version=0|
 |PUT|`/meters/{meterId}/readings/{readingId}`|Aynı tarih için gerekçeli düzeltme; güncel version|
-|GET|`/reports?period=YYYY-MM`|Tek alanın doğrulanmış aylık özeti|
+|GET|`/reports?period=YYYY-MM` veya `period=YYYY`|Tek alanın doğrulanmış aylık veya takvim yılı özeti|
 
 Yazım sonucu200; aynı UUID/normalize içerik200 ve replayed=true. Farklı içerik veya sayaç/tarih/name tekilliği409. Liste sayfalama400, anonim401, rol403, erişilemeyen alan/kayıt404; HTTP semantiği korunur. Hatalar ErrorCatalog BF_METER_*/BF_READING_* ve mevcut ortak kodlarla TR/EN toast'a gider; ham exception render edilmez.
 
@@ -36,6 +36,10 @@ YYYY-MM2000–9998. Tek RepeatableRead snapshot; fan-out join ile parasal toplam
 - consumption: endeks farkı **sonraki okumanın ayına** atanır; LAG önceki ay baseline'ını da kullanır. BaselineCount bilinmeyen tüketimler; ReadingCount dahil fakat toplam dışında. Üç ölçü türü ayrı, birimler toplanmaz. Düzeltilmiş güncel endeksler kullanılır; aylık proration/tarife değildir.
 
 Para string iki ondalık, tüketim string üç ondalık; FE sayıları BigInt/ortak formatter ile gösterir. Boş veri0; bilinmeyen baseline ayrı belirtilir. CSV/PDF export, banka mutabakatı ve otomatik sayaç faturası bu teslimde yoktur.
+
+### Yıllık rapor, aylık döküm ve gider kategorileri (01.11.2026)
+
+`period=YYYY` (2000–9998) aynı tek RepeatableRead okumasını takvim yılına uygular: tahakkuk/kalan borç yılın dönemleri, tahsilat `paidDate`, gider `occurredDate` yıl içinde; doluluk yıl sonu gününe göre; tüketim yıl içindeki okumalar. `period` yanıtta YYYY'dir. Ek alanlar eski istemciler için geriye uyumludur: `expenseCategories` her raporda sekiz ExpenseCategory'yi sabit sırada iptal edilmemiş gider toplamıyla verir (toplam=`expensesAmount`); `months` yalnız yıllık raporda 12 aylık `{period, assessedAmount, outstandingAmount, receiptsAmount, expensesAmount}` dökümüdür, aylık raporda `null`. Aylar toplamı yıl toplamına eşittir; web bunu ve kategori toplamını doğrular. Web'de aynı finans raporu Raporlar ekranında ve Aidat/Borçlar > Rapor sekmesinde Bu Ay / Önceki Ay / Bu Yıl / ay seç / yıl seç dönemleriyle, net (tahsilat − gider), CSV ve yazdırma ile gösterilir; sekmede gecikme tazminatı raporu altta kalır.
 
 ### Rapor ekranındaki toplam ve gider ayrımı (11.10.2026)
 

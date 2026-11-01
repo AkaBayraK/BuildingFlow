@@ -2044,3 +2044,9 @@ Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. T
 Gelir/gider grafiğine Son 6 Ay / Son 3 Ay yanında **Bu Yıl** (Ocak'tan bu aya) eklendi; API `trend` 6 yerine 12 ay döner. Aidat Tahsilat Durumu'na Bu Ay / Önceki Ay yanında **Bu Yıl** eklendi; API yeni `collectionYear` alanı Ocak–bu ay tahakkuk kohortunu toplar. Migration, paket, izin veya kişi verisi eklenmedi.
 
 **Bu tur doğrulama:** `DashboardApiTests` ayrı gerçek PostgreSQL test veritabanında **7/7** (12 aylık trend, Ocak dahil, boş yıl kohortu, iki aylık yıl toplamı/Ocak sınırı). Web `npm test` **357/357**, `tsc --noEmit` PASS; yıl alanı için dönem, tutarsız toplam ve eski API testleri eklendi. `npm run build` çalışan dev sunucusuyla çakışmaması için bu turda çalıştırılmadı.
+
+## BAKIM — 01.11.2026 — Dönem seçimli finans raporu — TAMAMLANDI
+
+Kullanıcı Aidat/Borçlar > Rapor sekmesinin yalnız gecikme tazminatı gösterdiğini, yıllık/aylık/geçmiş ay için tahakkuk, tahsilat ve gider raporu gerektiğini bildirdi. `/reports` artık `period=YYYY` kabul eder; yanıta `expenseCategories` ve yıllıkta `months` eklendi. Ortak `FinanceReport` bileşeni Raporlar ekranında ve Aidat/Borçlar > Rapor sekmesinde dönem çipleri (Bu Ay, Önceki Ay, Bu Yıl, ay seç, yıl seç), beş özet kart (tahakkuk, tahsilat, kalan borç, gider, net), aylık döküm, gider kategorileri, CSV ve yazdırma sunar. Migration, paket, izin veya kişi verisi eklenmedi.
+
+**Bu tur doğrulama:** `ReportApiTests` + `DashboardApiTests` ayrı gerçek PostgreSQL test veritabanında **13/13** (yıllık toplam, Eylül/Ekim aylık satırları, kategori toplamı, iptal edilen gider hariç, boş yıl, `1999`/`9999`/`26`/`2026-1` 400). Web `npm test` **358/358**, `tsc --noEmit` PASS; yıllık döküm/kategori tutarlılığı, eski API, hızlı dönemler ve net hesaplama testleri eklendi. `npm run build` çalışan dev sunucusuyla çakışmaması için çalıştırılmadı; giriş gerektirdiği için ekran kontrolü yapılmadı.

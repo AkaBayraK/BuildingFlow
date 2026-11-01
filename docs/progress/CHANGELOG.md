@@ -1,3 +1,8 @@
+## BAKIM — 01.11.2026 — Dönem seçimli finans raporu
+
+- Rapor API'si yıllık dönem, aylık döküm ve gider kategorileri; Raporlar ekranı ve Aidat/Borçlar > Rapor sekmesinde ortak finans raporu (Bu Ay/Önceki Ay/Bu Yıl/ay/yıl, CSV, yazdır).
+- ReportApiTests+DashboardApiTests 13/13, web 358/358, typecheck PASS; yeni paket/şema yok.
+
 ## BAKIM — 01.11.2026 — Dashboard Bu Yıl seçenekleri
 
 - Gelir/gider grafiği ve Aidat Tahsilat Durumu kartına Bu Yıl seçeneği; API trend 12 ay, yeni `collectionYear` alanı.

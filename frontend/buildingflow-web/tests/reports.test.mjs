@@ -18,3 +18,17 @@ test('physical totals preserve distinct kinds, unknown baselines and independent
  assert.equal(result.expensesAmount,'12.35');
  assert.equal(formatConsumption(result.consumption[1].consumption,'tr'),'1.000.000.000,001');
 });
+test('yearly report: twelve months that add up, category totals, quick periods',async()=>{
+ const {resolvePeriod,validPeriod,subtractMoney}=await import('../src/features/reports/model.ts');
+ const months=Array.from({length:12},(_,i)=>({period:`2026-${String(i+1).padStart(2,'0')}`,assessedAmount:i===8?'100.00':'0.00',outstandingAmount:i===8?'75.00':'0.00',receiptsAmount:i===9?'25.00':'0.00',expensesAmount:i===8?'12.35':'0.00'}));
+ const categories=['MAINTENANCE','CLEANING','STAFF','ENERGY','SECURITY','INSURANCE','ADMINISTRATION','OTHER'].map(category=>({category,amount:category==='ENERGY'?'12.35':'0.00'}));
+ const year={...report,period:'2026',receiptsAmount:'25.00',months,expenseCategories:categories};
+ assert.equal(readReport(year,propertyId,'2026').months.length,12);
+ assert.equal(readReport({...report,expenseCategories:categories},propertyId,'2026-09').expenseCategories.length,8);
+ assert.equal(readReport({...report,period:'2026'},propertyId,'2026').months,undefined,'older API without the breakdown');
+ for(const bad of [{...year,months:months.slice(1)},{...year,months:months.map((m,i)=>i===0?{...m,receiptsAmount:'1.00'}:m)},{...year,months:months.toReversed()},{...year,expenseCategories:categories.slice(1)},{...year,expenseCategories:categories.map(c=>({...c,amount:'1.00'}))}])assert.throws(()=>readReport(bad,propertyId,'2026'));
+ assert.throws(()=>readReport({...report,months},propertyId,'2026-09'),'monthly report has no breakdown');
+ assert.equal(resolvePeriod('thisMonth','2026-01-15','',''),'2026-01');assert.equal(resolvePeriod('previousMonth','2026-01-15','',''),'2025-12');assert.equal(resolvePeriod('thisYear','2026-01-15','',''),'2026');assert.equal(resolvePeriod('year','2026-01-15','','2024'),'2024');assert.equal(resolvePeriod('month','2026-01-15','2025-03',''),'2025-03');
+ for(const p of ['2026','2026-11','2000-01'])assert.ok(validPeriod(p),p);for(const p of ['1999','9999','26','2026-13',''])assert.ok(!validPeriod(p),p);
+ assert.equal(subtractMoney('25.00','12.35'),'12.65');assert.equal(subtractMoney('0.00','12.35'),'-12.35');assert.equal(subtractMoney('0.05','0.05'),'0.00');
+});

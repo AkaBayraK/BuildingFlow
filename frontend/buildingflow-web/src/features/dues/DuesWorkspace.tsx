@@ -23,6 +23,7 @@ import {ChargeKindBadge} from "./ChargeKindBadge";
 import {FilterChips} from "@/components/management/FilterChips";
 import {chargeKinds,kindStyle} from "./charge-kind-style";
 import {OverduePanel,PoliciesPanel,ReportPanel} from "@/features/late-penalties/LatePenaltyPanels";
+import {FinanceReport} from "@/features/reports/FinanceReport";
 import {tabIcon,type DuesTab} from "@/features/late-penalties/penalty-style";
 
 export function DuesWorkspace({propertyId}:{propertyId:string}){
@@ -70,7 +71,7 @@ export function DuesWorkspace({propertyId}:{propertyId:string}){
   {scope.error&&<MessageBanner>{scope.error}<Button variant="view" onClick={scope.refresh}>{ui("tryAgain")}</Button></MessageBanner>}
   {scope.property&&!scope.property.isEnabled&&<MessageBanner kind="warning">{t("inactiveProperty")}</MessageBanner>}
   <div role="tablist" aria-label={t("title")} className="mb-6 flex flex-wrap gap-2">{(["charges","overdue","policies","report"] as DuesTab[]).map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{p("tab_"+value)}</Button>;})}</div>
-  {tab!=="charges"&&<div role="tabpanel">{tab==="overdue"&&<OverduePanel propertyId={propertyId} enabled={!!enabled} canWaive={canWaive} revision={revision} onChanged={changed}/>}{tab==="policies"&&<PoliciesPanel propertyId={propertyId} enabled={!!enabled} revision={revision} onChanged={changed}/>}{tab==="report"&&<ReportPanel propertyId={propertyId} revision={revision}/>}</div>}
+  {tab!=="charges"&&<div role="tabpanel">{tab==="overdue"&&<OverduePanel propertyId={propertyId} enabled={!!enabled} canWaive={canWaive} revision={revision} onChanged={changed}/>}{tab==="policies"&&<PoliciesPanel propertyId={propertyId} enabled={!!enabled} revision={revision} onChanged={changed}/>}{tab==="report"&&<><FinanceReport propertyId={propertyId}/><ReportPanel propertyId={propertyId} revision={revision}/></>}</div>}
   {tab==="charges"&&<div role="tabpanel">
   <MessageBanner kind="info" className="mb-6">{t("phaseBoundary")}</MessageBanner>
   <div className="mb-6 grid gap-4 sm:grid-cols-3">{([
