@@ -11,7 +11,7 @@ public sealed class MobileManagerTests(SiteApiTests.SiteApiFactory factory):ICla
   var today=DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow,TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")).DateTime);
   var occupancy=new UnitOccupancy(p.Id,u.Id,person.Id,OccupancyType.TENANT,today.AddYears(-1));var owner=new UnitOccupancy(p.Id,u.Id,person.Id,OccupancyType.OWNER,today.AddYears(-1));
   var future=new Person(p.Id,"Future","Hidden");var futureLink=new UnitOccupancy(p.Id,u.Id,future.Id,OccupancyType.RESIDENT,today.AddDays(1));
-  var member=new PropertyMembership(p.Id,user);var a=new DuesAssessment(p.Id,Guid.NewGuid(),new string('a',64),new DateOnly(today.Year,today.Month,1),100m,"TRY",today.AddDays(-1),"fixture");a.AddCharge(u.Id);
+  var member=new PropertyMembership(p.Id,user);var due=today.AddDays(-1);var a=new DuesAssessment(p.Id,Guid.NewGuid(),new string('a',64),new DateOnly(due.Year,due.Month,1),100m,"TRY",due,"fixture");a.AddCharge(u.Id);
   var draft=new Announcement(p.Id,"Management draft","Fixture only",ContentAudience.MANAGEMENT);
   await factory.WithDb(async db=>{db.AddRange(p,member,person,occupancy,owner,future,futureLink,a,draft,new MobileRequest(Guid.NewGuid(),p.Id,u.Id,"TENANT","another-user","Fixture request"));await db.SaveChangesAsync();});return(user,p.Id,member.Id);
  }

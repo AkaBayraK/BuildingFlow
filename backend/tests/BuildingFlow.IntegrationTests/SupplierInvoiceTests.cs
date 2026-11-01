@@ -39,7 +39,7 @@ public sealed class SupplierInvoiceTests(SiteApiTests.SiteApiFactory factory) : 
         Assert.True((await Value<SupplierInvoiceMutation>(await recorder.PostAsJsonAsync(root, command))).Replayed);
         var approved = await Value<SupplierInvoiceMutation>(await admin.PutAsJsonAsync(root+$"/{created.Record.Id}/approve", new SupplierInvoiceAction(Guid.NewGuid(), created.Record.Version, null, null)));
         Assert.NotNull(approved.Record.ExpenseId);
-        var summary = await Value<FinanceSummary>(await recorder.GetAsync($"/api/v1/properties/{x.Property}/finance-summary?period={Today:yyyy-MM}"));
+        var summary = await Value<FinanceSummary>(await recorder.GetAsync($"/api/v1/properties/{x.Property}/finance-summary?period={Today.AddDays(-5):yyyy-MM}"));
         Assert.Equal("1200.00", summary.ExpenseAmount);
     }
 
