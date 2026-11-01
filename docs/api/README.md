@@ -23,6 +23,7 @@ Manual cash/bank receipts, partial settlement, explicit charge allocation and re
 
 - [Hesap bilgilerim: kendi profil, fotoğraf ve rızalar; kullanıcı ve kişi fotoğrafı (İŞ19)](account.md)
 - [Dashboard özeti (İŞ20)](dashboard.md)
+- [AI Asistan — FAZ 0 + FAZ 1 salt okunur yönetici özeti](assistant.md)
 
 - [Kişiler merkezi — PERSON FAZ06](person-center.md): kapsamlı listeler, detay sekmeleri ve sınırlı native ilişki yazımı.
 - [Web sitesi CMS — WEBSITE FAZ 02](website.md): site, sayfa, blok ve tema yönetimi, değişmez yayın ve anonim public site API'si.

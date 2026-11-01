@@ -11,7 +11,7 @@ test('reference sidebar reorders presentation without dropping, duplicating or g
   const old=model.groups.flatMap(g=>g.items),rows=sidebarRows(model),items=flatten(rows);
   assert.deepEqual(items.map(i=>i.id).sort(),old.map(i=>i.id).sort());assert.deepEqual(navigationDuplicates(items),[]);
   for(const item of items)assert.equal(item,old.find(i=>i.id===item.id),'reuse exact authorized item');
-  assert.equal(rows[0].id,'dashboard');assert.equal(rows[1].id,'properties');
+  assert.equal(rows[0].id,'dashboard');assert.equal(rows[1].id,roles.length?'assistant':'properties');assert.equal(rows[roles.length?2:1].id,'properties');
   assert.ok(rows.find(r=>r.id==='property').items.some(i=>i.id==='units'));
   if(type==='APARTMENT')assert.ok(!items.some(i=>i.id==='buildings'));
  }

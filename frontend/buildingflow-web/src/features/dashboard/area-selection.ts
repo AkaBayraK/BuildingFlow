@@ -1,6 +1,8 @@
 import {parsePropertyPage} from "../../services/management-contracts.ts";
 import type {Property} from "../../services/api";
 export const dashboardRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"] as const;
+// The AI assistant shares the dashboard's area choice (?property=) so a shortcut keeps the same management area.
+export const dashboardAreaPaths:readonly string[]=["/dashboard","/assistant"];
 export function selectedDashboardArea(items:readonly Property[],wanted:string|null){return items.find(p=>p.isEnabled&&p.id===wanted)?.id??items.find(p=>p.isEnabled)?.id??"";}
 export async function dashboardAreas(api:(path:string,options:{signal:AbortSignal})=>Promise<unknown>,signal:AbortSignal){
  const items:Property[]=[];let total=0;

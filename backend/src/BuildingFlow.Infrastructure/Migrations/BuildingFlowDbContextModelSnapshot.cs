@@ -198,6 +198,459 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.AssistantAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("BusinessDay")
+                        .HasColumnType("date")
+                        .HasColumnName("business_day");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<int?>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("outcome");
+
+                    b.Property<string>("PromptCode")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("prompt_code");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RequestKind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("request_kind");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("ToolKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("tool_key");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("user_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId")
+                        .HasDatabaseName("idx_assistant_audit_entries_property_id");
+
+                    b.HasIndex("UserId", "BusinessDay")
+                        .HasDatabaseName("idx_assistant_audit_entries_user_id_business_day");
+
+                    b.ToTable("assistant_audit_entries", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_assistant_audit_entries_duration", "duration_ms IS NULL OR duration_ms >= 0");
+
+                            t.HasCheckConstraint("chk_assistant_audit_entries_outcome", "outcome IN ('STARTED','ANSWERED','UNSUPPORTED','FAILED')");
+
+                            t.HasCheckConstraint("chk_assistant_audit_entries_request_kind", "request_kind IN ('PROMPT','FREE_TEXT')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AssistantPrompt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("TextEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("text_en");
+
+                    b.Property<string>("TextTr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("text_tr");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("title_en");
+
+                    b.Property<string>("TitleTr")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("title_tr");
+
+                    b.Property<string>("ToolKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("tool_key");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_assistant_prompts_code")
+                        .HasFilter("NOT is_deleted");
+
+                    b.ToTable("assistant_prompts", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_assistant_prompts_category", "category IN ('OVERVIEW','FINANCE','OPERATIONS','REQUESTS')");
+
+                            t.HasCheckConstraint("chk_assistant_prompts_sort_order", "sort_order BETWEEN 0 AND 999");
+
+                            t.HasCheckConstraint("chk_assistant_prompts_tool_key", "tool_key IN ('DAILY_SUMMARY','DUES_COLLECTION','BUDGET_VARIANCE','UPCOMING_MAINTENANCE','OPEN_REQUESTS')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000001"),
+                            Category = "OVERVIEW",
+                            Code = "TODAY_FOCUS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 10,
+                            TextEn = "What should I check today? Give me the daily summary of this area.",
+                            TextTr = "Bugün neye bakmalıyım? Yönetim alanının günlük özetini ver.",
+                            TitleEn = "What should I check today?",
+                            TitleTr = "Bugün neye bakmalıyım?",
+                            ToolKey = "DAILY_SUMMARY",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000002"),
+                            Category = "OVERVIEW",
+                            Code = "AREA_STATUS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 20,
+                            TextEn = "How is this management area doing overall?",
+                            TextTr = "Yönetim alanının genel durumu nasıl?",
+                            TitleEn = "Overall status",
+                            TitleTr = "Genel durum",
+                            ToolKey = "DAILY_SUMMARY",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000003"),
+                            Category = "OVERVIEW",
+                            Code = "OCCUPANCY",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 30,
+                            TextEn = "How many units are occupied and how many are vacant?",
+                            TextTr = "Kaç bölüm dolu, kaç bölüm boş?",
+                            TitleEn = "Occupancy",
+                            TitleTr = "Doluluk",
+                            ToolKey = "DAILY_SUMMARY",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000004"),
+                            Category = "FINANCE",
+                            Code = "OVERDUE_DUES",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 40,
+                            TextEn = "How much dues are overdue and across how many charges?",
+                            TextTr = "Geciken aidat toplamı ne kadar, kaç borç kaydı gecikmede?",
+                            TitleEn = "Overdue dues",
+                            TitleTr = "Geciken aidat",
+                            ToolKey = "DUES_COLLECTION",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000005"),
+                            Category = "FINANCE",
+                            Code = "MONTH_COLLECTION",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 50,
+                            TextEn = "How is this month's dues collection going?",
+                            TextTr = "Bu ayın aidat tahsilatı ne durumda?",
+                            TitleEn = "This month's collection",
+                            TitleTr = "Bu ayın tahsilatı",
+                            ToolKey = "DUES_COLLECTION",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000006"),
+                            Category = "FINANCE",
+                            Code = "YEAR_COLLECTION",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 60,
+                            TextEn = "What is this year's dues collection rate?",
+                            TextTr = "Bu yıl aidat tahsilat oranı nedir?",
+                            TitleEn = "Yearly collection",
+                            TitleTr = "Yıllık tahsilat",
+                            ToolKey = "DUES_COLLECTION",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000007"),
+                            Category = "FINANCE",
+                            Code = "BUDGET_OVERRUN",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 70,
+                            TextEn = "Which expense categories are over budget?",
+                            TextTr = "Bütçeye göre hangi gider kalemi aşıldı?",
+                            TitleEn = "Budget overrun",
+                            TitleTr = "Bütçe aşımı",
+                            ToolKey = "BUDGET_VARIANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000008"),
+                            Category = "FINANCE",
+                            Code = "MONTH_BALANCE",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 80,
+                            TextEn = "How do income and expenses compare this month?",
+                            TextTr = "Bu ay gelir ve gider dengesi nasıl?",
+                            TitleEn = "Income and expenses",
+                            TitleTr = "Gelir-gider dengesi",
+                            ToolKey = "BUDGET_VARIANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000009"),
+                            Category = "OPERATIONS",
+                            Code = "UPCOMING_MAINTENANCE",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 90,
+                            TextEn = "How many maintenance plans are due within 30 days, and when is the first?",
+                            TextTr = "30 gün içinde kaç planlı bakım var, ilki ne zaman?",
+                            TitleEn = "Upcoming maintenance",
+                            TitleTr = "Yaklaşan bakımlar",
+                            ToolKey = "UPCOMING_MAINTENANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000010"),
+                            Category = "OPERATIONS",
+                            Code = "MAINTENANCE_TYPES",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 100,
+                            TextEn = "What types of maintenance are coming up?",
+                            TextTr = "Yaklaşan bakımlar hangi türlerde?",
+                            TitleEn = "Maintenance types",
+                            TitleTr = "Bakım türleri",
+                            ToolKey = "UPCOMING_MAINTENANCE",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000011"),
+                            Category = "REQUESTS",
+                            Code = "OPEN_REQUESTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 110,
+                            TextEn = "How many requests are open?",
+                            TextTr = "Kaç açık talep var?",
+                            TitleEn = "Open requests",
+                            TitleTr = "Açık talepler",
+                            ToolKey = "OPEN_REQUESTS",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000012"),
+                            Category = "REQUESTS",
+                            Code = "STALE_REQUESTS",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 120,
+                            TextEn = "How long have the oldest open requests been waiting?",
+                            TextTr = "En uzun süredir açık talepler ne kadar bekliyor?",
+                            TitleEn = "Waiting requests",
+                            TitleTr = "Bekleyen talepler",
+                            ToolKey = "OPEN_REQUESTS",
+                            Version = 1L
+                        },
+                        new
+                        {
+                            Id = new Guid("a1a55150-0001-4000-8000-000000000013"),
+                            Category = "REQUESTS",
+                            Code = "REQUEST_CATEGORIES",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "migration",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            ModifiedAt = new DateTimeOffset(new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedBy = "migration",
+                            SortOrder = 130,
+                            TextEn = "Which categories do open requests concentrate in?",
+                            TextTr = "Açık talepler hangi kategorilerde yoğunlaşıyor?",
+                            TitleEn = "Request categories",
+                            TitleTr = "Talep kategorileri",
+                            ToolKey = "OPEN_REQUESTS",
+                            Version = 1L
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.BudgetRevision", b =>
                 {
                     b.Property<Guid>("Id")
@@ -13599,6 +14052,16 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AssistantAuditEntry", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_assistant_audit_entries_properties");
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.BudgetRevision", b =>

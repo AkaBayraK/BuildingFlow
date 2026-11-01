@@ -2,7 +2,7 @@
 import {useEffect,useState} from "react";
 import Link from "next/link";
 import {useLocale,useTranslations} from "next-intl";
-import {ArrowRight,ArrowUpRight,Building2,CalendarClock,CircleAlert,DoorClosed,DoorOpen,RefreshCw,Wallet,Wrench,Hammer,type LucideIcon} from "lucide-react";
+import {ArrowRight,ArrowUpRight,Building2,CalendarClock,CircleAlert,DoorClosed,DoorOpen,RefreshCw,Sparkles,Wallet,Wrench,Hammer,type LucideIcon} from "lucide-react";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {useDashboardArea} from "./DashboardArea";
 import {DashboardHero} from "./DashboardHero";
@@ -37,6 +37,7 @@ function DashboardContent(){
  const money=(v:string)=>formatDecimalCurrency(v,locale);
  return <div className="dashboard py-8">
   <DashboardHero property={property??null} data={data} loading={loading} onRefresh={()=>setRevision(n=>n+1)}/>
+  {allowed&&propertyId&&<div className="mb-4 flex justify-end"><Button asChild variant="view"><Link href={`/assistant?property=${propertyId}`}><Sparkles aria-hidden="true"/>{t("askAssistant")}</Link></Button></div>}
   {!allowed?<MessageBanner>{t("roleRequired")}</MessageBanner>
   :listError?<MessageBanner action={<Button variant="view" size="sm" onClick={reload}><RefreshCw/>{ui("tryAgain")}</Button>}>{listError}</MessageBanner>
   :properties&&properties.length===0?<div className="rounded-2xl border bg-card p-6 text-sm"><p className="font-semibold">{t("noAreaTitle")}</p><p className="mt-1 text-muted-foreground">{t("noAreaHint")}</p><Button asChild className="mt-4"><Link href="/properties"><Building2/>{t("goAreas")}</Link></Button></div>

@@ -41,6 +41,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CanManageWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
     options.AddPolicy("CanPublishWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
     options.AddPolicy("CanManageQaCenter", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN"));
+    options.AddPolicy("CanUseAssistant", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT"));
+    options.AddPolicy("CanManageAssistantPrompts", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
 });
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<HierarchyService>();
@@ -83,6 +85,7 @@ builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgres", tag
 builder.Services.AddSystemStatus();
 builder.Services.AddQaCenter(builder.Configuration);
 builder.Services.AddWeather(builder.Configuration);
+builder.Services.AddAssistant(builder.Configuration);
 
 var app = builder.Build();
 var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
@@ -176,6 +179,7 @@ app.MapCommonAreaEndpoints();
 app.MapSurveyEndpoints();
 app.MapReportEndpoints();
 app.MapDashboardEndpoints();
+app.MapAssistantEndpoints();
 app.MapWeatherEndpoints();
 app.MapSystemStatusEndpoints();
 app.MapDefinitionEndpoints();

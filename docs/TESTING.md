@@ -2050,3 +2050,24 @@ Gelir/gider grafiğine Son 6 Ay / Son 3 Ay yanında **Bu Yıl** (Ocak'tan bu aya
 Kullanıcı Aidat/Borçlar > Rapor sekmesinin yalnız gecikme tazminatı gösterdiğini, yıllık/aylık/geçmiş ay için tahakkuk, tahsilat ve gider raporu gerektiğini bildirdi. `/reports` artık `period=YYYY` kabul eder; yanıta `expenseCategories` ve yıllıkta `months` eklendi. Ortak `FinanceReport` bileşeni Raporlar ekranında ve Aidat/Borçlar > Rapor sekmesinde dönem çipleri (Bu Ay, Önceki Ay, Bu Yıl, ay seç, yıl seç), beş özet kart (tahakkuk, tahsilat, kalan borç, gider, net), aylık döküm, gider kategorileri, CSV ve yazdırma sunar. Migration, paket, izin veya kişi verisi eklenmedi.
 
 **Bu tur doğrulama:** `ReportApiTests` + `DashboardApiTests` ayrı gerçek PostgreSQL test veritabanında **13/13** (yıllık toplam, Eylül/Ekim aylık satırları, kategori toplamı, iptal edilen gider hariç, boş yıl, `1999`/`9999`/`26`/`2026-1` 400). Web `npm test` **358/358**, `tsc --noEmit` PASS; yıllık döküm/kategori tutarlılığı, eski API, hızlı dönemler ve net hesaplama testleri eklendi. `npm run build` çalışan dev sunucusuyla çakışmaması için çalıştırılmadı; giriş gerektirdiği için ekran kontrolü yapılmadı.
+
+## AI ASİSTAN FAZ 0 + FAZ 1 — 01.11.2026 — Teknik teslim
+
+Kapsam: salt okunur yönetici özet asistanı ([assistant.md](api/assistant.md)), aydınlatma maddesi taslağı ([AI_ASSISTANT_PRIVACY_NOTICE_DRAFT.md](analysis/AI_ASSISTANT_PRIVACY_NOTICE_DRAFT.md), yayınlanmadı). Yeni migration `20261101193632_AssistantFoundation`; yeni paket yok.
+
+Senaryolar (`AssistantApiTests`, `tests/assistant.test.mjs`):
+
+1. Rol matrisi: anonim 401; RESIDENT/OWNER/TENANT/SECURITY 403; dört okuma rolü status 200; prompt yönetimi yalnız SUPER_ADMIN/SITE_ADMIN.
+2. Model yokken hazır soru: `RULES` kaynağı, araç değeri kaynak kartında (`overdueAmount=100.00`, `/properties/{id}/dues`), TR/EN kural metni, `no-store`; beş aracın hepsi; bütçe aşımı `ENERGY 50.00`; talep kategorisi `ELEVATOR`.
+3. Audit: her çağrı için kullanıcı/araç/kaynak/sonuç/süre; entity'de soru/cevap alanı yok.
+4. Model yokken serbest soru `UNSUPPORTED` (anahtar kelime eşleştirmesi yok).
+5. Başka Property, olmayan ve pasif Property 404; bozuk istekler (iki giriş, boş, 501 karakter, kontrol karakteri, `de`, boş UUID, bilinmeyen alan) 400; hiçbiri kota tüketmez.
+6. ACCOUNTANT: talep aracı/hazır soruları görünmez, kodla 400, günün özetinde talep kartı yok.
+7. Kota: limit 2'de üçüncü 429 `BF_ASSISTANT_BUDGET`, status 2/2/0, başka kullanıcı etkilenmez; aynı kullanıcıdan 5 eşzamanlı istekte tam 2 başarılı.
+8. PII: kişi adı/soyadı/telefon/e-posta, talep metni, bakım başlığı/yeri/sorumlusu, kullanıcı ve Property kimliği/adı, secret modele giden 7 yükün hiçbirinde ve yanıtlarda yok; `<veri>` bloğu var; serbest soruda model `OPEN_REQUESTS` seçer.
+9. Prompt injection: allowlist dışı/null/ek alanlı/JSON dışı araç seçimi `UNSUPPORTED`; araçta olmayan sayı (987654), `action` alanı, boş ve JSON dışı cevap reddedilip `RULES` + `modelFallback`; model kesintisinde hazır soru `RULES`, serbest soru `UNSUPPORTED`.
+10. Hazır soru yönetimi: create 201, aynı içerik tekrarı 201 aynı kayıt, farklı içerik 409 DUPLICATE, bilinmeyen araç 400 PROMPT_INVALID, pasifleştirme listeden çıkarır ve sohbette 400, eski version 409, soft-delete 204 + audit alanları.
+11. Ayrıştırıcı birim testi: kapalı şema, TR/EN sayı biçimleri, uydurma sayı reddi.
+12. FE: okuyucular bilinmeyen araç/tür/dış veya başka Property bağlantısını reddeder; sohbet gövdesi; form doğrulaması; menü/sidebar (dört rol görür, SECURITY/RESIDENT görmez), dönüş yolu; backend fact anahtarlarının TR/EN karşılığı; boyut sözlükleri.
+
+**Bu tur kanıt:** projenin `test-db.py` ile oluşturulan geçici PostgreSQL veritabanı/rolünde `AssistantApiTests` + `QaAiAssistantApiTests` **19/19**; regresyon (MigrationTests, PersistenceTests, ErrorContractTests, AutoMigrationTests, DashboardApiTests, ExpenseApiTests, MaintenanceApiTests, RequestManagementTests) **80/80**; geçici DB/rol temizlendi. Backend birim **477/477**. EF `has-pending-model-changes`: değişiklik yok. Web `npm test` **364/364**, `tsc --noEmit` PASS, `npm run build` PASS (`/assistant` rotası). `python3 scripts/check-licenses.py` **329 paket PASS**. Tam integration suite ve gerçek tarayıcı E2E bu turda çalıştırılmadı; ekran görüntüsü kanıtı aşağıda ayrıca belirtilir.

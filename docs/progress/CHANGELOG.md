@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 0 + FAZ 1 — 01.11.2026
+
+- Salt okunur yönetici özet asistanı API'si, hazır soru yönetimi, audit/kota tabloları (`AssistantFoundation` migration), kural tabanlı mod ve AkaAI istemcisi.
+- Web AI Asistan sayfası, menü girişi ve dashboard kısayolu; TR/EN; 4 yeni hata kodu.
+- Testler: 10 entegrasyon/birim senaryosu, 6 FE sözleşme testi; menü testleri yeni girişe göre güncellendi.
+
 ## BAKIM — 01.11.2026 — Dönem seçimli finans raporu
 
 - Rapor API'si yıllık dönem, aylık döküm ve gider kategorileri; Raporlar ekranı ve Aidat/Borçlar > Rapor sekmesinde ortak finans raporu (Bu Ay/Önceki Ay/Bu Yıl/ay/yıl, CSV, yazdır).

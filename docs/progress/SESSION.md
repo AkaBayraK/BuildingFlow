@@ -1,3 +1,9 @@
+## AI ASİSTAN FAZ 0 + FAZ 1 — 01.11.2026 — TEKNİK TESLİM (ekran görüntüsü onay bekliyor)
+
+Salt okunur yönetici özet asistanı: `/api/v1/assistant` status/prompts/chat ve SUPER_ADMIN/SITE_ADMIN hazır soru yönetimi; beş araç (günün özeti, aidat/tahsilat, gider-bütçe, 30 gün bakım, açık talep sayıları) mevcut servisler üzerinden. AkaAI (`Assistant:AkaAi`) yoksa kural tabanlı mod; model cevabı kapalı şema + araç sayılarıyla doğrulanır. Kullanıcı başına günlük kota (30) audit tablosundan; soru/cevap saklanmaz. Web `/assistant` (Dashboard altında), dashboard "Asistana sor" kısayolu, TR/EN. Yeni migration `20261101193632_AssistantFoundation` (2 tablo, 13 seed); yeni paket yok. Aydınlatma maddesi taslağı yayınlanmadı.
+
+**Bu tur: AssistantApiTests+QaAiAssistantApiTests 19/19, regresyon 80/80 (geçici PostgreSQL), birim 477/477, web 364/364, typecheck/build PASS, lisans 329 PASS.** Yerel geliştirme DB'sine migration uygulanmadı, çalışan API yeniden başlatılmadı; ekran görüntüleri kullanıcı onayı bekliyor. Tam integration suite ve tarayıcı E2E çalıştırılmadı. Dal `buildingflow_ai_asistan`, yerel commit; push yok. Token giriş/çıkış/toplam/kalan context: BİLGİ MEVCUT DEĞİL.
+
 ## BAKIM — 31.10.2026 — Ortak oval form panelleri — TAMAMLANDI
 
 Kullanıcının onayladığı daire örneği ortak DialogContent altyapısına taşındı. Tüm ManagementPanel create/update ve detay sağ panelleri24px oval,üst/alt/sağ12px boşluk ve100dvh−24px yükseklik; centered dialoglar da24px oval. Geniş kişi panelinin768px genişliği korunarak dar ekranda24px payla sınırlanır; anket/tahakkuk genişlikleri korunur. Daireye özel örnek class/CSS kaldırıldı. Inline form yerleşimleri yeniden düzenlenmedi; mobil menünün özel görünümü korunur.

@@ -198,3 +198,14 @@ Validasyon sorunları BF_VALIDATION_FAILED+fieldIssues içinde kodlanabilir; ham
 | BF_DEFINITION_DUPLICATE | 409 | warning | — |
 
 Sürüm uyuşmazlığı mevcut `BF_RECORD_CHANGED` (409) ile döner. Ayrıntı [definitions.md](definitions.md).
+
+### AI Asistan (FAZ 0 + FAZ 1)
+
+| Kod | HTTP | Seviye | Parametre |
+| --- | --- | --- | --- |
+| BF_ASSISTANT_BUDGET | 429 | warning | — |
+| BF_ASSISTANT_QUESTION_INVALID | 400 (fieldIssues) | error | — |
+| BF_ASSISTANT_PROMPT_INVALID | 400 (fieldIssues) | error | — |
+| BF_ASSISTANT_PROMPT_DUPLICATE | 409 | warning | — |
+
+Model hatası hata kodu üretmez; cevap kural tabanlıya düşer (`modelFallback=true`). Ayrıntı [assistant.md](assistant.md).
