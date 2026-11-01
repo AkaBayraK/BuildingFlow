@@ -1,5 +1,6 @@
 {
   "assistant": {
+    "openShortcut": "Open AI Assistant",
     "tool_RESIDENT_BALANCE": "Resident: balance",
     "tool_RESIDENT_REQUESTS": "Resident: requests",
     "tool_RESIDENT_NOTICES": "Resident: announcements",

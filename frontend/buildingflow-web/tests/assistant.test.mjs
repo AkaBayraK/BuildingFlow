@@ -126,3 +126,11 @@ test('deep links accept only the parameters the assistant sets',()=>{
  assert.equal(supplierViewLink('?view=alerts'),'alerts');assert.equal(supplierViewLink('?view=performance'),null);
  assert.equal(announcementDraftLink('?assistantDraft=1'),true);assert.equal(announcementDraftLink('?assistantDraft=true'),false);
 });
+
+test('header shortcut opens the assistant for reader roles only and sits in the workspace header',()=>{
+ const shell=readFileSync(new URL('../src/components/WorkspaceShell.tsx',import.meta.url),'utf8');
+ assert.match(shell,/beforeLanguage=\{<><DashboardAreaPicker\/><AssistantShortcut\/><\/>\}/);
+ const shortcut=readFileSync(new URL('../src/features/assistant/AssistantShortcut.tsx',import.meta.url),'utf8');
+ assert.match(shortcut,/assistantRoles\.some/);assert.match(shortcut,/href="\/assistant"/);assert.match(shortcut,/aria-label=\{t\("openShortcut"\)\}/);assert.match(shortcut,/aria-hidden="true"/);
+ assert.ok(tr.assistant.openShortcut&&en.assistant.openShortcut);
+});

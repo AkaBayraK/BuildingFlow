@@ -1,5 +1,6 @@
 {
   "assistant": {
+    "openShortcut": "AI Asistanı aç",
     "tool_RESIDENT_BALANCE": "Sakin: borç",
     "tool_RESIDENT_REQUESTS": "Sakin: talepler",
     "tool_RESIDENT_NOTICES": "Sakin: duyurular",
