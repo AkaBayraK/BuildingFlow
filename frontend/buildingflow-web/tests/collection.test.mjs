@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {collectionRatio,readCollections} from '../src/features/dashboard/collection.ts';
+import {collectionRatio,readCollections,readCollectionYear} from '../src/features/dashboard/collection.ts';
 const row=(period='2026-10',totalAmount='158400.00',collectedAmount='123600.00',pendingAmount='22400.00',overdueAmount='12400.00')=>({period,totalAmount,collectedAmount,pendingAmount,overdueAmount});
 test('collection ratio: same-cohort sum, empty is unknown, zero collected is zero, full collected is 100',()=>{
  assert.equal(collectionRatio(row()).percent,78);
@@ -14,4 +14,9 @@ test('collection DTO: prior/current order, year boundary, valid cents and reconc
  assert.equal(readCollections([row('2025-12'),row('2026-01')],'2026-01').length,2);
  assert.equal(readCollections(undefined,'2026-10'),null);assert.equal(readCollections(null,'2026-10'),null);
  for(const value of [[],[row()],rows.toReversed(),[row('2026-09'),{...row(),totalAmount:'0.00'}],[row('2026-09'),{...row(),collectedAmount:'-1.00'}],[row('2026-09'),{...row(),pendingAmount:22400}],[row('2026-09'),{...row(),overdueAmount:'12400.001'}]])assert.throws(()=>readCollections(value,'2026-10'));
+});
+test('collection year: one calendar-year cohort, reconciled totals; older APIs omit it',()=>{
+ const year=row('2026');assert.equal(readCollectionYear(year,'2026'),year);
+ assert.equal(readCollectionYear(undefined,'2026'),null);assert.equal(readCollectionYear(null,'2026'),null);
+ for(const value of [row('2025'),row('2026-10'),[year],{...year,totalAmount:'1.00'},{...year,pendingAmount:22400}])assert.throws(()=>readCollectionYear(value,'2026'),JSON.stringify(value));
 });

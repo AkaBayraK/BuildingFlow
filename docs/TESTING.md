@@ -2038,3 +2038,9 @@ Kullanıcı dört migration ve API yeniden başlatmayı açıkça onayladı. **A
 Kanıt: `/tmp/bf-main-parking-migrate.log`, `/tmp/bf-main-parking-post-migration.log`, `/tmp/bf-main-parking-api.log`. Önceki BEKLIYOR kaydı tarihsel; bu onayla runtime adımı tamamlandı. Ürün yol haritası32kayıt152/163=%93,25; ürün fazı/yayın kabulü değişmedi. Sonraki: kullanıcı localhost:3003 menüsünden Otopark ekranını kullanabilir.
 
 Giriş token: BİLGİ MEVCUT DEĞİL. Çıkış token: BİLGİ MEVCUT DEĞİL. Toplam token: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Codex usage/rateLimitsByLimitId.codex 28.10.2026:300dk kullanılan%99/kalan%1 reset28.10.2026 16:43:32;10080dk%15/%85 reset04.11.2026 11:43:32 Europe/Istanbul. Hesap kotası sohbet tüketimi değildir.
+
+## BAKIM — 01.11.2026 — Dashboard Bu Yıl seçenekleri — TAMAMLANDI
+
+Gelir/gider grafiğine Son 6 Ay / Son 3 Ay yanında **Bu Yıl** (Ocak'tan bu aya) eklendi; API `trend` 6 yerine 12 ay döner. Aidat Tahsilat Durumu'na Bu Ay / Önceki Ay yanında **Bu Yıl** eklendi; API yeni `collectionYear` alanı Ocak–bu ay tahakkuk kohortunu toplar. Migration, paket, izin veya kişi verisi eklenmedi.
+
+**Bu tur doğrulama:** `DashboardApiTests` ayrı gerçek PostgreSQL test veritabanında **7/7** (12 aylık trend, Ocak dahil, boş yıl kohortu, iki aylık yıl toplamı/Ocak sınırı). Web `npm test` **357/357**, `tsc --noEmit` PASS; yıl alanı için dönem, tutarsız toplam ve eski API testleri eklendi. `npm run build` çalışan dev sunucusuyla çakışmaması için bu turda çalıştırılmadı.

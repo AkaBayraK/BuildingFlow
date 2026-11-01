@@ -10,7 +10,7 @@
 | `overdueAmount`, `overdueChargeCount` | İptal edilmemiş, bakiyesi olan ve `dueDate < today` borçların kalan bakiyesi ve sayısı |
 | `upcomingAmount`, `upcomingChargeCount` | Aynı borçlardan `today ≤ dueDate ≤ today+30` |
 | `requests` | `{recorded, inProgress}` talep sayıları; yalnız yönetici rollerine, ACCOUNTANT'a `null` |
-| `trend` | Son 6 ay (en eskiden bugüne) `{period, receipts, expenses}`; gelir `paidDate`, gider `occurredDate` |
+| `trend` | Son 12 ay (en eskiden bugüne) `{period, receipts, expenses}`; gelir `paidDate`, gider `occurredDate`. 12 ay her zaman bu yılın Ocak ayını kapsar; web Son 6 Ay / Son 3 Ay / Bu Yıl (Ocak'tan bu aya) seçeneklerini bu diziden keser |
 | `unitTypes` | Altı UnitType'ın sabit sırada etkin bölüm sayısı; toplam `unitCount` |
 | `upcomingDues` | Bakiyeli ve `dueDate ≥ today` borçların vade tarihine göre en yakın 4 grubu `{dueDate, chargeCount, amount}` |
 | `maintenanceAvailable` | Planlı bakım modülü yok: her zaman `false` (T20.6) |
@@ -31,6 +31,8 @@ Tür dağılımı yerine doluluk halkası gösterilir. Oran occupiedUnitCount/un
 ## 21.10.2026 — Aidat tahsilat kartı (BAKIM)
 
 `collections` ek alanı eski istemciler için geriye uyumludur: önceki ay ve bu ay, artan sırada iki kayıt. Her kayıtta `period` (YYYY-MM), `totalAmount`, `collectedAmount`, `pendingAmount`, `overdueAmount` (TRY / iki ondalıklı string) bulunur. Aynı Property'nin iptal edilmemiş tahakkukları `DuesCharge.Period` üzerinden gruplanır; `totalAmount=collectedAmount+pendingAmount+overdueAmount`. Collected güncel PaidAmount; pending dueDate>=today olan bakiye; overdue dueDate<today olan bakiye. İptal/tersleme mevcut domain alanlarını izler. Nakit trendinin paidDate kapsamından bağımsızdır; önceki ay seçimi de bugün okunan bakiyedir, tarihsel kapanış değildir. Aynı RepeatableRead transaction, rol/aktif üyelik/silinmiş alan kontrolü korunur; kişi bilgisi eklenmez. Domain/EF/migration değişmedi.
+
+`collectionYear` ek alanı (01.11.2026) aynı tahakkuk dönemi kohortunu bu yılın Ocak ayından bu aya kadar (bu ay dahil) toplar; `period` YYYY'dir, toplam eşitliği ve bakiye anlamı `collections` ile aynıdır. Gelecek ayların önceden girilmiş tahakkukları dahil edilmez. Eski API'de alan yoksa web kartında Bu Yıl seçeneği gösterilmez.
 
 Frontend seçili dönem oranını collected/total olarak BigInt ile hesaplar; sıfır toplamda — gösterir. Negatif/bozuk tutar, tutarsız toplam ve yanlış/sırasız dönem reddedilir. Eski API'de eksik/null collections için açıklamalı kullanılamaz görünümü, devre dışı dönem seçimi vardır. [Bu tur kabul kanıtı](../navigation-refactor/DASHBOARD_COLLECTION_EVIDENCE.json); **DashboardApiTests 7/7**, **frontend 191/191**, typecheck/build PASS.
 

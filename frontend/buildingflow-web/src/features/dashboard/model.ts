@@ -1,4 +1,4 @@
-import {readCollections,type DashboardCollection} from "./collection.ts";
+import {readCollections,readCollectionYear,type DashboardCollection} from "./collection.ts";
 // İŞ20 Dashboard: runtime check of GET /api/v1/properties/{id}/dashboard before anything is drawn.
 import {categories,statuses,type Status} from "../requests/model.ts";
 export type RecentRequest={id:string;category:typeof categories[number];title:string;buildingName:string|null;unitNumber:string|null;status:Status;createdAt:string};
@@ -6,13 +6,14 @@ export const UNIT_TYPES=["APARTMENT","OFFICE","SHOP","VILLA","WAREHOUSE","WORKSH
 export type DashboardSummary={propertyId:string;today:string;currency:"TRY";unitCount:number;occupiedUnitCount:number;vacantUnitCount:number;
  receiptsThisMonth:string;overdueAmount:string;overdueChargeCount:number;upcomingAmount:string;upcomingChargeCount:number;
  requests:{recorded:number;inProgress:number}|null;trend:{period:string;receipts:string;expenses:string}[];
- unitTypes:{type:typeof UNIT_TYPES[number];count:number}[];upcomingDues:{dueDate:string;chargeCount:number;amount:string}[];maintenanceAvailable:boolean;recentRequests?:RecentRequest[]|null;collections?:DashboardCollection[]|null};
+ unitTypes:{type:typeof UNIT_TYPES[number];count:number}[];upcomingDues:{dueDate:string;chargeCount:number;amount:string}[];maintenanceAvailable:boolean;recentRequests?:RecentRequest[]|null;collections?:DashboardCollection[]|null;collectionYear?:DashboardCollection|null};
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const int=(v:unknown)=>Number.isSafeInteger(v)&&Number(v)>=0;
 const money=(v:unknown):v is string=>typeof v==="string"&&/^(?:0|[1-9][0-9]*)\.[0-9]{2}$/.test(v);
 const day=(v:unknown):v is string=>typeof v==="string"&&/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(v);
 const month=(v:string,offset:number)=>{const [y,m]=v.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+offset,1));return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;};
-export const TREND_MONTHS=6;
+// Twelve months always reach back to January, so the chart can offer this calendar year.
+export const TREND_MONTHS=12,LEGACY_TREND_MONTHS=6;
 export function readDashboard(v:unknown,propertyId:string):DashboardSummary{
  const bad=(what:string)=>{throw new Error("Invalid dashboard: "+what);};
  if(!obj(v)||v.propertyId!==propertyId||!day(v.today)||v.currency!=="TRY")bad("header");
@@ -21,14 +22,16 @@ export function readDashboard(v:unknown,propertyId:string):DashboardSummary{
  if(![s.receiptsThisMonth,s.overdueAmount,s.upcomingAmount].every(money)||(s.overdueChargeCount===0)!==(s.overdueAmount==="0.00")||(s.upcomingChargeCount===0)!==(s.upcomingAmount==="0.00"))bad("amounts");
  if(!(s.requests===null||obj(s.requests)&&int(s.requests.recorded)&&int(s.requests.inProgress)&&Object.keys(s.requests).length===2))bad("requests");
  const today=String(s.today),current=today.slice(0,7);
- if(!Array.isArray(s.trend)||s.trend.length!==TREND_MONTHS||!s.trend.every((r,i)=>obj(r)&&r.period===month(current,i-TREND_MONTHS+1)&&money(r.receipts)&&money(r.expenses)))bad("trend");
- if((s.trend as {receipts:string}[])[TREND_MONTHS-1].receipts!==s.receiptsThisMonth)bad("receipts");
+ // APIs before the yearly view send six months; the chart then offers only the months it has.
+ const months=Array.isArray(s.trend)?s.trend.length:0;
+ if(!Array.isArray(s.trend)||months!==TREND_MONTHS&&months!==LEGACY_TREND_MONTHS||!s.trend.every((r,i)=>obj(r)&&r.period===month(current,i-months+1)&&money(r.receipts)&&money(r.expenses)))bad("trend");
+ if((s.trend as {receipts:string}[])[months-1].receipts!==s.receiptsThisMonth)bad("receipts");
  if(!Array.isArray(s.unitTypes)||s.unitTypes.length!==UNIT_TYPES.length||!s.unitTypes.every((r,i)=>obj(r)&&r.type===UNIT_TYPES[i]&&int(r.count))||(s.unitTypes as {count:number}[]).reduce((a,r)=>a+r.count,0)!==s.unitCount)bad("unitTypes");
  if(!Array.isArray(s.upcomingDues)||s.upcomingDues.length>4||!s.upcomingDues.every((r,i,a)=>obj(r)&&day(r.dueDate)&&r.dueDate>=today&&(i===0||String(a[i-1].dueDate)<r.dueDate)&&int(r.chargeCount)&&Number(r.chargeCount)>0&&money(r.amount)&&r.amount!=="0.00"))bad("upcomingDues");
  if(typeof s.maintenanceAvailable!=="boolean")bad("maintenance");
  // Older APIs omit the list; it is null exactly when request counts are hidden (ACCOUNTANT).
  if(s.recentRequests!==undefined&&!(s.recentRequests===null?s.requests===null:s.requests!==null&&Array.isArray(s.recentRequests)&&s.recentRequests.length<=4&&s.recentRequests.every((r,i,a)=>obj(r)&&typeof r.id==="string"&&categories.includes(r.category as RecentRequest["category"])&&typeof r.title==="string"&&r.title.length<=120&&(r.buildingName===null||typeof r.buildingName==="string")&&(r.unitNumber===null||typeof r.unitNumber==="string")&&statuses.includes(r.status as Status)&&typeof r.createdAt==="string"&&Number.isFinite(Date.parse(r.createdAt))&&(i===0||Date.parse(String(a[i-1].createdAt))>=Date.parse(r.createdAt)))))bad("recentRequests");
- return {...s,collections:readCollections(s.collections,current)} as unknown as DashboardSummary;
+ return {...s,collections:readCollections(s.collections,current),collectionYear:readCollectionYear(s.collectionYear,today.slice(0,4))} as unknown as DashboardSummary;
 }
 /** Whole-number share for tiles; 0 when there is nothing to divide. */
 export const share=(part:number,total:number)=>total>0?Math.round(part*100/total):0;

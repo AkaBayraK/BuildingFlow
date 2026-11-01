@@ -12,13 +12,15 @@ public sealed class DashboardApiTests(SiteApiTests.SiteApiFactory factory):IClas
     private async Task<(Property P,string Actor)> Seed(PropertyType type=PropertyType.APARTMENT){var actor=Guid.NewGuid().ToString();var p=new Property("Dashboard "+actor,"City","District","Address",type);await factory.WithDb(async db=>{db.Add(p);db.Add(new PropertyMembership(p.Id,actor));await db.SaveChangesAsync();});return(p,actor);}
     private static string Root(Guid p)=>$"/api/v1/properties/{p}/dashboard";
     [PostgresTheory][InlineData("SUPER_ADMIN")][InlineData("SITE_ADMIN")][InlineData("MANAGER")][InlineData("ACCOUNTANT")]
-    public async Task EmptyAreaIsZeroWithSixMonthTrendAndAllUnitTypes(string role)
+    public async Task EmptyAreaIsZeroWithTwelveMonthTrendAndAllUnitTypes(string role)
     {
         var x=await Seed();using var c=TestToken.Client(factory,x.Actor,role);var r=(await c.GetFromJsonAsync<DashboardSummary>(Root(x.P.Id)))!;
         Assert.Equal(x.P.Id,r.PropertyId);Assert.Equal(Today,r.Today);Assert.Equal(0,r.UnitCount);Assert.Equal("0.00",r.OverdueAmount);Assert.Equal("0.00",r.ReceiptsThisMonth);
-        Assert.Equal(6,r.Trend.Count);Assert.Equal(Today.ToString("yyyy-MM"),r.Trend[^1].Period);Assert.Equal(Today.AddMonths(-5).ToString("yyyy-MM"),r.Trend[0].Period);
+        Assert.Equal(12,r.Trend.Count);Assert.Equal(Today.ToString("yyyy-MM"),r.Trend[^1].Period);Assert.Equal(Today.AddMonths(-11).ToString("yyyy-MM"),r.Trend[0].Period);
+        Assert.Contains(r.Trend,row=>row.Period==Today.ToString("yyyy")+"-01");
         Assert.Equal(Enum.GetValues<UnitType>().Length,r.UnitTypes.Count);Assert.Empty(r.UpcomingDues);Assert.False(r.MaintenanceAvailable);
         Assert.NotNull(r.Collections);Assert.Equal(2,r.Collections.Count);Assert.All(r.Collections,row=>{Assert.Equal("0.00",row.TotalAmount);Assert.Equal("0.00",row.CollectedAmount);Assert.Equal("0.00",row.PendingAmount);Assert.Equal("0.00",row.OverdueAmount);});
+        Assert.Equal(new DashboardCollection(Today.ToString("yyyy"),"0.00","0.00","0.00","0.00"),r.CollectionYear);
         if(role=="ACCOUNTANT")Assert.Null(r.Requests);else Assert.Equal(new DashboardRequests(0,0),r.Requests);
     }
     [PostgresFact] public async Task SummarySeparatesOccupancyOverdueUpcomingCashTrendAndOpenRequestsWithoutNames()
@@ -68,6 +70,8 @@ public sealed class DashboardApiTests(SiteApiTests.SiteApiFactory factory):IClas
         using var c=TestToken.Client(factory,x.Actor,"ACCOUNTANT");var summary=(await c.GetFromJsonAsync<DashboardSummary>(Root(x.P.Id)))!;
         Assert.Equal("20.00",summary.ReceiptsThisMonth);Assert.Equal(new DashboardCollection(month.AddMonths(-1).ToString("yyyy-MM"),"150.00","20.00","50.00","80.00"),summary.Collections![0]);
         Assert.Equal(new DashboardCollection(month.ToString("yyyy-MM"),"40.00","10.00","30.00","0.00"),summary.Collections[1]);
+        // January has no earlier month in the same year, so the previous-month cohort drops out of the year total.
+        Assert.Equal(month.Month>1?new DashboardCollection(month.ToString("yyyy"),"190.00","30.00","80.00","80.00"):new DashboardCollection(month.ToString("yyyy"),"40.00","10.00","30.00","0.00"),summary.CollectionYear);
         await factory.WithDb(async db=>{var charge=await db.DuesCharges.SingleAsync(d=>d.Id==chargeId);var payment=await db.Payments.SingleAsync(d=>d.Id==paymentId);charge.ReversePayment(10);payment.Cancel("Fixture reversal",DateTimeOffset.UtcNow);await db.SaveChangesAsync();});
         summary=(await c.GetFromJsonAsync<DashboardSummary>(Root(x.P.Id)))!;Assert.Equal(new DashboardCollection(month.ToString("yyyy-MM"),"40.00","0.00","40.00","0.00"),summary.Collections![1]);
     }

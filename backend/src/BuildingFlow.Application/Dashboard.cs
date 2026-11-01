@@ -10,11 +10,11 @@ public sealed record DashboardRecentRequest(Guid Id,string Category,string Title
 public sealed record DashboardSummary(Guid PropertyId,DateOnly Today,string Currency,int UnitCount,int OccupiedUnitCount,int VacantUnitCount,
     string ReceiptsThisMonth,string OverdueAmount,int OverdueChargeCount,string UpcomingAmount,int UpcomingChargeCount,
     DashboardRequests? Requests,IReadOnlyList<DashboardMonth> Trend,IReadOnlyList<DashboardUnitType> UnitTypes,IReadOnlyList<DashboardDue> UpcomingDues,
-    bool MaintenanceAvailable,IReadOnlyList<DashboardRecentRequest>? RecentRequests=null,IReadOnlyList<DashboardCollection>? Collections=null);
+    bool MaintenanceAvailable,IReadOnlyList<DashboardRecentRequest>? RecentRequests=null,IReadOnlyList<DashboardCollection>? Collections=null,DashboardCollection? CollectionYear=null);
 public interface IDashboardStore { Task<DashboardSummary?> Get(Guid property,DateOnly today,AccessScope access,bool includeRequests,CancellationToken token); }
 public sealed class DashboardService(IDashboardStore store,ICurrentUserService user,TimeProvider clock)
 {
-    public const int TrendMonths=6, UpcomingDays=30, UpcomingGroups=4, RecentRequests=4, RecentTitleLength=120;
+    public const int TrendMonths=12, UpcomingDays=30, UpcomingGroups=4, RecentRequests=4, RecentTitleLength=120;
     private static readonly TimeZoneInfo Zone=TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
     public Task<DashboardSummary?> Get(Guid property,CancellationToken token)
     {

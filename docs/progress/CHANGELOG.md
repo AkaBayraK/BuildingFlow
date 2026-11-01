@@ -1,3 +1,8 @@
+## BAKIM — 01.11.2026 — Dashboard Bu Yıl seçenekleri
+
+- Gelir/gider grafiği ve Aidat Tahsilat Durumu kartına Bu Yıl seçeneği; API trend 12 ay, yeni `collectionYear` alanı.
+- DashboardApiTests 7/7, web 357/357, typecheck PASS; yeni paket/şema yok.
+
 ## BAKIM — 31.10.2026 — Ortak oval form panelleri
 
 - Onaylı24px köşe/12px kenar tasarımı ortak right dialoga; centered pencerelere24px köşe uygulandı. Kişi panelinin dar ekran genişliği korundu. Daireye özel örnek kaldırıldı.

@@ -24,10 +24,13 @@ public sealed class DashboardStore(BuildingFlowDbContext db):IDashboardStore
         var expenses=await db.Expenses.Where(e=>e.PropertyId==property&&!e.IsCancelled&&e.OccurredDate>=first&&e.OccurredDate<end).GroupBy(e=>new{e.OccurredDate.Year,e.OccurredDate.Month}).Select(g=>new{g.Key.Year,g.Key.Month,Sum=g.Sum(e=>e.Amount)}).ToListAsync(token);
         // Assessment-period cohort, current balances: overdue and pending are disjoint.
         // Payment dates do not move allocations to a different assessment period.
-        var previous=month.AddMonths(-1);
-        var collectionRows=await db.DuesCharges.Where(d=>d.PropertyId==property&&!d.IsCancelled&&d.Period>=previous&&d.Period<=month)
+        // CollectionYear is the same cohort for every assessment period from January up to this month.
+        var previous=month.AddMonths(-1);var january=new DateOnly(today.Year,1,1);var from=previous<january?previous:january;
+        var collectionRows=await db.DuesCharges.Where(d=>d.PropertyId==property&&!d.IsCancelled&&d.Period>=from&&d.Period<=month)
             .GroupBy(d=>d.Period).Select(g=>new{Period=g.Key,Total=g.Sum(d=>d.Amount),Collected=g.Sum(d=>d.PaidAmount),Pending=g.Sum(d=>d.DueDate>=today?d.Amount-d.PaidAmount:0m),Overdue=g.Sum(d=>d.DueDate<today?d.Amount-d.PaidAmount:0m)}).ToListAsync(token);
         var collections=new[]{previous,month}.Select(period=>{var row=collectionRows.SingleOrDefault(r=>r.Period==period);return new DashboardCollection(period.ToString("yyyy-MM"),DuesService.Money(row?.Total??0),DuesService.Money(row?.Collected??0),DuesService.Money(row?.Pending??0),DuesService.Money(row?.Overdue??0));}).ToArray();
+        var yearRows=collectionRows.Where(r=>r.Period>=january).ToArray();
+        var collectionYear=new DashboardCollection(today.Year.ToString("D4"),DuesService.Money(yearRows.Sum(r=>r.Total)),DuesService.Money(yearRows.Sum(r=>r.Collected)),DuesService.Money(yearRows.Sum(r=>r.Pending)),DuesService.Money(yearRows.Sum(r=>r.Overdue)));
         DashboardRequests? requests=null;IReadOnlyList<DashboardRecentRequest>? recent=null;
         if(includeRequests){var counts=await db.Set<MobileRequest>().Where(r=>r.PropertyId==property&&(r.ManagementStatus=="RECORDED"||r.ManagementStatus=="IN_PROGRESS")).GroupBy(r=>r.ManagementStatus).Select(g=>new{g.Key,Count=g.Count()}).ToListAsync(token);requests=new(counts.SingleOrDefault(c=>c.Key=="RECORDED")?.Count??0,counts.SingleOrDefault(c=>c.Key=="IN_PROGRESS")?.Count??0);
             var rows=await db.Set<MobileRequest>().AsNoTracking().Where(r=>r.PropertyId==property&&r.IsEnabled).OrderByDescending(r=>r.CreatedAt).ThenBy(r=>r.Id).Take(DashboardService.RecentRequests)
@@ -38,7 +41,7 @@ public sealed class DashboardStore(BuildingFlowDbContext db):IDashboardStore
             DuesService.Money(receipts.SingleOrDefault(r=>r.Year==m.Year&&r.Month==m.Month)?.Sum??0),DuesService.Money(expenses.SingleOrDefault(r=>r.Year==m.Year&&r.Month==m.Month)?.Sum??0))).ToArray();
         return new(property,today,"TRY",total,occupied,total-occupied,trend[^1].Receipts,DuesService.Money(overdue?.Sum??0),overdue?.Count??0,DuesService.Money(upcoming?.Sum??0),upcoming?.Count??0,
             requests,trend,Enum.GetValues<UnitType>().Select(t=>new DashboardUnitType(t.ToString(),types.SingleOrDefault(x=>x.Key==t)?.Count??0)).ToArray(),
-            dues.Select(d=>new DashboardDue(d.DueDate,d.Count,DuesService.Money(d.Sum))).ToArray(),false,recent,collections);
+            dues.Select(d=>new DashboardDue(d.DueDate,d.Count,DuesService.Money(d.Sum))).ToArray(),false,recent,collections,collectionYear);
     }
     private static string Title(string description)
     {
