@@ -1413,6 +1413,7 @@
     "navMeters": "Sayaçlar",
     "navSms": "SMS",
     "navConsents": "Açık Rıza",
+    "navIntegrations": "Entegrasyonlar",
     "navUsers": "Kullanıcılar",
     "navReports": "Raporlar",
     "phase10MetersVerification": "36 PostgreSQL/migration/persistence ve80 FE testi; typecheck/build; tarih/version/replay/komşu endeks ve değişmez revizyon. 11.10.2026 bakım: Okumalar sağ paneli 896px masaüstü, tablet/mobil tam genişlik; 101/101 FE ve ESC/odak kabulü.",
@@ -5200,5 +5201,18 @@
     "viewCatalog": "Görüntüle",
     "reasonInvalid_code": "Kod büyük harf, rakam ve _ içermeli, 2–50 karakter olmalı.",
     "reasonInvalid_name": "Ad zorunlu ve en fazla 100 karakter."
+  },
+  "integrationHub": {
+    "title": "Entegrasyonlar",
+    "description": "E-posta (SMTP) hesaplarını AkaIntegrationHub üzerinden tanımlayın, bağlantıyı test edin ve gönderim geçmişini izleyin.",
+    "scope": "AkaIntegrationHub",
+    "open": "AkaIntegrationHub'da aç",
+    "forbidden": "Bu ekran yalnız yönetici rollerine açıktır.",
+    "notConfigured": "AkaIntegrationHub adresi tanımlı değil (NEXT_PUBLIC_AKA_INTEGRATION_HUB_URL).",
+    "ssoHint": "Aynı BuildingFlow oturumu kullanılır; yeniden giriş istenmez. Yetkiler Hub tarafında da doğrulanır.",
+    "smtpTitle": "E-posta (SMTP) hesapları",
+    "smtpDescription": "Gönderen hesabı ekleyin veya düzenleyin, bağlantı testi yapın ve test e-postası gönderin.",
+    "deliveriesTitle": "E-posta gönderim geçmişi",
+    "deliveriesDescription": "Gönderilen test e-postalarının durumunu ve hata nedenlerini görüntüleyin."
   }
 }

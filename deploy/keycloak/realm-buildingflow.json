@@ -58,6 +58,27 @@
       ]
     },
     {
+      "clientId": "aih-admin-web",
+      "name": "AkaIntegrationHub Admin",
+      "description": "Yönetim > Entegrasyonlar menüsünden açılan AkaIntegrationHub ekranı (SSO, public PKCE).",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:28030/*"
+      ],
+      "webOrigins": [
+        "http://localhost:28030"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:28030/*##http://localhost:3003/*"
+      }
+    },
+    {
       "clientId": "buildingflow-api",
       "enabled": true,
       "bearerOnly": true,

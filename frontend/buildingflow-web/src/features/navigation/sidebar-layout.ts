@@ -13,6 +13,6 @@ export function sidebarRows(model:NavigationModel):SidebarRow[]{
  group("operations","navigationOperationsGroup","Wrench",["requests","meters"]);direct("reports");
  group("communication","navigationCommunicationGroup","MessageSquareText",["announcements","surveys","sms"]);
  direct("website");direct("documents");
- group("administration","sidebarAdminGroup","Settings",["users","consents","definitions","settings","qa-center"]);
+ group("administration","sidebarAdminGroup","Settings",["users","consents","definitions","settings","integrations","qa-center"]);
  return rows;
 }

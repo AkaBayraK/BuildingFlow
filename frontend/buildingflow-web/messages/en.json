@@ -1413,6 +1413,7 @@
     "navMeters": "Meters",
     "navSms": "SMS",
     "navConsents": "Consents",
+    "navIntegrations": "Integrations",
     "navUsers": "Users",
     "navReports": "Reports",
     "phase10MetersVerification": "36 PostgreSQL/migration/persistence and80 FE tests; typecheck/build; dates/version/replay/neighbour indexes and immutable revisions. 11 Oct 2026 maintenance: 896px desktop Readings panel, full-width tablet/mobile; 101/101 FE and Escape/focus checks.",
@@ -5200,5 +5201,18 @@
     "viewCatalog": "View",
     "reasonInvalid_code": "Use 2–50 capital letters, digits or _.",
     "reasonInvalid_name": "Name is required and can be at most 100 characters."
+  },
+  "integrationHub": {
+    "title": "Integrations",
+    "description": "Define e-mail (SMTP) accounts in AkaIntegrationHub, test the connection and review delivery history.",
+    "scope": "AkaIntegrationHub",
+    "open": "Open in AkaIntegrationHub",
+    "forbidden": "This screen is available to manager roles only.",
+    "notConfigured": "AkaIntegrationHub address is not configured (NEXT_PUBLIC_AKA_INTEGRATION_HUB_URL).",
+    "ssoHint": "Your BuildingFlow session is reused; no second sign-in is required. Permissions are also checked by the Hub.",
+    "smtpTitle": "E-mail (SMTP) accounts",
+    "smtpDescription": "Add or edit sender accounts, run a connection test and send a test e-mail.",
+    "deliveriesTitle": "E-mail delivery history",
+    "deliveriesDescription": "See the status and failure reasons of sent test e-mails."
   }
 }
