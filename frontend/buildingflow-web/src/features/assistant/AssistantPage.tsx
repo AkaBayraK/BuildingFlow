@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {useLocale,useTranslations} from "next-intl";
-import {ArrowUpRight,Bot,Building2,Gauge,Lock,MessageCircleQuestion,RefreshCw,SendHorizontal,Settings2,ShieldCheck,Sparkles,UserRound} from "lucide-react";
+import {ArrowUpRight,Bot,ChevronDown,ChevronUp,Building2,Gauge,Lock,MessageCircleQuestion,RefreshCw,SendHorizontal,Settings2,ShieldCheck,Sparkles,UserRound} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {Button} from "@/components/ui/button";
@@ -123,11 +123,23 @@ function TurnView({turn,locale}:{turn:Turn;locale:Locale}){
     {turn.answer.tool&&<ToneBadge tone={assistantBadgeTone[assistantToolStyle[turn.answer.tool].tone]} icon={assistantToolStyle[turn.answer.tool].icon}>{t(`tool_${turn.answer.tool}`)}</ToneBadge>}
     {turn.answer.modelFallback&&<ToneBadge tone="warning" icon={Warning}>{t("fallback")}</ToneBadge>}</div>
    <p className="whitespace-pre-line wrap-anywhere">{turn.answer.answer}</p>
-   {turn.answer.sources.length>0&&<div><h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("sourcesTitle")}</h3>
-    <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{turn.answer.sources.map((card,i)=><li key={`${card.key}-${card.dimension??""}-${i}`}><SourceCard card={card} locale={locale}/></li>)}</ul>
-    <p className="mt-2 text-xs text-muted-foreground">{t("sourcesNote")}</p></div>}
+   {turn.answer.sources.length>0&&<Sources id={turn.id} cards={turn.answer.sources} locale={locale}/>}
   </div>}
  </article>;
+}
+
+// Sources start collapsed so the answer stays readable; each answer keeps its own open state.
+function Sources({id,cards,locale}:{id:number;cards:AssistantCard[];locale:Locale}){
+ const t=useTranslations("assistant");const [open,setOpen]=useState(false);const panel=`assistant-sources-${id}`;
+ return <div className="border-t pt-2">
+  <button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring" aria-expanded={open} aria-controls={panel} onClick={()=>setOpen(v=>!v)}>
+   {open?<ChevronUp aria-hidden="true" className="size-4"/>:<ChevronDown aria-hidden="true" className="size-4"/>}{t("sourcesToggle",{count:cards.length})} · {t(open?"sourcesHide":"sourcesShow")}
+  </button>
+  <div id={panel} hidden={!open}>
+   <ul className="mt-1 grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">{cards.map((card,i)=><li key={`${card.key}-${card.dimension??""}-${i}`}><SourceCard card={card} locale={locale}/></li>)}</ul>
+   <p className="mt-2 text-xs text-muted-foreground">{t("sourcesNote")}</p>
+  </div>
+ </div>;
 }
 
 function SourceCard({card,locale}:{card:AssistantCard;locale:Locale}){
@@ -136,9 +148,11 @@ function SourceCard({card,locale}:{card:AssistantCard;locale:Locale}){
  const dimensionLabel=card.label??(dimension?(dimension.namespace==="requests"?requests:dimension.namespace==="expenses"?expenses:maintenance)(dimension.key as never):card.dimension&&!/^[A-Z]\d{1,3}$/.test(card.dimension)?card.dimension:null);
  const value=card.kind==="MONEY"?formatDecimalCurrency(card.value,locale):card.kind==="PERCENT"?`%${formatNumber(Number(card.value),locale)}`:card.kind==="DATE"?formatDateOnly(card.value,locale):card.kind==="DAYS"?t("days",{count:Number(card.value)}):card.kind==="SCORE"?t("score",{value:formatNumber(Number(card.value),locale)}):formatNumber(Number(card.value),locale);
  const range=card.from===card.to?formatDateOnly(card.from,locale):`${formatDateOnly(card.from,locale)} – ${formatDateOnly(card.to,locale)}`;
- return <div className="flex h-full items-start gap-2 rounded-xl border bg-card p-3">
-  <span className={cn("request-type-icon",`tone-${assistantToolStyle[card.tool].tone}`)}><Icon aria-hidden="true"/></span>
-  <div className="min-w-0 flex-1"><p className="text-base font-semibold tabular-nums">{value}</p><p className="text-xs">{t(`fact_${card.key}` as never)}{dimensionLabel&&<> · <span className="wrap-anywhere">{dimensionLabel}</span></>}</p><p className="text-xs text-muted-foreground">{range}</p></div>
-  <Link href={card.href} className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("openScreen")} title={t("openScreen")}><ArrowUpRight aria-hidden="true" className="size-4"/></Link>
+ const label=t(`fact_${card.key}` as never)+(dimensionLabel?` · ${dimensionLabel}`:"");
+ return <div className="flex items-center gap-2 rounded-lg border bg-card py-1 pl-2 pr-1 text-xs">
+  <span className={cn("request-type-icon shrink-0",`tone-${assistantToolStyle[card.tool].tone}`)}><Icon aria-hidden="true"/></span>
+  <span className="min-w-0 flex-1 truncate text-foreground" title={`${label} — ${range}`}>{label}<span className="text-muted-foreground"> · {range}</span></span>
+  <strong className="shrink-0 text-sm tabular-nums text-foreground">{value}</strong>
+  <Link href={card.href} className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring" aria-label={`${t("openScreen")}: ${label}`} title={t("openScreen")}><ArrowUpRight aria-hidden="true" className="size-4"/></Link>
  </div>;
 }

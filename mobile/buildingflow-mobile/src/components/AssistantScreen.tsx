@@ -72,8 +72,7 @@ export function AssistantScreen(){
    {turn.error?<Text style={s.error} accessibilityRole="alert">{turn.error}</Text>:!turn.answer?<Text style={styles.muted}>Veriler okunuyor…</Text>:<>
     <Text style={styles.text}>{turn.answer.answer}</Text>
     <Text style={styles.muted}>{turn.answer.source==='AKAAI'?'AkaAI özeti':'Kural tabanlı'}{turn.answer.modelFallback?' · model yanıtı kullanılmadı':''}</Text>
-    {turn.answer.sources.map((c,i)=><Link key={c.key+i} href={c.href} asChild><Action style={s.source} accessibilityLabel={`${factLabels[c.key]??'Kaynak'}: ${cardValue(c)}`}>
-     <View style={styles.flex}><Text style={s.sourceValue}>{cardValue(c)}</Text><Text style={styles.muted}>{factLabels[c.key]??'Kaynak'}{c.label?` · ${c.label}`:c.dimension&&statusLabels[c.dimension]?` · ${statusLabels[c.dimension]}`:''}</Text></View><Icon name="chevron-forward-outline" size={18}/></Action></Link>)}
+    {turn.answer.sources.length>0&&<Sources cards={turn.answer.sources}/>}
    </>}
   </Card>)}
   <Card title="Soru sor">
@@ -84,6 +83,18 @@ export function AssistantScreen(){
  </Screen>;
 }
 
+// Sources start collapsed so the answer stays readable; each answer keeps its own open state.
+function Sources({cards}:{cards:AssistantAnswer['sources']}){
+ const [open,setOpen]=useState(false);
+ return <View>
+  <Action style={s.toggle} onPress={()=>setOpen(v=>!v)} accessibilityState={{expanded:open}} accessibilityLabel={`Kaynaklar (${cards.length}), ${open?'gizle':'göster'}`}>
+   <Icon name={open?'chevron-up-outline':'chevron-down-outline'} size={16}/><Text style={styles.muted}>{`Kaynaklar (${cards.length}) · ${open?'Gizle':'Göster'}`}</Text>
+  </Action>
+  {open&&cards.map((c,i)=><Link key={c.key+i} href={c.href} asChild><Action style={s.source} accessibilityLabel={`${factLabels[c.key]??'Kaynak'}: ${cardValue(c)}`}>
+   <Text style={[styles.muted,styles.flex]} numberOfLines={1}>{factLabels[c.key]??'Kaynak'}{c.label?` · ${c.label}`:c.dimension&&statusLabels[c.dimension]?` · ${statusLabels[c.dimension]}`:''}</Text><Text style={s.sourceValue}>{cardValue(c)}</Text><Icon name="chevron-forward-outline" size={16}/></Action></Link>)}
+ </View>;
+}
+
 const s=StyleSheet.create({
  entry:{backgroundColor:theme.colors.surface,borderRadius:theme.radius.card,borderWidth:1,borderColor:theme.colors.border,padding:16,gap:12,marginTop:12},
  entryRow:{flexDirection:'row',gap:12,alignItems:'center'},
@@ -92,8 +103,9 @@ const s=StyleSheet.create({
  badges:{flexDirection:'row',flexWrap:'wrap',gap:8,marginBottom:4},
  badge:{backgroundColor:'#e5efff',color:theme.colors.primary,borderRadius:12,paddingHorizontal:10,paddingVertical:4,fontSize:12,fontWeight:'700',overflow:'hidden'},
  prompt:{flexDirection:'row',alignItems:'center',gap:10,borderWidth:1,borderColor:theme.colors.border,borderRadius:theme.radius.field,paddingHorizontal:12,marginTop:8},
- source:{flexDirection:'row',alignItems:'center',gap:10,borderWidth:1,borderColor:theme.colors.border,borderRadius:theme.radius.field,padding:12,marginTop:8},
- sourceValue:{color:theme.colors.text,fontSize:16,fontWeight:'700'},
+ source:{flexDirection:'row',alignItems:'center',gap:8,borderWidth:1,borderColor:theme.colors.border,borderRadius:theme.radius.field,paddingHorizontal:10,marginTop:6},
+ toggle:{flexDirection:'row',alignItems:'center',gap:6,alignSelf:'flex-start'},
+ sourceValue:{color:theme.colors.text,fontSize:14,fontWeight:'700'},
  input:{minHeight:72,borderWidth:1,borderColor:theme.colors.border,borderRadius:theme.radius.field,padding:12,color:theme.colors.text,textAlignVertical:'top'},
  error:{color:'#a12626'},
 });

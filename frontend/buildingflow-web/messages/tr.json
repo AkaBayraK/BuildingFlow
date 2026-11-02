@@ -1,5 +1,8 @@
 {
   "assistant": {
+    "sourcesToggle": "Kaynaklar ({count})",
+    "sourcesShow": "Göster",
+    "sourcesHide": "Gizle",
     "openShortcut": "AI Asistanı aç",
     "tool_RESIDENT_BALANCE": "Sakin: borç",
     "tool_RESIDENT_REQUESTS": "Sakin: talepler",

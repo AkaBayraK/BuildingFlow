@@ -1,5 +1,8 @@
 {
   "assistant": {
+    "sourcesToggle": "Sources ({count})",
+    "sourcesShow": "Show",
+    "sourcesHide": "Hide",
     "openShortcut": "Open AI Assistant",
     "tool_RESIDENT_BALANCE": "Resident: balance",
     "tool_RESIDENT_REQUESTS": "Resident: requests",

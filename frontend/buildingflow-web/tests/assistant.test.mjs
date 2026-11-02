@@ -134,3 +134,12 @@ test('header shortcut opens the assistant for reader roles only and sits in the 
  assert.match(shortcut,/assistantRoles\.some/);assert.match(shortcut,/href="\/assistant"/);assert.match(shortcut,/aria-label=\{t\("openShortcut"\)\}/);assert.match(shortcut,/aria-hidden="true"/);
  assert.ok(tr.assistant.openShortcut&&en.assistant.openShortcut);
 });
+
+test('source cards start collapsed behind an accessible per-answer toggle',()=>{
+ const page=readFileSync(new URL('../src/features/assistant/AssistantPage.tsx',import.meta.url),'utf8');
+ assert.match(page,/useState\(false\);const panel=`assistant-sources-\$\{id\}`/);
+ assert.match(page,/aria-expanded=\{open\} aria-controls=\{panel\}/);assert.match(page,/<div id=\{panel\} hidden=\{!open\}>/);
+ assert.match(page,/truncate[^>]*title=/);
+ for(const d of [tr,en])for(const k of ['sourcesToggle','sourcesShow','sourcesHide'])assert.ok(d.assistant[k]);
+ assert.match(tr.assistant.sourcesToggle,/\{count\}/);
+});
