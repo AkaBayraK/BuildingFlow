@@ -1,3 +1,9 @@
+## BAKIM — AkaIntegrationHub menüsü — 02.11.2026
+
+- Yönetim > Entegrasyonlar (`/integrations`): e-posta (SMTP) hesapları ve gönderim geçmişi AkaIntegrationHub'da açılır (SSO).
+- Keycloak `buildingflow` realm'ine `aih-admin-web` public PKCE client'ı; OIDC dönüş whitelist'ine `/integrations`.
+- `NEXT_PUBLIC_AKA_INTEGRATION_HUB_URL`; TR/EN metinler; `tests/integration-hub.test.mjs`. Yeni paket yok.
+
 ## AI ASİSTAN FAZ 3 — 01.11.2026
 
 - Sakin asistanı API'si (`/api/v1/mobile/assistant`), üç sakin aracı, pasif `AI_ASSISTANT` rıza türü, kapalı bayrak, ayrı kota.

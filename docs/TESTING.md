@@ -2105,3 +2105,17 @@ Senaryolar (`AssistantResidentTests`, güncellenen `DefaultConsentTextTests`, mo
 **Bu tur kanıt:** geçici PostgreSQL'de asistan (FAZ 0–3) + rıza + mobil bildirim/senkron + migration/persistence/hata sözleşmesi + tedarikçi/anket regresyonu **114/114** (4 depolama testi ortam nedeniyle atlandı); geçici DB/rol temizlendi. Backend birim **477/477**. Web `npm test` **367/367**, typecheck/build PASS. Mobil `npm run check` **174/174** + typecheck + lint, `npm run build` iOS/Android/web export PASS. Lisans metadata **329 PASS**, yeni paket yok.
 
 **Notlar:** (a) Ana klasörde commit'lenmemiş `mobile/buildingflow-mobile/src/definitions/` (TNM 06) dosyaları olmadan commit'li mobil kod typecheck'ten geçmez; doğrulama için geçici kopyalandı, bu commit'e eklenmedi. (b) `MobileFinanceTests.ChargesAndAllocationsArePagedWithoutTruncatingTotals` bugün (ay başı) "Due date cannot precede the assessed month" ile kendi fixture'ında başarısız; dosyaya dokunulmadı, main'de ayrıca doğrulanmadı. Gerçek AkaAI, cihaz/native kabul, tarayıcı E2E ve ekran görüntüleri DOĞRULANAMADI.
+
+## BAKIM — 02.11.2026 — AkaIntegrationHub menüsü — Teknik teslim
+
+Kapsam: `/integrations` sayfası, Yönetim grubunda `integrations` menü öğesi (ikon `Plug`), Hub bağlantı üretimi (`features/integration-hub/hub-link.ts`), OIDC dönüş whitelist'i, realm `aih-admin-web` client'ı. Yeni paket yok.
+
+Senaryolar (`tests/integration-hub.test.mjs`, güncellenen `navigation-search` ve `sidebar-layout` beklentileri):
+
+1. Hub adresi yalnız düz http(s) origin/path kabul eder; `javascript:`, kullanıcı bilgisi, sorgu/fragment içeren veya boş değer bağlantı üretmez.
+2. Bağlantı `idp=buildingflow`, `host`, `locale` (tr/en dışı → tr), `theme` ve sorgusuz/fragmentsiz `return` taşır; OIDC `code`/`state` sızmaz.
+3. Menü SUPER_ADMIN/SITE_ADMIN/MANAGER'da görünür ve `/integrations`'ta aktiftir; ACCOUNTANT/SECURITY/RESIDENT'ta yoktur.
+4. `/integrations` OIDC dönüşünde kabul edilir; alt yol ve sorgulu biçim reddedilir.
+5. TR/EN `integrationHub` anahtarları eşittir; ICU sözlük testi geçer.
+
+**Bu tur kanıt:** web `npm test` **373/373**, typecheck ve production build PASS. Tarayıcıda Keycloak SSO ile uçtan uca geçiş bu ortamda DOĞRULANAMADI (Hub tarafı Mailpit ile ayrıca doğrulandı).

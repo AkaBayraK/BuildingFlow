@@ -9,8 +9,8 @@ export type NavigationContext = {
   propertyId: string | null;
   property: {id: string; type: "APARTMENT" | "SITE" | "RESIDENCE" | "MIXED"} | null;
 };
-export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList" | "Shapes" | "FlaskConical" | "Sparkles";
-type LabelKey = "sidebarUnitsGroup" | "sidebarAdminGroup" | "navigationOverviewGroup" | "navigationPropertyGroup" | "navigationFinanceGroup" | "navigationOperationsGroup" | "navigationCommunicationGroup" | "navigationSystemGroup" | "navDashboard" | "navAssistant" | "properties" | "navOverview" | "navBuildings" | "apartments" | "navUnits" | "navMeters" | "navMaintenance" | "navReports" | "navDues" | "navPayments" | "navExpenses" | "navAnnouncements" | "navSurveys" | "navDocuments" | "navWebsite" | "shellRequests" | "people" | "navSms" | "navUsers" | "navConsents" | "navAccount" | "overview" | "shellSharedAreas" | "shellParking" | "shellSuppliers" | "shellDefinitions" | "shellUsers" | "shellSettings" | "shellQaCenter";
+export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList" | "Shapes" | "FlaskConical" | "Sparkles" | "Plug";
+type LabelKey = "sidebarUnitsGroup" | "sidebarAdminGroup" | "navigationOverviewGroup" | "navigationPropertyGroup" | "navigationFinanceGroup" | "navigationOperationsGroup" | "navigationCommunicationGroup" | "navigationSystemGroup" | "navDashboard" | "navAssistant" | "properties" | "navOverview" | "navBuildings" | "apartments" | "navUnits" | "navMeters" | "navMaintenance" | "navReports" | "navDues" | "navPayments" | "navExpenses" | "navAnnouncements" | "navSurveys" | "navDocuments" | "navWebsite" | "shellRequests" | "people" | "navSms" | "navUsers" | "navConsents" | "navAccount" | "overview" | "shellSharedAreas" | "shellParking" | "shellSuppliers" | "shellDefinitions" | "shellUsers" | "shellSettings" | "shellQaCenter" | "navIntegrations";
 export type NavigationLabel = {namespace: "ui"; key: LabelKey} | {namespace: "sessionWorkspaces"; key: "title"};
 type ItemBase = {
   id: string;
@@ -89,7 +89,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
     ...(permissions.manager ? [module("surveys", "navSurveys", "ClipboardList"), module("website", "navWebsite", "Building2"), module("requests", "shellRequests", "Wrench"), module("sms", "navSms", "MessageSquareText")] : []),
     ...(permissions.users ? [link("users", "/users", "navUsers", "UserCog")] : [])
   ];
-  const administration = permissions.administration ? [link("consents", "/consents", "navConsents", "ShieldCheck"), link("definitions", "/definitions", "shellDefinitions", "SlidersHorizontal"), link("settings", "/system-settings", "shellSettings", "Settings"), ...(permissions.qaCenter ? [link("qa-center", "/system-settings/qa-center", "shellQaCenter", "FlaskConical")] : [])] : [];
+  const administration = permissions.administration ? [link("consents", "/consents", "navConsents", "ShieldCheck"), link("definitions", "/definitions", "shellDefinitions", "SlidersHorizontal"), link("settings", "/system-settings", "shellSettings", "Settings"), link("integrations", "/integrations", "navIntegrations", "Plug"), ...(permissions.qaCenter ? [link("qa-center", "/system-settings/qa-center", "shellQaCenter", "FlaskConical")] : [])] : [];
   const home: NavigationLink = context.sessionContexts ? {...link("home", "/workspaces", "overview", "ListChecks"), label: {namespace: "sessionWorkspaces", key: "title"}} : link("home", "/", "overview", "ListChecks");
   const account = link("account", "/account", "navAccount", "UserRound");
   const visibleItems = [...main, ...operations, ...administration];
@@ -102,7 +102,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
     group("finance", "navigationFinanceGroup", ["dues", "payments", "expenses", "reports"]),
     group("operations", "navigationOperationsGroup", ["requests", "maintenance", "meters", "suppliers"]),
     group("communication", "navigationCommunicationGroup", ["announcements", "surveys", "documents", "website", "sms"]),
-    group("administration", "navigationSystemGroup", ["users", "consents", "definitions", "settings", "qa-center"])
+    group("administration", "navigationSystemGroup", ["users", "consents", "definitions", "settings", "integrations", "qa-center"])
   ].filter(group => group.items.length > 0);
 
   return {groups, dashboard, propertyLink, home, account, shortcuts: [dashboard, propertyLink, units, ...(people ? [people] : [])], searchable: [...groups.flatMap(group => group.items).filter(item => !item.disabled), account, home]};

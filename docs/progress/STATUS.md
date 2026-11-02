@@ -1,3 +1,9 @@
+## BAKIM — 02.11.2026 — AkaIntegrationHub menüsü — TEKNİK TESLİM
+
+Yönetim > Entegrasyonlar menüsü (SUPER_ADMIN/SITE_ADMIN/MANAGER) AkaIntegrationHub SMTP hesapları ve gönderim geçmişi ekranlarını ortak Keycloak oturumuyla açar. Realm'e `aih-admin-web` client'ı eklendi. Ayrıntı [aka-integration-hub.md](../integrations/aka-integration-hub.md).
+
+**Bu tur: web `npm test` 373/373, typecheck/build PASS.** Backend/mobil değişmedi, çalıştırılmadı. Yeni paket yok. Çalışan Keycloak'a client otomatik eklenmez (belgede adım var). Tarayıcıda uçtan uca SSO bu ortamda DOĞRULANAMADI. Token: BİLGİ MEVCUT DEĞİL.
+
 ## AI ASİSTAN FAZ 3 — 01.11.2026 — TEKNİK TESLİM, VARSAYILAN KAPALI
 
 Sakin asistanı (mobil): kendi borç/son ödeme/son ödemeler, kendi talep durumları, yayınlanmış duyurular (maskeli) ve belge yayın tarihleri; mevcut mobil servislerle, her çağrıda bayrak + `AI_ASSISTANT` rızası + kendi bağlam kontrolü. Bayrak kapalı, rıza türü pasif ve metinsiz (KVKK geçidi sağlanmadı). Ayrı kota 10/gün. Mobil Asistan ekranı/ana sayfa kartı (MOBİL kaydı). Belge gövdesi soru-cevabı sonraki faza bırakıldı. Migration `AssistantResident`.
