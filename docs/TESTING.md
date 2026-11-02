@@ -2105,3 +2105,17 @@ Senaryolar (`AssistantResidentTests`, güncellenen `DefaultConsentTextTests`, mo
 **Bu tur kanıt:** geçici PostgreSQL'de asistan (FAZ 0–3) + rıza + mobil bildirim/senkron + migration/persistence/hata sözleşmesi + tedarikçi/anket regresyonu **114/114** (4 depolama testi ortam nedeniyle atlandı); geçici DB/rol temizlendi. Backend birim **477/477**. Web `npm test` **367/367**, typecheck/build PASS. Mobil `npm run check` **174/174** + typecheck + lint, `npm run build` iOS/Android/web export PASS. Lisans metadata **329 PASS**, yeni paket yok.
 
 **Notlar:** (a) Ana klasörde commit'lenmemiş `mobile/buildingflow-mobile/src/definitions/` (TNM 06) dosyaları olmadan commit'li mobil kod typecheck'ten geçmez; doğrulama için geçici kopyalandı, bu commit'e eklenmedi. (b) `MobileFinanceTests.ChargesAndAllocationsArePagedWithoutTruncatingTotals` bugün (ay başı) "Due date cannot precede the assessed month" ile kendi fixture'ında başarısız; dosyaya dokunulmadı, main'de ayrıca doğrulanmadı. Gerçek AkaAI, cihaz/native kabul, tarayıcı E2E ve ekran görüntüleri DOĞRULANAMADI.
+
+## BAKIM — 02.11.2026 — AI Durumu ekranı (TraceFlow uyarlaması) — TAMAMLANDI
+
+Kapsam: `GET /api/v1/system/ai-status`, Yönetim > AI Durumu sayfası ve Sistem Ayarları giriş kartı ([assistant.md](api/assistant.md#ai-durumu-ekranı-02112026)). Migration ve yeni paket yok.
+
+Senaryolar (`AiStatusApiTests`, `tests/ai-status.test.mjs`):
+
+1. Anonim 401, ACCOUNTANT 403; SUPER_ADMIN/SITE_ADMIN/MANAGER 200 ve `no-store`.
+2. AkaAI tanımsız: genel `DISABLED`, mod `RULES`, endpoint `-`, model bileşeni `NOT_CHECKED`, sakin asistanı `DISABLED`, hazır soru sayısı bileşenle aynı.
+3. Sahte AkaAI sağlıklı: `DEFAULT_MODEL_READY`, model/sağlayıcı/`EXTERNAL`/`host:port`/konsol bağlantısı; secret, token ve TokenUrl yanıtta yok; `chat/completions` çağrılmaz; ikinci istek önbellekten (yeni AkaAI çağrısı yok).
+4. AkaAI erişilemez: bileşen `UNREACHABLE`, genel `DOWN`, endpoint 200. Servis hesabı 403: `REJECTED`, AkaAI hata gövdesi yansımaz.
+5. FE: bilinmeyen bileşen atılır, bilinmeyen tür/durum/detay güvenli varsayılana düşer, sayaçlar istemcide hesaplanır; konsol bağlantısı yalnız düz http(s); her tür/durum ikonlu ve TR/EN metinli; menü yalnız üç yönetim rolünde, `/system-settings/ai-status` dönüş yolu.
+
+**Bu tur kanıt:** geçici PostgreSQL (shared `test-db.py`) `AiStatusApiTests` + `SystemStatusApiTests` + `AssistantApiTests` + `QaEndpointInventoryTests` + `ErrorContract` **41/41**; geçici DB/rol temizlendi. Web `npm test` **375/375**, `tsc --noEmit` PASS; `npm run build` ana klasörde. Gerçek AkaAI ve tarayıcı ekran kontrolü bu turda yapılmadı.

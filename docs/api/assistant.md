@@ -150,3 +150,12 @@ Analizdeki geçit (KVKK danışman görüşü, ayrı rıza türü, yayınlanmı�
 | `RESIDENT_NOTICES` | IMobileNoticeStore (yalnız yayınlanmış duyurular) + CommunicationService.Documents (yetkiliyse) | duyuru/okunmamış sayısı; son 5 duyuru için tarih ve **maskeli, 400 karakterle sınırlı** başlık+metin (`excerpt`, `N#`); belge için yalnız yayın tarihi (`B#`). **Belge gövdesi okunmaz/gönderilmez** (PDF metin çıkarma yok, yeni paket yok) — belge içeriği soru-cevabı sonraki faza bırakıldı. |
 
 Mobil sakin bağlamı olmayan hesaplarda `documentDate` kartı gelmeyebilir (CommunicationService üyelik ister). Kanonik yetki modelinde (`canonicalMode`) mobil istemci asistan yolunu açmaz; mevcut finans/duyuru yollarıyla aynı davranış.
+
+## AI Durumu ekranı (02.11.2026)
+
+`GET /api/v1/system/ai-status` (`CanManageHierarchy`: SUPER_ADMIN/SITE_ADMIN/MANAGER, `no-store`) — TraceFlow "AI Durumu" ekranının karşılığı. Altyapı bileşenleri `/api/v1/system/status` ekranında kalır; burada yalnız asistan/AkaAI hattı izlenir.
+
+- Bileşenler: `assistant-configuration` (Assistant:AkaAi tanımlı mı), `akaai-model` (AkaAI `/readyz` + servis hesabıyla `/api/v1/integrations/models`; seçili `Model` ya da `x_akaai_default` modeli), `prompt-templates` (aktif hazır soru sayısı), `resident-assistant` (FAZ 3 bayrağı; kapalıyken `CONSENT_GATE`), `qa-center-ai` (QaCenter:AkaAi).
+- Model çağrısı yapılmaz; AkaAI sonucu 30 sn önbellekte tutulur. Açıklamalar dil bağımsız `detail` kodudur, metni web sözlüğü üretir. Yanıtta token, secret, TokenUrl, tam adres veya AkaAI hata gövdesi yoktur; endpoint yalnız `host:port`.
+- AkaAI tanımlı değilse genel durum `DISABLED`, mod `RULES`. `locality=EXTERNAL` ise ekran harici model uyarısı gösterir. İsteğe bağlı `Assistant:AkaAi:ConsoleUrl` yalnız kimlik/sorgu içermeyen http(s) adresse "AkaAI'de yönet" bağlantısı (`…/models`) olur.
+- Web: Yönetim > AI Durumu (`/system-settings/ai-status`, Sistem Ayarları'nda giriş kartı), özet kartları, tür filtreleri, 15/30/60 sn otomatik yenileme, son kontroller ve bilgi kartı. TraceFlow'daki PDF dışa aktarma alınmadı.

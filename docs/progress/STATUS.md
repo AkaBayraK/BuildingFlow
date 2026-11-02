@@ -1,3 +1,9 @@
+## BAKIM — 02.11.2026 — AI Durumu ekranı — TAMAMLANDI
+
+TraceFlow AI Durumu ekranı uyarlandı: Yönetim > AI Durumu (`/system-settings/ai-status`), `GET /api/v1/system/ai-status`. Asistan AkaAI yapılandırması, AkaAI model servisi (model çağırmadan `/readyz` + model listesi, 30 sn önbellek), hazır sorular, sakin asistanı kapısı ve Test Merkezi AkaAI yapılandırması izlenir. Mevcut Sistem durumu ekranı altyapıyı izlemeye devam eder; bileşen tekrarı yok. Migration/paket yok.
+
+**Bu tur: backend seçili 41/41 (geçici PostgreSQL), web 375/375, typecheck PASS.** Gerçek AkaAI ve tarayıcı ekran kontrolü DOĞRULANAMADI. Yerel main'e commit; push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## AI ASİSTAN FAZ 3 — 01.11.2026 — TEKNİK TESLİM, VARSAYILAN KAPALI
 
 Sakin asistanı (mobil): kendi borç/son ödeme/son ödemeler, kendi talep durumları, yayınlanmış duyurular (maskeli) ve belge yayın tarihleri; mevcut mobil servislerle, her çağrıda bayrak + `AI_ASSISTANT` rızası + kendi bağlam kontrolü. Bayrak kapalı, rıza türü pasif ve metinsiz (KVKK geçidi sağlanmadı). Ayrı kota 10/gün. Mobil Asistan ekranı/ana sayfa kartı (MOBİL kaydı). Belge gövdesi soru-cevabı sonraki faza bırakıldı. Migration `AssistantResident`.

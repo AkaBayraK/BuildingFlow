@@ -86,6 +86,7 @@ builder.Services.AddSystemStatus();
 builder.Services.AddQaCenter(builder.Configuration);
 builder.Services.AddWeather(builder.Configuration);
 builder.Services.AddAssistant(builder.Configuration);
+builder.Services.AddAiStatus();
 
 var app = builder.Build();
 var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
@@ -182,6 +183,7 @@ app.MapDashboardEndpoints();
 app.MapAssistantEndpoints();
 app.MapWeatherEndpoints();
 app.MapSystemStatusEndpoints();
+app.MapAiStatusEndpoints();
 app.MapDefinitionEndpoints();
 app.MapQaCenterEndpoints();
 app.MapCommunicationEndpoints();

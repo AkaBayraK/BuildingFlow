@@ -13,6 +13,7 @@ public sealed class AssistantAkaAiOptions
     public string? ClientId { get; init; }
     public string? ClientSecret { get; init; }
     public string? Model { get; init; }
+    public string? ConsoleUrl { get; init; }
     public int TimeoutSeconds { get; init; } = 30;
     public bool Enabled => Absolute(BaseUrl) && Absolute(TokenUrl) && !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
     private static bool Absolute(string? value) => Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https";
@@ -21,7 +22,7 @@ public sealed class AssistantAkaAiOptions
         var section = configuration.GetSection("Assistant:AkaAi");
         return new()
         {
-            BaseUrl = section["BaseUrl"], TokenUrl = section["TokenUrl"], ClientId = section["ClientId"], ClientSecret = section["ClientSecret"], Model = section["Model"],
+            BaseUrl = section["BaseUrl"], TokenUrl = section["TokenUrl"], ClientId = section["ClientId"], ClientSecret = section["ClientSecret"], Model = section["Model"], ConsoleUrl = section["ConsoleUrl"],
             TimeoutSeconds = Math.Clamp(section.GetValue("TimeoutSeconds", 30), 5, 120)
         };
     }
