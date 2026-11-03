@@ -209,3 +209,16 @@ Sürüm uyuşmazlığı mevcut `BF_RECORD_CHANGED` (409) ile döner. Ayrıntı [
 | BF_ASSISTANT_PROMPT_DUPLICATE | 409 | warning | — |
 
 Model hatası hata kodu üretmez; cevap kural tabanlıya düşer (`modelFallback=true`). Ayrıntı [assistant.md](assistant.md).
+
+
+## BF-ACC02 PDF karakter kapsamı — 02.11.2026
+
+`BF_REPORT_PDF_UNSUPPORTED_TEXT`: HTTP409/warning, parametresiz. Yetkili alan adının PDF’nin WinAnsi + Türkçe glif kapsamı dışında olması; bozuk/eksik isimli dosya üretmek yerine tam Unicode XLSX önerir. BE ErrorCatalog, FE registry ve TR/EN apiErrors eşleşir. ReportExportApiTests/ReportExportFileTests ve report-export.test.mjs negatif API/çeviri kontrolleriyle doğrulandı; alan adı hata parametresi veya ham exception içinde dönmez.
+
+## BF-ACC03 finans defteri hataları
+
+`BF_FINANCE_INVALID`400/error, `BF_FINANCE_CONFLICT`409/warning, `BF_FINANCE_INSUFFICIENT`409/warning, `BF_FINANCE_DATE`409/warning. Parametre yok; kişi/IBAN/ham exception dönmez. ErrorCatalog, FE registry ve TR/EN apiErrors eşleşir. Negatif HTTP/scope/yarış/bakiye/tarih ve frontend hata sözleşmesi testleri PASS; [defter sözleşmesi](financial-ledger.md).
+
+## BF-ACC05 cari ekstre export hata metni
+
+BF_REPORT_PDF_UNSUPPORTED_TEXT409/warning parametresiz kalır; metin yalnız alan adı yerine rapordaki desteklenmeyen metinleri kapsar, UnicodeExcel önerir. Yeni hata kodu/ham exception veya isim parametresi eklenmedi. ErrorCatalog+TR/EN+ErrorContract/reportexport regresyonları doğrulandı. [Cari sözleşmesi](supplier-finance.md).

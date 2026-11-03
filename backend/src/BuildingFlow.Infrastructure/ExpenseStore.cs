@@ -124,6 +124,7 @@ public sealed class ExpenseStore(BuildingFlowDbContext db, TimeProvider clock) :
         if (!await Properties(access).AnyAsync(value => value.Id == property, token)) return null;
         var end = period.AddMonths(1);
         var income = await db.Payments.AsNoTracking().Where(value => value.PropertyId == property && !value.IsCancelled && value.PaidDate >= period && value.PaidDate < end).SumAsync(value => (decimal?)value.Amount, token) ?? 0;
+        income += await FinancialIncomeStore.ActiveReceipts(db,property).Where(r=>r.PaidOn>=period&&r.PaidOn<end).SumAsync(r=>(decimal?)r.Amount,token)??0;
         var expenses = await Expenses(property, access).Where(value => !value.IsCancelled && value.OccurredDate >= period && value.OccurredDate < end).GroupBy(value => value.Category).Select(group => new { Category = group.Key, Amount = group.Sum(value => value.Amount) }).ToDictionaryAsync(value => value.Category, value => value.Amount, token);
         var budgets = await db.PropertyBudgets.AsNoTracking().Where(value => value.PropertyId == property && value.Period == period).ToDictionaryAsync(value => value.Category, token);
         var categories = Enum.GetValues<ExpenseCategory>().Select(category => {

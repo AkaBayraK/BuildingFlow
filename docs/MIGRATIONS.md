@@ -214,3 +214,15 @@ FAZ04'ün `20261026165346_CommonAreaReservations` migration+Designer+snapshot te
 ## OTOPARK-08 final prova —28.10.2026
 
 Yeni migration/model alanı yok; eski migration/snapshot hashleri korundu. `has-pending-model-changes --no-build` temiz. Mevcut49migration'ın idempotentSQL'i yeniizoleDByeikiuygulandı,49historysatırı;herikikoşuERROR/FATALyok. Migration/8NOTNULL/Up/Downkoruma testleri817suite'degeçti. Canlıya uygulanmadı. [Rapor](parking/08-report.md).
+
+## BF-ACC03 — Finans defteri (02.11.2026)
+
+`20261102113427_FinancialLedgerFoundation` + Designer/snapshot: financial_accounts/financial_transactions/financial_entries, ortak sekiz zorunlu alan, compositeFK/unique/check ve immutable/deferred bütünlük guard’ları. Legacy Payment tabloları değiştirilmez veya otomatik eşlenmez. Herhangi bir defter verisi varsa Down engellenir. İlk kurulum, önceki sürümden yükseltme, tekrar, boş Down/up ve dolu Down reddi ayrı geçici PostgreSQL’de doğrulandı; anaDB’ye uygulanmadı. [Rapor](accounting/03-report.md), [API](api/financial-ledger.md). Uygulanmış eski migrationlar değişmedi.
+
+## BF-ACC04 — Alacak ve tahsilat kaynakları (02.11.2026)
+
+`20261102164252_FinancialIncomeCollections` +Designer/snapshot: iki BaseEntity tablo financial_incomes/financial_income_receipts,8ortakNOTNULL, compositeFK/unique/check; finans işlem türleri PAYMENT/INCOME_RECEIPT. Önceki migration değiştirilmeden SQL validator yeni kaynak şekli/tutarı ve Payment iptal↔tersleme eşliğini denetler; alacak/receipt geçmişi immutable, fazla tahsilat ve dolu Down engelli. Eski Payment/açılış hesap eşlemesi otomatik yapılmaz. Ayrı PostgreSQL’de ilk/upgrade/reapply/idempotent/boşDown-up/doluDown testli; anaDB’ye uygulanmadı. Yalnız geçici test runner kilit kapasitesi256. [Kanıt](accounting/04-report.md), [API](api/financial-income.md).
+
+## BF-ACC05 — Cari tedarikçi ödemeleri (03.11.2026)
+
+`20261102170051_SupplierFinancePayments` +Designer/snapshot: supplier_payments/supplier_payment_allocations/supplier_payment_operations, ortak8NOTNULL, tenant/supplier/Property compositeFK ve tekil operasyon kanıtı. SUPPLIER_PAYMENT signed tek negatif entry; kaynak header/approval/REVERSAL yaşam döngüsü deferred kontrollerle eşleşir. Tutar/kimlik değişmez, tahsis/operation append-only; kendi kaydını onaylama ve invoice double settlement engelli. Dolu Down reddedilir; legacyPAID/RECONCILED ve eski audit/version değiştirilmez, backfill yok. Eski migration değişmedi; ilk/upgrade/reapply/idempotent/boşDown-up/doluDown ve tüm tablo/model ayrıPG’de doğrulandı. AnaDB’ye uygulanmadı. [Kanıt](accounting/05-report.md), [API](api/supplier-finance.md).

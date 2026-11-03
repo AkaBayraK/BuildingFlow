@@ -7,6 +7,14 @@ const done = (title: string, detail: string, verification = "verificationRecordD
 const planned = (title: string, detail: string): RoadmapTask => ({ title, detail, done: false });
 
 export const milestones: Milestone[] = [
+  {number:"ACC-01",title:"accountingPhase01Title",description:"accountingPhase01Description",tasks:[done("accountingPhase01Task","accountingPhase01Detail","accountingPhase01Verification")]},
+  {number:"ACC-02",title:"accountingPhase02Title",description:"accountingPhase02Description",tasks:[done("accountingPhase02Task","accountingPhase02Detail","accountingPhase02Verification")]},
+  {number:"ACC-03",title:"accountingPhase03Title",description:"accountingPhase03Description",tasks:[done("accountingPhase03Task","accountingPhase03Detail","accountingPhase03Verification")]},
+  {number:"ACC-04",title:"accountingPhase04Title",description:"accountingPhase04Description",tasks:[done("accountingPhase04Task","accountingPhase04Detail","accountingPhase04Verification")]},
+  {number:"ACC-05",title:"accountingPhase05Title",description:"accountingPhase05Description",tasks:[done("accountingPhase05Task","accountingPhase05Detail","accountingPhase05Verification")]},
+  {number:"ACC-06",title:"accountingPhase06Title",description:"accountingPhase06Description",tasks:[planned("accountingPhase06Task","accountingPhase06Detail")]},
+  {number:"ACC-07",title:"accountingPhase07Title",description:"accountingPhase07Description",tasks:[planned("accountingPhase07Task","accountingPhase07Detail")]},
+  {number:"ACC-08",title:"accountingPhase08Title",description:"accountingPhase08Description",tasks:[planned("accountingPhase08Task","accountingPhase08Detail")]},
   {number:"TNM-06",title:"definitionsMobileRoadmapTitle",description:"definitionsMobileRoadmapDescription",tasks:[done("definitionsMobileRoadmapTask","definitionsMobileRoadmapDetail","definitionsMobileRoadmapVerification")]},
   {number:"TNM-05",title:"definitionsFinanceRoadmapTitle",description:"definitionsFinanceRoadmapDescription",tasks:[done("definitionsFinanceRoadmapTask","definitionsFinanceRoadmapDetail","definitionsFinanceRoadmapVerification")]},
   {number:"SUP-11",title:"supplierAdviceRoadmapTitle",description:"supplierAdviceRoadmapDescription",tasks:[done("supplierAdviceRoadmapTask","supplierAdviceRoadmapDetail","supplierAdviceRoadmapVerification")]},

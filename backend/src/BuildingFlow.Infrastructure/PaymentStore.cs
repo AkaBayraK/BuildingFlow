@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class PaymentStore(BuildingFlowDbContext db, LatePenaltyEngine penalties, TimeProvider clock) : IPaymentStore
+public sealed class PaymentStore(BuildingFlowDbContext db, LatePenaltyEngine penalties, TimeProvider clock, FinancialIncomeStore income) : IPaymentStore
 {
     private IQueryable<Property> Properties(AccessScope access)
     {
@@ -233,6 +233,7 @@ public sealed class PaymentStore(BuildingFlowDbContext db, LatePenaltyEngine pen
     internal async Task ReverseAsync(Property parent, Payment value, string reason, CancellationToken token)
     {
         var property = parent.Id;
+        await income.ReversePayment(parent,value,reason,token);
         if (!db.Entry(value).Collection(item => item.Allocations).IsLoaded) await db.Entry(value).Collection(item => item.Allocations).LoadAsync(token);
         var ids = value.Allocations.Select(part => part.ChargeId).ToArray();
         var charges = await db.DuesCharges.Where(charge => charge.PropertyId == property && charge.UnitId == value.UnitId && ids.Contains(charge.Id)).ToListAsync(token);

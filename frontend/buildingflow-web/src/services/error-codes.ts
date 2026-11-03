@@ -634,6 +634,11 @@ export const errorCodes = {
     "severity": "error",
     "parameters": []
   },
+  "BF_REPORT_PDF_UNSUPPORTED_TEXT": {"status": 409, "severity": "warning", "parameters": []},
+  "BF_FINANCE_INVALID": {"status":400,"severity":"error","parameters":[]},
+  "BF_FINANCE_CONFLICT": {"status":409,"severity":"warning","parameters":[]},
+  "BF_FINANCE_INSUFFICIENT": {"status":409,"severity":"warning","parameters":[]},
+  "BF_FINANCE_DATE": {"status":409,"severity":"warning","parameters":[]},
   "BF_INVALID_REQUEST": {
     "status": 400,
     "severity": "error",

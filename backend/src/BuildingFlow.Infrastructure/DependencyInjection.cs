@@ -79,6 +79,12 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.ILatePenaltyStore>(provider => provider.GetRequiredService<LatePenaltyStore>());
         services.AddScoped<BuildingFlow.Application.ILatePenaltyScheduler>(provider => provider.GetRequiredService<LatePenaltyStore>());
         services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
+        services.AddScoped<FinancialLedgerStore>();
+        services.AddScoped<BuildingFlow.Application.IFinancialLedgerStore>(s=>s.GetRequiredService<FinancialLedgerStore>());
+        services.AddScoped<FinancialIncomeStore>();
+        services.AddScoped<BuildingFlow.Application.IFinancialIncomeStore>(s=>s.GetRequiredService<FinancialIncomeStore>());
+        services.AddScoped<BuildingFlow.Application.FinancialIncomeService>();
+        services.AddScoped<BuildingFlow.Application.FinancialLedgerService>();
         services.AddScoped<BuildingFlow.Application.IDashboardStore, DashboardStore>();
         services.AddScoped<BuildingFlow.Application.IAssistantStore, AssistantStore>();
         services.AddScoped<BuildingFlow.Application.IAssistantSupplierSource, AssistantSupplierSource>();
@@ -92,6 +98,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.ISupplierQuoteStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierWorkOrderStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierMaintenanceStore>(p=>p.GetRequiredService<SupplierStore>());
+        services.AddScoped<BuildingFlow.Application.ISupplierFinanceStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierInvoiceStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddScoped<BuildingFlow.Application.ISupplierInsightStore>(p=>p.GetRequiredService<SupplierStore>());
         services.AddSingleton(p=>new SupplierAdviceBudget(p.GetRequiredService<TimeProvider>(),configuration.GetValue("Suppliers:AdviceDailyLimit",SupplierAdviceBudget.DefaultLimit)));

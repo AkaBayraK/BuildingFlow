@@ -169,6 +169,10 @@ public sealed class PaymentConfigurationStore(BuildingFlowDbContext db, PaymentP
         // Payments already received keep pointing at this row; closing only shortens validity.
         if (await db.Payments.AnyAsync(value => value.PropertyId == property && value.BankAccountId == id && value.PaidDate > validTo && !value.IsCancelled, token))
             throw Conflict(ErrorCatalog.PaymentBankAccountState);
+        var ledger = db.Set<FinancialEntry>().Where(e=>e.PropertyId==property && db.Set<FinancialAccount>().Any(a=>a.PropertyId==property&&a.Id==e.AccountId&&a.BankAccountId==id));
+        if ((await ledger.SumAsync(e=>(decimal?)e.Delta,token)??0)!=0 ||
+            await ledger.AnyAsync(e=>db.Set<FinancialTransaction>().Any(t=>t.PropertyId==property&&t.Id==e.TransactionId&&t.OccurredOn>validTo),token))
+            throw Conflict(ErrorCatalog.FinanceConflict);
         account.Close(validTo, reason); Touch(parent);
         await Save(token, ErrorCatalog.RecordChanged); await transaction.CommitAsync(token);
         return await AccountAsync(property, id, false, token);

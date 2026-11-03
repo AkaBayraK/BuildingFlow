@@ -2945,6 +2945,477 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BankAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bank_account_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name_key");
+
+                    b.Property<DateOnly>("OpenedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("opened_on");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "BankAccountId")
+                        .IsUnique()
+                        .HasFilter("bank_account_id IS NOT NULL");
+
+                    b.HasIndex("PropertyId", "NameKey")
+                        .IsUnique();
+
+                    b.ToTable("financial_accounts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_financial_accounts_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_financial_accounts_values", "currency='TRY' AND opened_on>=DATE '2000-01-01' AND length(trim(name))>0 AND ((kind='CASH' AND bank_account_id IS NULL) OR (kind='BANK' AND bank_account_id IS NOT NULL))");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("Delta")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("delta");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("transaction_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "AccountId");
+
+                    b.HasIndex("PropertyId", "TransactionId");
+
+                    b.HasIndex("TransactionId", "AccountId")
+                        .IsUnique();
+
+                    b.ToTable("financial_entries", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_financial_entries_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_financial_entries_values", "delta BETWEEN -99999999.99 AND 99999999.99");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialIncome", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancellation_reason");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("document_reference");
+
+                    b.Property<DateOnly>("DueOn")
+                        .HasColumnType("date")
+                        .HasColumnName("due_on");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_cancelled");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateOnly>("IssuedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("issued_on");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("financial_incomes", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_financial_income_history", "NOT is_deleted AND is_enabled AND ((NOT is_cancelled AND cancellation_reason IS NULL AND cancelled_at IS NULL) OR (is_cancelled AND length(trim(cancellation_reason))>0 AND cancelled_at IS NOT NULL))");
+
+                            t.HasCheckConstraint("ck_financial_income_values", "amount>0 AND amount<=99999999.99 AND issued_on>=DATE '2000-01-01' AND due_on>=issued_on AND category IN ('COMMON_AREA_RENT','OTHER') AND request_fingerprint ~ '^[0-9A-Fa-f]{64}$' AND length(trim(description))>0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialIncomeReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("document_reference");
+
+                    b.Property<Guid>("IncomeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("income_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("PaidOn")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_on");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PropertyId", "Id");
+
+                    b.HasIndex("PropertyId", "AccountId");
+
+                    b.HasIndex("PropertyId", "IncomeId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("financial_income_receipts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_financial_income_receipt_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_financial_income_receipt_values", "amount>0 AND amount<=99999999.99 AND paid_on>=DATE '2000-01-01' AND request_fingerprint ~ '^[0-9A-Fa-f]{64}$' AND length(trim(description))>0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("OccurredOn")
+                        .HasColumnType("date")
+                        .HasColumnName("occurred_on");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<Guid?>("ReversesTransactionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reverses_transaction_id");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "ReversesTransactionId")
+                        .IsUnique()
+                        .HasFilter("reverses_transaction_id IS NOT NULL");
+
+                    b.HasIndex("PropertyId", "Kind", "SourceId")
+                        .IsUnique();
+
+                    b.ToTable("financial_transactions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_financial_transactions_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_financial_transactions_values", "occurred_on>=DATE '2000-01-01' AND length(trim(description))>0 AND request_fingerprint ~ '^[0-9A-Fa-f]{64}$' AND kind IN ('OPENING','ADJUSTMENT','TRANSFER','REVERSAL','PAYMENT','INCOME_RECEIPT','SUPPLIER_PAYMENT') AND ((kind='REVERSAL')=(reverses_transaction_id IS NOT NULL))");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.GuestVehicle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -11563,6 +12034,324 @@ namespace BuildingFlow.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("document_reference");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("PaidOn")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_on");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("RecorderIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("recorder_issuer");
+
+                    b.Property<string>("RecorderSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("recorder_subject");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId", "AccountId");
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("supplier_payments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_payment_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_supplier_payment_values", "amount>0 AND amount<=99999999.99 AND paid_on>=DATE '2000-01-01' AND length(trim(description))>0 AND request_fingerprint ~ '^[0-9A-Fa-f]{64}$' AND length(recorder_issuer)>0 AND length(recorder_subject)>0 AND status IN ('PENDING','POSTED','CANCELLED','REVERSED')");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPaymentAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<long>("InvoiceVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("invoice_version");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId", "PaymentId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "InvoiceId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "PaymentId")
+                        .HasDatabaseName("IX_supplier_payment_allocations_tenant_id_supplier_id_propert~1");
+
+                    b.ToTable("supplier_payment_allocations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_payment_allocation_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_supplier_payment_allocation_values", "amount>0 AND amount<=99999999.99 AND invoice_version>0");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPaymentOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("ActorIssuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("actor_issuer");
+
+                    b.Property<string>("ActorSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_subject");
+
+                    b.Property<long>("AppliedVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("applied_version");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly>("OccurredOn")
+                        .HasColumnType("date")
+                        .HasColumnName("occurred_on");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId", "AppliedVersion")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "SupplierId", "PropertyId", "PaymentId");
+
+                    b.ToTable("supplier_payment_operations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_supplier_payment_operation_history", "NOT is_deleted AND is_enabled");
+
+                            t.HasCheckConstraint("ck_supplier_payment_operation_values", "applied_version>0 AND occurred_on>=DATE '2000-01-01' AND request_fingerprint ~ '^[0-9A-Fa-f]{64}$' AND action IN ('CREATE','APPROVE','CANCEL','REVERSE','ALLOCATE') AND length(actor_issuer)>0 AND length(actor_subject)>0 AND length(trim(reason))>0");
+                        });
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierQuote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14558,6 +15347,79 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialAccount", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.PaymentBankAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "BankAccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialEntry", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.FinancialAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "AccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.FinancialTransaction", null)
+                        .WithMany("Entries")
+                        .HasForeignKey("PropertyId", "TransactionId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialIncome", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialIncomeReceipt", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.FinancialAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "AccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.FinancialIncome", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "IncomeId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialTransaction", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.FinancialTransaction", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "ReversesTransactionId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.GuestVehicle", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.Unit", null)
@@ -15712,6 +16574,50 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPayment", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.FinancialAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId", "AccountId")
+                        .HasPrincipalKey("PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierManagementArea", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPaymentAllocation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SupplierInvoice", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "InvoiceId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingFlow.Domain.SupplierPayment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "PaymentId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.SupplierPaymentOperation", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.SupplierPayment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SupplierId", "PropertyId", "PaymentId")
+                        .HasPrincipalKey("TenantId", "SupplierId", "PropertyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BuildingFlow.Domain.SupplierQuote", b =>
                 {
                     b.HasOne("BuildingFlow.Domain.SupplierInquiry", null)
@@ -16186,6 +17092,11 @@ namespace BuildingFlow.Infrastructure.Migrations
             modelBuilder.Entity("BuildingFlow.Domain.DuesCharge", b =>
                 {
                     b.Navigation("Parties");
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.FinancialTransaction", b =>
+                {
+                    b.Navigation("Entries");
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.LatePenaltyAccrual", b =>

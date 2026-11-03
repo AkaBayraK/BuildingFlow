@@ -1,3 +1,75 @@
+## BF-ACC06 — 03.11.2026 — DEVAM EDIYOR
+
+Kullanıcı devam talebiyle05kabulünü ve06başlangıcını onayladı; #114closed/Done, #115In progress. Dağıtım kararı kullanıcıdan alındı: açık yönetici payları, en büyük kalan/kuruş tamamlama ve değişmez pay/blok snapshot. Sözleşme/kabul/task1/3=%33,33 tamamlandı; uygulama devam ediyor. Banka CSV önizleme/dedupe/eşleştirme/fark ve doğrudan/ortak/paylaştırılmış gider-blok raporu; mevcut online mutabakatın yeniden kullanımı. Yeni paket/anaDB değişimi yok. Bu tur test henüz yok. BF-ACC teknik5/8=%62,50; kullanıcı kabul5/8=%62,50.
+
+## BF-ACC05 — 03.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz ve bu tur3/3=%100,00. BF-ACC teknik5/8=%62,50; kullanıcı kabul4/8=%50,00.** milestones.ts57kayıt,174/188doğrulanmış görev=%92,55. Kullanıcı Faz05başlangıcıyla04kabulünü verdi; #113closed/Done. #114In review/açık, kullanıcı kabulü bekliyor. BF-ACC06/#115başlatılmadı. Faz02.11.2026’da başladı,03.11.2026’da teknik teslim edildi.
+
+Muhasebede kişi/iletişim yetkisi açmadan tenant→cari→fatura/ödeme/ekstre ve tarihçe. Mevcut SupplierInvoice/Expense korunur; fatura onayı tek gider, yeni ödeme yalnız defter çıkışı. İkinci kişi/alan yöneticisi onaylı taslak, kısmi/çoklu fatura ödemesi, avans/sonradan açık dağıtım ve immutable tersleme. Fatura onay geçmişi yeniden yazılmaz; allocated/outstanding defterden gelir. ENFORCED atama yeni finans ve mevcut fatura yollarında; legacyPAID/RECONCILED dış ödeme olarak korunur, otomatik hesap/backfill yok. Üç BaseEntity tablo +20261102170051_SupplierFinancePayments/Designer/snapshot; tenant→Property kilit/version/UUID, compositeFK/immutable/deferred ikinci kişi/kaynak/toplam/Down korumaları. Gerçek banka transferi yok.
+
+Cari ekstre gerçek XLSX/PDF, RepeatableRead aynı yetkili snapshot;5000satır/5MiB aşımında kırpma yok. BCL/özgünPDF, mevcut Blob/MIME/imza/abort/tekgönderim; TR/EN/ikonlu ortak panel/RecordList, seçimler sayfa dışında korunur. **İzole PostgreSQL177/177+birim74/74; web416/416,0atlama; typecheck/production build PASS.** Ayrıca sentetik7/7, ikiPDF+ikiXLSX bağımsız okuyucuda,6PDF sayfası görsel QA;18hareket net-30.00veformül koruması PASS. Tüm tablo8NOTNULL/pendingmodel/ilk/upgrade/reapply/idempotent/boşDown-up/doluDown ve legacy audit/version koruması testli.
+
+İlk SQL CASE/alias, test hedef türü/yanlış liste404beklentisi, FE stil/namespace, QA soket/fontconfig engelleri düzeltildi; final koşular hatasız.266başlangıç kaynağından yalnız beklenen snapshot değişti; eski migration/manifest/proje/lock korundu. Yeni paket/font/restore/npmci yok; anaDB’ye migration uygulanmadı. .env/kullanıcı/parola/gerçek servis ve diğer oturum farkları korundu; commit/push/deploy yok. Gerçek browser/form/klavye/responsive/nativeExcel/mobil E2E, tüm backend/scanner ve gerçek sağlayıcı kabulü yapılmadı. Belge referansı dosya arşivinin yerine geçmez; sade fatura paneli optional sözleşme/işemri/düzeltme bağlantısı eklemez.
+
+[Rapor](../accounting/05-report.md), [API](../api/supplier-finance.md), [testler](../TESTING.md), [sentetik dosya/QA](../accounting/evidence/05/README.md). Sonraki: kullanıcı BF-ACC05 kabulü ve BF-ACC06 başlangıcı.
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM] Codex get_usage_limits/rateLimitsByLimitId.codex03.11.2026 teslim:300dk kullanılan%42/kalan%58,reset03.11.2026 05:45:49;10080dk kullanılan%38/kalan%62,reset09.11.2026 13:58:50 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+
+## BF-ACC04 — 02.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz ve bu tur3/3=%100,00. BF-ACC teknik4/8=%50,00; kullanıcı kabul3/8=%37,50.** milestones.ts57kayıt,173/188doğrulanmış görev=%92,02. Kullanıcı “faz 04 e geçbilirsin” ile03kabulünü verdi; #112closed/Done. #113In review/açık, kullanıcı kabulü bekliyor; BF-ACC05/#114başlatılmadı.
+
+Ayrı alacak ve kısmi/tam tahsilat, kategori/vade/belge referansı; yazmasız kaynakPayment önizleme ve açık hesap/sürüm/tutar/açılış teyidiyle tek defter aktarımı. Hesap tahmini/backfill yok. Ortak Payment iptal/refund/chargeback yolu bağlı defteri atomik tersler; harcanmış bakiye kaynak iptalini de reddeder. Gelir receipt terslemesi alacağı yeniden açar. Dashboard/ReportStore/Excel/PDF/gider aylık özeti yalnız Payment+aktif gelirreceipt; transfer/açılış/sayım/alacak/deftere kaynak bağlama ek gelir değildir. Muhasebe listeleri/sağ paneller/TR-EN/ikonlar/DTO/UUID/409 ve ortak yenileme. İki BaseEntity tablo +20261102164252_FinancialIncomeCollections/Designer/snapshot; immutable/deferred kaynak/tutar/kalan ve Payment iptal↔tersleme kontrolleri.
+
+**İzole PostgreSQL126/126entegrasyon+61/61birim; web406/406;0atlama; typecheck/production build PASS.** Yeni12HTTP/DB+1migration+7birim+7frontend; diğerleri finans/online/gecikme/model regresyonudur. İlk/upgrade/reapply/idempotent/boşDown-up/doluDown/tüm tablo8NOTNULL/pendingmodel ve JSON-XLSX-PDF toplam eşliği testli. İlk migration kapasitesi yalnız geçici runner kilit256ile giderildi; DTO/FE tip/PDF metin beklentisi düzeltildi, son koşu hatasız.213başlangıç kaynağından yalnız beklenen snapshot değişti. Yeni paket/font/restore yok; anaDB’ye migration uygulanmadı. .env/kullanıcı/parola/gerçek servis ve başka oturumun farkları korundu; commit/push/deploy yok.
+
+Gerçek browser/form/klavye/responsive/native/mobil E2E, tüm backend/scanner ve yeni PDF görsel render çalıştırılmadı. Belge alanı referanstır, yeni upload/arşiv yetkisi değildir. Açılışa dahil edilmiş eski Payment tekrar aktarılmamalıdır; açık kullanıcı teyidi gerekir. Yeni/eski kaynaklarda otomatik hesap ataması yok. [Rapor](../accounting/04-report.md), [API](../api/financial-income.md), [test kaydı](../TESTING.md). Sonraki: BF-ACC04 kullanıcı kabulü ve BF-ACC05 başlangıcı.
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM] Codex get_usage_limits/rateLimitsByLimitId.codex,02.11.2026 teslim okuması:300dk kullanılan%58/kalan%42,reset03.11.2026 00:27:31;10080dk kullanılan%25/kalan%75,reset09.11.2026 13:58:51 Europe/Istanbul. Hesap pencereleri sohbet token tüketimi değildir.
+
+## BF-ACC03 — 02.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz ve bu tur 3/3=%100,00. BF-ACC teknik3/8=%37,50; kullanıcı kabul2/8=%25,00.** Ürün kaynağı milestones.ts:57kayıt,172/188doğrulanmış görev=%91,49. Kullanıcı BF-ACC02’yi kabul etti; #111 closed/Done. #112 teknik teslim/In review, açık; kullanıcı kabulü verilmedi. BF-ACC04/#113 Backlog; başlanmadı.
+
+Kasa/banka hesapları ve mevcut onaylı PaymentBankAccount adapter’ı, açık sıfır/pozitif açılış, kasa sayım düzeltmesi, atomik iki bacaklı transfer ve gerekçeli tek ters kayıt. Bakiye yalnız değişmez entry toplamı; eksi bakiye/geriye tarih yok. UUID/fingerprint replay güncel bakiye/version döndürür; parent kilidi/üyelik/compositeFK/deferred DB guard. Üç BaseEntity tablo +20261102113427_FinancialLedgerFoundation, Designer/snapshot. Banka kapanışı bakiyeli/geç tarihli defterde, Property silme finans geçmişinde engelli. Ortak panel/RecordList/TR-EN/ikonlar, 409 güncel sürümü yükleme, tutarlı belirsiz sonuç retry. Aidat Payment kayıtları otomatik aktarılmadı/çift sayılmadı; sahte Unit yok; sayım düzeltmesi gelir değildir.
+
+**İzole PostgreSQL69/69, birim20/20,0atlama; web399/399, typecheck/production build PASS.** PG ilk kurulum/yükseltme/tekrar/boş ve dolu Down, tüm tablo8alan/model, negatif auth/scope, yarış, immutable/eksik header/negatif bakiye/crossPropertyFK ve harcanmış hedef bakiyesiyle atomik ters kayıt reddi testli. Web toplamındaki eşzamanlı entegrasyon işine ait6test bu fazın geliştirmesi değildir. Gerçek tarayıcı/native/mobil E2E ve tam backend suite çalıştırılmadı. AnaDB’ye migration uygulanmadı. Yeni paket/restore/font/ikon yok; eski migration/manifest/proje hashleri korunur, yalnız beklenen model snapshot değişti. Diğer oturumun Keycloak/entegrasyon/güvenlik farkları korunur; bu faz bunları değiştirmedi. Commit/push/deploy yok.
+
+Kanıt: [faz raporu](../accounting/03-report.md), [API sözleşmesi](../api/financial-ledger.md), [testler](../TESTING.md). Sonraki adım kullanıcı BF-ACC03 kabulü ve BF-ACC04 başlangıcıdır.
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM] Codex get_usage_limits/rateLimitsByLimitId.codex,02.11.2026 teslim okuması:300dk kullanılan%19/kalan%81,reset03.11.2026 00:27:31;10080dk kullanılan%19/kalan%81,reset09.11.2026 13:58:50 Europe/Istanbul. Hesap pencereleri sohbet token tüketimi değildir.
+
+
+## BF-ACC02 — 02.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+Son Codexusage02.11.2026:300dk kullanılan%48/kalan%52, reset02.11.2026 18:58:50;10080dk kullanılan%8/kalan%92, reset09.11.2026 13:58:50 Europe/Istanbul. Hesap pencereleri sohbet token tüketimi değildir. Giriş/çıkış/toplam/kalancontext:BİLGİ MEVCUT DEĞİL.
+
+
+Ürün yol haritası anlık kaynağı:57kayıt,171/188doğrulanmış adım=%90,96; BF-ACC kayıt/adım toplamı değişmedi. Bu oran kullanıcı kabulü veya üretime hazırlık değildir.
+
+
+BF-ACC01 kullanıcı kabul edildi (#110Closed/Done). BF-ACC02/#111: gerçek reports.xlsx/pdf yetkili GET, aynı ReportStore snapshot’ı alan adı/üretim zamanı, BCL OpenXML ve font binary’siz özgün PDF. Dashboard/Raporlar/Aidat ortak indirme; role/scope/period/account/locale iptali, Blob MIME/imza, çift tıklama kilidi. TR/EN; para hassasiyeti/formül koruması, PDF sayfa/başlık/Türkçe glif. Desteklenmeyen alfabe409 BF_REPORT_PDF_UNSUPPORTED_TEXT, Unicode XLSX alternatifi.
+
+**Web386/386, izolePG API/hata22/22, dosya10/10;0skip; tsc/production build ve .NET0hata/0uyarı PASS.** BeşXLSX+beşPDF bağımsız okuyucuda,8PDF sayfası/3XLSX sayfası görsel QA. Gerçek browser download E2E/native Excel/mobil/tam backend/scanner yok.147migration/snapshot/manifest/proje hash’i aynı; paket/restore/migration/anaDB/.env/Keycloak/servis değişmedi; commit/push/deploy yok. Önceki BF-ACC01 ve kullanıcı checkout farkları korunur.
+
+Kanıt docs/accounting/02-report.md, docs/api/accounting.md, docs/TESTING.md, docs/accounting/evidence/02/. Faz3/3=%100,00; program teknik2/8=%25,00, kabul1/8=%12,50. #111In review/açık; #112BF-ACC03 başlamadı. Sonraki: kullanıcı BF-ACC02 kabulü ve BF-ACC03 başlangıcı. Token giriş/çıkış/toplam/kalancontext:BİLGİ MEVCUT DEĞİL.
+
+
+## BF-ACC 01 — 02.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+Kaynak sayaç: milestones.ts57kayıt,170/188tamamlanmış ürün adımı=%90,43. Bu tur eklenen8BF-ACC kaydı nedeniyle önceki49kayıt/180adıma8planlı adım eklendi; yalnız ACC-01 teknik doğrulamayla tamamlandı. Bu oran kullanıcı kabulü veya üretime hazırlık değildir.
+
+
+Ayrı Muhasebe menüsü, /accounting alan seçimi ve alan içi finans dashboard’u: mevcut rapor API’sinden aylık/yıllık tahakkuk/tahsilat/güncel kalan borç/gider, kategori/ay dökümü. TR/EN, ortak UI/tablo/mobil kartlar; alan/dönem/yetki/yenileme/locale/hesap değişiminde eski veri saklanmaz. Kasa bakiyesi veya tarihsel bilanço iddiası yok.
+
+**Web380/380,0skip; typecheck/build; izole PostgreSQL ReportApiTests6/6,0skip PASS.** İlk tam testte eski menü beklentisi düzeltildi; ilk SWC/Docker sandbox engelleri izinli tekrarlarla aşıldı. Gerçek tarayıcı/E2E/native görsel kabulü DOĞRULANAMADI; tam backend/mobil suite/scanner çalıştırılmadı. AnaDB/.env/Keycloak/servis/migration/paket değişmedi. Next build next-env.d.ts üretilen type yollarını güncelledi. Önceden mevcut izlenmeyen supplier/graphify/mobile definition/test/snapshot.orig dosyaları korundu. Commit/push/deploy yok.
+
+Prompt: docs/accounting/MASTER_PROMPT.md. Kanıt: docs/accounting/01-report.md, docs/api/accounting.md, TESTING.md. Tek ürün kaynağı milestones.ts ACC-01…08; yalnız01 teknik uygulama işaretli. @BuildingFlow Project3’e #110–117 eklendi; #110 In review/açık, diğerleri Backlog. Kullanıcı kabulü agent tarafından verilmez. İlk faz3/3=%100,00; program teknik1/8=%12,50, kabul0/8=%0,00. **Devam: kullanıcı BF-ACC01 kabulü ve BF-ACC02 başlangıcıyla #111 gerçek .xlsx/.pdf dosya raporları. Faz02 başlamadı; CSV/print bu kabul değildir.** Token giriş/çıkış/toplam/kalancontext:BİLGİ MEVCUT DEĞİL.
+
 ## AI ASİSTAN FAZ 3 — 01.11.2026 — TEKNİK TESLİM, VARSAYILAN KAPALI
 
 Sakin asistanı (mobil): kendi borç/son ödeme/son ödemeler, kendi talep durumları, yayınlanmış duyurular (maskeli) ve belge yayın tarihleri; mevcut mobil servislerle, her çağrıda bayrak + `AI_ASSISTANT` rızası + kendi bağlam kontrolü. Bayrak kapalı, rıza türü pasif ve metinsiz (KVKK geçidi sağlanmadı). Ayrı kota 10/gün. Mobil Asistan ekranı/ana sayfa kartı (MOBİL kaydı). Belge gövdesi soru-cevabı sonraki faza bırakıldı. Migration `AssistantResident`.

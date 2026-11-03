@@ -1,4 +1,4 @@
-const moduleSelections=new Set(["units","people","dues","payments","expenses","announcements","surveys","documents","meters","maintenance","reports","sms","requests","website","common-areas","parking"]);
+const moduleSelections=new Set(["units","people","dues","payments","expenses","announcements","surveys","documents","meters","maintenance","accounting","reports","sms","requests","website","common-areas","parking"]);
 
 export type BackTarget={href:string;label:"back"|"backToPeople"};
 

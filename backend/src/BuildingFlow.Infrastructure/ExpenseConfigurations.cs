@@ -12,6 +12,7 @@ internal sealed class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
     public void Configure(EntityTypeBuilder<Expense> builder)
     {
         BaseEntityConfiguration.Configure(builder, "expenses");
+        builder.HasAlternateKey(x=>new{x.PropertyId,x.Id});
         builder.Property(value => value.PropertyId).HasColumnName("property_id");
         builder.Property(value => value.RequestId).HasColumnName("request_id");
         builder.Property(value => value.RequestFingerprint).HasColumnName("request_fingerprint").HasMaxLength(64);

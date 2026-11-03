@@ -12,6 +12,7 @@ import {SummaryCard} from "@/components/management/WorkspacePresentation";
 import {MessageBanner} from "@/components/feedback/MessageBanner";
 import {ExpenseCategoryLabel} from "@/features/expenses/ExpenseCategoryLabel";
 import {toCsv} from "@/features/late-penalties/model";
+import {ReportExportButtons} from "./ReportExportButtons";
 import {readReport,resolvePeriod,subtractMoney,validPeriod,YEAR_PERIOD,type PeriodChoice,type Report} from "./model";
 
 const choices:{value:PeriodChoice;icon:LucideIcon}[]=[{value:"thisMonth",icon:CalendarDays},{value:"previousMonth",icon:CalendarMinus},{value:"thisYear",icon:CalendarRange},{value:"month",icon:CalendarSearch},{value:"year",icon:CalendarClock}];
@@ -34,7 +35,7 @@ export function ReportPeriodPicker({onChange}:{onChange:(period:string)=>void}){
 }
 
 /** Accrual, cash, open balance and expenses for one month or one calendar year, with CSV and print. */
-export function FinanceSummary({propertyId,report,loading}:{propertyId:string;report:Report|null;loading:boolean}){
+export function FinanceSummary({propertyId,report,loading,period}:{propertyId:string;report:Report|null;loading:boolean;period?:string}){
  const t=useTranslations("reports"),et=useTranslations("expenses"),locale=useLocale() as Locale;
  const amount=(v?:string)=>loading?"…":v?formatDecimalCurrency(v,locale):"—";const net=report?subtractMoney(report.receiptsAmount,report.expensesAmount):undefined;
  const exportCsv=()=>{if(!report)return;const rows:(string|number)[][]=[[t("period"),report.period],[t("sumAssessed"),report.assessedAmount],[t("sumReceipts"),report.receiptsAmount],[t("sumOutstanding"),report.outstandingAmount],[t("sumExpenses"),report.expensesAmount],[t("net"),net!]];
@@ -43,7 +44,7 @@ export function FinanceSummary({propertyId,report,loading}:{propertyId:string;re
   download(`finans-rapor-${report.period}.csv`,toCsv(rows));};
  return <div className="mb-6 space-y-6">
   <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 text-lg font-bold"><Scale aria-hidden="true" className="size-5 text-primary"/>{t("financeTitle")}{report&&<span className="text-muted-foreground">· {periodLabel(report.period,locale)}</span>}</h2>
-   <div className="flex flex-wrap gap-2 print:hidden"><Button variant="outline" disabled={!report} onClick={exportCsv}><FileDown/>{t("exportCsv")}</Button><Button variant="outline" disabled={!report} onClick={()=>window.print()}><Printer/>{t("printPdf")}</Button></div></div>
+   <div className="flex flex-wrap gap-2 print:hidden"><ReportExportButtons propertyId={propertyId} period={period??report?.period??""} enabled={!!report && report.propertyId===propertyId && (!period || report.period===period) && !loading}/><Button variant="outline" disabled={!report} onClick={exportCsv}><FileDown/>{t("exportCsv")}</Button><Button variant="outline" disabled={!report} onClick={()=>window.print()}><Printer/>{t("printPdf")}</Button></div></div>
   <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><SummaryCard compact title={t("sumAssessed")} value={amount(report?.assessedAmount)} note={t("sumAssessedHelp")} icon={ReceiptText}/><SummaryCard compact title={t("sumReceipts")} value={amount(report?.receiptsAmount)} note={t("sumReceiptsHelp")} icon={WalletCards}/><SummaryCard compact title={t("sumOutstanding")} value={amount(report?.outstandingAmount)} note={t("sumOutstandingHelp")} icon={ReceiptText}/><SummaryCard compact title={t("sumExpenses")} value={amount(report?.expensesAmount)} note={t("sumExpensesHelp")} icon={ArrowUpRight}/><SummaryCard compact title={t("net")} value={amount(net)} note={t("netHelp")} icon={Scale}/></section>
   {report?.months&&<section className="overflow-x-auto rounded-2xl border bg-card p-5 shadow-sm"><h3 className="mb-3 flex items-center gap-2 font-semibold"><Table2 aria-hidden="true" className="size-5 text-primary"/>{t("monthlyBreakdown")}</h3>
    <table className="w-full text-left text-sm"><thead><tr className="text-muted-foreground"><th className="py-2 pr-3">{t("month")}</th><th className="pr-3 text-right">{t("sumAssessed")}</th><th className="pr-3 text-right">{t("sumReceipts")}</th><th className="pr-3 text-right">{t("sumOutstanding")}</th><th className="pr-3 text-right">{t("sumExpenses")}</th><th className="text-right">{t("net")}</th></tr></thead>
@@ -61,5 +62,5 @@ export function FinanceReport({propertyId}:{propertyId:string}){
  const locale=useLocale() as Locale,api=useAuthorizedApi(),ui=useTranslations("ui");
  const [period,setPeriod]=useState(""),[report,setReport]=useState<Report|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(""),[revision,setRevision]=useState(0);
  useEffect(()=>{const c=new AbortController();setReport(null);setError("");setLoading(!!period);if(period)void api<unknown>(`/api/v1/properties/${propertyId}/reports?period=${period}`,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setReport(readReport(v,propertyId,period));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});return()=>c.abort();},[api,propertyId,period,locale,revision]);
- return <><ReportPeriodPicker onChange={setPeriod}/>{error&&<MessageBanner action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}<FinanceSummary propertyId={propertyId} report={report} loading={loading}/></>;
+ return <><ReportPeriodPicker onChange={setPeriod}/>{error&&<MessageBanner action={<Button variant="view" onClick={()=>setRevision(n=>n+1)}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}<FinanceSummary propertyId={propertyId} report={report} loading={loading} period={period}/></>;
 }

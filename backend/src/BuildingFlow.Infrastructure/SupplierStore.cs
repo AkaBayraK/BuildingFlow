@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 namespace BuildingFlow.Infrastructure;
 
-public sealed partial class SupplierStore(BuildingFlowDbContext db, ICurrentUserService actor, ManagementAccess management, IFileStorage storage, TimeProvider clock, ILogger<SupplierStore> logger) : ISupplierStore, ISupplierRelationsStore, ISupplierDocumentsStore, ISupplierQuoteStore, ISupplierWorkOrderStore, ISupplierMaintenanceStore, ISupplierInvoiceStore, ISupplierInsightStore
+public sealed partial class SupplierStore(BuildingFlowDbContext db, ICurrentUserService actor, ManagementAccess management, IFileStorage storage, TimeProvider clock, ILogger<SupplierStore> logger, FinancialLedgerStore ledger) : ISupplierStore, ISupplierRelationsStore, ISupplierDocumentsStore, ISupplierQuoteStore, ISupplierWorkOrderStore, ISupplierMaintenanceStore, ISupplierInvoiceStore, ISupplierInsightStore, ISupplierFinanceStore
 {
     private async Task<bool> Allowed(Guid tenant, CancellationToken token)
     {

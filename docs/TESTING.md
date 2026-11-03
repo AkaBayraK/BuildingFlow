@@ -2119,3 +2119,116 @@ Senaryolar (`AiStatusApiTests`, `tests/ai-status.test.mjs`):
 5. FE: bilinmeyen bileşen atılır, bilinmeyen tür/durum/detay güvenli varsayılana düşer, sayaçlar istemcide hesaplanır; konsol bağlantısı yalnız düz http(s); her tür/durum ikonlu ve TR/EN metinli; menü yalnız üç yönetim rolünde, `/system-settings/ai-status` dönüş yolu.
 
 **Bu tur kanıt:** geçici PostgreSQL (shared `test-db.py`) `AiStatusApiTests` + `SystemStatusApiTests` + `AssistantApiTests` + `QaEndpointInventoryTests` + `ErrorContract` **41/41**; geçici DB/rol temizlendi. Web `npm test` **375/375**, `tsc --noEmit` PASS, `npm run build` PASS (`/system-settings/ai-status` rotası). Gerçek AkaAI ve tarayıcı ekran kontrolü bu turda yapılmadı.
+
+
+## BF-ACC 01 — 02.11.2026 — Kabul senaryoları (uygulama öncesi)
+
+- /accounting ve alan içi dashboard ayrı menü/aktif rota/geri dönüş/OIDC whitelist ile; bilinmeyen suffix/query reddi.
+- Dört finans rolü görünür; RESIDENT/SECURITY/bilinmeyen rol görünmez; ACCOUNTANT kişi menüsü edinmez. Mevcut Report API backend yetki/üyelik kapsamı korunur.
+- Yanlış alan/dönem ve bozuk parasal/kategori toplamları DTO doğrulamasında reddedilir; alan/dönem/yetki değişince eski snapshot gösterilmez.
+- Aylık/yıllık tam finans özeti ve kategori/ay dökümü; sıfır başarı ile hata ayrılır. Tahsilat−gider kasa/banka bakiyesi diye sunulmaz.
+- TR/EN çeviriler, ikonlu kontroller, responsive RecordList, ilgili frontend testleri/typecheck/build. Gerçek tarayıcı kabulü yoksa DOĞRULANAMADI.
+- Faz02 öncesinde gerçek .xlsx/.pdf uygulanmış sayılmaz; yeni paket/migration/API endpoint yok.
+
+Bu bölüm planlanan kontrollerdir; sonuçlar faz tesliminde ayrıca kaydedilir.
+
+### BF-ACC01 — Bu tur sonuçları
+
+**Web380/380,0skip; typecheck ve production build PASS. Ayrı geçici PostgreSQL ReportApiTests6/6,0skip PASS.** Beş yeni accounting davranış testi; ilk tam koşuda navigation-search menü beklentisi1fail, düzeltmeden sonra380/380. İlk build SWC cache sandbox ve ilk PG Docker erişim engeli, izinli tekrarlarla aşıldı. Unit filtresinde eşleşen test yok; unit suite PASS iddiası yok. Gerçek browser/E2E/responsive/native görsel kabulü DOĞRULANAMADI; araç uzun süre yanıt vermedi. Yeni paket/restore/migration yok; ana DB/servis/.env/Keycloak korunur. Kaynak: [BF-ACC01 raporu](accounting/01-report.md), [API tüketici sözleşmesi](api/accounting.md). Gerçek Excel/PDF BF-ACC02’de; CSV/print onun kabulü değildir.
+
+
+## BF-ACC02 — 02.11.2026 — Uygulama öncesi kabul senaryoları
+
+- Yetkili GET reports.xlsx/reports.pdf; dört finans rolü ve aktif alan üyeliği; anonim401/yetkisiz403/foreign-pasif üyelik-silinmiş parent404, bozuk dönem/locale400. No-store, attachment ve doğru MIME.
+- Excel ZIP/OpenXML bağımsız okuyucuda açılır; finans/kategori/yıllık12ay toplamları aynı snapshot; TRY, alan adı ve üretim zamanı; sayılar numeric/0.00, metin inlineStr, formül enjekte edilmez. 15basamak üzeri para hassasiyeti metin olarak korunur.
+- PDF gerçek dosya; Türkçe ÇĞİÖŞÜçğıöşü, başlık/alan/dönem/üretim zamanı/hesap esası, sayfa numarası/tekrarlanan tablo başlıkları. Bağımsız parser+PNG görsel kontrolü.
+- Dashboard/Raporlar ortak indir düğmeleri; rol/alan/dönem/hesap değişiminde veya unmount’ta iptal, geç dosya indirilmez; aynı anda çift export kilidi, hata ve Blob MIME/imza doğrulaması.
+- Mevcut JSON rapor tüketicileri geriye uyumlu; yeni metadata alanı adı/zaman snapshot’ı. Yeni paket/font/migration yok; mevcut şema/manifest kaynak hashleri korunur.
+
+Sonuçlar henüz çalıştırılmadı; teslimde ayrıca kaydedilecek.
+
+### BF-ACC02 — Bu turun doğrulama sonuçları
+
+**Web386/386; izolePG seçili ReportApiTests/ReportExportApiTests/ErrorContract22/22; ReportExportFileTests10/10;0atlama. Typecheck/production build ve .NET solution0hata/0uyarı PASS.** Son Excel satır yüksekliği düzenlemesi sonrası dosya10/10 tekrar PASS. BeşXLSX openpyxl, beşPDF pypdf ile açıldı; sekizPDF sayfası Poppler, üçXLSX sayfası bundled artifact-tool ile render edilip incelendi. Formül enjeksiyonu/15basamak üzeri hassasiyet, aynı snapshot toplamları, rol/üyelik/foreignscope/metadata ve kodlu PDF karakter reddi testli. İlk build sözdizimi, test soket izni, Poppler fontconfig ve QA Blob.save engelleri raporda gerçek düzeltmeleriyle kayıtlıdır. Yeni paket/restore/migration yok;147kaynakhash korundu. Gerçek browser indirme E2E/native Excel/mobil/tam backend/scanner ÇALIŞTIRILMADI. [Faz raporu](accounting/02-report.md), [API](api/accounting.md), [sentetik kanıt](accounting/evidence/02/README.md).
+
+
+## BF-ACC03 — 02.11.2026 — Uygulama öncesi kabul senaryoları
+
+- Dört finans rolü + aktif üyelik + Property; anonim401, yanlış rol403, foreign/pasif üyelik/silinmişparent404. Yeni yazımda aktifparent; banka bağı aynıProperty ve onaylı/geçerli; çift banka adapter’ı yok.
+- Kasa/banka açılış0vepozitif, explicit tarih; eski Payment/PaymentLedgerEntry ve legacydata için otomatik eşleme yok; dairesiz kayıt, bankaIBAN masked.
+- TRY/iki ondalık, server fingerprint/UUID replay; farklı içerik409. Account version/Property lock ile yarış; açılış/transfer/düzeltme/gerekçeli tersleme kayıtları değişmez.
+- Kasa düzeltmesi sayım/devir niteliğinde, gelir/gider değildir. Eksi bakiye yok; tarihler2000–İstanbul bugün ve hesapta son kayıttan eski olamaz. Transfer iki farklı hesap/aynıProperty, iki bacak atomik/toplam0. Tersleme bir kez/orijinali değiştirmeden, bakiye yetersizse atomik ret.
+- DB compositeFK/unique/check/deferred hareket şekli ve bakiye/immutable guard; tüm uygulama tablosu BaseEntity NOTNULL, pendingmodelyok, yeni/upgrade/reapply/Down tarihçe koruması gerçek ayrıPG.
+- UI ortakpanel/RecordList/TR-EN/ikonlar, paraBigInt, validasyon/409yenile/çiftgönderim/idempotency/belirsizretry; hesap/alan değişiminde geçyanıt gizlenir. İlgili npmtest/typecheck/build, .NETunit/HTTP/persistence.
+
+Sonuçlar henüz çalıştırılmadı; teslimde ayrıca kaydedilir.
+
+## BAKIM — 02.11.2026 — AkaIntegrationHub menüsü — Teknik teslim
+
+Kapsam: `/integrations` sayfası, Yönetim grubunda `integrations` menü öğesi (ikon `Plug`), Hub bağlantı üretimi (`features/integration-hub/hub-link.ts`), OIDC dönüş whitelist'i, realm `aih-admin-web` client'ı. Yeni paket yok.
+
+Senaryolar (`tests/integration-hub.test.mjs`, güncellenen `navigation-search` ve `sidebar-layout` beklentileri):
+
+1. Hub adresi yalnız düz http(s) origin/path kabul eder; `javascript:`, kullanıcı bilgisi, sorgu/fragment içeren veya boş değer bağlantı üretmez.
+2. Bağlantı `idp=buildingflow`, `host`, `locale` (tr/en dışı → tr), `theme` ve sorgusuz/fragmentsiz `return` taşır; OIDC `code`/`state` sızmaz.
+3. Menü SUPER_ADMIN/SITE_ADMIN/MANAGER'da görünür ve `/integrations`'ta aktiftir; ACCOUNTANT/SECURITY/RESIDENT'ta yoktur.
+4. `/integrations` OIDC dönüşünde kabul edilir; alt yol ve sorgulu biçim reddedilir.
+5. TR/EN `integrationHub` anahtarları eşittir; ICU sözlük testi geçer.
+
+**Bu tur kanıt:** web `npm test` **373/373**, typecheck ve production build PASS. Tarayıcıda Keycloak SSO ile uçtan uca geçiş bu ortamda DOĞRULANAMADI (Hub tarafı Mailpit ile ayrıca doğrulandı).
+
+### BF-ACC03 — Bu turun doğrulama sonuçları
+
+**`python3 scripts/test-payments.py FinancialLedger BuildingFlow.IntegrationTests.PersistenceTests BuildingFlow.IntegrationTests.MigrationTests PaymentApiTests ReportApiTests ReportExport ErrorContract`: ayrı geçici PostgreSQL18.6 üzerinde69/69 entegrasyon+20/20birim,0atlama.** Runner yalnız kendi buildingflow-test-pay-* kaynaklarını kurup temizledi. FinancialLedgerApiTests:13HTTP/DB senaryosu; özel migration testi1; FinancialLedgerTests10birim. Kalanlar mevcut ödeme/rapor/hata/model/migration regresyonudur. İlk koşuda application BusinessDate erişimi ve xUnit2031 derleme hatası düzeltildi; son koşu hatasızdır. Uygulanmamış, eski assembly’den boş üretilen geçici migration kaldırılarak güncel modelden yeniden üretildi; uygulanmış migration değiştirilmedi.
+
+Açılış0/pozitif, dairesiz kayıt, banka maskesi/uygunluğu/teklik, banka kapanış koruması; UUID aynı/farklı içerik, replay sonrası güncel bakiye, version/yarış, atomik transfer ve ters kayıt; harcanmış hedefte tersleme yetersiz bakiye/hiçbir bacağın yazılmaması; tarih/hassasiyet;401/403/foreignscope/pasifüyelik/silinmişparent; raw SQL immutable UPDATE/DELETE, eksik hareket, negatif bakiye ve crossPropertyFK reddi PASS. Tüm tablo8NOTNULL/model, ilk kurulum/upgrade/reapply/idempotent script/boş Down ve dolu Down guard PASS.
+
+**Web `npm test`399/399,0atlama; `npm run typecheck` ve `npm run build` PASS.** Yedi yeni financial-ledger davranış testi para/shape/scope/maskeliIBAN/UUID/version/TR-EN hata sözleşmesini doğrular.399 toplamı eşzamanlı entegrasyon işine ait6test içerir; bu faza mal edilmez. Gerçek browser/klavye/form etkileşimi, native/mobil E2E ve tüm backend testleri ÇALIŞTIRILMADI. Yeni paket/restore yok; eski migration/manifest/proje hashleri korunur; yalnız yeni migration+beklenen snapshot. AnaDB/.env/kullanıcı/servis değiştirilmedi; diğer oturumun farkları korundu. [Teslim ve sınırlamalar](accounting/03-report.md), [API sözleşmesi](api/financial-ledger.md).
+
+## BF-ACC04 — 02.11.2026 kabul senaryoları
+
+- Alacak kaydı nakit gelir sayılmaz; kısmi/tam tahsilat, kategori/vade/belge referansı; aynı UUID replay ve değişen içerik409. Fazla tahsilat/iptal edilmiş kaynak/yanlış alan/sürüm/tarih reddi.
+- Kaynak Payment tek defter hareketi, toplam tutar kaynakla tam eşit; önizleme yazmaz, explicit hesap ve açılışa dahil edilmediği teyidi; pending toplamı sayfadan bağımsız. Aktarılınca raporda ikinci gelir yok.
+- Ortak Payment tersleme yolu defteri aynı transaction’da tersler; bakiye yetersizse borç/Payment/defter atomik korunur. Genel defter ucundan Payment bağımsız terslenemez.
+- Alacak ve receipt değişmez geçmiş/DB guard, aktif tahsilatı olan alacak iptal edilemez. İlk/upgrade/reapply/Down, tüm tablo8alan/pendingmodel ve gerçek ayrı PostgreSQL.
+- Dashboard/Raporlar/Excel/PDF/Gider aylık özeti aynı Payment+aktif aidat dışı receipt toplamı, transfer/açılış/sayım ve alacak tutarı dahil değildir.
+- Dört finans rolü ve aktif üyelik,401/403/404/pasifparent, ACCOUNTANT kişi yetkisi yok. FE runtime DTO/scope/para/TR-EN/UUID, panel ve liste/typecheck/build. Gerçek native/browser kabulü yoksa DOĞRULANAMADI.
+
+Henüz doğrulama çalıştırılmadı; sonuçlar teslimde kaydedilir.
+
+### BF-ACC04 — Bu turun doğrulama sonuçları
+
+**İzole PostgreSQL126/126 entegrasyon+61/61birim,0atlama; web406/406,0atlama; typecheck/production build PASS.** Komut: `python3 scripts/test-payments.py FinancialIncome FinancialLedger BuildingFlow.IntegrationTests.PersistenceTests BuildingFlow.IntegrationTests.MigrationTests PaymentApiTests ReportApiTests DashboardApiTests ExpenseApiTests ReportExport ErrorContract OnlinePayment LatePenalty`. Yeni12HTTP/DB+1migration+7birim+7frontend senaryosu; kalanlar mevcut finans/online/gecikme/model regresyonudur.
+
+Kısmi/tam tahsilat, kaynağa bağlı tek defter aktarımı, yazmasız önizleme/UUID replay/409, sürüm ve race, harcanmış bakiyede Payment iptal+borç+defter atomik reddi, kategori/vade/belge referansı, scope/role/üyelik/yabancıhesap/pasifparent, ham SQL immutable ve kaynak iptal koruması, sayfadan bağımsız toplamlar PASS. JSON/Excel numeric hücre/PDF çözümlü ActualText32.35 toplam eşliği PASS. Legacy Payment verisi bozulmadan/otomatik eşleme olmadan yükselir; model/pendingmigration/tüm tablo8NOTNULL/ilk kurulum/upgrade/reapply/idempotent script/boş ve dolu Down PASS.
+
+İlk migration koşusu kilit kapasitesinde1fail; yalnız geçici runner max_locks_per_transaction256 sonrası geçer. Test DTO sırası/FE tip hataları ve PDF hex metin beklentisi düzeltilerek son koşu hatasızdır.213başlangıç kaynak hash’inden yalnız beklenen snapshot değişti; yeni paket/restore/anaDB’ye migration yok. Gerçek browser/native/mobil/tam backend/scanner ve yeni PDF görsel render ÇALIŞTIRILMADI. [Teslim/sınırlar](accounting/04-report.md), [sözleşme](api/financial-income.md).
+
+## BF-ACC05 — 02.11.2026 uygulama öncesi kabul senaryoları
+
+- Kişi yetkisi açmadan dört finans rolü, aktif tenant/issuer-subject/PropertyScope/üyelik/tedarikçi bağı ve ENFORCED ataması;401/403/404. Finans seçicisi iletişim/kimlik verisi taşımaz.
+- Mevcut SupplierInvoice+Expense tek gider; yeni ödeme taslağı etkisiz, farklı kişi/alan yöneticisi onayı tek nakit çıkışı. Cari: kısmi/tam/çoklu fatura/avans, sonradan açık avans dağıtımı yeni nakit/gider oluşturmaz.
+- UUID replay/changedpayload409, version/race/overpayment/eksi bakiye/tarih, tersleme immutable ve borcu/avansı yeniden açar. Genel ledger bağımsız tersleme ve aktif dağıtımlı eski invoice pay/cancel reddi.
+- LegacyPAID/RECONCILED dış ödeme olarak korunur; kalan0, defter hesabı uydurulmaz. Yeni ödeme alamaz, ayrı toplam ve ekstre kalemi; migration eski veriyi değiştirmez.
+- Üç BaseEntity tablo/compositeFK/8NOTNULL/model/pendingmigration; SQL immutable/ikinci kişi/kaynak/tam tahsis guard, ilk kurulum/upgrade/reapply/boş ve dolu Down ayrıPG.
+- Muhasebe tenant/cari/fatura/ödeme/ekstre, sağpanel/TR-EN/ikon/runtimeDTO, BigInt, sayfalıseçim/UUID/409/geçyanıt/authscope; npmtest/typecheck/build.
+
+Bu tur test henüz çalıştırılmadı. Kaynak sözleşme: [supplier-finance.md](api/supplier-finance.md).
+
+### BF-ACC05 — 03.11.2026 bu turun doğrulama sonuçları
+
+**İzole PostgreSQL177/177 entegrasyon+74/74birim,0atlama; web416/416,0atlama; typecheck/production build PASS.** Komut: `python3 scripts/test-payments.py SupplierFinance SupplierInvoice SupplierInsight SupplierRelease ManagementAssignment FinancialLedger FinancialIncome BuildingFlow.IntegrationTests.PersistenceTests BuildingFlow.IntegrationTests.MigrationTests ReportExport ErrorContract PaymentApiTests ReportApiTests DashboardApiTests ExpenseApiTests OnlinePayment LatePenalty`. Yeni12HTTP/DB+1migration+7birim+10frontend; diğerleri mevcut tedarikçi/finans/yetki/rapor regresyonudur.
+
+Dört rol/401/403/foreignscope/üyelik/yabancıhesap, ENFORCED atama yokken süzme ve aktif atama sonrası erişim/kişi yetkisi yokluğu; farklı kişi onayı, taslak nakit etkisiz, partial/multi/avans/allocate/tersleme, replay ve stale/race/overpayment/eksi bakiye, legacyPAID/RECONCILED audit/version/no-backfill, tekExpense+nakit mutabakatı, hamSQL immutable/eksik kanıt/kendi kaydını onay reddi PASS. Model/pendingmigration/tüm tablo8NOTNULL/ilk kurulum/upgrade/reapply/idempotent/boşDown-up/doluDown PASS. Aynı scope cari Excel/PDF/JSON toplamları ve negatif rol/yabancıalan export reddi testli.
+
+**Sentetik SupplierFinanceTests7/7**, explicit evidence env ile TR/EN ikiPDF+ikiXLSX üretildi; pypdf/openpyxl açma,18numeric hareketin net-30.00toplamı ve formül yokluğu; Poppler6sayfa render/görselQA PASS. İlkSQL CASE/alias/test hedef türü/yanlış liste404/FE stil ve namespace hataları giderildi; socket ve fontconfig QA engelleri izinli/geçici ayarla aşıldı. Final koşular hatasız.266başlangıç hash’inden yalnız beklenen snapshot değişti. Yeni paket/restore/anaDB’ye migration yok. Gerçek browser/nativeExcel/mobil/tam backend/scanner/gerçek banka ÇALIŞTIRILMADI. [Rapor](accounting/05-report.md), [API](api/supplier-finance.md), [dosya ve görsel kanıt](accounting/evidence/05/README.md).
+
+## BF-ACC06 — 03.11.2026 uygulama öncesi kabul senaryoları
+
+- KontrollüUTF8CSV quote/BOM/CRLF,1MiB/500satır/ISOdate/signedpara/teknikref/formül/controlchar/bozuk kolon; opening+net=closing. Önizleme yazmaz, UUID/hash/dosya/ref teklik ve örtüşen aynı satır reuse; farklırefiçeriği atomik409.
+- Banka eşleştirme aynıProperty/account/signedtutar/±7gün ve birebir; kararimmutable/lineversion/parentlock, UNMATCH/IGNORE/REOPEN/tarihçe/void, ignored mutabık sayılmaz. Defter/Payment/Expense tutarı değişmez. Mevcut online mutabakat yeniden kullanılır.
+- Açık kullanıcı payları, largestremainder/UUIDtiebreak; direct/common/shared, APARTMENTNULLdirect/sahteblok yok. CrossPropertyBuilding/pasifblok/duplicate/weight/Expenseversion reddi; aynıExpense tekACTIVE/reverse/replay; eski snapshot rename sonrası değişmez; legacyUNASSIGNED.
+- Blok raporu bütünExpense ilemutabık; blokaidat UnitScope, ortak/atanmamış gider vealan gelirleri ayrı, kasa/banka bakiyesi iddiası yok. JSON/Excel/PDF toplam eşliği.
+- Dörtrol/üyelik/401/403/404/pasifparent, ACCOUNTANT kişiyasağı; SQLimmutable/teklik/roundedtotal/decisionguard,8alan/model/pendingmigration/ilk/upgrade/reapply/Down ayrıPG. FE DTO/para/TR-EN/ikon/panel/page/abort/UUID/409, npmtest/typecheck/build.
+
+Bu tur test henüz çalıştırılmadı. [Sözleşme](api/bank-building-finance.md).

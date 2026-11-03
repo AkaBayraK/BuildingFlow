@@ -1,3 +1,44 @@
+## BF-ACC05 — 03.11.2026
+
+- Muhasebede kişi yetkisi açmayan finans tenant/cari/fatura/ödeme/ekstre ve tarihçe; mevcut SupplierInvoice/Expense korunur.
+- İkinci kişi onaylı ödeme taslağı, kısmi/çoklu tahsis, avans/sonradan dağıtım ve kaynakla atomik tersleme; tek gider/tek nakit olayı. Legacy dış ödemeler korunur; eski pay/cancel çift kapatma engeli.
+- Üç BaseEntity tablo+eklemeli20261102170051_SupplierFinancePayments/Designer/snapshot, compositeFK/immutable/deferred kanıt/ikinci kişi/kalan ve doluDown koruması. ENFORCED finans ataması mevcut fatura uçlarına da bağlandı.
+- Cari ekstre gerçek Excel/PDF: aynı yetkili snapshot, signednumeric/formül koruması, no-store ve scopeiptalli Blob indirme. Yeni paket/font yok.
+- PG177/177+birim74/74, web416/416/typecheck/build; sentetik7/7,2PDF+2XLSX bağımsız açma/6sayfa görsel QA. ACC-05 teknik teslim/In review; BF-ACC06başlamadı. AnaDB’ye uygulanmadı.
+
+## BF-ACC04 — 02.11.2026
+
+- Aidat dışı alacak ve değişmez tahsilat tabloları; kategori/vade/belge referansı, kısmi/tam tahsilat ve ters kayıt; eklemeli20261102164252_FinancialIncomeCollections migration/Designer/snapshot.
+- Kaynak Payment önizleme ve tek defter aktarımı, tutar/sürüm/hesap/açılış teyidi; paylaşılan Payment iptali defteri atomik tersler.
+- Dashboard/rapor/Excel/PDF/gider aylık özeti Payment+aktif aidat dışı tahsilat; kaynak defter aktarımı tekrar gelir sayılmaz. Muhasebe listeleri ve ortak paneller/TR-EN/runtime DTO/UUID/409 korumaları.
+- Geçici PostgreSQL runner kilit kapasitesi256; canlı servis ayarı değişmez. Yeni paket yok. BF-ACC03 kullanıcı kabulüyle #112Done/closed; #113Faz04 teknik teslim/In review;126PG+61birim,406web ve typecheck/build PASS.
+
+## BF-ACC03 — 02.11.2026
+
+- Üç değişmez finans defteri tablosu, banka adapter’ı/kasa açılışı, sayım düzeltmesi, atomik transfer ve ters kayıt API’leri; eklemeli migration/Designer/snapshot.
+- Property kilidi/version/idempotency, negatif bakiye ve geriye tarih reddi, SQL immutable/deferred kısıtları; banka kapanışı ve Property silme korumaları.
+- Muhasebe dashboard’unda hesap/bakiye/geçmiş ve ortak işlem panelleri, TR/EN/ikonlar, 409 ve belirsiz retry yönetimi.
+- İzolePG69/69+birim20/20, web399/399 ve typecheck/build; ACC-03 teknik teslim. BF-ACC02 kullanıcı kabul edildi; BF-ACC04 başlamadı. Yeni bağımlılık yok; anaDB’ye uygulanmadı.
+
+## BF-ACC02 — 02.11.2026
+
+- Rapor XLSX/PDF yetkili dosya uçları; aynı snapshot alan adı/üretim zamanı, yerelleştirilmiş BCL OpenXML ve özgün vektör PDF.
+- Muhasebe dashboard/Raporlar/Aidat ortak indirme; istek iptali, dosya doğrulama/çift tıklama kontrolü; Türkçe glif ve desteklenmeyen alfabe için kodlu Excel alternatifi.
+-7yeniAPI,10dosya ve6frontend davranış senaryosu; sentetik parser/render kanıtı; ACC-02 teknik teslim. Yeni paket/font/migration yok.
+
+## BF-ACC01 — 02.11.2026
+
+- Ayrı Muhasebe menüsü ve alan seçimi/dashboard; mevcut rapor API’si, finans kartları ve kategori/ay dökümü.
+- Scope/period/permission/hesap/locale/revision snapshot koruması ve iptal edilen yanıt güvenliği; beş davranış testi ve menü sıra beklentisi.
+- Sekiz fazlık Claude Code/Codex promptu, GitHub#110–117 @BuildingFlow bağlantıları, API/kanıt ve ACC yol haritası; yalnız01 teknik teslim, kullanıcı kabulü bekliyor.
+- Gerçek Excel/PDF sonraki faz; yeni paket/şema/endpoint yok.
+
+## BAKIM — AkaIntegrationHub menüsü — 02.11.2026
+
+- Ana menü > Entegrasyonlar (`/integrations`): AkaIntegrationHub ana sayfası BuildingFlow içinde iframe ile açılır (SSO); prod CSP `frame-src` Hub origin'i.
+- Keycloak `buildingflow` realm'ine `aih-admin-web` public PKCE client'ı; OIDC dönüş whitelist'ine `/integrations`.
+- `NEXT_PUBLIC_AKA_INTEGRATION_HUB_URL`; TR/EN metinler; `tests/integration-hub.test.mjs`. Yeni paket yok.
+
 ## AI ASİSTAN FAZ 3 — 01.11.2026
 
 - Sakin asistanı API'si (`/api/v1/mobile/assistant`), üç sakin aracı, pasif `AI_ASSISTANT` rıza türü, kapalı bayrak, ayrı kota.

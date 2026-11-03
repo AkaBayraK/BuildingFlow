@@ -68,3 +68,7 @@ DuesCharge `PaidAmount`, iptal edilmemiş dağıtımların toplamını taşır. 
 Kalıcı **Tahsilatlar** menüsü: `/payments` alan seçimi ve `/properties/{id}/payments` liste/özet/filtre. Yeni tahsilat ve güncel kayıt detayı ortak sağ ManagementPanel; borç detayından ödeme ve tahsilat geçmişi. TR/EN, güvenli ikonlu hatalar, odak/iptal, mobil RecordList ve kesin kuruş toplamı. Kayıt kimliğiyle görüntülenen detay **uygulama içi tahsilat belgesidir**, mali/fiskal makbuz değildir.
 
 Online kart/POS sağlayıcısı, banka hareketi mutabakatı, gerçek para iadesi, PDF/fiskal belge, avans/fazla ödeme, borçlar arası sonradan dağıtım değişikliği, kişi sorumluluğu, gecikme faizi ve otomatik bildirim bu teslimde yoktur. Yanlış kayıt gerekçeli iptal + yeni kayıt ile düzeltilir. Testlerin gerçek kapsamı [TESTING.md](../TESTING.md), kurulum/yükseltme [MIGRATIONS.md](../MIGRATIONS.md).
+
+## BF-ACC04 ortak defter entegrasyonu
+
+Mevcut Payment API shape/fingerprint korunur. Kaynak Payment finans defterine açık önizleme/hesap/tutar/sürüm/açılış teyidiyle bir kez bağlanır; manuel ikinci gelir değildir. PaymentStore.ReverseAsync bütün çağıranlarda bağlı defteri aynı Property kilitli transaction’da tersler; bakiye/tarih/banka yetersizliğinde kaynak/dağıtım iptali de geri alınır. Genel defter ucundan Payment bağımsız terslenemez. [Sözleşme](financial-income.md), [126PG+61birim doğrulaması](../accounting/04-report.md).

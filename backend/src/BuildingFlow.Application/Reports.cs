@@ -4,7 +4,7 @@ public sealed record ReportMonth(string Period,string AssessedAmount,string Outs
 public sealed record ReportExpenseCategory(string Category,string Amount);
 // Period is YYYY-MM for a month or YYYY for a calendar year; Months is the yearly breakdown and null for a single month.
 public sealed record ManagementReport(Guid PropertyId,string Period,string Currency,int UnitCount,int ActiveUnitCount,int OccupiedUnitCount,int VacantUnitCount,string AssessedAmount,string OutstandingAmount,string ReceiptsAmount,string ExpensesAmount,IReadOnlyList<ConsumptionReport> Consumption,
-    IReadOnlyList<ReportExpenseCategory>? ExpenseCategories=null,IReadOnlyList<ReportMonth>? Months=null);
+    IReadOnlyList<ReportExpenseCategory>? ExpenseCategories=null,IReadOnlyList<ReportMonth>? Months=null,string? PropertyName=null,DateTimeOffset? GeneratedAt=null);
 public interface IReportStore { Task<ManagementReport?> Get(Guid property,DateOnly from,bool year,AccessScope access,CancellationToken token); }
 public sealed class ReportService(IReportStore store,ICurrentUserService user)
 {

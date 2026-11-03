@@ -311,6 +311,11 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition DuesChooseReason = new("BF_DUES_CHOOSE_REASON", "İptal nedeni seçin.", "error");
     public static readonly ErrorDefinition MobileSyncConflict = new("BF_MOBILE_SYNC_CONFLICT", "Kayıt değişti veya işlem kimliği başka bir içerikle kullanıldı. Güncel bilgiyi kontrol edin.", "warning");
     public static readonly ErrorDefinition ValidationFailed = new("BF_VALIDATION_FAILED", "Alanları kontrol edin.", "error");
+    public static readonly ErrorDefinition ReportPdfUnsupportedText = new("BF_REPORT_PDF_UNSUPPORTED_TEXT", "Rapordaki bazı karakterler PDF için desteklenmiyor. Tam metni korumak için Excel raporunu indirin.", "warning");
+    public static readonly ErrorDefinition FinanceInvalid = new("BF_FINANCE_INVALID", "Hesap, tutar, tarih, gerekçe ve işlem kimliğini kontrol edin.", "error");
+    public static readonly ErrorDefinition FinanceConflict = new("BF_FINANCE_CONFLICT", "Hesap veya hareket bu işleme uygun değil ya da işlem kimliği farklı içerikle kullanılmış. Güncel kaydı yükleyin.", "warning");
+    public static readonly ErrorDefinition FinanceInsufficient = new("BF_FINANCE_INSUFFICIENT", "Defter bakiyesi bu işlem için yeterli değil. Eksi bakiyeye izin verilmez.", "warning");
+    public static readonly ErrorDefinition FinanceDate = new("BF_FINANCE_DATE", "İşlem tarihi hesap açılışından veya hesaptaki son hareketten önce olamaz.", "warning");
     public static readonly ErrorDefinition InvalidRequest = new("BF_INVALID_REQUEST", "Geçersiz istek.", "error");
     public static readonly ErrorDefinition SignInRequired = new("BF_SIGN_IN_REQUIRED", "Oturumunuzu yenileyip tekrar giriş yapın.", "error");
     public static readonly ErrorDefinition AccessDenied = new("BF_ACCESS_DENIED", "Bu işlem için yetkiniz yok.", "error");
@@ -555,6 +560,11 @@ public static class ErrorCatalog
         QaDataState,
         MobileSyncConflict,
         ValidationFailed,
+        ReportPdfUnsupportedText,
+        FinanceInvalid,
+        FinanceConflict,
+        FinanceInsufficient,
+        FinanceDate,
         InvalidRequest,
         SignInRequired,
         AccessDenied,

@@ -1084,3 +1084,6 @@ body{background:var(--background);color:var(--foreground);}
 /* OA-03: presentation choice retains the shared list/pagination and responsive cards. */
 .common-area-card-mode > .hidden { display: none; }
 .common-area-card-mode > .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.integration-hub-frame{display:block;width:calc(100% + 64px);margin-inline:-32px;height:calc(100dvh - 140px);min-height:480px;border:0;background:var(--background);}
+@media(max-width:1023px){.integration-hub-frame{width:calc(100% + 40px);margin-inline:-20px;}}
+@media(max-width:640px){.integration-hub-frame{width:calc(100% + 32px);margin-inline:-16px;}}

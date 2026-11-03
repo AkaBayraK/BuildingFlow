@@ -17,7 +17,7 @@ try:
     with tempfile.TemporaryDirectory(prefix='buildingflow-test-pay-') as folder:
         password=secrets.token_hex(32)
         private=Path(folder)/'postgres.env';private.write_text('POSTGRES_USER=pay_test\nPOSTGRES_DB=buildingflow_test_pay\nPOSTGRES_PASSWORD='+password+'\n');private.chmod(0o600)
-        docker('run','-d','--pull=never','--name',name,'--env-file',str(private),'-p','127.0.0.1::5432','--tmpfs','/var/lib/postgresql:rw,size=768m','--tmpfs','/docker-entrypoint-initdb.d:rw,size=1m','postgres:18.6','-c','max_connections=80')
+        docker('run','-d','--pull=never','--name',name,'--env-file',str(private),'-p','127.0.0.1::5432','--tmpfs','/var/lib/postgresql:rw,size=768m','--tmpfs','/docker-entrypoint-initdb.d:rw,size=1m','postgres:18.6','-c','max_connections=80','-c','max_locks_per_transaction=256')
         for _ in range(60):
             try:
                 docker('exec',name,'pg_isready','-U','pay_test','-d','buildingflow_test_pay');break

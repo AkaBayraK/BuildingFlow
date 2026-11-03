@@ -14,8 +14,8 @@ test('six semantic groups keep each enabled destination once and remove only the
  const m=createNavigation(context(),'/');
  assert.deepEqual(m.groups.map(g=>g.id),['overview','property','finance','operations','communication','administration']);
  assert.deepEqual(m.groups.map(g=>ids(g.items)),[
-  ['dashboard','assistant'],['properties','overview','buildings','units','people','shared-areas','parking'],
-  ['dues','payments','expenses','reports'],['requests','maintenance','meters','suppliers'],
+  ['dashboard','assistant','integrations'],['properties','overview','buildings','units','people','shared-areas','parking'],
+  ['accounting','dues','payments','expenses','reports'],['requests','maintenance','meters','suppliers'],
   ['announcements','surveys','documents','website','sms'],['users','consents','definitions','settings','ai-status','qa-center']
  ]);
  const all=m.groups.flatMap(g=>g.items);

@@ -2,7 +2,7 @@ import {expenseCategories,type ExpenseCategory} from '../expenses/model.ts';
 export type ReportMonth={period:string;assessedAmount:string;outstandingAmount:string;receiptsAmount:string;expensesAmount:string};
 // period is YYYY-MM for a month or YYYY for a calendar year; months is the yearly breakdown only. Older APIs omit both lists.
 export type Report={propertyId:string;period:string;currency:'TRY';unitCount:number;activeUnitCount:number;occupiedUnitCount:number;vacantUnitCount:number;assessedAmount:string;outstandingAmount:string;receiptsAmount:string;expensesAmount:string;consumption:{kind:'WATER'|'ELECTRICITY'|'GAS';measurementUnit:'m³'|'kWh';readingCount:number;baselineCount:number;consumption:string}[];
- expenseCategories?:{category:ExpenseCategory;amount:string}[]|null;months?:ReportMonth[]|null};
+ expenseCategories?:{category:ExpenseCategory;amount:string}[]|null;months?:ReportMonth[]|null;propertyName?:string|null;generatedAt?:string|null};
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const integer=(v:unknown)=>Number.isSafeInteger(v)&&Number(v)>=0;
 const money=(v:unknown):v is string=>typeof v==='string'&&/^(?:0|[1-9][0-9]*)\.[0-9]{2}$/.test(v);
@@ -15,6 +15,8 @@ export function readReport(v:unknown,property:string,period:string):Report{
  if(!obj(v)||v.propertyId!==property||v.period!==period||!year&&!MONTH_PERIOD.test(period)||v.currency!=='TRY'||!['unitCount','activeUnitCount','occupiedUnitCount','vacantUnitCount'].every(k=>integer(v[k]))||Number(v.activeUnitCount)>Number(v.unitCount)||Number(v.occupiedUnitCount)+Number(v.vacantUnitCount)!==v.activeUnitCount||!amountKeys.every(k=>money(v[k]))||cents(String(v.outstandingAmount))>cents(String(v.assessedAmount))||!Array.isArray(v.consumption)||v.consumption.length!==3)throw new Error('Invalid report');
  v.consumption.forEach(r=>{if(!obj(r)||!['WATER','ELECTRICITY','GAS'].includes(String(r.kind))||r.measurementUnit!==(r.kind==='ELECTRICITY'?'kWh':'m³')||!integer(r.readingCount)||!integer(r.baselineCount)||Number(r.baselineCount)>Number(r.readingCount)||typeof r.consumption!=='string'||!/^(?:0|[1-9][0-9]*)\.[0-9]{3}$/.test(r.consumption))throw new Error('Invalid consumption');});
  if(new Set(v.consumption.map(r=>r.kind)).size!==3)throw new Error('Duplicate consumption');
+ if(v.propertyName!==undefined&&v.propertyName!==null&&(typeof v.propertyName!=='string'||v.propertyName.length===0||v.propertyName.length>200))throw new Error('Invalid report property');
+ if(v.generatedAt!==undefined&&v.generatedAt!==null&&(typeof v.generatedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.generatedAt)||!Number.isFinite(Date.parse(v.generatedAt))))throw new Error('Invalid report timestamp');
  const categories=v.expenseCategories;
  if(categories!==undefined&&categories!==null&&(!Array.isArray(categories)||categories.length!==expenseCategories.length||!categories.every((r,i)=>obj(r)&&r.category===expenseCategories[i]&&money(r.amount))||sum(categories.map(r=>r.amount))!==cents(String(v.expensesAmount))))throw new Error('Invalid expense categories');
  const months=v.months;

@@ -37,6 +37,17 @@ public sealed class ManagementAccess(BuildingFlowDbContext db,ICurrentUserServic
         if(!Guid.TryParse(c.Key,out var id))throw new InvalidOperationException("Invalid management tenant configuration.");
         return (Id:id,Mode:Mode(id));
     }).Where(x=>x.Mode=="ENFORCED").Select(x=>x.Id).ToArray();
+    // Finance directory has no Person/contact data and supports the existing ACCOUNTANT capability.
+    internal IQueryable<PersonPropertyScope> FinancePropertyScopes()
+    {
+        if(!actor.IsAuthenticated || string.IsNullOrWhiteSpace(actor.UserId) || string.IsNullOrWhiteSpace(actor.Issuer) || !new[]{"SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"}.Any(actor.IsInRole))throw new UnauthorizedAccessException();
+        var all=actor.IsInRole("SUPER_ADMIN");
+        var tenants=db.Set<PersonTenant>().Where(t=>t.IsEnabled&&(all||db.Set<PersonTenantMembership>().Any(m=>m.TenantId==t.Id&&m.IsEnabled&&db.Set<PersonUserAccount>().Any(u=>u.Id==m.UserAccountId&&u.IsEnabled&&u.Subject==actor.UserId&&u.Issuer==actor.Issuer))));
+        var rows=db.Set<PersonPropertyScope>().Where(s=>s.IsEnabled&&tenants.Any(t=>t.Id==s.TenantId)&&db.Properties.Any(p=>p.Id==s.PropertyId&&p.IsEnabled));
+        if(all)return rows;
+        var strict=config.GetValue<bool>("PersonRefactor:SessionContextsEnabled");var enforced=EnforcedTenants();var roles=BoundRoles("ACCOUNTANT");var assignments=ActiveAssignments();
+        return rows.Where(s=>db.PropertyMemberships.Any(m=>m.PropertyId==s.PropertyId&&m.UserId==actor.UserId&&m.IsEnabled)&&(!strict&&!enforced.Contains(s.TenantId)||assignments.Any(a=>a.TenantId==s.TenantId&&a.PropertyId==s.PropertyId&&roles.Contains(a.Role))));
+    }
     internal IQueryable<PersonTenant> PersonTenants()
     {
         if(!actor.IsAuthenticated || string.IsNullOrWhiteSpace(actor.UserId) || string.IsNullOrWhiteSpace(actor.Issuer) || !new[]{"SUPER_ADMIN","SITE_ADMIN","MANAGER"}.Any(actor.IsInRole))throw new UnauthorizedAccessException();

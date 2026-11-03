@@ -48,7 +48,7 @@ test('prompt form validation mirrors the backend rules',()=>{
 test('menu shows the assistant under the overview for the four reader roles only',()=>{
  for(const roles of [['SUPER_ADMIN'],['SITE_ADMIN'],['MANAGER'],['ACCOUNTANT']]){
   const model=createNavigation({roles,sessionContexts:false,centralPeople:false,propertyId:null,property:null},'/assistant');
-  const overview=model.groups.find(g=>g.id==='overview');assert.deepEqual(overview.items.map(i=>i.id),['dashboard','assistant']);
+  const overview=model.groups.find(g=>g.id==='overview');assert.deepEqual(overview.items.slice(0,2).map(i=>i.id),['dashboard','assistant']);
   const item=overview.items[1];assert.equal(item.href,'/assistant');assert.equal(item.icon,'Sparkles');assert.equal(item.active,true);
   assert.deepEqual(sidebarRows(model).slice(0,2).map(r=>r.id),['dashboard','assistant']);
  }

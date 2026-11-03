@@ -23,6 +23,7 @@ public sealed partial class SupplierStore
     {
         var all = actor.IsInRole("SUPER_ADMIN"); var user = actor.UserId;
         return db.Set<PersonPropertyScope>().Where(s => s.TenantId == tenant && s.IsEnabled
+                && management.FinancePropertyScopes().Any(scope=>scope.TenantId==tenant&&scope.PropertyId==s.PropertyId)
                 && db.Set<SupplierManagementArea>().Any(a => a.TenantId == tenant && a.SupplierId == supplier && a.PropertyId == s.PropertyId && a.IsEnabled)
                 && (all || db.PropertyMemberships.Any(m => m.PropertyId == s.PropertyId && m.UserId == user && m.IsEnabled)))
             .Select(s => s.PropertyId);
@@ -139,6 +140,10 @@ public sealed partial class SupplierStore
         var replay = await InvoiceReplay(tenant, supplier, c.OperationId, fingerprint, token); if (replay is not null) { await tx.CommitAsync(token); return replay; }
         var invoice = await InvoiceRows(tenant, supplier).SingleAsync(x => x.Id == id, token); Expected(c.Version, invoice.Version);
         var today = ContractToday;
+        if(!parent.IsEnabled)throw new HierarchyConflictException(ErrorCatalog.PaymentsInactiveProperty.Create());
+        // Ledger allocations and legacy external settlement cannot both settle the same invoice.
+        if(action is "pay" or "reconcile" && await db.Set<SupplierPaymentAllocation>().AnyAsync(a=>a.TenantId==tenant&&a.SupplierId==supplier&&a.PropertyId==invoice.PropertyId&&a.InvoiceId==id,token))throw new HierarchyConflictException(ErrorCatalog.FinanceConflict.Create());
+        if(action=="cancel" && await db.Set<SupplierPaymentAllocation>().AnyAsync(a=>a.TenantId==tenant&&a.SupplierId==supplier&&a.PropertyId==invoice.PropertyId&&a.InvoiceId==id&&db.Set<SupplierPayment>().Any(p=>p.Id==a.PaymentId&&(p.Status==SupplierPaymentStatus.PENDING||p.Status==SupplierPaymentStatus.POSTED)),token))throw new HierarchyConflictException(ErrorCatalog.FinanceConflict.Create());
         try
         {
             switch (action)

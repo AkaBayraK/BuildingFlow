@@ -8,11 +8,11 @@ export function sidebarRows(model:NavigationModel):SidebarRow[]{
  const group=(id:string,key:Extract<NavigationLabel,{namespace:"ui"}>["key"],icon:NavigationIcon,ids:readonly string[])=>{const values=items(ids);if(values.length)rows.push({kind:"group",id,label:{namespace:"ui",key},icon,items:values});};
  direct("dashboard");direct("assistant");direct("properties");
  group("property","sidebarUnitsGroup","Building2",["overview","buildings","units","shared-areas","parking","suppliers"]);
- direct("people");group("finance","navigationFinanceGroup","WalletCards",["dues","payments","expenses"]);
+ direct("people");direct("accounting");group("finance","navigationFinanceGroup","WalletCards",["dues","payments","expenses"]);
  direct("maintenance");
  group("operations","navigationOperationsGroup","Wrench",["requests","meters"]);direct("reports");
  group("communication","navigationCommunicationGroup","MessageSquareText",["announcements","surveys","sms"]);
- direct("website");direct("documents");
+ direct("website");direct("documents");direct("integrations");
  group("administration","sidebarAdminGroup","Settings",["users","consents","definitions","settings","ai-status","qa-center"]);
  return rows;
 }

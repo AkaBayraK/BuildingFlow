@@ -256,3 +256,25 @@ Bu tur akadev-phase/contract/security/verify/docs yönergeleri ortak web iletiş
 30.10.2026 TNM 05: `akadev-contract`, `akadev-verify`, `akadev-docs` mevcut yerel yönergeleri uygulandı; yeni skill/alt agent yok. Gerçek doğrulama [TESTING.md](TESTING.md) TNM 05 kaydındadır.
 
 30.10.2026 TNM06: mevcut akadev-phase/contract/verify/security/docs yönergeleri kullanıldı; yeni skill/agent kurulmadı. Kanıt TESTING.md TNM06.
+
+
+## BF-ACC01 — 02.11.2026 kullanım kanıtı
+
+phase/contract/verify/security/license/docs yönergeleri ayrı Muhasebe dashboard’u, mevcut rapor API tüketicisi, rol/scope/istek iptali, kaynak-bağımlılık koruması ve faz/GitHub teslimi için uygulandı. [Rapor](accounting/01-report.md). Tek agent; yeni skill veya MCP kurulmadı. Gerçek görsel/runtime kabulü rapordaki sınırlarla geçerlidir.
+
+
+## BF-ACC02 — 02.11.2026 kullanım kanıtı
+
+phase/contract/verify/security/license/docs ortak yönergeleri; PDF ve spreadsheet yönergeleri bağımsız dosya açma/render QA’sında kullanıldı. Yeni product runtime paketi veya skill/agent/MCP kurulmadı; tek agent. [Faz raporu](accounting/02-report.md).
+
+## BF-ACC03 — 02.11.2026 gerçek kullanım
+
+Tek agent; akadev-phase, akadev-contract, akadev-security, akadev-verify, akadev-license ve akadev-docs uygulandı. Yeni Agent/MCP/global ayar veya bağımlılık kurulmadı. Üretici/istemci sözleşmesi, aktif alan üyeliği, idempotency/immutable DB sınırları ve izole PostgreSQL kalite kapıları doğrulandı. [Kanıt](accounting/03-report.md). akadev-audit kullanılmadı; bu yetkili geliştirme turudur.
+
+## BF-ACC04 — 02.11.2026 gerçek kullanım
+
+Tek agent; akadev-phase/contract/security/verify/license/docs uygulandı. Kaynak Payment ve yeni gelir API/istemci sözleşmesi, aktif alan yetkisi, immutable kaynak/iptal ve migration testleri mevcut kalite akışıyla doğrulandı. Yeni Agent/MCP/paket/global ayar kurulmadı; akadev-audit kullanılmadı. [Kanıt](accounting/04-report.md).
+
+## BF-ACC05 — 03.11.2026 gerçek kullanım
+
+Tek agent; akadev-phase/contract/security/verify/license/docs ve PDF skill’i uygulandı. Finans dizini/ENFORCED/ikinci kişi, değişmez source/dağıtım ve migration kalite kapıları mevcut akışta doğrulandı. PDF skill’iyle marker2PDF ve bundled runtime/pypdf/Poppler6sayfa görselQA, openpyxl bağımsız XLSX okuma; uygulamaya paket/font eklenmedi. Yeni Agent/MCP/global ayar yok. [Kanıt](accounting/05-report.md).
