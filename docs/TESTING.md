@@ -1,3 +1,32 @@
+## BAKIM — Dashboard dolu/boş bağlantıları — 03.11.2026 — doğrulandı
+
+**55/55 izolePG; web436/436/typecheck/build; gerçekChrome38/38 PASS.** Komutlar ve ayrıntılı kabul [raporda](navigation-refactor/DASHBOARD_OCCUPANCY_LINKS.md). UnitOccupancyFilter/HierarchyApiTests/DashboardApiTests/ErrorContract filtreleri; birim projesi eşleşmedi, birimPASSsayılmaz. Dörtrol/apartman-site/tarih/OWNER-only/gelecek/bitmiş/pasif/çoklu ilişki/aktifUnit/count-page-search-block ve dashboardeşliği; anonim401/yabancı404/RESIDENTfiltre403-filtresiz200/bozuk400. İki yeni FE testi strictURL/OIDCnegatifleri. GerçekPKCE/Chrome KPI/grafik/filtre/temizleme/çokblok/ad/detay +mevcutreportexport regresyonu. SahipliPG/API/testhesabı temizlendi; anaDByazılmadı. [Ekranlar](navigation-refactor/evidence/dashboard-occupancy/README.md). Model/migration/yeni paket yok. Mobil/tambackend/scanner/native/Safari test edilmedi. Üçbakımadımı3/3=%100, ürün177/188korunur; #120incelemede.
+
+## BAKIM — Muhasebe ikonlu sekmeler — 03.11.2026 — doğrulandı
+
+**Sekiz ikonlu TR/EN bölüm, yalnız aktif panel, mevcut dönem/rapor/yetki sözleşmesi ve Radix erişilebilir sekmeler uygulandı.** Yeni API, finans işlemi, rol, route veya paket yok. Mevcut ACC-01 doğrulama metnine bakım kanıtı bağlandı; ürün177/188=%94,15 değişmedi.
+
+- **Web434/434, typecheck, productionbuild PASS.** Bu turun komutları frontend/buildingflow-web içinde çalıştı.
+- **Gerçek Chrome34/34:** `BF_QA_ACCOUNTING_TABS=true python3 scripts/test-accounting-web.py`. GerçekPKCE + sahipli geçiciPG/API ve rastgeleKeycloakhesabı; cleanup/yokluk doğrulandı. Sekizikon, tekaktifpanel, kapalı finansbölümlerinin istek yapmaması, ok ile yalnızodak/Enteraktivasyon, gerçek fareyle hersekme,TR→EN→TR, dönem/yenileme,1440/390px taşmama/mobilsekme genişliği ve gerçekXLSX/PDF indirme/magic/boyut. Backendfixture1000/400/600/80; uncaughtJS/5xx ve browserstoragetoken kontrolü.
+- Masaüstü/390px gerçekekran görselQA başarılı. Home/End/Space Radix davranışıdır; bu tur ayrıca otomatik denenmedi. Native/Safari/Firefox kabulü yok; backend/mobil testleri yeniden çalıştırılmadı. API/DB/mobil kodu değiştirilmedi.
+- Yeni ui/tabs mevcut Radix’e projeye ait sarmalayıcı; ikonlar mevcutLucide tekstyle eşlemesi. Manifest/lock/next-env içerikleri korunur; kurulum/restore/yeniasset yok. İlk sürücüde focus’un ertelenmesi ve Radix’in mousedown davranışı gerçek input olaylarıyla eşlendi.
+
+**Bakım3/3=%100,00**; kullanıcı incelemesi bekliyor, #119açık/In review. [Rapor](accounting/tabs-report.md), [gerçekekran/dosyalar](accounting/evidence/tabs/README.md). Önceki faz test sonuçları bu koşuya eklenmez.
+
+## BF-ACC08 — teknik kabul kanıtı, 03.11.2026
+
+**A1–A5 uygulandı ve ilgili kontroller geçti; gerçek native cihazda kaydetme DOĞRULANAMADI.** Önceden bu bölümde belirlenen senaryolar aşağıdaki gerçek koşularla eşleştirildi. Kullanıcı kabulü bekliyor; yeni faz başlatılmadı.
+
+- **A1:** Mobil yönetici/ACCOUNTANT özeti mevcut Reports kapsamından; canonical malik/kiracı mevcut /me/units dues/payments. Alan/ilişki ve wire `rows.totalCount`/paymentId sözleşmesi, JSON sınırları, finans rollerinin Person yasağı korunur.
+- **A2:** Canonical makbuz mevcut PaymentReceipt/RepeatableRead/güncel VIEW_PAYMENTS ve tüm mahsup görünürlüğü. Yabancı kullanıcı/daire/rol/ilişki, bitmiş ilişki, bulunmayan makbuz ve karma borçlu404/403; legacy kısmi makbuz erişimi de negatif testli. Görünür tek satırdan başka borçlunun tam ödeme tutarı sızmaz.
+- **A3:** Yeni mutation/cache/offline finans kuyruğu yok; GET allowlist/aktif hesap+bağlam/accessToken/refresh/401/abort. Mobil decoder/path ve makbuz toplamı, dosya MIME/magic/boyut; picker/response/body sonrası bağlam-çıkış-offline değişiminde kaydetmeme testleri. Eski finans cache/queue testleri de mobil tam koşuda çalıştı.
+- **A4:** Gerçek Chrome PKCE,1000tahakkuk/400tahsilat/600kalan/80gider, ay değiştirme/Ekim0→Kasım400, klavye yenileme,1440/390px overflow/başlık ve gerçek Excel/PDF buton/indirme/imza/boyut, uncaughtJS/5xx ve browser storage token kontrolü **20/20**.1PDF/1XLSX pypdf/openpyxl açıldı, sayısal/formülsüz/toplam eşit;1PDF sayfa görselQA. Native Expo ekranı/Directory picker/biometri/izin ve nativeExcel uygulaması çalıştırılmadı; web390px kanıtı native değildir.
+- **A5:** `python3 scripts/test-payments.py MyUnit MobileFinance ReportExport OnlinePayment FinanceGovernance` → **48/48PG+49/49birim,0atlama**. Ayrı sahipli PostgreSQL ve immutable dönem/online yolları dahil. Mobil `npm run check` → **185/185+typecheck/lint**, `npm run build` → **iOS/Android/web export PASS**. Web `npm test` → **434/434**, typecheck/buildPASS. Önceki koşular örtüşür/toplanmaz.
+- **Gerçek E2E komutu:** `python3 scripts/test-accounting-web.py`; mevcut local Next3003/Keycloak + yeni sahipli PG/APIport ve rastgele test hesabı. Hesabın silindiği doğrulandı; fixture temizlendi. AnaDB/servis/kullanıcı/parola değişmedi. İlk fixture description/version/ENERGY, xUnit2031, lint ve mobile başlık bulguları düzeltildi. Son wire totalCount düzeltmesi backend JSON ve mobil parser testleriyle sabitlendi.
+- **Kaynak/lisans:**159ilgili migration/proje/manifest/lock başlangıçtan aynı; yeni entity/migration/paket/font/ikon kaynağı yok. Restore/install/npmci yok. Python/Node runner syntax ve yeni belge bağlantıları/sayaçları kontrol edildi. Tam backend/scanner, gerçek banka/sağlayıcı, production deployment yapılmadı.
+
+**Resmi3/3=%100, BF-ACC teknik8/8=%100; kullanıcı kabul7/8=%87,50.** Ürün57kayıt/177/188=%94,15. [Faz raporu](accounting/08-report.md), [API](api/accounting.md), [dosya/ekran kanıtı](accounting/evidence/08/README.md), [GitHub117](https://github.com/AkaBayraK/BuildingFlow/issues/117). Kullanıcı kabulünden önce issue closed/Done yapılmaz.
+
 ## BAKIM — 31.10.2026 — Ortak oval form panelleri GEÇTİ
 
 DialogContent right/center radius24px; right12pxkenar/viewport yükseklik sınırı; kişi paneli genişliği min768px/viewport−24px. Daireye özel örnek kaldırıldı. **Web npm test356/356,typecheck,production build,git diff --check PASS.** Ortak right yerleşimini yalnız ManagementPanel kullanır; feature seviyesinde rounded-none override tespit edilmedi. Diğer explicit rounded-2xl küçük confirm pencereleri zaten ovaldir. Yeni düşük etkili görsel değişiklik için test eklenmedi. Tüm ekranlar/ayrı mobil viewport/native görsel kontrolü bu tur tekrarlanmadı; önceki daire örneği kontrolü yeniden çalışmış sayılmaz. Inline formlar taşınmadı; veri değişikliği yok. Backend/mobil testleri çalıştırılmadı; paket/manifest/lock/migration değişmedi.
@@ -753,7 +782,7 @@ Kullanıcı onayıyla `faz-10-11-release` dalı `main`'e `--no-ff` ile birleşti
 - [x] **Negatif JWT (production):** imzasız (`alg:none`), yabancı anahtar, HTTP issuer ve süresi dolmuş token 401. Geliştirme ortamındaki issuer/audience/expired/signature/malformed ve rol/üyelik negatifleri (sahte `ClaimTypes.Role`, client-role, üyelik dışı 403/404) mevcut integration suite'te bu tur yeniden çalıştı.
 - [x] **FE nonce CSP ve cookie:** `src/security/policy.ts` yalnız açık API/OIDC origin'lerini kabul eder, credential/query/`javascript:`/production HTTP ve nonce enjeksiyonunu reddeder; `unsafe-eval` yok. Locale cookie `httpOnly`, `SameSite=Lax`, production'da `Secure` (3 FE güvenlik testi).
 - [x] **Production build smoke (geçici 127.0.0.1:3013, sonra durduruldu):** tüm rotalar dinamik; `/login` yanıtında CSP + `private, no-store`, 24/24 script aynı istek nonce'unu taşır, her istekte yeni nonce; istemcinin gönderdiği `x-nonce`/CSP başlığı yok sayılır; `/health` CSP dışında. Tarayıcıda sayfa hydrate oldu, CSP ihlali konsolda yok.
-- [x] **Regresyon:** `bash scripts/test.sh` **425/425 = 88 unit + 337 integration, hata/atlama 0** (yeni 28 ReleaseSecurity vakası dahil; ayrı test DB, `buildingflow-test-*` kuyruk/bucket, geçici Mailpit). `npm test` **85/85**, typecheck ve `npm run build` başarılı. Korunan 26 dosya hash'i değişmedi.
+- [x] **Regresyon:** `bash scripts/test.sh` **426/426 = 88 unit + 337 integration, hata/atlama 0** (yeni 28 ReleaseSecurity vakası dahil; ayrı test DB, `buildingflow-test-*` kuyruk/bucket, geçici Mailpit). `npm test` **85/85**, typecheck ve `npm run build` başarılı. Korunan 26 dosya hash'i değişmedi.
 
 **Sınırlar:** Dış domain/TLS sertifikası yok; HTTPS davranışı test sunucusu ve yerel production build ile doğrulandı. `next.config.ts` HSTS başlığı build anındaki `BUILDINGFLOW_PUBLIC_HTTPS` değerini kullanır. Rate limiter süreç içi (tek API örneği) çalışır; çok örnekli dağıtımda proxy/gateway limiti gerekir.
 
@@ -2232,3 +2261,39 @@ Dört rol/401/403/foreignscope/üyelik/yabancıhesap, ENFORCED atama yokken süz
 - Dörtrol/üyelik/401/403/404/pasifparent, ACCOUNTANT kişiyasağı; SQLimmutable/teklik/roundedtotal/decisionguard,8alan/model/pendingmigration/ilk/upgrade/reapply/Down ayrıPG. FE DTO/para/TR-EN/ikon/panel/page/abort/UUID/409, npmtest/typecheck/build.
 
 Bu tur test henüz çalıştırılmadı. [Sözleşme](api/bank-building-finance.md).
+
+### BF-ACC06 — Gerçek sonuç, 03.11.2026
+
+**A1–A5 teknik kabul doğrulandı:** BankBuildingFinanceApiTests16HTTP/DB senaryosu ve BankBuildingMigrationTests1senaryo; BankBuildingFinanceTests21birim, BuildingReportExportTests7birim; frontend bank-building-finance.test10senaryo. Açık yönetici ağırlıkları/en büyük kalan/UUIDtiebreak/immutable snapshot kullanıcı tarafından onaylandı. Önceki paragraftaki “henüz çalıştırılmadı” uygulama öncesi kayıttır; güncel sonuç bu bölümdür.
+
+- **`python3 scripts/test-payments.py BankBuilding BuildingReportExport SupplierFinance SupplierInvoice SupplierInsight SupplierRelease ManagementAssignment FinancialLedger FinancialIncome BuildingFlow.IntegrationTests.PersistenceTests BuildingFlow.IntegrationTests.MigrationTests ReportExport ErrorContract PaymentApiTests ReportApiTests DashboardApiTests ExpenseApiTests OnlinePayment LatePenalty` →194/194entegrasyon+102/102birim,0atlama.** Runner'ın kendi geçici PostgreSQL18.6 fixture'ı; anaDB değişmez.
+- **`npm test` →426/426,0atlama; `npm run typecheck`, `npm run build` PASS** (`frontend/buildingflow-web`). Sonradan eklenen eşit toplam/yanlış kuruş önizlemesi de reddedilir. Tam payload önizleme bağlama, UUID/409/abort/ikon/TR-EN DTO kuralları uygulanır; gerçek browser E2E yerine geçmez.
+- **Sentetik dosya üretimi7/7; pypdf/openpyxl ile2PDF+2XLSX bağımsız okuma, Poppler10sayfa görselQA.**32blok alan gideri165.32=160.32atanmış+5.00ortak/atanmamış; numeric/formülsüz3sheet veTürkçe glifler.
+- **Tüm tablo8NOTNULL/model/pendingmigration, ilk/upgrade/reapply/idempotent/boşDown-up/doluDown, legacyExpenseaudit/version koruması;268başlangıç hash'inden yalnız beklenen snapshot değişimi.**
+
+İlk fixture ctor/exception/PDFrawtext beklentisi ve TS daraltma/BigInt hedefi düzeltildi; finalkoşu başarılı. Gerçek tarayıcı/form/klavye/odak/responsive/nativeExcel/mobil/gerçek sağlayıcı E2E **DOĞRULANAMADI**; tam backend suite/scanner çalıştırılmadı. Yeni paket/restore/npmci yok; anaDB/.env/mevcut kullanıcılar korunur. [Faz raporu](accounting/06-report.md), [dosya kanıtı](accounting/evidence/06/README.md), [API](api/bank-building-finance.md). BF-ACC06teknik teslim, kullanıcı kabulü bekliyor;07başlamadı.
+
+## BF-ACC07 — 03.11.2026 uygulama öncesi kabul senaryoları
+
+- Yıllık96açık plan/0ilemissingayrımı, mevcut PropertyBudget/BudgetRevision, tek transaction, sourceversion/UUIDreplay/farklıpayload409, onay96snapshot ve aylık revizyondaSTALE.
+- Kontrol yazmasız, geçmişayCLOSE→LOCK→REOPEN; yalnızSUPER_ADMIN/SITE_ADMIN, gerekçe/version/kontrolfingerprint, açık online ödeme reddi, uyarı teyidi. Immutable kapanış/operation, replaycurrentsnapshot/appliedVersion.
+- Manuel/online/mobil/worker ve hamSQL yazımlarında aynı DB dönem guard; eski+yeni olay tarihi/aralık, iptal/tersleme; audit-only hesap touch ve açık ayda eski borca tahsilat türetilmiş PaidAmount istisnası. Kapanış/yazma yarışı, crossProperty ve iki ters yetki senaryosu.
+- Dört finans rolü read/üye kapsamı; ayrıdenetçi/Person yetkisi yok. Güncel/frozen rapor, gerçek XLSX/PDF numeric/toplam ve hata registry/TR-EN eşliği.
+- BeşyeniBaseEntity tablo/migration/Designer/snapshot/8NOTNULL/tümşema/pendingmodel, ilk/upgrade/reapply/Down koruması ayrıPG; FE DTO/version/UUID/abort/409/ikon/TR-EN, npmtest/typecheck/build.
+
+Bu tur test henüz çalıştırılmadı. [Sözleşme](api/finance-governance.md).
+
+### BF-ACC07 — Gerçek teslim kanıtı, 03.11.2026
+
+**A1–A5 teknik uygulama doğrulandı.** Kullanıcı07başlangıcı/06kabulü, yalnızSUPER_ADMIN/SITE_ADMIN gerekçeli yeniden açma ve ayrıdenetçi yerine dörtfinansrolü saltokunur denetim kararlarını verdi. Önceki “henüz çalıştırılmadı” paragrafı uygulama öncesi kayıttır; güncel sonuç aşağıdadır.
+
+- **Geniş koşu:** `python3 scripts/test-payments.py FinanceGovernance SupplierFinance SupplierInvoice SupplierInsight SupplierRelease ManagementAssignment FinancialLedger FinancialIncome BankBuilding BuildingReportExport BuildingFlow.IntegrationTests.PersistenceTests BuildingFlow.IntegrationTests.MigrationTests ReportExport ErrorContract PaymentApiTests ReportApiTests DashboardApiTests ExpenseApiTests OnlinePayment LatePenalty DuesApiTests` →**226/226PG+120/120birim,0atlama**.
+- **Son değişiklikler:** `python3 scripts/test-payments.py FinanceGovernance OnlinePayment HierarchyApiTests` →**63/63PG+32/32birim,0atlama**. Kontrolfingerprint tüm toplam/sayıları da kapsar; yalnız kapanış/yeniden açma geçmişi olan boş alan silinemez. Bunlar geniş koşuyla örtüşür; testler toplanmaz.
+- **Son dosya düzeni:** `BUILDINGFLOW_ACC07_QA_DIR=<mutlak evidence/07> dotnet test ...BuildingFlow.UnitTests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter 'FinanceGovernance|ReportExportFileTests|BuildingReportExportTests'` →**35/35,0atlama**. Yeni governancedomain/export ve mevcut exporterlar; Excel31karakter sekme sınırı, PDFcurrent/frozen ayrımı ve dosya üretimi.
+- **Web:** `npm test` →**434/434,0atlama**; `npm run typecheck`, `npm run build` **PASS** (`frontend/buildingflow-web`). Yeni8validator/para senaryosu:96hücre/missing0, exactcents/variance, onaystamp/STALE, scope/period/history, kontrollüexport ve Türkçevirgül/açık0/yuvarlamama. Form filtre dışı hatalı hücreyi de doğrular.
+- **Bağımsız dosya/görsel:** pypdf/openpyxl2PDF+2XLSX açıldı, plan96.00−actual24.00=72.00, Eylülkapanış8.00/2.00/3.00ayrı;3sekme≤31karakter, formül/uyarıyok. Poppler **12sayfa görselQA**; PDF özet/kapanışı önce,96satırı sonra gösterir;6'şar sayfa.
+- **Persistence:**33code-owned parasal tabloda OLD+NEW tarih/aralık ve Propertyrowlock; iki kapalıdurum, gerekçeliimmutableaksiyon/kapanışzinciri. Allocationkanıtlı paidAmountcache istisnası açıkayda eski borca tahsilatı destekler; hamSQLforgery reddedilir. Kapanış-yazma yarışı, rawreopenkanıtsızret, stalecontrol/UUIDreplay/ikinciClose, adminrol403, membership401/403/404 veACCOUNTANT kişiyasağı testli.
+- **Online iade:** periodguard dış sağlayıcıdan önceaynılocalTX/lock altında çalışır; closedayda sandbox sağlayıcısıSUCCEEDED/refundREQUESTED/paymentiptalsiz kalır. Sağlayıcıreddi rollback regresyonları yeniden çalıştı.
+- **Migration:** yeni beşBaseEntity/ortak8NOTNULL/compositeFK/unique/check/immutable/deferred96snapshot/proof; tüm model/şema/pendingmigration,ilk/upgrade/reapply/idempotent/boşDown-up/doluDown ayrıPG. Legacy bütçe/revizyon/audit/version korunur;157başlangıç kaynağında yalnız beklenen snapshot değişti. Yeni paket/font/restore/npmci yok; anaDB uygulanmadı.
+
+Gerçek browser/form/klavye/odak/responsive/nativeExcel/mobil/gerçeksağlayıcıE2E **DOĞRULANAMADI**; tam backend/scanner çalıştırılmadı. İlk gidercanceltestindekiHTTPmethod ve Excelbaşlık/PDFdipnotsayfası sorunları düzeltildi; son koşular başarılı. [Teslim](accounting/07-report.md), [sözleşme](api/finance-governance.md), [dosyaQA](accounting/evidence/07/README.md). #116teknikIn review/açık; kullanıcı kabulü bekler. #117Backlog/08başlamadı.

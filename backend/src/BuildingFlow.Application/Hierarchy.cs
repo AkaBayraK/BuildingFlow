@@ -3,7 +3,7 @@ using BuildingFlow.Domain;
 namespace BuildingFlow.Application;
 
 public sealed record AccessScope(string UserId, bool ReadAll, bool ReadFinancialParties = false);
-public sealed record HierarchyQuery(int Page = 1, int PageSize = 10, string? Search = null, string SortBy = "name", string SortDirection = "asc", Guid? UnitId = null);
+public sealed record HierarchyQuery(int Page = 1, int PageSize = 10, string? Search = null, string SortBy = "name", string SortDirection = "asc", Guid? UnitId = null, string? Occupancy = null);
 public sealed record PagedRows<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);
 public sealed record CreateBuildingRequest(string? Name, int? FloorCount = null, int? ConstructionYear = null, string? HeatingType = null, bool? HasElevator = null, string? ParkingType = null)
 {
@@ -31,7 +31,7 @@ public sealed record UpdatePropertyRequest(string? Name, string? City, string? D
 public sealed record BuildingResponse(Guid Id, Guid PropertyId, string Name, long Version, DateTimeOffset CreatedAt, bool IsEnabled, int UnitCount, int? FloorCount,
     int? ConstructionYear = null, string? HeatingType = null, bool? HasElevator = null, string? ParkingType = null);
 public sealed record UnitResponse(Guid Id, Guid PropertyId, Guid? BuildingId, string Number, int Floor, decimal GrossSquareMeters, long Version, DateTimeOffset CreatedAt, bool IsEnabled, string Type,
-    decimal? NetSquareMeters = null, string? RoomLayout = null, string? FloorPosition = null, bool? IsMezzanine = null, int? BathroomCount = null, string? KitchenType = null, bool? HasBalcony = null, string? HeatingType = null);
+    decimal? NetSquareMeters = null, string? RoomLayout = null, string? FloorPosition = null, bool? IsMezzanine = null, int? BathroomCount = null, string? KitchenType = null, bool? HasBalcony = null, string? HeatingType = null, string? BuildingName = null);
 public sealed class HierarchyConflictException(ApiErrorMessage error) : Exception(error.Message)
 { public ApiErrorMessage Error { get; } = error; }
 
@@ -89,6 +89,7 @@ public sealed class HierarchyService(IHierarchyStore store, ICurrentUserService 
     {
         Dictionary<string, ApiErrorMessage[]> errors = [];
         if (query.Page is < 1 or > 1000000) errors["page"] = [ErrorCatalog.InvalidPage.Create()];
+        if (query.Occupancy is not (null or "OCCUPIED" or "VACANT")) errors["occupancy"] = [ErrorCatalog.InvalidRequest.Create()];
         if (apartment && query.UnitId == Guid.Empty) errors["unitId"] = [ErrorCatalog.InvalidRequest.Create()];
         if (query.PageSize is < 1 or > 100) errors["pageSize"] = [ErrorCatalog.PageSizeBounds.Create()];
         if (query.Search?.Trim().Length > 200) errors["search"] = [ErrorCatalog.ErrorsSearchBounds.Create()];
@@ -139,7 +140,7 @@ public sealed class HierarchyService(IHierarchyStore store, ICurrentUserService 
         return store.DeleteBuildingAsync(id,block,version,access,token);
     }
     public Task<PagedRows<UnitResponse>?> ListUnitsAsync(Guid id, Guid? block, HierarchyQuery query, CancellationToken token)
-    { var access=Access(); Query(query,true); return store.ListUnitsAsync(id,block,query,access,token); }
+    { var access=Access(); if(query.Occupancy!=null&&!new[]{"SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"}.Any(user.IsInRole))throw new UnauthorizedAccessException(); Query(query,true); return store.ListUnitsAsync(id,block,query,access,token); }
     public Task<UnitResponse?> GetUnitAsync(Guid id, Guid? block, Guid apartment, CancellationToken token) => store.GetUnitAsync(id,block,apartment,Access(),token);
     public Task<UnitResponse?> CreateUnitAsync(Guid id, Guid? block, CreateUnitRequest request, CancellationToken token)
     {

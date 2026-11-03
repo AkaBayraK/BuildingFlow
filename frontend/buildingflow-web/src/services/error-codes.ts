@@ -1,5 +1,6 @@
 // Public code/parameter contract; translations live in messages/tr.json and en.json.
 export const errorCodes = {
+  "BF_FINANCE_PERIOD_LOCKED":{"status":409,"severity":"warning","parameters":[]},
   "BF_DEFINITION_INVALID":{"status":400,"severity":"error","parameters":[]},
   "BF_DEFINITION_LOCKED":{"status":400,"severity":"warning","parameters":[]},
   "BF_DEFINITION_UNAVAILABLE":{"status":400,"severity":"error","parameters":[]},

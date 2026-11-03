@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.IMobileNoticeStore, MobileNoticeStore>();
         services.AddSingleton(TimeProvider.System); services.AddScoped<AuditInterceptor>();
         services.AddDbContext<BuildingFlowDbContext>((provider, options) => options.UseBuildingFlowNpgsql(configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("ConnectionStrings:Database is required.")).AddInterceptors(provider.GetRequiredService<AuditInterceptor>()));
+        services.AddScoped<BuildingFlow.Application.IFinanceGovernanceStore, FinanceGovernanceStore>();
         services.AddScoped<BuildingFlow.Application.IPropertyStore, PropertyStore>();
         services.AddScoped<BuildingFlow.Application.IHierarchyStore, HierarchyStore>();
         services.AddScoped<BuildingFlow.Application.IPersonMessageStore, PersonMessageStore>();
@@ -80,6 +81,8 @@ public static class DependencyInjection
         services.AddScoped<BuildingFlow.Application.ILatePenaltyScheduler>(provider => provider.GetRequiredService<LatePenaltyStore>());
         services.AddScoped<BuildingFlow.Application.IReportStore, ReportStore>();
         services.AddScoped<FinancialLedgerStore>();
+        services.AddScoped<BuildingFlow.Application.IBankReconciliationStore,BankReconciliationStore>();
+        services.AddScoped<BuildingFlow.Application.IExpenseDistributionStore,ExpenseDistributionStore>();
         services.AddScoped<BuildingFlow.Application.IFinancialLedgerStore>(s=>s.GetRequiredService<FinancialLedgerStore>());
         services.AddScoped<FinancialIncomeStore>();
         services.AddScoped<BuildingFlow.Application.IFinancialIncomeStore>(s=>s.GetRequiredService<FinancialIncomeStore>());

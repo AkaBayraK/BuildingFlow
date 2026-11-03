@@ -222,3 +222,7 @@ Model hatası hata kodu üretmez; cevap kural tabanlıya düşer (`modelFallback
 ## BF-ACC05 cari ekstre export hata metni
 
 BF_REPORT_PDF_UNSUPPORTED_TEXT409/warning parametresiz kalır; metin yalnız alan adı yerine rapordaki desteklenmeyen metinleri kapsar, UnicodeExcel önerir. Yeni hata kodu/ham exception veya isim parametresi eklenmedi. ErrorCatalog+TR/EN+ErrorContract/reportexport regresyonları doğrulandı. [Cari sözleşmesi](supplier-finance.md).
+
+## BF-ACC07 — Dönem koruması (03.11.2026)
+
+`BF_FINANCE_PERIOD_LOCKED`409/warning, parametresiz. DB'nin özel `P7001` durum kodu nested DbUpdateException dâhil yalnız bu katalog mesajına çevrilir; SQL/exception metni/ayrıntı/kişisel veri dönmez. FE error-codes ve TR/EN apiErrors eşleşir. Kapalı gider/bütçe/defter/tahsilat/hamSQL ve online iade sağlayıcı-öncesi ret testli. Geçmişay yeniden açma yalnızSUPER_ADMIN/SITE_ADMIN; yeni denetçi rolü yok. [Sözleşme](finance-governance.md).

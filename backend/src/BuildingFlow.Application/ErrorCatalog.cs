@@ -24,6 +24,7 @@ public sealed record ErrorDefinition(string Code, string Message, string Severit
 
 public static class ErrorCatalog
 {
+    public static readonly ErrorDefinition FinancePeriodLocked=new("BF_FINANCE_PERIOD_LOCKED","Finans dönemi kapalı veya kilitli. Düzeltme için yetkili yöneticinin gerekçeyle dönemi yeniden açması gerekir.","warning");
     public static readonly ErrorDefinition CommonAreaMaintenanceInvalid=new("BF_COMMON_AREA_MAINTENANCE_INVALID","Geçerli bakım planı, tarih, saat aralığı ve görünür duyuru metni girin.","error");
     public static readonly ErrorDefinition CommonAreaMaintenanceConflict=new("BF_COMMON_AREA_MAINTENANCE_CONFLICT","Bakım kapanışı rezervasyon veya başka bir kayıtla çakışıyor. Güncel planı kontrol edin.","warning");
     public static readonly ErrorDefinition CommonAreaReservationClosed = new("BF_COMMON_AREA_RESERVATION_CLOSED", "Alan bu tarih ve saatte rezervasyona açık değil veya rezervasyon artık değiştirilemez.", "warning");

@@ -1,6 +1,67 @@
-## BF-ACC06 — 03.11.2026 — DEVAM EDIYOR
+## BAKIM — Dashboard dolu/boş bağlantıları — 03.11.2026 — TEKNİK TESLİM
 
-Kullanıcı devam talebiyle05kabulünü ve06başlangıcını onayladı; #114closed/Done, #115In progress. Dağıtım kararı kullanıcıdan alındı: açık yönetici payları, en büyük kalan/kuruş tamamlama ve değişmez pay/blok snapshot. Sözleşme/kabul/task1/3=%33,33 tamamlandı; uygulama devam ediyor. Banka CSV önizleme/dedupe/eşleştirme/fark ve doğrudan/ortak/paylaştırılmış gider-blok raporu; mevcut online mutabakatın yeniden kullanımı. Yeni paket/anaDB değişimi yok. Bu tur test henüz yok. BF-ACC teknik5/8=%62,50; kullanıcı kabul5/8=%62,50.
+**Bakım3/3=%100,00.** Ürün177/188=%94,15 korunur; yeni faz veya öncekiiş kabulü yok. #120In review/açık, kullanıcı incelemesi bekliyor.
+Dashboard KPI ve grafik dolu/boş sayıları alan kapsamlı occupancy filtresini açar. İkonlu TR/EN Tümü/Dolu/Boş, URL/temizleme/arama/sayfalama; aktifUnit+bugünTENANT/RESIDENT, OWNER-onlyboş. Apartman ve tümblokliste/BuildingName/doğrublokdetayı. Yeni filtre dashboard’ın dört finans rolünde, filtresiz üyelik erişimi korunur. APIquery/DTOeklemeli; model/migration yok.
+**55/55PG,436/436web/typecheck/build ve38/38gerçekChrome PASS.** Bu filtrede birim eşleşmedi; birimPASSsayılmadı. GeçiciPG/API/testhesabı temizlendi/yokluğu doğrulandı; anaDB/.env/mevcutkullanıcı/parola/servisler korundu. Yeni bağımlılık/restore/install/push/deploy yok. Mobil/tümbackend/scanner/Safari/native testi yok. [Rapor](../navigation-refactor/DASHBOARD_OCCUPANCY_LINKS.md), [kanıt](../navigation-refactor/evidence/dashboard-occupancy/README.md).
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Context: BİLGİ MEVCUT DEĞİL. Bağımsız tokenlimiti: BİLGİ MEVCUT DEĞİL.
+[KULLANIM]03.11.2026 Codex sonokuma:300dk%90/%10kalan,reset03.11.2026 22:49:05;10080dk%85/%15kalan,reset09.11.2026 13:58:50 Europe/Istanbul. Hesapkotası sohbet tüketimi değildir.
+[SONRAKİ ADIM] Kullanıcı dashboard filtre akışını inceleyebilir; yeni kapsam/dağıtım başlatılmaz.
+
+## BAKIM — Muhasebe ikonlu sekmeler — 03.11.2026 — TEKNİK TESLİM
+
+**Üç bakım adımı3/3=%100,00.** Yeni ürün fazı yok; BF-ACC08 kabulü varsayılmaz. Ürün57kayıt/177/188=%94,15; BF-ACC teknik8/8, kullanıcı kabul7/8 korunur. #119 In review/açık, kullanıcı incelemesi bekliyor.
+
+Muhasebe tek menü altında sekiz ikonlu TR/EN sekmeye ayrıldı: GenelBakış, Kasa/Hesap, Gelir, Cari, Banka/Mutabakat, Bütçe/Dönem, BlokDağılım, Rapor. Üstte ortak dönem/yenileme/ExcelPDF; yalnız aktifbölüm mount edilir. KuruluRadix ile ortak ui/tabs ve tek accounting-tab-style; klavye manuelaktivasyon/aria/48px/mobilgrid. Alan/issuer/hesap/locale değişince yeni kök; mevcut finans/üyelik/API davranışı korunur. Geçici filtre/seçimler sekme dönüşünde sıfırlanabilir; finans kayıtları değişmez.
+
+**Web434/434/typecheck/build ve gerçek Chrome34/34 PASS.** Sekizikon/aktifpanel/kapalıbölümisteğiyok/ok-Enter-gerçekfare/TR–EN/dönem/klavye/1440-390px/ExcelPDF. Masaüstü ve390px görselQA geçti. Yalnız sahipliPG/API ve geçiciKeycloak hesabı; silindiği doğrulandı. Manifest/lock/next-env korundu; yeni paket/asset/font yok. Backend/mobil kodu/testi bu tur değişmedi/çalıştırılmadı; gerçekSafari/native kabulü yok. .env/mevcutkullanıcı/servis ve başkaoturumfarkları korunur; commit/push/deploy yok. Tekagent; akadev-verify/docs prosedürleri uygulandı. [Rapor](../accounting/tabs-report.md), [kanıt](../accounting/evidence/tabs/README.md), [TESTING](../TESTING.md).
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL. Bağımsız hesap/oturum token limiti: BİLGİ MEVCUT DEĞİL.
+[KULLANIM]03.11.2026 Codex son okuma rateLimitsByLimitId.codex:300dk%52kullanılan/%48kalan,reset03.11.2026 22:49:05;10080dk%79kullanılan/%21kalan,reset09.11.2026 13:58:50 Europe/Istanbul. Hesapkotası sohbet tüketimi değildir.
+[SONRAKİ ADIM] Kullanıcı sekmeli düzen incelemesi; yeni faz/üretim dağıtımı başlatılmaz.
+
+## BF-ACC08 — 03.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz/tur3/3=%100,00. BF-ACC teknik8/8=%100,00; kullanıcı kabul7/8=%87,50.** milestones.ts57kayıt/188görevden177doğrulanmış=%94,15. Kullanıcının08başlangıcı07kabulüdür;116completed/Done,117açık/In review doğrulandı. Sonraki faz başlatılmadı.
+
+Mobilde dört finans rolüne mevcut rapordan alan/yıl/ay muhasebe özeti; canonical malik/kiracı için kendi borç/ödeme ve güncel ilişki/VIEW_PAYMENTS/tam mahsup scope’lu makbuz. Legacy makbuz bağlantısı ve kısmi erişimden tam ödeme sızıntısı koruması; mevcut PaymentReceipt/immutable geçmiş. DTO opsiyonelPaymentId/kind, gerçekrows.totalCount sözleşmesi testli. TokenResponse yerineaccessToken; aktif hesap/bağlam/refresh/401/abort. Yeni ekran bellekte/online, finans queue/cache yok. Mevcut gerçekXLSX/PDF, nativeönceDirectorypicker/oturum doğrulama; webBlobURL. MIME/magic/5MiB; picker/yanıt/bodysonrası scope/logout/offline değişiminde dosya yazılmaz. Dışa kaydedilen kopya çıkışta silinmez. Yeni paket/font/ikon kaynağı/entity/migration yok.
+
+**Son48/48PG+49/49birim; mobil185/185/check ve iOS/Android/web export; web434/434/typecheck/productionbuild PASS. Gerçek Chrome20/20:** gerçekPKCE,1000tahakkuk/400tahsilat/600kalan/80gider, dönem ve klavye,1440/390px, XLSX/PDFindirme,uncaughtJS/5xx/storagekontrolü. pypdf/openpyxl1PDF/1XLSX sayısal/toplameşliği/formülsüz;1PDFsayfa görselQA. Mobilwebbaşlıkdaralması opt-instackOnMobile ile düzeltildi. Önceki koşular örtüşür/toplanmaz.
+
+159ilgili migration/proje/manifest/lock ve2104başlangıçtarama kaynağı değişmedi. Sadece sahipli ayrıPG/APIport ve rastgele geçiciKeycloakhesabı; silindiği/cleanup doğrulandı. AnaDB’ye migration/istek gönderilmedi. .env/mevcutkullanıcı/parola/servisler ve diğeroturumun farkları korunur; commit/push/merge/deploy/restore/install yok. Tekagent; yeniMCP/globalayar yok.
+
+**Gerçek native iOS/Android cihazında Directorypicker/kaydetme DOĞRULANAMADI.** Açık simülatör yoktu; exportderlemesi veya390pxNextwebkanıtı nativeçalışma değildir. NativeExcel/biometri/VoiceOver/TalkBack/gerçeksağlayıcı/tambackend/scanner kabulü yok. Makbuz uygulama içidir; resmîbelge/bankateyidi veya ayrısakinPDFüretimi yok. Webdevissue rozeti saklanmadı; bütün devuyarıları temizliği iddiası yok. Ayrıntı [Faz08](../accounting/08-report.md), [API](../api/accounting.md), [test](../TESTING.md), [gerçekekran/dosyalar](../accounting/evidence/08/README.md).
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM]03.11.2026 son okuma Codex get_usage_limits/rateLimitsByLimitId.codex:300dk%29kullanılan/%71kalan,reset03.11.2026 22:49:05;10080dk%75kullanılan/%25kalan,reset09.11.2026 13:58:50 Europe/Istanbul. Hesap/oturumun bağımsız token limiti: BİLGİ MEVCUT DEĞİL. Hesapkotası bu sohbetin token tüketimi değildir.
+[SONRAKİ ADIM] BF-ACC08 kullanıcı inceleme/kabulü; gerçeknativecihaz kabulü ayrı kanıt gerektirir. Üretim dağıtımı/anaDBmigration’ı ayrıca yetkilendirilir. Yeni ürün fazı başlatılmaz.
+
+## BF-ACC07 — 03.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz ve bu tur3/3=%100,00. BF-ACC teknik7/8=%87,50; kullanıcı kabul6/8=%75,00.** milestones.ts57kayıt/188görevden176doğrulanmış=%93,62. Kullanıcı07başlangıcıyla06kabulünü ve iki politika yanıtını verdi: yalnızSUPER_ADMIN/SITE_ADMIN gerekçeli yeniden açma; ayrıdenetçi yok, dört finans rolü read-only denetim.115Done/closed,116In review/açık,117Backlog;08başlamadı.
+
+Mevcut96aylık kategori bütçesinde atomik yıllık hazırlama, değişmez onay veSTALE;0plan/missingayrımı, plan/actual/variance. OPEN→CLOSED→LOCKED ve gerekçeli/version/UUIDREOPEN, immutable kapanış/aksiyon actor-time-reason.33parasal tabloda OLD+NEW tarih/aralık vePropertyrowlock DBguard, kontrolkaynakdigest/sürüm+tüm toplam/sayı fingerprint'i. Audit-onlyhesap dokunuşu paraolayı değil; eski borca açıka tahsilatında derivedpaidAmount ancakallocationkanıtıyla değişir. İptal/tersleme kapalı kaynakayı aşmaz. Kapanış/yeniden açma geçmişli boşProperty de silinemez. Onlineiadede dönemguard sağlayıcıdan önce localSaveChanges, aynıTX/lock; sağlayıcıreddi rollback. Resmîmuhasebe/dağıtıkTXgarantisi değil. Yeni beşBaseEntity tablo+20261103094352_FinanceGovernanceAndPeriodLocks/Designer/snapshot; tümşema8NOTNULL/model/upgrade/reapply/Down velegacyaudit/version korumaları.
+
+**Geniş226/226PG+120/120birim; son değişen dönem/online/hiyerarşi63/63PG+32/32birim; son exporter/domain35/35; web434/434,typecheck/productionbuildPASS.**0atlama; koşular örtüşür/toplanmaz.2PDF+2XLSX bağımsız okuyucuda,3sekme≤31karakter/96planhücresi;96−24=72, Eylülfrozen8/2/3ayrı;12PDFsayfa görselQA. İlk cancelHTTPverbtesti, Exceluzunsekme vePDFyalnızdipnotsayfası düzeltildi. Türkçevirgül/açık0ve görünmeyenkategori hatasına dönüş eklendi.157başlangıçkaynağında yalnız beklenen model snapshot değişti; eski migration/proje/manifest/lock korundu. Yeni paket/font/restore/npmci yok; anaDB'ye uygulanmadı. .env/kullanıcı/parola/servisler/diğeroturumfarkları korundu; commit/push/merge/deploy yok. Tekagent, yeniMCP/globalayar yok.
+
+Gerçek browser/form/klavye/odak/responsive/nativeExcel/mobil/sağlayıcıE2E ve tambackend/scanner çalıştırılmadı. Kapanış uyarıları açık kabul edilebilir; açık/incelemedeonline ödeme bloklar. Denetimraporu currentbütçe ve frozenkapanış değerlerini ayırır; genelDBaudit veya resmîyevmiye/e-Defter değildir. Gerçek sağlayıcı/hariciDBtransaction ve PDFglif/5MiB sınırları [raporda](../accounting/07-report.md). [API](../api/finance-governance.md), [testler](../TESTING.md), [dosya/görselQA](../accounting/evidence/07/README.md).
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM]03.11.2026 teslim okuması Codex get_usage_limits/rateLimitsByLimitId.codex:300dk%62kullanılan/%38kalan,reset03.11.2026 17:41:50;10080dk%65kullanılan/%35kalan,reset09.11.2026 13:58:50 Europe/Istanbul. Hesapkotası sohbet token tüketimi değildir.
+[SONRAKİ ADIM] BF-ACC07 kullanıcı kabulü ve BF-ACC08 başlangıç kararı; yeni onay olmadan08başlatılmaz.
+
+## BF-ACC06 — 03.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+**Faz ve bu tur3/3=%100,00. BF-ACC teknik6/8=%75,00; kullanıcı kabul5/8=%62,50.** milestones.ts57kayıt/188görevden175doğrulanmış=%93,09. Kullanıcı devam talebiyle05kabulünü/06başlangıcını ve açık yönetici paylarını onayladı. GitHub pano114Done/closed,115In review/açık,116Backlog doğrulandı. Sonraki faz başlamadı.
+
+Kontrollü UTF8CSV yazmasız önizleme/dosya-ref tekilliği/örtüşen satır reuse, manuel signedtutar/hesap/±7gün birebir eşleştirme, gerekçeli/version/UUID karar ve void geçmişi; fark ve eşleşmeyen defter listeleri. Import para hareketi yaratmaz; mevcut online ReconciliationPanel/API muhasebede yeniden kullanılır. Doğrudan/ortak/açık paylaştırılmış mevcut Expense, largestremainder/UUIDtie ve değişmez blok/alan snapshot; gerekçeli tek tersleme. Apartmanda NULLBuildingalanpayı/sahteblok yok. Alan/seçilibloğun aidat/gider raporu; ortak/atanmamış ve alan gelirleri ayrı, gerçek Excel/PDF. YediBaseEntity tablo+20261103044125_BankStatementsAndExpenseDistributions/Designer/snapshot, compositeFK/partialunique/parentlock/immutable/deferred yuvarlama/tamlık ve doluDown korumaları.
+
+**İzole PostgreSQL194/194entegrasyon+102/102birim,0atlama; web426/426,typecheck/productionbuildPASS.** Ayrıca son sentetik7/7,2PDF+2XLSX bağımsız açma,10PDFsayfa görselQA;32blok toplam165.32=160.32atanmış+5.00ortak/atanmamış. İlk/upgrade/reapply/idempotent/boşDown-up/doluDown, tüm uygulama tablosu8NOTNULL/pendingmodel ve legacyExpenseaudit/version korunması testli. İlk fixture ctor/exception/PDFtext ve TSdaraltma/BigInt hedefi; son tarihçe decoder indeks aktarımı düzeltildi, regresyon eklendi.268başlangıç kaynağında yalnız beklenen snapshot değişti; eski migration/proje/manifest/lock korundu. Yeni paket/font/restore/npmci yok; anaDB'ye migration uygulanmadı. .env/kullanıcı/parola/servisler ve diğer oturumun farkları korunur; commit/push/merge/deploy yok.
+
+Gerçek browser/form/klavye/odak/responsive/nativeExcel/mobil/gerçek sağlayıcıE2E ve tambackend/scanner çalıştırılmadı. CSV kontrollü şablondur, bankaPDF/MT940/OFX adaptörü değildir. Kapanış banka tarafından doğrulanmış veri değil yönetici girdisidir; son eşleştirme yöneticinindir. PDFTR/Latin glif sınırı,1000blok/5MiB export sınırı ve gerçekE2E eksikleri [raporda](../accounting/06-report.md). [API](../api/bank-building-finance.md), [testler](../TESTING.md), [dosya/görsel kanıt](../accounting/evidence/06/README.md).
+
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[KULLANIM]03.11.2026 teslim okuması Codex get_usage_limits/rateLimitsByLimitId.codex:300dk%79kullanılan/%21kalan,reset03.11.2026 12:31:00;10080dk%52kullanılan/%48kalan,reset09.11.2026 13:58:51 Europe/Istanbul. Hesap kotası sohbet token tüketimi değildir.
+[SONRAKİ ADIM] Kullanıcı BF-ACC06 kabulü ve BF-ACC07 başlangıç kararı. Yeni onay olmadan07'ye geçilmez.
 
 ## BF-ACC05 — 03.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
 

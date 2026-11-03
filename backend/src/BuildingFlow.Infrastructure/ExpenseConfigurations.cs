@@ -62,6 +62,7 @@ internal sealed class BudgetRevisionConfiguration : IEntityTypeConfiguration<Bud
     public void Configure(EntityTypeBuilder<BudgetRevision> builder)
     {
         BaseEntityConfiguration.Configure(builder, "budget_revisions");
+        builder.HasAlternateKey(x=>new{x.PropertyId,x.BudgetId,x.Id});
         builder.Property(value => value.PropertyId).HasColumnName("property_id");
         builder.Property(value => value.BudgetId).HasColumnName("budget_id");
         builder.Property(value => value.RequestId).HasColumnName("request_id");

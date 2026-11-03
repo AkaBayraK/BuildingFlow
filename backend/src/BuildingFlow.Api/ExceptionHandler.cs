@@ -8,7 +8,8 @@ public sealed class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExcept
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception error, CancellationToken token)
     {
-        var status = error switch { StorageUnavailableException or IdentityUnavailableException => 503, DocumentSizeException => 413, RequestValidationException => 400, ArgumentException => 400, BadHttpRequestException request => request.StatusCode, UnauthorizedAccessException => 403, DbUpdateConcurrencyException or HierarchyConflictException => 409, _ => 500 };
+        var periodLocked=ClosedPeriod(error);
+        var status = periodLocked?409:error switch { StorageUnavailableException or IdentityUnavailableException => 503, DocumentSizeException => 413, RequestValidationException => 400, ArgumentException => 400, BadHttpRequestException request => request.StatusCode, UnauthorizedAccessException => 403, DbUpdateConcurrencyException or HierarchyConflictException => 409, _ => 500 };
         logger.LogError("Request failed with {ExceptionType} and status {StatusCode}", error.GetType().Name, status);
         context.Response.StatusCode = status;
         if (error is RequestValidationException validation)
@@ -20,8 +21,10 @@ public sealed class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExcept
             return true;
         }
         var result = new ProblemDetails { Status = status, Instance = context.Request.Path };
-        ApiProblems.Apply(result, error is HierarchyConflictException conflict ? conflict.Error : error is CodedForbiddenException forbidden ? forbidden.Error : error is IdentityUnavailableException ? ErrorCatalog.IdentityUnavailable.Create() : ApiProblems.ForStatus(status));
+        ApiProblems.Apply(result, periodLocked?ErrorCatalog.FinancePeriodLocked.Create():error is HierarchyConflictException conflict ? conflict.Error : error is CodedForbiddenException forbidden ? forbidden.Error : error is IdentityUnavailableException ? ErrorCatalog.IdentityUnavailable.Create() : ApiProblems.ForStatus(status));
         await ApiProblems.Write(context, result, token);
         return true;
     }
+    private static bool ClosedPeriod(Exception error){for(Exception? e=error;e is not null;e=e.InnerException)if(e is Npgsql.PostgresException{SqlState:"P7001"})return true;return false;}
+
 }

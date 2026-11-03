@@ -11,7 +11,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
     private static readonly Expression<Func<Building,BuildingResponse>> BlockProjection = value => new(value.Id,value.PropertyId,value.Name,value.Version,value.CreatedAt,value.IsEnabled,value.Units.Count,value.FloorCount,
         value.ConstructionYear,value.HeatingType.HasValue?value.HeatingType.Value.ToString():null,value.HasElevator,value.ParkingType.HasValue?value.ParkingType.Value.ToString():null);
     private static readonly Expression<Func<Unit,UnitResponse>> ApartmentProjection = value => new(value.Id,value.PropertyId,value.BuildingId,value.Number,value.Floor,value.GrossSquareMeters,value.Version,value.CreatedAt,value.IsEnabled,value.Type.ToString(),
-        value.NetSquareMeters,value.RoomLayout.HasValue?value.RoomLayout.Value.ToString():null,value.FloorPosition.HasValue?value.FloorPosition.Value.ToString():null,value.IsMezzanine,value.BathroomCount,value.KitchenType.HasValue?value.KitchenType.Value.ToString():null,value.HasBalcony,value.HeatingType.HasValue?value.HeatingType.Value.ToString():null);
+        value.NetSquareMeters,value.RoomLayout.HasValue?value.RoomLayout.Value.ToString():null,value.FloorPosition.HasValue?value.FloorPosition.Value.ToString():null,value.IsMezzanine,value.BathroomCount,value.KitchenType.HasValue?value.KitchenType.Value.ToString():null,value.HasBalcony,value.HeatingType.HasValue?value.HeatingType.Value.ToString():null,null);
     private IQueryable<Property> Properties(AccessScope access) => access.ReadAll ? db.Properties : db.Properties.Where(site => db.PropertyMemberships.Any(member => member.PropertyId==site.Id && member.UserId==access.UserId && member.IsEnabled));
     private IQueryable<Building> Buildings(Guid site, AccessScope access)
     { var parents=Properties(access); return db.Buildings.Where(block => block.PropertyId==site && parents.Any(parent=>parent.Id==site)); }
@@ -70,7 +70,7 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         if(await db.Set<CommonArea>().IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.CommonAreaConflict.Create());
         if(await db.MaintenancePlans.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.ContentPropertyHistory.Create());
         if(await db.Surveys.IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.ContentPropertyHistory.Create());
-        if(await db.Set<FinancialIncome>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.Set<FinancialAccount>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.DuesAssessments.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Expenses.AnyAsync(value=>value.PropertyId==siteId,token) || await db.PropertyBudgets.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.DuesErrorPropertyHistory.Create());
+        if(await db.Set<FinancialPeriod>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.Set<BudgetYearEvent>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.Set<FinancialIncome>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.Set<FinancialAccount>().AnyAsync(value=>value.PropertyId==siteId,token) || await db.DuesAssessments.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Expenses.AnyAsync(value=>value.PropertyId==siteId,token) || await db.PropertyBudgets.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.DuesErrorPropertyHistory.Create());
         if(await db.Set<MobileRequest>().IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.PropertyHasChildren.Create());
         if(await db.Buildings.AnyAsync(value=>value.PropertyId==siteId,token) || await db.Units.AnyAsync(value=>value.PropertyId==siteId,token) || await db.People.AnyAsync(value=>value.PropertyId==siteId,token)) throw new HierarchyConflictException(ErrorCatalog.PropertyHasChildren.Create());
         db.Remove(site); await Save(token); return true;
@@ -105,13 +105,25 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
         var site=await LoadSite(siteId,access,token); var block=site?.Buildings.SingleOrDefault(value=>value.Id==blockId); if(block is null)return false;
         Active(site!); Expected(block,version);
         if(await db.Set<CommonArea>().IgnoreQueryFilters().AnyAsync(value=>value.PropertyId==siteId && value.BuildingId==blockId,token)) throw new HierarchyConflictException(ErrorCatalog.CommonAreaConflict.Create());
+        if(await db.Set<ExpenseDistributionShare>().AnyAsync(s=>s.PropertyId==siteId&&s.BuildingId==blockId,token))throw new HierarchyConflictException(ErrorCatalog.FinanceConflict.Create());
         if(block.Units.Count>0)throw new HierarchyConflictException(ErrorCatalog.BuildingHasUnits.Create());
         db.Remove(block); Touch(site!); await Save(token); return true;
     }
     public async Task<PagedRows<UnitResponse>?> ListUnitsAsync(Guid siteId, Guid? blockId, HierarchyQuery request, AccessScope access, CancellationToken token)
     {
         if(!await Properties(access).AnyAsync(value=>value.Id==siteId,token) || (blockId is not null && !await Buildings(siteId,access).AnyAsync(value=>value.Id==blockId,token)))return null;
-        var query=Units(siteId,blockId,access).AsNoTracking();
+        // A dashboard occupancy drill-down may span all buildings in the selected Property.
+        // Unfiltered legacy routes retain their direct-unit/building behaviour.
+        var parents=Properties(access);
+        var query=request.Occupancy!=null && blockId==null
+            ? db.Units.Where(u=>u.PropertyId==siteId && parents.Any(parent=>parent.Id==siteId) && (u.BuildingId==null || db.Buildings.Any(b=>b.Id==u.BuildingId && b.PropertyId==siteId))).AsNoTracking()
+            : Units(siteId,blockId,access).AsNoTracking();
+        if(request.Occupancy!=null){
+            var today=BusinessDate.Today(clock??TimeProvider.System);
+            var occupied=db.UnitOccupancies.Where(o=>o.PropertyId==siteId && o.IsEnabled && (o.Type==OccupancyType.TENANT || o.Type==OccupancyType.RESIDENT) && o.StartDate<=today && (o.EndDate==null || o.EndDate>=today));
+            query=query.Where(u=>u.IsEnabled);
+            query=request.Occupancy=="OCCUPIED"?query.Where(u=>occupied.Any(o=>o.UnitId==u.Id)):query.Where(u=>!occupied.Any(o=>o.UnitId==u.Id));
+        }
         if(request.UnitId is { } unitId)query=query.Where(value=>value.Id==unitId);
         if(!string.IsNullOrWhiteSpace(request.Search)){var pattern=Pattern(request.Search);query=query.Where(value=>EF.Functions.ILike(value.Number,pattern,"\\"));}
         var count=await query.CountAsync(token);var desc=request.SortDirection=="desc";
@@ -121,6 +133,11 @@ public sealed class HierarchyStore(BuildingFlowDbContext db, TimeProvider? clock
             "createdAt"=>desc?query.OrderByDescending(value=>value.CreatedAt):query.OrderBy(value=>value.CreatedAt),
             _=>desc?query.OrderByDescending(value=>value.Number):query.OrderBy(value=>value.Number)};
         var rows=await ordered.ThenBy(value=>value.Id).Skip((request.Page-1)*request.PageSize).Take(request.PageSize).Select(ApartmentProjection).ToListAsync(token);
+        if(request.Occupancy!=null && blockId==null){
+            var ids=rows.Where(r=>r.BuildingId!=null).Select(r=>r.BuildingId!.Value).Distinct().ToArray();
+            var names=await Buildings(siteId,access).Where(b=>ids.Contains(b.Id)).ToDictionaryAsync(b=>b.Id,b=>b.Name,token);
+            rows=rows.Select(r=>r with {BuildingName=r.BuildingId is {} id?names.GetValueOrDefault(id):null}).ToList();
+        }
         return new(rows,request.Page,request.PageSize,count);
     }
     public Task<UnitResponse?> GetUnitAsync(Guid siteId, Guid? blockId, Guid apartmentId, AccessScope access, CancellationToken token) => Units(siteId,blockId,access).AsNoTracking().Where(value=>value.Id==apartmentId).Select(ApartmentProjection).SingleOrDefaultAsync(token);

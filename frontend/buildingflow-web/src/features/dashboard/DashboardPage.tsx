@@ -1,4 +1,5 @@
 "use client";
+import {occupancyUnitListHref} from "../hierarchy/occupancy-filter";
 import {useEffect,useState} from "react";
 import Link from "next/link";
 import {useLocale,useTranslations} from "next-intl";
@@ -46,8 +47,8 @@ function DashboardContent(){
   :<DashboardWidgets subject={identity.subject??"current"} widgets={[
    {id:"kpis",title:t("widget_kpis"),node:<div className="dashboard-kpis">
     <Kpi icon={Building2} tone="blue" value={data.unitCount.toLocaleString(locale)} label={t("units")} href={`${base}/units`} linkLabel={t("openUnits")}/>
-    <Kpi icon={DoorOpen} tone="green" value={data.occupiedUnitCount.toLocaleString(locale)} label={t("occupied")} badge={`%${share(data.occupiedUnitCount,data.unitCount)}`}/>
-    <Kpi icon={DoorClosed} tone="amber" value={data.vacantUnitCount.toLocaleString(locale)} label={t("vacant")} badge={`%${share(data.vacantUnitCount,data.unitCount)}`}/>
+    <Kpi icon={DoorOpen} tone="green" value={data.occupiedUnitCount.toLocaleString(locale)} label={t("occupied")} href={occupancyUnitListHref(propertyId,"OCCUPIED")} linkLabel={t("openOccupiedUnits")} badge={`%${share(data.occupiedUnitCount,data.unitCount)}`}/>
+    <Kpi icon={DoorClosed} tone="amber" value={data.vacantUnitCount.toLocaleString(locale)} label={t("vacant")} href={occupancyUnitListHref(propertyId,"VACANT")} linkLabel={t("openVacantUnits")} badge={`%${share(data.vacantUnitCount,data.unitCount)}`}/>
     <Kpi icon={Wallet} tone="teal" value={money(data.receiptsThisMonth)} label={t("receipts")} note={t("receiptsNote")} href={`${base}/payments`} linkLabel={t("openPayments")} extra={<Spark values={data.trend.map(m=>plot(m.receipts))} label={t("receiptsTrend")}/>}/>
     <Kpi icon={CircleAlert} tone="red" value={money(data.overdueAmount)} label={t("overdue")} note={t("chargeCount",{count:data.overdueChargeCount})} href={`${base}/dues`} linkLabel={t("openDues")}/>
     {data.requests&&<Kpi icon={Wrench} tone="violet" value={(data.requests.recorded+data.requests.inProgress).toLocaleString(locale)} label={t("openRequests")} note={t("requestSplit",{recorded:data.requests.recorded,inProgress:data.requests.inProgress})} href={`${base}/requests`} linkLabel={t("openRequestsLink")}/>}
@@ -65,7 +66,7 @@ function DashboardContent(){
 function Kpi({icon:Icon,tone,value,label,note,badge,href,linkLabel,extra,pending}:{icon:LucideIcon;tone:string;value:string;label:string;note?:string;badge?:string;href?:string;linkLabel?:string;extra?:React.ReactNode;pending?:boolean}){
  return <div className={cn("dashboard-kpi",pending&&"dashboard-kpi-pending")}>
   <span className={`dashboard-icon tone-${tone}`}><Icon aria-hidden="true"/></span>
-  <div className="min-w-0"><p className="dashboard-kpi-value">{value}</p><p className="dashboard-kpi-label">{label}{badge&&<span className="dashboard-badge">{badge}</span>}</p>{note&&<p className="dashboard-kpi-note">{note}</p>}{extra}</div>
+  <div className="min-w-0"><p className="dashboard-kpi-value">{href?<Link href={href} aria-label={linkLabel} className="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-primary">{value}</Link>:value}</p><p className="dashboard-kpi-label">{label}{badge&&<span className="dashboard-badge">{badge}</span>}</p>{note&&<p className="dashboard-kpi-note">{note}</p>}{extra}</div>
   {href&&<Link href={href} className="dashboard-kpi-link" aria-label={linkLabel} title={linkLabel}><ArrowUpRight aria-hidden="true"/></Link>}
  </div>;
 }

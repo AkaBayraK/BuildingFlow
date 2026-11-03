@@ -1,3 +1,39 @@
+## 03.11.2026 — Dashboard dolu/boş bölüm listesi bakımı
+
+- KPI ve doluluk grafiği sayıları alan kapsamlı dolu/boş listeye bağlandı; ikonlu TR/EN filtre ve temizleme, sunucuda pagination/count/search.
+- Dashboard ile aynı aktifUnit/bugünTENANT-RESIDENT tanımı; OWNER-onlyboş. Çokblok listesi, BuildingName ve gerçekblokdetayı; dört finans rolü filtresi, mevcut filtresiz üyelik okuması korunur.
+- 55PG/436web/38gerçekChrome ve qualitygates geçti; [rapor](../navigation-refactor/DASHBOARD_OCCUPANCY_LINKS.md). Yeni entity/migration/paket yok.
+
+## 03.11.2026 — BAKIM Muhasebe ikonlu sekmeler
+
+- Uzun Muhasebe sayfası tek menü altında sekiz ikonlu/TR–EN sekmeye bölündü; sadece aktif bölüm yüklenir. Ortak dönem/rapor düğmeleri ve mevcut finans bileşenleri/üyelik korunur.
+- Kurulu Radix için projeye ait ui/tabs, accounting-tab-style; manuel klavye aktivasyonu ve mobil yerleşim. Yeni paket/API/DB/mobil değişimi yok.
+- Web434/434/typecheck/build, gerçek izole PKCE/Chrome34/34 ve masaüstü/390px görselQA geçti. #119teknikincelemede; [rapor](../accounting/tabs-report.md).
+
+## 03.11.2026 — BF-ACC08 teknik teslim
+
+- Mobilde mevcut yönetim raporundan ayrı muhasebe özeti ve gerçek XLSX/PDF kayıt akışı; canonical sakin için mevcut daire borç/ödeme servisi ve scoped makbuz, legacy akışta da makbuz bağlantısı. Yeni paket, finans kuyruğu veya veritabanı modeli yok.
+- Ödeme DTO’larına eklemeli PaymentId; canonical makbuzda güncel ilişki/capability ve ödemenin tamamına erişim, RepeatableRead. Legacy makbuzdaki kısmi erişim de tam ödeme kapsamıyla sınırlandı.
+- Finansın kullandığı canonical yetki çağrılarında Bearer erişim token’ı ve aktif hesap/bağlam guard’ı düzeltildi. Gerçek rows.totalCount ve ödeme kimliği HTTP sözleşmesi testlendi.
+- Muhasebe başlığında390px okunabilir düzen; gerçek PKCE/Chrome20/20 ve dosya indirme;185mobil/434web/48PG+49birim ile kalite kapıları geçti.1PDF/1XLSX bağımsız okuma ve PDF görselQA; rapor/API/TESTING/roadmap eşlendi. Gerçek native kaydetme doğrulanamadı; #117In review/açık, kullanıcı kabulü bekliyor.
+
+## BF-ACC07 — 03.11.2026
+
+- Mevcut PropertyBudget/BudgetRevision üstünde96hücre atomik yıllık hazırlama, immutable adminonayı ve revizyondaSTALE;0plan/plansızayrımı, currentplan/actual/sapma.
+- Kontrol-kapanış-kilit/gerekçeli adminREOPEN ve immutable snapshot/aksiyon/audit;33parasal tabloda date-range/OLD+NEW/Propertylock guard, allocationkanıtlı derivedpaidAmount. Kapanış geçmişli boşProperty silinemez.
+- Onlineiadede guard sağlayıcıdan önce aynılocalTX/lock altında çalışır; providerretrollback. Finansalolay tarihi kapalıysa ileri taşınarak aşılamaz.
+- BeşBaseEntity tablo+20261103094352_FinanceGovernanceAndPeriodLocks/Designer/snapshot, compositeFK/check/unique/deferred tamlık/immutable/Down. Legacybudgetaudit/version korunur; anaDB uygulanmadı.
+- Muhasebede yıllık hazırlama/onay, dönemcontrol/frozengeçmiş; gerçek Excel/PDF, TR/EN/ikonlar, comma0/hiddeninvalid/UUID/409/abort. BF_FINANCE_PERIOD_LOCKED409registryeşi.
+- Geniş226PG/120birim;son63PG/32birim ve35dosyatest;web434/typecheck/build;2PDF/2XLSX bağımsız açma/12sayfa görselQA. Yeni paket/font/restore yok.116In review/açık, kullanıcı kabulü bekliyor;08başlamadı. [Rapor](../accounting/07-report.md).
+
+## BF-ACC06 — 03.11.2026
+
+- Banka CSV önizleme/import/hash/ref tekilliği/örtüşen satır reuse; manuel birebir eşleştirme ve immutable karar/void geçmişi. Import ikinci para olayı oluşturmaz. Mevcut online mutabakat yeniden kullanıldı.
+- Mevcut Expense direct/common/shared sınıflandırması; açık yönetici payları/en büyük kalan/UUIDtie; değişmez kaynak/blok/pay snapshot ve gerekçeli tersleme. APARTMENT NULL alan payı; alan/blok raporu ve gerçek Excel/PDF.
+- YediBaseEntity tablo+eklemeli20261103044125_BankStatementsAndExpenseDistributions/Designer/snapshot; compositeFK/unique/check/parentlock/deferred tamlık/yuvarlama ve doluDown.
+- PG194/194+birim102/102; web426/426/typecheck/build; sentetik7/7,2PDF+2XLSX bağımsız açma/10sayfa görselQA. Başlangıç268kaynağından yalnız beklenen snapshot değişti; yeni paket/font/restore yok, anaDB'ye uygulanmadı.
+- Kullanıcı05kabulüyle114Done/closed;115teknikIn review/açık, kullanıcı kabulü bekliyor. ACC-06doğrulandı,175/188=%93,09; BF-ACC07başlamadı. [Rapor](../accounting/06-report.md).
+
 ## BF-ACC05 — 03.11.2026
 
 - Muhasebede kişi yetkisi açmayan finans tenant/cari/fatura/ödeme/ekstre ve tarihçe; mevcut SupplierInvoice/Expense korunur.

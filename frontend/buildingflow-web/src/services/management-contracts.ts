@@ -19,7 +19,7 @@ function common(value:unknown,propertyId:string){
 export function parseUnit(value:unknown,propertyId:string,buildingId:string|null):Unit{
   const row=common(value,propertyId);string(row.number);integer(row.floor,-2147483648);
   const types:UnitType[]=["APARTMENT","OFFICE","SHOP","VILLA","WAREHOUSE","WORKSHOP"];
-  if((row.floor as number)>2147483647||row.buildingId!==buildingId||!types.includes(row.type as UnitType)||typeof row.grossSquareMeters!=="number"||!Number.isFinite(row.grossSquareMeters)||row.grossSquareMeters<=0)throw new Error("Invalid unit response");
+  if(!(row.buildingId===null||uuid(row.buildingId))||(row.buildingName!=null&&(typeof row.buildingName!=="string"||row.buildingName.length>200))||(row.floor as number)>2147483647||row.buildingId!==buildingId||!types.includes(row.type as UnitType)||typeof row.grossSquareMeters!=="number"||!Number.isFinite(row.grossSquareMeters)||row.grossSquareMeters<=0)throw new Error("Invalid unit response");
   validateDetailResponse(row,"unit");
   return row as Unit;
 }

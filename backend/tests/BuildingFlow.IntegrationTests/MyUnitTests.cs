@@ -36,7 +36,7 @@ public sealed class MyUnitTests(SiteApiTests.SiteApiFactory factory):IClassFixtu
         {
             db.AddRange(t,p,d3,d7,ahmetAccount,mehmetAccount,ahmet,mehmet,new PersonTenantMembership(t.Id,ahmetAccount.Id),new PersonTenantMembership(t.Id,mehmetAccount.Id),new PersonPropertyScope(t.Id,p.Id));await db.SaveChangesAsync();
             db.AddRange(new CentralPersonAccountLink(t.Id,ahmetAccount.Id,ahmet.Id,DateTimeOffset.UtcNow.AddMinutes(-5)),new CentralPersonAccountLink(t.Id,mehmetAccount.Id,mehmet.Id,DateTimeOffset.UtcNow.AddMinutes(-5)));db.AddRange(rows);
-            db.AddRange(assessment,payment,published,draft,internalNote,document);await db.SaveChangesAsync();
+            db.AddRange(assessment,payment,new PaymentReceipt(payment,"BF",2026,1),published,draft,internalNote,document);await db.SaveChangesAsync();
         });
         return new(t.Id,p.Id,d3.Id,d7.Id,ahmetUser,mehmetUser,ownerD3.Id,residentD3.Id,ownerD7.Id,tenantD7.Id,lease.Id,c3.Id,c7.Id,published.Id,draft.Id,ahmet.Id);
     }
@@ -80,6 +80,43 @@ public sealed class MyUnitTests(SiteApiTests.SiteApiFactory factory):IClassFixtu
         Assert.Equal(HttpStatusCode.NotFound,(await ahmet.GetAsync(Url(w,w.D3,"documents/"+Guid.NewGuid()+"/download","OWNER",w.OwnerD3))).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden,(await ahmet.GetAsync(Url(w,w.D3,"documents/"+Guid.NewGuid()+"/download","RESIDENT",w.ResidentD3))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound,(await mehmet.GetAsync(Url(w,w.D3,"documents/"+Guid.NewGuid()+"/download","OWNER",w.OwnerD3))).StatusCode);
+    }
+    [PostgresFact]public async Task ReceiptRequiresCurrentRelationAndEntirePaymentScope()
+    {
+        var w=await Seed();using var owner=Me(w.Ahmet);using var tenant=Me(w.Mehmet,"TENANT");
+        var pageResponse=await owner.GetAsync(Url(w,w.D3,"payments","OWNER",w.OwnerD3));
+        using(var wire=System.Text.Json.JsonDocument.Parse(await pageResponse.Content.ReadAsStringAsync())){
+            var rows=wire.RootElement.GetProperty("rows");Assert.Equal(1,rows.GetProperty("totalCount").GetInt32());Assert.False(rows.TryGetProperty("total",out _));
+            Assert.NotEqual(Guid.Empty,rows.GetProperty("items")[0].GetProperty("paymentId").GetGuid());
+        }
+        var row=Assert.Single((await Ok<MyUnitPage<MyPaymentRow>>(pageResponse)).Rows.Items);
+        Assert.NotNull(row.PaymentId);Assert.Equal("PRINCIPAL",row.Kind);
+        var receiptUrl=Url(w,w.D3,$"payments/{row.PaymentId}/receipt","OWNER",w.OwnerD3);
+        var response=await owner.GetAsync(receiptUrl);Assert.Equal("no-store",response.Headers.CacheControl?.ToString());
+        var receipt=await Ok<MyPaymentReceipt>(response);Assert.Equal("400.00",receipt.Amount);Assert.Equal(row.PaymentId,receipt.PaymentId);Assert.Equal("400.00",Assert.Single(receipt.Lines).Amount);
+        Assert.Equal(HttpStatusCode.NotFound,(await tenant.GetAsync(receiptUrl)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound,(await owner.GetAsync(Url(w,w.D7,$"payments/{row.PaymentId}/receipt","OWNER",w.OwnerD7))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden,(await owner.GetAsync(Url(w,w.D3,$"payments/{row.PaymentId}/receipt","RESIDENT",w.ResidentD3))).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound,(await owner.GetAsync(Url(w,w.D3,$"payments/{Guid.NewGuid()}/receipt","OWNER",w.OwnerD3))).StatusCode);
+        await factory.WithDb(db=>db.Database.ExecuteSqlInterpolatedAsync($"UPDATE unit_ownerships SET end_date={Today.AddDays(-1)} WHERE id={w.OwnerD3}"));
+        Assert.Equal(HttpStatusCode.NotFound,(await owner.GetAsync(receiptUrl)).StatusCode);
+    }
+    [PostgresFact]public async Task SharedPaymentReceiptDoesNotLeakInvisibleDebtorLinesOrTotal()
+    {
+        var w=await Seed();Guid paymentId=Guid.Empty;
+        await factory.WithDb(async db=>{
+            var visible=await db.DuesCharges.SingleAsync(c=>c.Id==w.ChargeD3);
+            var hiddenAssessment=new DuesAssessment(w.Property,Guid.NewGuid(),new string('E',64),new DateOnly(2026,10,1),900m,"TRY",new DateOnly(2026,10,15),"Other debtor", "TENANT");
+            var hidden=hiddenAssessment.AddCharge(w.D3);
+            var payment=new Payment(w.Property,w.D3,Guid.NewGuid(),new string('F',64),50m,"TRY",new DateOnly(2026,10,2),PaymentMethod.CASH,null,"Shared");
+            payment.Allocate(visible,20m);payment.Allocate(hidden,30m);paymentId=payment.Id;
+            db.AddRange(hiddenAssessment,payment,new PaymentReceipt(payment,"BF",2026,2));await db.SaveChangesAsync();
+        });
+        using var owner=Me(w.Ahmet);
+        var rows=(await Ok<MyUnitPage<MyPaymentRow>>(await owner.GetAsync(Url(w,w.D3,"payments","OWNER",w.OwnerD3)))).Rows.Items;
+        Assert.Equal("20.00",Assert.Single(rows,r=>r.PaymentId==paymentId).Amount);
+        var response=await owner.GetAsync(Url(w,w.D3,$"payments/{paymentId}/receipt","OWNER",w.OwnerD3));
+        Assert.Equal(HttpStatusCode.NotFound,response.StatusCode);Assert.DoesNotContain("Other debtor",await response.Content.ReadAsStringAsync());
     }
     public void Dispose(){foreach(var child in children)child.Dispose();}
 }

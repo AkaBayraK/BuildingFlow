@@ -2,7 +2,8 @@ namespace BuildingFlow.Application;
 public sealed record MyUnitQuery(Guid PropertyId,Guid UnitId,string Capacity,Guid RelationId,int Page=1,int PageSize=20);
 public sealed record MyUnitPage<T>(string ContextKey,PagedRows<T> Rows);
 public sealed record MyDues(string ContextKey,MobileFinanceSummary Summary,PagedRows<OwnerCharge> Rows);
-public sealed record MyPaymentRow(Guid Id,Guid ChargeId,string Period,string Amount,DateOnly PaidDate,bool Cancelled);
+public sealed record MyPaymentRow(Guid Id,Guid ChargeId,string Period,string Amount,DateOnly PaidDate,bool Cancelled,Guid? PaymentId=null,string Kind="PRINCIPAL");
+public sealed record MyPaymentReceipt(string ContextKey,Guid PaymentId,string Number,DateTimeOffset IssuedAt,DateOnly PaidDate,string Amount,string Currency,string Status,IReadOnlyList<MyPaymentRow> Lines);
 public sealed record MyAnnouncementRow(Guid Id,string Title,string Content,string Category,DateTimeOffset PublishedAt);
 public sealed record MyDocumentRow(Guid Id,Guid AnnouncementId,string FileName,string ContentType,long Size,DateTimeOffset CreatedAt);
 public sealed record MyDocumentContent(string FileName,string ContentType,Stream Content);
@@ -14,6 +15,7 @@ public interface IMyUnitStore
 {
     Task<MyDues?> DuesAsync(MyUnitQuery query,CancellationToken token);
     Task<MyUnitPage<MyPaymentRow>?> PaymentsAsync(MyUnitQuery query,CancellationToken token);
+    Task<MyPaymentReceipt?> ReceiptAsync(MyUnitQuery query,Guid payment,CancellationToken token);
     Task<MyUnitPage<MyAnnouncementRow>?> AnnouncementsAsync(MyUnitQuery query,CancellationToken token);
     Task<MyUnitPage<MyDocumentRow>?> DocumentsAsync(MyUnitQuery query,CancellationToken token);
     Task<MyUnitPage<MyLeaseRow>?> LeasesAsync(MyUnitQuery query,CancellationToken token);

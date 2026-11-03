@@ -1,5 +1,5 @@
 import type {Unit} from '../../services/api';
-export type UnitFilter={unitId?:string;invalid:boolean};
+export type UnitFilter={unitId?:string;occupancy?:"OCCUPIED"|"VACANT";invalid:boolean};
 export type UnitPersonLink={personId:string;personName:string};
 export type UnitParties={unitId:string;buildingId:string|null;owners:UnitPersonLink[];tenants:UnitPersonLink[]};
 export type UnitPartiesResponse={propertyId:string;asOfDate:string;items:UnitParties[]};

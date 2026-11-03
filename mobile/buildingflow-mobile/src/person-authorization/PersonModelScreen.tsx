@@ -1,3 +1,4 @@
+import {AccountingPanel} from '../accounting/AccountingPanel';
 import {CommonAreas} from '../common-areas/CommonAreas';
 import {Parking} from "../parking/Parking";
 import {permitted as parkingPermitted} from "../parking/contracts";
@@ -50,6 +51,7 @@ export function PersonModelScreen(){
   {!snapshot?<Text accessibilityRole="alert" style={s.text}>Yetki modeli doğrulanamadı. Yeniden giriş yap.</Text>:snapshot.contexts.length===0?<Text style={s.text}>Hesabına bağlı güncel çalışma alanı yok.</Text>:<Portfolio/>}
   <ContactVerificationCard key={auth.session?.userId} alwaysVisible/>
   <SelectedSummary/>
+  <AccountingPanel/>
   <CommonAreas/>
   {auth.selected&&parkingPermitted(auth.selected)&&<Action style={s.card} onPress={()=>setParking(true)}><Ionicons name="car-outline" size={24} color={theme.colors.primary} accessible={false}/><Text style={s.cardTitle}>Araçlar / Otopark</Text></Action>}
   {c&&<View style={s.card}><Text accessibilityRole="header" style={s.cardTitle}>Kendi bilgilerim</Text>{snapshot?.people.filter(p=>p.tenantId===c.tenantId).map(p=><Text key={p.id} style={s.text}>{p.displayName}</Text>)}<Text style={s.muted}>Kişi ve görev kayıtları bu ekranda salt okunurdur. Kesin finans işlemleri ve rol değişiklikleri çevrimiçi doğrulama gerektirir.</Text></View>}

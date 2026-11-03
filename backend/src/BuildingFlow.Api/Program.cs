@@ -182,6 +182,8 @@ app.MapReportEndpoints();
 app.MapFinancialLedgerEndpoints();
 app.MapFinancialIncomeEndpoints();
 app.MapSupplierFinanceEndpoints();
+app.MapBankBuildingFinanceEndpoints();
+app.MapFinanceGovernanceEndpoints();
 app.MapDashboardEndpoints();
 app.MapAssistantEndpoints();
 app.MapWeatherEndpoints();

@@ -9,10 +9,10 @@ import {Input} from "@/components/ui/input";
 import {Badge} from "@/components/ui/badge";
 import {cn} from "@/lib/utils";
 
-export function WorkspaceHeading({title,description,scope,icon:Icon,action}:{title:string;description:string;scope:string;icon:LucideIcon;action?:ReactNode}){
+export function WorkspaceHeading({title,description,scope,icon:Icon,action,stackOnMobile=false}:{title:string;description:string;scope:string;icon:LucideIcon;action?:ReactNode;stackOnMobile?:boolean}){
   return <div className="relative mb-6 overflow-hidden rounded-2xl bg-foreground p-6 text-primary-foreground sm:p-8">
     <Icon aria-hidden="true" className="pointer-events-none absolute -right-8 -bottom-10 size-48 rotate-[-12deg] text-primary-foreground/5"/>
-    <div className="relative flex flex-wrap items-center justify-between gap-5">
+    <div className={stackOnMobile?"relative flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center":"relative flex flex-wrap items-center justify-between gap-5"}>
       <div className="min-w-0 flex-1"><p className="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-primary-foreground/75"><Icon aria-hidden="true" className="size-4 shrink-0"/><span className="wrap-anywhere">{scope}</span></p><h1 className="m-0 text-2xl font-bold tracking-tight text-inherit sm:text-3xl">{title}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-primary-foreground/75">{description}</p></div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

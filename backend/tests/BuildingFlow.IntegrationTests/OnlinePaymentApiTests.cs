@@ -422,4 +422,16 @@ public sealed class OnlinePaymentApiTests(SiteApiTests.SiteApiFactory factory) :
             Assert.Single(await db.PaymentLedgerEntries.Where(value => value.PropertyId == x.Property).ToListAsync());
         });
     }
+    private sealed class GovernanceClock:TimeProvider{public DateTimeOffset Now=DateTimeOffset.UtcNow;public override DateTimeOffset GetUtcNow()=>Now;}
+    [PostgresFact] public async Task FinanceGovernanceGuardRejectsRefundBeforeExternalProviderMovesMoney()
+    {
+        var clock=new GovernanceClock();await using var original=App();await using var app=original.WithWebHostBuilder(builder=>builder.ConfigureServices((_,services)=>services.AddSingleton<TimeProvider>(clock)));var x=await Seed(app);
+        using var resident=TestToken.Client(app,x.Resident,"RESIDENT");using var admin=TestToken.Client(app,x.Admin,"SITE_ADMIN");using var manager=TestToken.Client(app,x.Manager,"MANAGER");
+        var intent=await Open(resident,x,[x.Extra]);Assert.Equal(HttpStatusCode.OK,(await Checkout(app,intent,"success")).StatusCode);var refundResponse=await manager.PostAsJsonAsync($"/api/v1/properties/{x.Property}/online-payments/{intent.Id}/refunds",new RefundRequest(Guid.NewGuid(),"Review before month end"));Assert.Equal(HttpStatusCode.Created,refundResponse.StatusCode);var refund=(await refundResponse.Content.ReadFromJsonAsync<RefundResponse>(Json))!;
+        var originalMonth=new DateOnly(Today.Year,Today.Month,1);clock.Now=new DateTimeOffset(originalMonth.AddMonths(1).ToDateTime(TimeOnly.MinValue),TimeSpan.Zero).AddDays(1);var month=originalMonth.ToString("yyyy-MM");var root=$"/api/v1/properties/{x.Property}/finance/periods/{month}";var control=(await admin.GetFromJsonAsync<PeriodControl>(root+"/control"))!;Assert.True(control.CanClose);Assert.Equal(HttpStatusCode.OK,(await admin.PostAsJsonAsync(root+"/actions",new PeriodActionRequest(Guid.NewGuid(),0,"CLOSE","Reviewed month",control.SourceStamp,true))).StatusCode);
+        var decision=await admin.PutAsJsonAsync($"/api/v1/properties/{x.Property}/payment-refunds/{refund.Id}/decision",new RefundDecisionRequest("APPROVE",null,refund.Version));Assert.Equal(HttpStatusCode.Conflict,decision.StatusCode);Assert.Equal("BF_FINANCE_PERIOD_LOCKED",await Code(decision));
+        var provider=app.Services.GetRequiredService<SandboxPaymentProvider>();var state=await provider.GetStatusAsync(new("SANDBOX-1","sandbox-merchant"),await Reference(app,intent.Id),CancellationToken.None);Assert.Equal(ProviderPaymentState.SUCCEEDED,state.State);
+        await WithDb(app,async db=>{Assert.Equal(PaymentRefundStatus.REQUESTED,(await db.PaymentRefunds.SingleAsync(z=>z.Id==refund.Id)).Status);Assert.False((await db.Payments.SingleAsync(z=>z.Id==(db.PaymentIntents.Where(i=>i.Id==intent.Id).Select(i=>i.PaymentId).First()))).IsCancelled);});
+    }
+
 }

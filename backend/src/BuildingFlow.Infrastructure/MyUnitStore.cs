@@ -44,9 +44,28 @@ public sealed class MyUnitStore(BuildingFlowDbContext db,IMyPortfolioStore portf
         var s=await Resolve(q,PortfolioCapabilities.ViewPayments,token);if(s==null)return null;
         var rows=from allocation in db.PaymentAllocations.AsNoTracking() join payment in db.Payments on allocation.PaymentId equals payment.Id join c in Charges(s,q) on allocation.ChargeId equals c.Id
             where allocation.PropertyId==q.PropertyId && allocation.UnitId==q.UnitId && allocation.IsEnabled && payment.PropertyId==q.PropertyId && payment.UnitId==q.UnitId && payment.IsEnabled
-            select new{allocation.Id,ChargeId=c.Id,c.Period,allocation.Amount,payment.PaidDate,payment.IsCancelled};
+            select new{allocation.Id,allocation.PaymentId,ChargeId=c.Id,c.Period,allocation.Amount,allocation.Kind,payment.PaidDate,payment.IsCancelled};
         var total=await rows.CountAsync(token);var page=await rows.OrderByDescending(x=>x.PaidDate).ThenBy(x=>x.Id).Skip((q.Page-1)*q.PageSize).Take(q.PageSize).ToArrayAsync(token);await tx.CommitAsync(token);
-        return new(s.Context.ContextKey,Paged(page.Select(x=>new MyPaymentRow(x.Id,x.ChargeId,x.Period.ToString("yyyy-MM",CultureInfo.InvariantCulture),Money(x.Amount),x.PaidDate,x.IsCancelled)).ToArray(),q,total));
+        return new(s.Context.ContextKey,Paged(page.Select(x=>new MyPaymentRow(x.Id,x.ChargeId,x.Period.ToString("yyyy-MM",CultureInfo.InvariantCulture),Money(x.Amount),x.PaidDate,x.IsCancelled,x.PaymentId,x.Kind.ToString())).ToArray(),q,total));
+    }
+    // A receipt is indivisible: do not reveal another debtor's lines or total through a shared payment.
+    public async Task<MyPaymentReceipt?> ReceiptAsync(MyUnitQuery q,Guid paymentId,CancellationToken token)
+    {
+        await using var tx=await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead,token);
+        var scope=await Resolve(q,PortfolioCapabilities.ViewPayments,token);if(scope==null)return null;
+        var visible=Charges(scope,q);
+        var payment=await db.Payments.AsNoTracking().SingleOrDefaultAsync(p=>p.Id==paymentId && p.PropertyId==q.PropertyId && p.UnitId==q.UnitId && p.IsEnabled,token);
+        if(payment==null)return null;
+        var allocations=db.PaymentAllocations.AsNoTracking().Where(a=>a.PaymentId==paymentId && a.PropertyId==q.PropertyId && a.UnitId==q.UnitId);
+        if(!await allocations.AnyAsync(token) || await allocations.AnyAsync(a=>!a.IsEnabled || !visible.Any(c=>c.Id==a.ChargeId),token))return null;
+        var receipt=await db.PaymentReceipts.AsNoTracking().SingleOrDefaultAsync(r=>r.PropertyId==q.PropertyId && r.PaymentId==paymentId && r.IsEnabled,token);
+        if(receipt==null)return null;
+        var rows=await (from a in allocations join c in visible on a.ChargeId equals c.Id orderby c.Period,a.Id
+            select new{a.Id,a.ChargeId,a.Amount,a.Kind,c.Period}).ToArrayAsync(token);
+        if(rows.Sum(r=>r.Amount)!=payment.Amount)return null;
+        await tx.CommitAsync(token);
+        return new(scope.Context.ContextKey,paymentId,receipt.Number,receipt.CreatedAt,payment.PaidDate,Money(payment.Amount),payment.Currency,payment.IsCancelled?"CANCELLED":"RECORDED",
+            rows.Select(r=>new MyPaymentRow(r.Id,r.ChargeId,r.Period.ToString("yyyy-MM",CultureInfo.InvariantCulture),Money(r.Amount),payment.PaidDate,payment.IsCancelled,paymentId,r.Kind.ToString())).ToArray());
     }
     private IQueryable<Announcement> Published(Guid property)=>db.Announcements.AsNoTracking().Where(a=>a.PropertyId==property && a.Status==AnnouncementStatus.PUBLISHED && a.Audience==ContentAudience.ALL_MEMBERS && a.PublishedAt!=null);
     public async Task<MyUnitPage<MyAnnouncementRow>?> AnnouncementsAsync(MyUnitQuery q,CancellationToken token)

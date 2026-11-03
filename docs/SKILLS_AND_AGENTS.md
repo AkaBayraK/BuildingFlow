@@ -278,3 +278,21 @@ Tek agent; akadev-phase/contract/security/verify/license/docs uygulandı. Kaynak
 ## BF-ACC05 — 03.11.2026 gerçek kullanım
 
 Tek agent; akadev-phase/contract/security/verify/license/docs ve PDF skill’i uygulandı. Finans dizini/ENFORCED/ikinci kişi, değişmez source/dağıtım ve migration kalite kapıları mevcut akışta doğrulandı. PDF skill’iyle marker2PDF ve bundled runtime/pypdf/Poppler6sayfa görselQA, openpyxl bağımsız XLSX okuma; uygulamaya paket/font eklenmedi. Yeni Agent/MCP/global ayar yok. [Kanıt](accounting/05-report.md).
+
+## BF-ACC06 — 03.11.2026 gerçek kullanım
+
+Tek agent; akadev-phase/contract/security/verify/license/docs uygulandı. Banka CSV/karar, blok gider snapshot ve finans raporu sözleşmeleri mevcut kalite kapılarıyla doğrulandı. PDF skill marker2PDF, bundled pypdf/Poppler10sayfa görsel QA; kurulu openpyxl ile ikiXLSX bağımsız okuma. Uygulamaya paket/font/görsel eklenmedi. Yeni agent/MCP/global ayar yok; akadev-audit kullanılmadı. [Kanıt](accounting/06-report.md).
+
+## BF-ACC07 — 03.11.2026 gerçek kullanım
+
+Tek agent; akadev-phase/contract/security/verify/license/docs kullanıldı. Açık kullanıcı politikalarıyla yıllıkbütçe/dönem/audit ve33DBguard, provideröncesi yereliade doğrulaması mevcut mimaride uygulandı. PDF becerisi marker2PDF, kurulu pypdf/openpyxl/Poppler ile bağımsız dosya açma ve12sayfa görsel QA; Excel31karakter başlık ve yalnız dipnot sayfası düzeni düzeltildi. Yeni üçüncü taraf bağımlılık/font/MCP/agent/global ayar kurulmadı. [Teslim](accounting/07-report.md).
+
+
+## 03.11.2026 — BF-ACC08 uygulama ve kabul kanıtı
+
+Bu tur akadev-phase, akadev-contract, akadev-security, akadev-verify, akadev-license ve akadev-docs okundu/uygulandı; tek agent. Mobil finans scope/GET/export, canonical makbuz ve negatif erişim, gerçek izole PKCE/Chrome kabulü mevcut kalite prosedürleriyle doğrulandı. Yeni Skill/Agent/MCP/paket/global ayar kurulmadı; lisans envanteri değiştirilmedi. Ayrıntı [Faz08](accounting/08-report.md), [TESTING](TESTING.md). Gerçek native dosya kaydetme doğrulanamadı.
+
+
+03.11.2026 Muhasebe sekme bakımında akadev-verify/docs okundu ve uygulandı; akadev-license mevcut bağımlılık politikası kontrolünde okundu. Tekagent; yeni Skill/Agent/MCP/globalayar/paket yok. [Gerçek web/tarayıcı kanıtı](accounting/tabs-report.md).
+
+03.11.2026 Dashboard doluluk bakımında akadev-contract/security/verify/docs kullanıldı; tekagent. Yeni query/DTO/rol/URL ve negatif erişim gerçek izole PG/Chrome ile doğrulandı. Yeni Skill/MCP/globalayar/bağımlılık yok. [Kanıt](navigation-refactor/DASHBOARD_OCCUPANCY_LINKS.md).

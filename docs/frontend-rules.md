@@ -295,3 +295,7 @@ SIDEBAR FAZ07.1: menü/rol/flag/alan görünürlüğü features/navigation/navig
 
 ### Oval form pencereleri (31.10.2026)
 Ortak DialogContent/ManagementPanel sağ panelleri24px oval köşe ve12px ekran kenar boşluğu kullanır; yükseklik viewport içinde kalır. Centered pencereler de ovaldir. Yeni create/update pencerelerinde mevcut ortak altyapıyı kullanın; feature başına köşe CSS sistemi eklemeyin. Geniş paneller dar ekranda kenar payını korumalıdır.
+
+
+### Muhasebe sekmeleri —03.11.2026 BAKIM
+Muhasebe sekiz ikonlu bölümdür; ortak ui/tabs mevcut Radix üzerine projeye ait sarmalayıcıdır. İkon/etiket anahtarı accounting-tab-style.ts, metinler TR/EN kaynağındadır. Varsayılan GenelBakış; yalnız aktif panel mount edilir. Ok/Home/End odağı taşır, Enter/Space aktive eder. Alan/issuer/hesap/locale değişiminde root yenilenir; mevcut backend yetkileri değişmez. Dönem ve gerçek Excel/PDF düğmeleri ortak kalır. [Uygulama ve gerçek kabul](accounting/tabs-report.md).

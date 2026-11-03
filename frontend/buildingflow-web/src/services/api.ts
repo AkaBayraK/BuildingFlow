@@ -14,7 +14,7 @@ export function useAuthorizedApi() {
 export type Property = BuildingDetails & {neighborhood?:string|null;id:string;name:string;city:string;district:string;address:string;version:number;createdAt:string;isEnabled:boolean;type:PropertyType;floorCount:number|null;buildingCount:number;unitCount:number;canChangeType:boolean};
 export type PropertyPage = {items:Property[];page:number;pageSize:number;totalCount:number};
 export type Building = BuildingDetails & {id:string;propertyId:string;name:string;version:number;createdAt:string;isEnabled:boolean;unitCount:number;floorCount:number|null};
-export type Unit = UnitDetails & {id:string;propertyId:string;buildingId:string|null;type:UnitType;number:string;floor:number;grossSquareMeters:number;version:number;createdAt:string;isEnabled:boolean};
+export type Unit = UnitDetails & {buildingName?:string|null;id:string;propertyId:string;buildingId:string|null;type:UnitType;number:string;floor:number;grossSquareMeters:number;version:number;createdAt:string;isEnabled:boolean};
 export type PagedRows<T> = {items:T[];page:number;pageSize:number;totalCount:number};
 export function errorMessage(error:unknown,locale:string="tr") {
   return error instanceof ApiError ? error.message : connectionError(locale);

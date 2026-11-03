@@ -1,4 +1,5 @@
 "use client";
+import {occupancyUnitListHref} from "../hierarchy/occupancy-filter";
 import Link from "next/link";
 import {useTranslations} from "next-intl";
 import {ArrowRight} from "lucide-react";
@@ -13,6 +14,6 @@ export function OccupancyCard({data,locale}:{data:DashboardSummary;locale:"tr"|"
    {ring.ratio>0&&<circle className="occupancy-filled-arc" cx={110} cy={110} r={radius} fill="none" stroke="var(--occupancy-filled)" strokeWidth={22} strokeLinecap="round" strokeDasharray={`${ring.ratio*circumference} ${circumference}`} transform="rotate(-90 110 110)"/>}
    <text x={110} y={111} textAnchor="middle" className="dashboard-occupancy-percent">{percentage}</text><text x={110} y={137} textAnchor="middle" className="dashboard-occupancy-caption">{data.unitCount>0?label:t("typesEmpty")}</text>
   </svg>
-  <dl className="dashboard-occupancy-legend"><div><dt><i className="occupancy-dot-filled" aria-hidden="true"/>{t("occupied")}</dt><dd>{ring.occupied.toLocaleString(locale)}</dd></div><div><dt><i className="occupancy-dot-vacant" aria-hidden="true"/>{t("vacant")}</dt><dd>{ring.vacant.toLocaleString(locale)}</dd></div><div title={t("pendingUnavailable")}><dt><i className="occupancy-dot-pending" aria-hidden="true"/>{t("occupancyPending")}</dt><dd>—<span className="sr-only">{t("pendingUnavailable")}</span></dd></div></dl>
+  <dl className="dashboard-occupancy-legend"><div><dt><i className="occupancy-dot-filled" aria-hidden="true"/>{t("occupied")}</dt><dd><Link className="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-primary" href={occupancyUnitListHref(data.propertyId,"OCCUPIED")} aria-label={t("openOccupiedUnits")}>{ring.occupied.toLocaleString(locale)}</Link></dd></div><div><dt><i className="occupancy-dot-vacant" aria-hidden="true"/>{t("vacant")}</dt><dd><Link className="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-primary" href={occupancyUnitListHref(data.propertyId,"VACANT")} aria-label={t("openVacantUnits")}>{ring.vacant.toLocaleString(locale)}</Link></dd></div><div title={t("pendingUnavailable")}><dt><i className="occupancy-dot-pending" aria-hidden="true"/>{t("occupancyPending")}</dt><dd>—<span className="sr-only">{t("pendingUnavailable")}</span></dd></div></dl>
  </div><Link className="dashboard-occupancy-link" href={`/properties/${data.propertyId}/units`} aria-label={t("openUnits")}>{t(ring.apartmentOnly?"apartmentList":"unitList")}<ArrowRight size={18} aria-hidden="true"/></Link></section>;
 }

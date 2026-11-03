@@ -184,8 +184,8 @@ public sealed class OnlinePaymentStore(BuildingFlowDbContext db, PaymentStore pa
     {
         await Resident(context, token);
         var visible = Visible(context);
-        if (!await db.PaymentAllocations.AnyAsync(value => value.PropertyId == context.PropertyId && value.UnitId == context.UnitId && value.PaymentId == payment &&
-                visible.Any(charge => charge.Id == value.ChargeId), token)) return null;
+        var allocations=db.PaymentAllocations.Where(value=>value.PropertyId==context.PropertyId && value.UnitId==context.UnitId && value.PaymentId==payment);
+        if (!await allocations.AnyAsync(token) || await allocations.AnyAsync(value=>!visible.Any(charge=>charge.Id==value.ChargeId),token)) return null;
         return await Receipt(context.PropertyId, payment, token);
     }
 
@@ -527,11 +527,13 @@ public sealed class OnlinePaymentStore(BuildingFlowDbContext db, PaymentStore pa
             db.PaymentLedgerEntries.Add(new(property, intent.UnitId, PaymentLedgerType.ONLINE_REFUND, -intent.Amount, BusinessDate.Today(clock),
                 nameof(PaymentMethod.ONLINE_CARD), intent.PaymentId, intent.Id, refund.Id));
             var (adapter, merchant) = await Provider(intent, token);
+            // Run posting guards before the external refund. The transaction and Property lock stay held;
+            // a provider rejection rolls these provisional local writes back.
+            Touch(parent); await db.SaveChangesAsync(token);
             try
             {
-                // Called last, inside the lock: a provider rejection rolls every local change back.
                 var providerRefund = await adapter.RefundAsync(merchant, intent.ProviderReference!, intent.Amount, token);
-                refund.Succeed(Actor, providerRefund, Now); Touch(parent);
+                refund.Succeed(Actor, providerRefund, Now);
                 await db.SaveChangesAsync(token); await transaction.CommitAsync(token);
                 log.LogInformation("BuildingFlow.Payments: refund completed");
                 return Refund(refund);
