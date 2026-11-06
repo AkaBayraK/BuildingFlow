@@ -23,4 +23,6 @@ builder.Services.AddHostedService<LatePenaltyWorker>();
 if (!string.Equals(builder.Configuration["Automations:WorkerEnabled"], "false", StringComparison.OrdinalIgnoreCase)) builder.Services.AddHostedService<AutomationWorker>();
 if(string.Equals(builder.Configuration["Payments:Reconciliation:WorkerEnabled"],"true",StringComparison.OrdinalIgnoreCase))builder.Services.AddHostedService<OnlinePaymentWorker>();
 if (string.Equals(builder.Configuration["Parking:Operations:Enabled"], "true", StringComparison.OrdinalIgnoreCase)) builder.Services.AddHostedService<ParkingOperationsWorker>();
+if (args.Contains(AutomationDemoSeeder.Argument)) return await AutomationDemoSeeder.RunAsync(builder.Build().Services, builder.Configuration, args);
 await builder.Build().RunAsync();
+return 0;

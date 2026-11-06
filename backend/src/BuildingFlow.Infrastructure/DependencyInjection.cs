@@ -79,7 +79,8 @@ public static class DependencyInjection
         services.AddScoped<LatePenaltyStore>();
         services.AddScoped<BuildingFlow.Application.ILatePenaltyStore>(provider => provider.GetRequiredService<LatePenaltyStore>());
         services.AddScoped<BuildingFlow.Application.ILatePenaltyScheduler>(provider => provider.GetRequiredService<LatePenaltyStore>());
-        services.AddSingleton(new BuildingFlow.Application.AutomationChannelOptions(SmtpOptions.FromConfiguration(configuration).Enabled));
+        services.AddSingleton(new BuildingFlow.Application.AutomationChannelOptions(SmtpOptions.FromConfiguration(configuration).Enabled,
+            string.Equals(configuration["Automations:PublishEvents"], "true", StringComparison.OrdinalIgnoreCase)));
         services.AddScoped<AutomationSourceReader>();
         services.AddScoped<AutomationEngine>();
         services.AddScoped<AutomationStore>();

@@ -27,7 +27,8 @@ public sealed record AutomationPreviewItem(string UnitNumber, DateOnly? Period, 
     string[] Channels, string Title, string Body);
 public sealed record AutomationPreview(Guid DefinitionId, DateOnly Date, int Total, bool Truncated, IReadOnlyList<AutomationPreviewItem> Items);
 public sealed record AutomationDispatchFilter(int Page, int PageSize, Guid? DefinitionId, string? Channel, string? Status);
-public sealed record AutomationChannelOptions(bool EmailEnabled);
+// PublishEvents also writes a notification.requested.v1 event per in-app notice to the outbox (RabbitMQ), the hook a later push consumer reads.
+public sealed record AutomationChannelOptions(bool EmailEnabled, bool PublishEvents = false);
 
 public interface IAutomationStore
 {

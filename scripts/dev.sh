@@ -33,6 +33,8 @@ backend_env() {
   export Telemetry__Endpoint="http://localhost:${OTLP_PORT:-14318}"
   export SystemStatus__CollectorHealthUrl="http://localhost:${OTLP_HEALTH_PORT:-13133}"
   export SystemStatus__WebUrl="http://localhost:${WEB_PORT:-3003}"
+  # Local only: in-app automation notices are also written to RabbitMQ (notification.requested.v1) so the queue can be inspected.
+  export Automations__PublishEvents="${BUILDINGFLOW_AUTOMATION_EVENTS:-true}"
   export SystemStatus__LokiUrl="http://localhost:${LOKI_PORT:-13100}"
   export SystemStatus__PrometheusUrl="http://localhost:${PROMETHEUS_PORT:-19090}"
   export SystemStatus__GrafanaUrl="http://localhost:${GRAFANA_PORT:-3002}"
@@ -158,8 +160,19 @@ case "$mode" in
     cd backend
     exec dotnet run --project src/BuildingFlow.Worker
     ;;
+  automation-demo)
+    require dotnet
+    load_env
+    backend_env
+    export RabbitMQ__Host=localhost
+    export RabbitMQ__Port="${RABBITMQ_PORT:-5672}"
+    export RabbitMQ__Username="$RABBITMQ_USER"
+    export RabbitMQ__Password="$RABBITMQ_PASSWORD"
+    cd backend
+    exec dotnet run --project src/BuildingFlow.Worker -- --seed-automation-demo "${@:2}"
+    ;;
   *)
-    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|website|worker}' >&2
+    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|website|worker|automation-demo}' >&2
     exit 2
     ;;
 esac

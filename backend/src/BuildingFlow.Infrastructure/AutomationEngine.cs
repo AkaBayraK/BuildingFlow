@@ -175,7 +175,11 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
                 if (person.UserId is not { } user || !await db.PropertyMemberships.AnyAsync(m => m.PropertyId == d.PropertyId && m.UserId == user && m.IsEnabled, token))
                 { row.Skip("NO_APP_ACCOUNT"); return false; }
                 var message = new PersonMessage(d.PropertyId, person.PersonId, row.Id, row.DedupKey, user, title, body);
-                db.PersonMessages.Add(message); row.Delivered(message.Id, title, "Uygulama hesabı"); return true;
+                db.PersonMessages.Add(message); row.Delivered(message.Id, title, "Uygulama hesabı");
+                if (channels.PublishEvents)
+                    try { outbox.Enqueue(new NotificationRequested(Guid.NewGuid(), d.PropertyId, e.CorrelationId, clock.GetUtcNow().ToUniversalTime(), "tr", user, title.ReplaceLineEndings(" "), body)); }
+                    catch (InvalidMessageException) { }
+                return true;
             case NotificationChannel.SMS:
                 var phone = SmsText.NormalizePhone(person.PhoneNumber);
                 if (phone is null) { row.Skip(string.IsNullOrWhiteSpace(person.PhoneNumber) ? "NO_PHONE" : SmsQueue.PhoneInvalid); return false; }

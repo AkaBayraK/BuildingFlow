@@ -80,6 +80,18 @@ Kullanıcı kararı: yeni tür kod değişikliği olmadan eklenir; SUPER_ADMIN v
 - API `/api/v1/properties/{id}/automation-types`: `GET /sources`, `GET`, `POST`, `PUT /{typeId}`, `POST /{typeId}/publish|archive`, `GET /{typeId}/preview`, `GET /{typeId}/revisions`. Okuma üç yönetici rolü; yazma SUPER_ADMIN/SITE_ADMIN.
 - Web: üst menüde **Otomasyon** grubu (Otomasyonlar, Otomasyon türleri, Gönderim geçmişi, Sistem sağlığı); `/properties/{id}/automations/types|history|executions|health`. Tür paneli 5 adım: kaynak+ikon, koşullar, tetik, alıcılar, varsayılan mesaj + önizleme.
 
+## Yerel demo verisi
+
+`bash scripts/dev.sh automation-demo [--property <id>]` yalnız localhost veritabanında çalışır ve tekrar çalıştırıldığında çoğaltmaz (`AUTO-DEMO` etiketi). Yaptıkları:
+
+- MOCK SMS hesabı + 1000 demo kontör (yoksa); gerçek SMS gönderilmez, SMS ekranında "gönderildi (MOCK)" görünür.
+- Uygulama hesabına bağlı kişilerin bölümlerine üç ek tahakkuk: vadeye 2 gün, bugün son gün, 7 gün gecikmiş; 2 gün kalana 250 TL kısmi tahsilat.
+- Asansör arıza talebi, 2 gün sonraya bakım planı, son okuması 30 gün önce sayaç, yarın için ortak alan rezervasyonu.
+- Aktif yönetici ataması yoksa üyeliği olup Person satırı olmayan ilk hesaba demo yönetici ataması.
+- Altı kaynak için yayında özel tür ve dokuz aktif kural (uygulama içi + SMS, vade hatırlatmada e-posta; sessiz saat yok), ardından otomasyonu, MOCK SMS göndericiyi ve outbox → RabbitMQ yayınını bir kez çalıştırır.
+- `Automations:PublishEvents=true` (dev.sh varsayılanı) ile her uygulama içi bildirim `notification.requested.v1` kuyruğuna da yazılır; bu kuyruğun tüketicisi yoktur (push sonraki faz), RabbitMQ arayüzünde birikir. Üretimde varsayılan kapalıdır.
+- E-posta için SMTP tanımlı değilse gönderim satırı `CHANNEL_UNAVAILABLE` ile atlanır.
+
 ## Sonraki fazlar (kodlanmadı)
 
 - FAZ 03 push: cihaz kaydı, FCM/APNs, izin, deep link borç detayı (yeni paket onayı gerekir); gerçek SMS sağlayıcısı / Aka Integration Hub adaptörü; e-posta HTML şablonu.
