@@ -1,6 +1,8 @@
 namespace BuildingFlow.Domain;
 
-public enum AutomationType { DUES_DUE_REMINDER, DUES_OVERDUE_REMINDER, PAYMENT_RECEIVED }
+public enum AutomationType { DUES_DUE_REMINDER, DUES_OVERDUE_REMINDER, PAYMENT_RECEIVED, CUSTOM }
+public enum AutomationTypeStatus { DRAFT, PUBLISHED, ARCHIVED }
+public enum AutomationTriggerKind { DATE_OFFSET, EVENT, CALENDAR }
 public enum AutomationStatus { ACTIVE, PAUSED }
 public enum AutomationTrigger { SCHEDULE, EVENT, MANUAL }
 public enum AutomationExecutionStatus { SUCCEEDED, FAILED, DEAD_LETTER }
@@ -14,12 +16,15 @@ public sealed class AutomationDefinition : BaseEntity
 {
     public const int MaxOffsets = 10, MaxOffset = 60, MaxTitle = 200, MaxBody = 2000;
     private AutomationDefinition() { }
-    public AutomationDefinition(Guid propertyId, AutomationType type, AutomationSettings settings)
+    public AutomationDefinition(Guid propertyId, AutomationType type, AutomationSettings settings, AutomationTypeDefinition? custom = null)
     {
-        if (propertyId == Guid.Empty || !Enum.IsDefined(type)) throw new ArgumentException("Invalid automation identity.");
-        PropertyId = propertyId; Type = type; Status = AutomationStatus.PAUSED; RuleVersion = 1;
+        if (propertyId == Guid.Empty || !Enum.IsDefined(type) || (type == AutomationType.CUSTOM) != (custom is not null)) throw new ArgumentException("Invalid automation identity.");
+        if (custom is not null && (custom.PropertyId is { } owner && owner != propertyId || custom.Status != AutomationTypeStatus.PUBLISHED)) throw new ArgumentException("Automation type is not available.");
+        PropertyId = propertyId; Type = type; Status = AutomationStatus.PAUSED; RuleVersion = 1; CustomTypeId = custom?.Id; CustomTrigger = custom?.TriggerKind;
         Apply(settings);
     }
+    public Guid? CustomTypeId { get; private set; }
+    public AutomationTriggerKind? CustomTrigger { get; private set; }
     public Guid PropertyId { get; private set; }
     public AutomationType Type { get; private set; }
     public AutomationStatus Status { get; private set; }
@@ -38,7 +43,8 @@ public sealed class AutomationDefinition : BaseEntity
     public int RuleVersion { get; private set; }
     public DateTimeOffset? ActivatedAt { get; private set; }
 
-    public bool IsScheduled => Type != AutomationType.PAYMENT_RECEIVED;
+    public bool IsScheduled => Type == AutomationType.CUSTOM ? CustomTrigger != AutomationTriggerKind.EVENT : Type != AutomationType.PAYMENT_RECEIVED;
+    public bool IsEventDriven => !IsScheduled;
     public bool IsQuiet(int hour) => InQuietWindow(QuietStartHour, QuietEndHour, hour);
     public static bool InQuietWindow(int start, int end, int hour) => start != end && (start < end ? hour >= start && hour < end : hour >= start || hour < end);
     public bool CoversDate(DateOnly day) => (StartsOn is null || StartsOn <= day) && (EndsOn is null || EndsOn >= day);
@@ -62,7 +68,8 @@ public sealed class AutomationDefinition : BaseEntity
         if (!s.InApp && !s.Sms && !s.Email) throw new ArgumentException("Select at least one channel.");
         var offsets = s.OffsetDays.Distinct().Order().ToArray();
         if (offsets.Length != s.OffsetDays.Count || offsets.Any(o => o is < -MaxOffset or > MaxOffset)) throw new ArgumentException("Invalid offsets.");
-        if (Type == AutomationType.PAYMENT_RECEIVED ? offsets.Length != 0 : offsets.Length is < 1 or > MaxOffsets) throw new ArgumentException("Invalid offsets.");
+        var needsOffsets = Type == AutomationType.CUSTOM ? CustomTrigger == AutomationTriggerKind.DATE_OFFSET : Type != AutomationType.PAYMENT_RECEIVED;
+        if (needsOffsets ? offsets.Length is < 1 or > MaxOffsets : offsets.Length != 0) throw new ArgumentException("Invalid offsets.");
         if (Type == AutomationType.DUES_DUE_REMINDER && offsets.Any(o => o > 0) || Type == AutomationType.DUES_OVERDUE_REMINDER && offsets.Any(o => o < 1))
             throw new ArgumentException("Offsets do not match the automation type.");
         Name = Required(s.Name, nameof(s.Name), 100); StartsOn = s.StartsOn; EndsOn = s.EndsOn;
@@ -133,7 +140,7 @@ public sealed class AutomationExecution : BaseEntity
 public sealed class NotificationDispatch : BaseEntity
 {
     private NotificationDispatch() { }
-    public NotificationDispatch(AutomationExecution execution, AutomationType type, string dedupKey, NotificationChannel channel, Guid unitId)
+    public NotificationDispatch(AutomationExecution execution, AutomationType type, string dedupKey, NotificationChannel channel, Guid? unitId)
     {
         if (dedupKey.Length != 64 || dedupKey.Any(c => !Uri.IsHexDigit(c)) || unitId == Guid.Empty || !Enum.IsDefined(channel)) throw new ArgumentException("Invalid dispatch identity.");
         PropertyId = execution.PropertyId; DefinitionId = execution.DefinitionId; ExecutionId = execution.Id; RuleVersion = execution.RuleVersion;
@@ -149,8 +156,10 @@ public sealed class NotificationDispatch : BaseEntity
     public NotificationChannel Channel { get; private set; }
     public NotificationDispatchStatus Status { get; private set; }
     public string? ReasonCode { get; private set; }
-    public Guid UnitId { get; private set; }
+    public Guid? UnitId { get; private set; }
     public Guid? ChargeId { get; private set; }
+    public string? SourceCode { get; private set; }
+    public Guid? SourceId { get; private set; }
     public Guid? PaymentId { get; private set; }
     public Guid? PersonId { get; private set; }
     public int? OffsetDays { get; private set; }
@@ -165,6 +174,11 @@ public sealed class NotificationDispatch : BaseEntity
     public NotificationDispatch About(Guid? chargeId, Guid? paymentId, Guid? personId, int? offset, DateOnly? period, decimal? amount)
     {
         ChargeId = chargeId; PaymentId = paymentId; PersonId = personId; OffsetDays = offset; Period = period; Amount = amount; return this;
+    }
+    public NotificationDispatch FromSource(string code, Guid id)
+    {
+        if (id == Guid.Empty) throw new ArgumentException("Invalid source.");
+        SourceCode = Required(code, nameof(code), 40); SourceId = id; return this;
     }
     public void Delivered(Guid personMessageId, string title, string recipientMasked)
     { Status = NotificationDispatchStatus.DELIVERED; PersonMessageId = personMessageId; Title = Required(title, nameof(title), 200); RecipientMasked = Mask(recipientMasked); }
@@ -182,4 +196,79 @@ public sealed class NotificationDispatch : BaseEntity
         Status = NotificationDispatchStatus.CANCELLED; ReasonCode = Required(reason, nameof(reason), 50);
     }
     private static string Mask(string value) => Required(value, nameof(value), 100);
+}
+
+public sealed record AutomationCondition(string Field, string Operator, string[] Values);
+public sealed record AutomationTypeSettings(string Name, string Icon, string SourceCode, AutomationCondition[] Conditions, AutomationTriggerKind Trigger,
+    string? DateField, int[] DefaultOffsets, int? DayOfMonth, int? DayOfWeek, string[] RecipientScopes, string DefaultTitle, string DefaultBody);
+
+// A user-assembled automation kind. It only combines code-owned sources, fields, operators and recipient scopes; it never carries a query.
+public sealed class AutomationTypeDefinition : BaseEntity
+{
+    private AutomationTypeDefinition() { }
+    public AutomationTypeDefinition(Guid? propertyId, string code, AutomationTypeSettings settings)
+    {
+        if (propertyId == Guid.Empty) throw new ArgumentException("Invalid property.");
+        PropertyId = propertyId; Code = Required(code, nameof(code), 60); Status = AutomationTypeStatus.DRAFT; TypeVersion = 1; Apply(settings);
+    }
+    public Guid? PropertyId { get; private set; }
+    public string Code { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
+    public string Icon { get; private set; } = null!;
+    public string SourceCode { get; private set; } = null!;
+    public string Conditions { get; private set; } = "[]";
+    public AutomationTriggerKind TriggerKind { get; private set; }
+    public string? DateField { get; private set; }
+    public int[] DefaultOffsets { get; private set; } = [];
+    public int? DayOfMonth { get; private set; }
+    public int? DayOfWeek { get; private set; }
+    public string[] RecipientScopes { get; private set; } = [];
+    public string DefaultTitle { get; private set; } = null!;
+    public string DefaultBody { get; private set; } = null!;
+    public AutomationTypeStatus Status { get; private set; }
+    public int TypeVersion { get; private set; }
+
+    public AutomationCondition[] ParsedConditions() => System.Text.Json.JsonSerializer.Deserialize<AutomationCondition[]>(Conditions) ?? [];
+    public void Update(AutomationTypeSettings settings)
+    {
+        if (Status == AutomationTypeStatus.ARCHIVED) throw new InvalidOperationException("Archived types cannot change.");
+        if (Status == AutomationTypeStatus.PUBLISHED && (settings.SourceCode != SourceCode || settings.Trigger != TriggerKind))
+            throw new InvalidOperationException("A published type keeps its source and trigger.");
+        Apply(settings); TypeVersion++;
+    }
+    public void Publish() { if (Status != AutomationTypeStatus.DRAFT) throw new InvalidOperationException("Only drafts are published."); Status = AutomationTypeStatus.PUBLISHED; TypeVersion++; }
+    public void Archive() { if (Status == AutomationTypeStatus.ARCHIVED) throw new InvalidOperationException("Already archived."); Status = AutomationTypeStatus.ARCHIVED; TypeVersion++; }
+
+    private void Apply(AutomationTypeSettings s)
+    {
+        if (!Enum.IsDefined(s.Trigger)) throw new ArgumentException("Invalid trigger.");
+        if (s.Trigger == AutomationTriggerKind.DATE_OFFSET ? string.IsNullOrWhiteSpace(s.DateField) || s.DefaultOffsets.Length is < 1 or > AutomationDefinition.MaxOffsets : s.DefaultOffsets.Length != 0)
+            throw new ArgumentException("Invalid offsets.");
+        if (s.DefaultOffsets.Any(o => o is < -AutomationDefinition.MaxOffset or > AutomationDefinition.MaxOffset) || s.DefaultOffsets.Distinct().Count() != s.DefaultOffsets.Length) throw new ArgumentException("Invalid offsets.");
+        if (s.Trigger == AutomationTriggerKind.CALENDAR ? (s.DayOfMonth is null) == (s.DayOfWeek is null) || s.DayOfMonth is < 1 or > 28 || s.DayOfWeek is < 1 or > 7
+            : s.DayOfMonth is not null || s.DayOfWeek is not null) throw new ArgumentException("Invalid calendar.");
+        if (s.RecipientScopes.Length is < 1 or > 6 || s.RecipientScopes.Distinct().Count() != s.RecipientScopes.Length) throw new ArgumentException("Invalid recipients.");
+        if (s.Conditions.Length > 10) throw new ArgumentException("Too many conditions.");
+        Name = Required(s.Name, nameof(s.Name), 100); Icon = Required(s.Icon, nameof(s.Icon), 40); SourceCode = Required(s.SourceCode, nameof(s.SourceCode), 40);
+        Conditions = System.Text.Json.JsonSerializer.Serialize(s.Conditions); TriggerKind = s.Trigger;
+        DateField = s.Trigger == AutomationTriggerKind.DATE_OFFSET ? Required(s.DateField!, nameof(s.DateField), 40) : null;
+        DefaultOffsets = [.. s.DefaultOffsets.Order()]; DayOfMonth = s.DayOfMonth; DayOfWeek = s.DayOfWeek; RecipientScopes = [.. s.RecipientScopes];
+        DefaultTitle = Required(s.DefaultTitle, nameof(s.DefaultTitle), AutomationDefinition.MaxTitle); DefaultBody = Required(s.DefaultBody, nameof(s.DefaultBody), AutomationDefinition.MaxBody);
+    }
+}
+
+public sealed class AutomationTypeRevision : BaseEntity
+{
+    private AutomationTypeRevision() { }
+    public AutomationTypeRevision(AutomationTypeDefinition type, string action, string reason, string snapshot)
+    {
+        TypeId = type.Id; PropertyId = type.PropertyId; TypeVersion = type.TypeVersion;
+        Action = Required(action, nameof(action), 20); Reason = Required(reason, nameof(reason), 500); Snapshot = Required(snapshot, nameof(snapshot), 8000);
+    }
+    public Guid TypeId { get; private set; }
+    public Guid? PropertyId { get; private set; }
+    public int TypeVersion { get; private set; }
+    public string Action { get; private set; } = null!;
+    public string Reason { get; private set; } = null!;
+    public string Snapshot { get; private set; } = null!;
 }

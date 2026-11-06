@@ -11,7 +11,8 @@ export function sidebarRows(model:NavigationModel):SidebarRow[]{
  direct("people");direct("accounting");group("finance","navigationFinanceGroup","WalletCards",["dues","payments","expenses"]);
  direct("maintenance");
  group("operations","navigationOperationsGroup","Wrench",["requests","meters"]);direct("reports");
- group("communication","navigationCommunicationGroup","MessageSquareText",["announcements","surveys","sms","automations"]);
+ group("communication","navigationCommunicationGroup","MessageSquareText",["announcements","surveys","sms"]);
+ group("automation","navigationAutomationGroup","BellRing",["automations","automation-types","automation-history","automation-health"]);
  direct("website");direct("documents");direct("integrations");
  group("administration","sidebarAdminGroup","Settings",["users","consents","definitions","settings","ai-status","qa-center"]);
  return rows;

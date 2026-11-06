@@ -1,3 +1,10 @@
+## BF-AUTO TÜR 01–05 — Otomasyon Türleri — 06.11.2026 — teknik doğrulama
+
+**19/19 otomasyon entegrasyon (5 yeni AutomationTypeApiTests), regresyon filtresi 195/219 + 19 atlandı (storage/RabbitMQ yok), havuz tükenmesiyle düşen 5 migration testi tek başına 13/13 geçti; birim 569/569; web automations/navigation/return-path testleri ve tsc geçti.**
+
+- Senaryolar: kaynak kataloğu 6; MANAGER tür ekleyemez, SITE_ADMIN platform türü ekleyemez, SUPER_ADMIN platform türü başka alanda görünür ama orada düzenlenemez; izinsiz kaynak/alan/operatör/değer, tarih alanı eksik, izinsiz alıcı/tetik, izinsiz değişken, takvim günü eksik → 400; taslak tür kurala bağlanamaz (409); yayındaki türün kaynak/tetik değişimi 409; arşiv sonrası tür kural listesinden çıkar; sürüm geçmişi; takvim türü (haftanın günü) malike bildirim; asansör/su talebi EVENT → atanmış yönetici hesabı + talebi açan, temizlik talebi elenir, talep metni mesaja girmez, yönetici mesajı Person'sız, ikinci çalıştırmada tekrar yok, yönetici web gelen kutusunda görür; bakım planı -2 gün → iptal edilen plan elenir, önizleme 1 kayıt/1 alıcı.
+- Çalıştırılmayan: tam backend koşusu, gerçek tarayıcı, mobil test (mobil kod değişmedi; yönetici bağlamı mevcut MESSAGE listesini kullanır).
+
 ## BF-AUTO P0 — Otomasyon ve Bildirim Merkezi — 06.11.2026 — teknik doğrulama
 
 **Backend 14/14 izole PG entegrasyon + 9/9 birim (AutomationApiTests, AutomationTests), ayrıca regresyon filtresi (Sms, PaymentApi, DuesApi, MobileNotice, Messaging, Migration, Persistence, ErrorContract) 177/196 entegrasyon geçti, 19 atlandı (storage/RabbitMQ ortamı verilmedi, başarılı sayılmaz), 569/569 birim geçti; web 445/445 `npm test` (ana klasör birleşik durumuyla), `tsc --noEmit` hatasız.** Sözleşme [automations.md](api/automations.md).

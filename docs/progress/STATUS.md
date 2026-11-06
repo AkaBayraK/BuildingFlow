@@ -1,3 +1,9 @@
+## BF-AUTO TÜR 01–05 — Otomasyon Türleri — 06.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+Kod değişikliği olmadan yeni otomasyon türü: hazır kaynak/koşul/tetik/alıcı yapı taşları, taslak→yayın→arşiv, sürüm geçmişi, yönetici bildirimleri (web + mobil), Otomasyon üst menüsü. Sözleşme [automations.md](../api/automations.md). Kullanıcı kararları SESSION.md'de.
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[SONRAKİ ADIM] Kullanıcı ekran kontrolü; push/FCM ve gerçek SMS sağlayıcısı ayrı onay ister.
+
 ## BF-AUTO P0 — Otomasyon ve Bildirim Merkezi — 06.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
 
 Kullanıcı master promptunun P0'ı: otomasyon çekirdeği, aidat vade hatırlatma (-3..0), gecikme uyarısı (+1/+7/+15), ödeme alındı bildirimi; kanallar uygulama içi (mobil/web gelen kutusu, çekme modeli), SMS (mevcut BF-SMS kuyruğu, MOCK), e-posta (SMTP varsa outbox). Push/FCM sonraki faz. Web `/automations`. Testler [TESTING.md](../TESTING.md); sözleşme [automations.md](../api/automations.md). GitHub issue açılmadı.

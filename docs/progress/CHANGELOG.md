@@ -1,3 +1,7 @@
+## 06.11.2026 — BF-AUTO Otomasyon Türleri
+
+- automation_types/revisions, özel tür kaynak okuyucusu (talep, tedarikçi sözleşmesi, daire, bakım, sayaç, rezervasyon), yönetici alıcıları, Otomasyon üst menüsü ve Otomasyon türleri ekranı.
+
 ## 06.11.2026 — BF-AUTO P0 Otomasyon ve Bildirim Merkezi
 
 - Yeni tablolar automation_definitions/revisions/executions, notification_dispatches; AutomationWorker; `/api/v1/properties/{id}/automations`; üç SMS türü; ISmsSendGuard; web Otomasyonlar ekranı ve menü.

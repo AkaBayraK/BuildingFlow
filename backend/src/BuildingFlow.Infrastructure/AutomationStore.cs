@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 namespace BuildingFlow.Infrastructure;
 
-public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine engine, AutomationChannelOptions channels, TimeProvider clock,
+public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine engine, AutomationSourceReader reader, AutomationChannelOptions channels, TimeProvider clock,
     ILogger<AutomationStore> logger) : IAutomationStore, IAutomationScheduler
 {
     private static readonly TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
@@ -44,17 +44,28 @@ public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine e
             await Executions.Where(e => e.PropertyId == property).MaxAsync(e => (DateTimeOffset?)e.FinishedAt, token),
             channels.EmailEnabled,
             await db.SmsAccounts.AnyAsync(a => a.PropertyId == property && a.IsEnabled, token), false);
-        return new(property, today, AutomationCatalog.All, responses, definitions.Count(d => d.Status == AutomationStatus.ACTIVE),
+        var custom = await AvailableTypes(property).Where(t => t.Status == AutomationTypeStatus.PUBLISHED).OrderBy(t => t.Name).ToListAsync(token);
+        return new(property, today, [.. AutomationCatalog.All, .. custom.Select(AutomationCatalog.Custom)], responses, definitions.Count(d => d.Status == AutomationStatus.ACTIVE),
             definitions.Count(d => d.Status == AutomationStatus.PAUSED), await Executions.CountAsync(e => e.PropertyId == property && e.StartedAt >= dayStart, token), byChannel, health);
     }
     private static int Count(IEnumerable<(NotificationDispatchStatus Status, int Count)> rows, NotificationDispatchStatus status) => rows.Where(r => r.Status == status).Sum(r => r.Count);
 
-    public async Task<AutomationResponse?> CreateAsync(Guid property, AutomationType type, AutomationSettings settings, string reason, AccessScope access, CancellationToken token)
+    public async Task<AutomationResponse?> CreateAsync(Guid property, AutomationType type, Guid? customType, AutomationSettings settings, string reason, AccessScope access, CancellationToken token)
     {
         await using var tx = await db.Database.BeginTransactionAsync(token);
         if (!await LockAsync(property, access, token)) return null;
-        if (await Definitions.IgnoreQueryFilters().AnyAsync(d => d.PropertyId == property && d.Type == type && !d.IsDeleted, token)) throw Conflict();
-        var definition = new AutomationDefinition(property, type, settings);
+        AutomationTypeDefinition? custom = null;
+        if (type == AutomationType.CUSTOM)
+        {
+            custom = await AvailableTypes(property).SingleOrDefaultAsync(t => t.Id == customType, token);
+            if (custom is null) return null;
+            if (custom.Status != AutomationTypeStatus.PUBLISHED) throw Conflict();
+            CheckTemplates(custom, settings);
+            if (await Definitions.IgnoreQueryFilters().AnyAsync(d => d.PropertyId == property && d.CustomTypeId == customType && !d.IsDeleted, token)) throw Conflict();
+        }
+        else if (await Definitions.IgnoreQueryFilters().AnyAsync(d => d.PropertyId == property && d.Type == type && !d.IsDeleted, token)) throw Conflict();
+        AutomationDefinition definition;
+        try { definition = new AutomationDefinition(property, type, settings, custom); } catch (ArgumentException) { throw Invalid(); }
         Definitions.Add(definition); Revision(definition, "CREATED", reason);
         await db.SaveChangesAsync(token); await tx.CommitAsync(token);
         return await ResponseAsync(definition, token);
@@ -67,6 +78,7 @@ public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine e
         var definition = await Definitions.SingleOrDefaultAsync(d => d.Id == id && d.PropertyId == property, token);
         if (definition is null) return null;
         if (definition.Version != version) throw Conflict();
+        if (definition.CustomTypeId is { } typeId) CheckTemplates(await db.Set<AutomationTypeDefinition>().AsNoTracking().SingleAsync(t => t.Id == typeId, token), settings);
         try { definition.Update(settings); } catch (ArgumentException) { throw Invalid(); }
         Revision(definition, "UPDATED", reason);
         await db.SaveChangesAsync(token); await tx.CommitAsync(token);
@@ -94,7 +106,7 @@ public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine e
         if (definition.Status != AutomationStatus.ACTIVE) throw Conflict();
         var (today, hour) = LocalNow();
         var quiet = definition.IsQuiet(hour);
-        if (quiet && definition.Type != AutomationType.PAYMENT_RECEIVED && (definition.SmsEnabled || definition.EmailEnabled))
+        if (quiet && definition.IsScheduled && (definition.SmsEnabled || definition.EmailEnabled))
             throw new HierarchyConflictException(ErrorCatalog.AutomationQuietHours.Create());
         var execution = await ProcessAsync(id, today, AutomationTrigger.MANUAL, quiet, token);
         return execution is null ? null : Response(execution, definition.Type);
@@ -110,7 +122,7 @@ public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine e
         var channels = AutomationEngine.Channels(definition, false).Select(c => c.ToString()).ToArray();
         var items = candidates.Take(100).Select(c => {
             var (title, body) = AutomationEngine.Render(definition, new Dictionary<string, string>(c.Values) { ["propertyName"] = parent.Name });
-            return new AutomationPreviewItem(c.UnitNumber, c.Period, c.Balance, c.DueDate, c.Offset, c.Recipients.Count, channels, title, body);
+            return new AutomationPreviewItem(c.UnitNumber ?? "", c.Period, c.Balance, c.DueDate, c.Offset, c.Recipients.Count, channels, title, body);
         }).ToArray();
         return new(id, day, candidates.Count, candidates.Count > items.Length, items);
     }
@@ -247,15 +259,108 @@ public sealed class AutomationStore(BuildingFlowDbContext db, AutomationEngine e
 
     private async Task<AutomationResponse> ResponseAsync(AutomationDefinition d, CancellationToken token)
     {
+        var custom = d.CustomTypeId is { } typeId ? await db.Set<AutomationTypeDefinition>().AsNoTracking().SingleOrDefaultAsync(t => t.Id == typeId, token) : null;
         var last = await Executions.AsNoTracking().Where(e => e.DefinitionId == d.Id).OrderByDescending(e => e.StartedAt).FirstOrDefaultAsync(token);
         var lastSchedule = await Executions.AsNoTracking().Where(e => e.DefinitionId == d.Id && e.Trigger == AutomationTrigger.SCHEDULE).OrderByDescending(e => e.StartedAt).FirstOrDefaultAsync(token);
         return new(d.Id, d.PropertyId, d.Type.ToString(), d.Status.ToString(), d.Name, d.StartsOn, d.EndsOn, d.SendHour, d.QuietStartHour, d.QuietEndHour, d.OffsetDays,
             d.InAppEnabled, d.SmsEnabled, d.EmailEnabled, d.TitleTemplate, d.BodyTemplate, d.RuleVersion, d.ActivatedAt, NextRun(d, lastSchedule),
-            last is null ? null : Response(last, d.Type), d.Version);
+            last is null ? null : Response(last, d.Type), d.Version, d.CustomTypeId, custom?.Name, custom?.Icon);
     }
 
     private static AutomationExecutionResponse Response(AutomationExecution e, AutomationType type) => new(e.Id, e.DefinitionId, type.ToString(), e.BusinessDate,
         e.Trigger.ToString(), e.Status.ToString(), e.Attempts, e.StartedAt, e.FinishedAt, e.NextAttemptAt, e.Evaluated, e.Dispatched, e.Skipped, e.ErrorCode, e.RuleVersion, e.CorrelationId);
+    // Platform types (PropertyId NULL) are offered to every Property; a Property's own types only to itself.
+    private IQueryable<AutomationTypeDefinition> AvailableTypes(Guid property) => db.Set<AutomationTypeDefinition>().Where(t => t.PropertyId == null || t.PropertyId == property);
+
+    private static void CheckTemplates(AutomationTypeDefinition type, AutomationSettings settings)
+    {
+        var variables = AutomationSources.Find(type.SourceCode)?.Variables ?? [];
+        if (SmsText.Placeholders(settings.TitleTemplate).Concat(SmsText.Placeholders(settings.BodyTemplate)).Any(v => !variables.Contains(v)) ||
+            settings.OffsetDays.Any(o => o is < -AutomationDefinition.MaxOffset or > AutomationDefinition.MaxOffset)) throw Invalid();
+    }
+
+    public async Task<IReadOnlyList<AutomationTypeResponse>?> TypesAsync(Guid property, AccessScope access, bool canEdit, bool platformAdmin, CancellationToken token)
+    {
+        if (await Visible(property, access, token) is null) return null;
+        var types = await AvailableTypes(property).AsNoTracking().OrderBy(t => t.Status).ThenBy(t => t.Name).ToListAsync(token);
+        var ids = types.Select(t => t.Id).ToArray();
+        var counts = await Definitions.Where(d => d.CustomTypeId != null && ids.Contains(d.CustomTypeId.Value)).GroupBy(d => d.CustomTypeId!.Value)
+            .Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count, token);
+        return types.Select(t => TypeResponse(t, counts.GetValueOrDefault(t.Id), canEdit && (t.PropertyId is not null || platformAdmin))).ToArray();
+    }
+
+    public async Task<AutomationTypeResponse?> CreateTypeAsync(Guid property, AutomationTypeSettings settings, bool platform, string reason, AccessScope access, CancellationToken token)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        if (!await LockAsync(property, access, token)) return null;
+        var type = new AutomationTypeDefinition(platform ? null : property, "custom-" + Guid.NewGuid().ToString("N")[..12], settings);
+        db.Add(type); TypeRevision(type, "CREATED", reason);
+        await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        return TypeResponse(type, 0, true);
+    }
+
+    public async Task<AutomationTypeResponse?> UpdateTypeAsync(Guid property, Guid id, AutomationTypeSettings settings, string reason, long version, AccessScope access, bool platformAdmin, CancellationToken token)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        if (!await LockAsync(property, access, token)) return null;
+        var type = await AvailableTypes(property).SingleOrDefaultAsync(t => t.Id == id, token);
+        if (type is null) return null;
+        if (type.PropertyId is null && !platformAdmin) throw new UnauthorizedAccessException();
+        if (type.Version != version) throw Conflict();
+        try { type.Update(settings); } catch (InvalidOperationException) { throw Conflict(); } catch (ArgumentException) { throw Invalid(); }
+        TypeRevision(type, "UPDATED", reason);
+        await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        return TypeResponse(type, await Definitions.CountAsync(d => d.CustomTypeId == id, token), true);
+    }
+
+    public async Task<AutomationTypeResponse?> SetTypeStatusAsync(Guid property, Guid id, AutomationTypeStatus status, string reason, long version, AccessScope access, bool platformAdmin, CancellationToken token)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(token);
+        if (!await LockAsync(property, access, token)) return null;
+        var type = await AvailableTypes(property).SingleOrDefaultAsync(t => t.Id == id, token);
+        if (type is null) return null;
+        if (type.PropertyId is null && !platformAdmin) throw new UnauthorizedAccessException();
+        if (type.Version != version) throw Conflict();
+        try { if (status == AutomationTypeStatus.PUBLISHED) type.Publish(); else if (status == AutomationTypeStatus.ARCHIVED) type.Archive(); else throw Conflict(); }
+        catch (InvalidOperationException) { throw Conflict(); }
+        TypeRevision(type, status == AutomationTypeStatus.PUBLISHED ? "PUBLISHED" : "ARCHIVED", reason);
+        await db.SaveChangesAsync(token); await tx.CommitAsync(token);
+        return TypeResponse(type, await Definitions.CountAsync(d => d.CustomTypeId == id, token), true);
+    }
+
+    public async Task<AutomationTypePreview?> PreviewTypeAsync(Guid property, Guid id, DateOnly? date, AccessScope access, CancellationToken token)
+    {
+        if (await Visible(property, access, token) is not { } parent) return null;
+        var type = await AvailableTypes(property).AsNoTracking().SingleOrDefaultAsync(t => t.Id == id, token);
+        if (type is null) return null;
+        var probe = new AutomationTypeDefinition(type.PropertyId, type.Code, new(type.Name, type.Icon, type.SourceCode, type.ParsedConditions(), type.TriggerKind, type.DateField,
+            type.DefaultOffsets, type.DayOfMonth, type.DayOfWeek, type.RecipientScopes, type.DefaultTitle, type.DefaultBody));
+        probe.Publish();
+        var definition = new AutomationDefinition(property, AutomationType.CUSTOM, new(type.Name, null, null, 10, 0, 0, type.DefaultOffsets, true, false, false, type.DefaultTitle, type.DefaultBody), probe);
+        var day = date ?? LocalNow().Today;
+        var candidates = await reader.CandidatesAsync(definition, probe, day, DateTimeOffset.MinValue, token);
+        var items = candidates.Take(20).Select(c => {
+            var (title, body) = AutomationEngine.Render(definition, new Dictionary<string, string>(c.Values) { ["propertyName"] = parent.Name, ["today"] = day.ToString("dd.MM.yyyy") });
+            return new AutomationPreviewItem(c.UnitNumber ?? "", null, 0m, c.DueDate, c.Offset, c.Recipients.Count, ["IN_APP"], title, body);
+        }).ToArray();
+        return new(candidates.Count, candidates.Sum(c => c.Recipients.Count), candidates.Count > items.Length, items);
+    }
+
+    public async Task<IReadOnlyList<AutomationRevisionResponse>?> TypeRevisionsAsync(Guid property, Guid id, AccessScope access, CancellationToken token)
+    {
+        if (await Visible(property, access, token) is null || !await AvailableTypes(property).AnyAsync(t => t.Id == id, token)) return null;
+        return await db.Set<AutomationTypeRevision>().AsNoTracking().Where(r => r.TypeId == id).OrderByDescending(r => r.TypeVersion).Take(100)
+            .Select(r => new AutomationRevisionResponse(r.Id, r.TypeVersion, r.Action, r.Reason, r.Snapshot, r.CreatedAt, r.CreatedBy)).ToListAsync(token);
+    }
+
+    private void TypeRevision(AutomationTypeDefinition t, string action, string reason) => db.Add(new AutomationTypeRevision(t, action, reason, JsonSerializer.Serialize(new {
+        t.Name, t.Icon, t.SourceCode, Conditions = t.ParsedConditions(), Trigger = t.TriggerKind.ToString(), t.DateField, t.DefaultOffsets, t.DayOfMonth, t.DayOfWeek,
+        t.RecipientScopes, t.DefaultTitle, t.DefaultBody, Status = t.Status.ToString() })));
+
+    private static AutomationTypeResponse TypeResponse(AutomationTypeDefinition t, int rules, bool canEdit) => new(t.Id, t.PropertyId, t.PropertyId is null, t.Code, t.Name, t.Icon,
+        t.SourceCode, t.ParsedConditions(), t.TriggerKind.ToString(), t.DateField, t.DefaultOffsets, t.DayOfMonth, t.DayOfWeek, t.RecipientScopes, t.DefaultTitle, t.DefaultBody,
+        t.Status.ToString(), t.TypeVersion, rules, canEdit && t.Status != AutomationTypeStatus.ARCHIVED, t.Version);
+
     private static HierarchyConflictException Conflict() => new(ErrorCatalog.AutomationConflict.Create());
     private static RequestValidationException Invalid() => new(new() { ["settings"] = [ErrorCatalog.AutomationInvalid.Create()] });
 }

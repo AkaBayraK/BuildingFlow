@@ -23,8 +23,8 @@ public sealed class PersonMessageStore(BuildingFlowDbContext db,TimeProvider clo
     private IQueryable<Property> Properties(AccessScope a)=>db.Properties.Where(p=>!p.IsDeleted&&(a.ReadAll||db.PropertyMemberships.Any(m=>!m.IsDeleted&&m.IsEnabled&&m.PropertyId==p.Id&&m.UserId==a.UserId)));
     internal static IQueryable<PersonMessage> InboxQuery(BuildingFlowDbContext db,string user)=>db.PersonMessages.Where(v=>v.RecipientUserId==user&&db.Properties.Any(p=>p.Id==v.PropertyId&&p.IsEnabled)&&db.PropertyMemberships.Any(m=>m.PropertyId==v.PropertyId&&m.UserId==user&&m.IsEnabled));
     private IQueryable<PersonMessage> Inbox(string user)=>InboxQuery(db,user);
-    private static System.Linq.Expressions.Expression<Func<PersonMessage,PersonMessageResponse>> Projection=>v=>new(v.Id,v.PropertyId,v.PersonId,v.Title,v.Body,v.CreatedAt,v.ReadAt);
-    private static PersonMessageResponse Response(PersonMessage v)=>new(v.Id,v.PropertyId,v.PersonId,v.Title,v.Body,v.CreatedAt,v.ReadAt);
+    private static System.Linq.Expressions.Expression<Func<PersonMessage,PersonMessageResponse>> Projection=>v=>new(v.Id,v.PropertyId,v.PersonId??Guid.Empty,v.Title,v.Body,v.CreatedAt,v.ReadAt);
+    private static PersonMessageResponse Response(PersonMessage v)=>new(v.Id,v.PropertyId,v.PersonId??Guid.Empty,v.Title,v.Body,v.CreatedAt,v.ReadAt);
     public async Task<PersonMessageResponse?> SendAsync(Guid property,Guid person,SendPersonMessageRequest request,AccessScope access,CancellationToken token)
     {
         await using var tx=await db.Database.BeginTransactionAsync(token);

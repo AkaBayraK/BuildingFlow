@@ -1,3 +1,7 @@
+## BF-AUTO TÜR — 06.11.2026 — devam bağlamı
+
+Kararlar (kullanıcı): tür ekleme SUPER_ADMIN+SITE_ADMIN, platform türü yalnız SUPER_ADMIN; ilk dalgada tüm kaynaklar; Otomasyon üst menü; yönetici bildirimi web+mobil. Açık: push/FCM, gerçek SMS sağlayıcısı, mobil tercih/deep link, roadmap kaydı.
+
 ## BF-AUTO P0 — 06.11.2026 — devam bağlamı
 
 Kapsam: kullanıcı onayıyla P0 kodlandı (FAZ 00 analizi [automations.md](../api/automations.md)). Karar: mobil bildirim çekme modeli (mevcut notice polling), FCM/APNs sonraki faz. Açık: push, gerçek SMS sağlayıcısı/Hub adaptörü, mobil tercih ve deep link, P1 otomasyonları, roadmap kaydı.

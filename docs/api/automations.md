@@ -67,6 +67,19 @@ Hata kodları: `BF_AUTOMATION_INVALID` (400), `BF_AUTOMATION_CONFLICT` (409), `B
 
 `/automations` alan seçimi → `/properties/{id}/automations`: özet kartlar, ikonlu sekmeler (Otomasyonlar, Gönderim geçmişi, Çalışmalar, Sistem sağlığı); kural paneli (gün listesi, saatler, geçerlilik, kanallar, değişken ekleme, örnek veriyle canlı önizleme, SMS segment notu, gerekçe), devreye al/duraklat, şimdi çalıştır, gerçek veri önizleme, sürüm geçmişi.
 
+## Otomasyon Türleri (TÜR 01–05, 06.11.2026)
+
+Kullanıcı kararı: yeni tür kod değişikliği olmadan eklenir; SUPER_ADMIN ve SITE_ADMIN tanımlar, platform türü (tüm yönetim alanları) yalnız SUPER_ADMIN. Analiz: [Claude Doc](https://claude.ai/artifact/YEQq2Xk5vHok2rsrAm8N7C).
+
+- Tür yalnız koddaki yapı taşlarından kurulur (`AutomationSources`): kaynak `REQUEST`, `SUPPLIER_CONTRACT`, `UNIT`, `MAINTENANCE_PLAN`, `METER`, `RESERVATION`; her kaynağın izinli alan/değer listesi, operatörler `EQ/IN/NOT_IN`, tarih alanları, tetikler (`DATE_OFFSET`, `EVENT`, `CALENDAR`), alıcı grupları (`MANAGERS`, `OWNERS`, `TENANTS`, `RESIDENTS`, `PRIMARY_CONTACT`, `REQUESTER`) ve değişkenler. Serbest sorgu/ifade yoktur; sorgular `AutomationSourceReader` içinde Property filtresiyle yazılıdır, koşullar bellekte izinli alanlara uygulanır.
+- Değişkenlerde kişi adı, telefon, kimlik ve talep metni yoktur (talep için yalnız kategori/öncelik/durum).
+- Tablolar: `automation_types` (taslak/yayında/arşiv, `type_version`, jsonb koşullar), `automation_type_revisions`; `automation_definitions.custom_type_id/custom_trigger` (tür başına tek kural); `notification_dispatches.unit_id` artık nullable + `source_code/source_id`; `person_messages.person_id` nullable (Person satırı olmayan yönetici hesapları). Migration `20261106141717_AutomationCustomTypes`, Down geçmiş varsa reddeder.
+- Yayındaki türün kaynağı ve tetik türü değişmez; arşivlenen türle yeni kural eklenemez ve mevcut kurallar çalışmaz. Taslak tür kurala bağlanamaz (409).
+- Yönetici alıcıları: aktif `ManagementAssignment` (SITE_ADMIN/MANAGER) → bağlı hesap (`CentralPersonAccountLink` → `PersonUserAccount.Subject`) → aktif Property üyeliği. Bildirim web bildirim kutusunda (`/api/v1/notifications`) ve mobil yönetici bağlamındaki MESSAGE listesinde görünür.
+- SMS: özel türler `AUTOMATION_NOTICE` (OPERATIONAL, `MAINTENANCE_NOTIFICATION` kategorisi; alıcının operasyonel SMS tercihine uyar).
+- API `/api/v1/properties/{id}/automation-types`: `GET /sources`, `GET`, `POST`, `PUT /{typeId}`, `POST /{typeId}/publish|archive`, `GET /{typeId}/preview`, `GET /{typeId}/revisions`. Okuma üç yönetici rolü; yazma SUPER_ADMIN/SITE_ADMIN.
+- Web: üst menüde **Otomasyon** grubu (Otomasyonlar, Otomasyon türleri, Gönderim geçmişi, Sistem sağlığı); `/properties/{id}/automations/types|history|executions|health`. Tür paneli 5 adım: kaynak+ikon, koşullar, tetik, alıcılar, varsayılan mesaj + önizleme.
+
 ## Sonraki fazlar (kodlanmadı)
 
 - FAZ 03 push: cihaz kaydı, FCM/APNs, izin, deep link borç detayı (yeni paket onayı gerekir); gerçek SMS sağlayıcısı / Aka Integration Hub adaptörü; e-posta HTML şablonu.

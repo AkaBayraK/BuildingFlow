@@ -2,7 +2,9 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {Activity,CalendarDays,Eye,History,ListChecks,Pause,Pencil,Play,Plus,RefreshCw,Send,ServerCog,Zap} from "lucide-react";
+import Link from "next/link";
+import {AutomationTypes} from "./AutomationTypes";
+import {Activity,CalendarDays,Eye,Shapes,History,ListChecks,Pause,Pencil,Play,Plus,RefreshCw,Send,ServerCog,Zap} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {usePropertyScope} from "@/features/navigation/PropertyScope";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
@@ -21,11 +23,14 @@ import {formatDateOnly,formatDateTime,formatCurrency} from "@/lib/format";
 import {segments} from "@/features/sms/model";
 import {channels,dispatchStatuses,parseOffsets,quiet,readAutomation,readExecution,readOverview,readPage,readDispatch,readPreview,readRevision,render,sampleValues,unknownVariables,
  type Automation,type AutomationExecution,type AutomationOverview,type AutomationPreview,type AutomationTypeInfo,type Channel,type Dispatch,type Page,type Revision} from "./model";
-import {automationIcon,channelIcon,statusIcon,statusVariant,typeIcon} from "./automation-style";
+import {automationIcon,channelIcon,iconFor,statusIcon,statusVariant} from "./automation-style";
 
-type Tab="rules"|"dispatches"|"executions"|"health";
-const tabs:Tab[]=["rules","dispatches","executions","health"];
-const tabIcon={rules:ListChecks,dispatches:Send,executions:History,health:ServerCog} as const satisfies Record<Tab,unknown>;
+export type AutomationView="rules"|"types"|"history"|"executions"|"health";
+const tabs:AutomationView[]=["rules","types","history","executions","health"];
+const tabIcon={rules:ListChecks,types:Shapes,history:Send,executions:History,health:ServerCog} as const satisfies Record<AutomationView,unknown>;
+const tabPath={rules:"",types:"/types",history:"/history",executions:"/executions",health:"/health"} as const satisfies Record<AutomationView,string>;
+const keyOf=(x:{type:string;customTypeId:string|null})=>x.customTypeId??x.type;
+const typeLabel=(t:ReturnType<typeof useTranslations>,x:{type:string;customTypeId:string|null},name:string|null)=>x.type==="CUSTOM"?name??"":t(`type_${x.type}`);
 const hours=Array.from({length:24},(_,h)=>h);
 const pad=(h:number)=>String(h).padStart(2,"0")+":00";
 
@@ -33,15 +38,15 @@ function useSaving(){const lock=useRef(false);const [busy,setBusy]=useState(fals
  async function run(action:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);try{await action();}finally{lock.current=false;setBusy(false);}}
  return {busy,run};}
 
-export function AutomationWorkspace({propertyId}:{propertyId:string}){
+export function AutomationWorkspace({propertyId,view="rules"}:{propertyId:string;view?:AutomationView}){
  const t=useTranslations("automations"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),scope=usePropertyScope(),identity=useIdentity();
  const manager=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r));
- const [tab,setTab]=useState<Tab>("rules"),[overview,setOverview]=useState<AutomationOverview|null>(null),[error,setError]=useState(""),[revision,setRevision]=useState(0),[creating,setCreating]=useState(false);
+ const tab=view,[overview,setOverview]=useState<AutomationOverview|null>(null),[error,setError]=useState(""),[revision,setRevision]=useState(0),[creating,setCreating]=useState(false);
  const root=`/api/v1/properties/${propertyId}/automations`;const refresh=()=>setRevision(n=>n+1);
  useEffect(()=>{const c=new AbortController();setError("");if(manager)void api<unknown>(root,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setOverview(readOverview(v,propertyId));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));});return()=>c.abort();},[api,root,propertyId,revision,locale,manager]);
  if(!manager)return <div className="py-10"><MessageBanner>{ui("aManagementRoleIsRequiredToViewPersonalInformation")}</MessageBanner></div>;
  const writable=!!scope.property?.isEnabled&&!scope.error;
- const missing=overview?.types.filter(type=>!overview.definitions.some(d=>d.type===type.type))??[];
+ const missing=overview?.types.filter(type=>!overview.definitions.some(d=>keyOf(d)===keyOf(type)))??[];
  const sent=overview?.channels.reduce((sum,c)=>sum+c.delivered+c.queued,0)??0,skipped=overview?.channels.reduce((sum,c)=>sum+c.skipped+c.failed+c.cancelled,0)??0;
  return <div className="py-8"><WorkspaceHeading title={t("title")} description={t("help")} scope={scope.property?.name??ui("loading")} icon={automationIcon} action={<Button disabled={!writable||!missing.length} onClick={()=>setCreating(true)}><Plus/>{t("create")}</Button>}/>
   {error&&<MessageBanner className="mb-4" action={<Button variant="view" onClick={refresh}>{ui("tryAgain")}</Button>}>{error}</MessageBanner>}
@@ -52,10 +57,11 @@ export function AutomationWorkspace({propertyId}:{propertyId:string}){
    <SummaryCard title={t("skippedToday")} value={skipped} note={t("skippedHelp")} icon={statusIcon.SKIPPED}/>
   </div>}
   <MessageBanner className="mb-4">{t("pullNotice")}</MessageBanner>
-  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{tabs.map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} onClick={()=>setTab(value)}><I aria-hidden="true"/>{t(`tab_${value}`)}</Button>;})}</div>
+  <div role="tablist" aria-label={t("title")} className="mb-4 flex flex-wrap gap-2">{tabs.map(value=>{const I=tabIcon[value];return <Button key={value} role="tab" aria-selected={tab===value} variant={tab===value?"default":"outline"} asChild><Link href={`/properties/${propertyId}/automations${tabPath[value]}`}><I aria-hidden="true"/>{t(`tab_${value}`)}</Link></Button>;})}</div>
   {!overview&&!error?<p role="status">{ui("loading")}</p>:overview&&<div role="tabpanel">
    {tab==="rules"&&<RulesTab root={root} propertyId={propertyId} overview={overview} writable={writable} onChanged={refresh}/>}
-   {tab==="dispatches"&&<DispatchesTab root={root} overview={overview} revision={revision}/>}
+   {tab==="types"&&<AutomationTypes propertyId={propertyId} writable={writable} onChanged={refresh}/>}
+   {tab==="history"&&<DispatchesTab root={root} overview={overview} revision={revision}/>}
    {tab==="executions"&&<ExecutionsTab root={root} revision={revision}/>}
    {tab==="health"&&<HealthTab overview={overview}/>}
   </div>}
@@ -74,14 +80,14 @@ function RulesTab({root,propertyId,overview,writable,onChanged}:{root:string;pro
  const [edit,setEdit]=useState<Automation|null>(null),[status,setStatus]=useState<Automation|null>(null),[preview,setPreview]=useState<Automation|null>(null),[history,setHistory]=useState<Automation|null>(null);
  function start(rule:Automation){void run(async()=>{try{const result=readExecution(await api(`${root}/${rule.id}/run`,{method:"POST"}));notice.success(t("runDone",{dispatched:result.dispatched,skipped:result.skipped}));onChanged();}catch(e){notice.error(errorMessage(e,locale));}});}
  if(!overview.definitions.length)return <section className="rounded-2xl border bg-card p-6 shadow-sm"><h2 className="font-semibold">{t("empty")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("emptyHelp")}</p></section>;
- return <div className="grid gap-4 lg:grid-cols-2">{overview.definitions.map(rule=>{const I=typeIcon[rule.type];const last=rule.lastExecution;
+ return <div className="grid gap-4 lg:grid-cols-2">{overview.definitions.map(rule=>{const I=iconFor(rule.type,rule.icon);const last=rule.lastExecution;
   return <article key={rule.id} className="rounded-2xl border bg-card p-5 shadow-sm">
-   <div className="flex flex-wrap items-start justify-between gap-3"><div className="flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary"><I aria-hidden="true" className="size-5"/></span><div><h2 className="font-semibold">{rule.name}</h2><p className="text-xs text-muted-foreground">{t(`type_${rule.type}`)} · {t("ruleVersion",{version:rule.ruleVersion})}</p></div></div>
+   <div className="flex flex-wrap items-start justify-between gap-3"><div className="flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary"><I aria-hidden="true" className="size-5"/></span><div><h2 className="font-semibold">{rule.name}</h2><p className="text-xs text-muted-foreground">{typeLabel(t,rule,rule.customTypeName)} · {t("ruleVersion",{version:rule.ruleVersion})}</p></div></div>
     <Badge variant={rule.status==="ACTIVE"?"default":"secondary"}>{rule.status==="ACTIVE"?<Play aria-hidden="true"/>:<Pause aria-hidden="true"/>}{t(`status_${rule.status}`)}</Badge></div>
    <dl className="mt-3 grid gap-x-4 sm:grid-cols-2">
-    <DetailField label={t("trigger")}>{rule.type==="PAYMENT_RECEIVED"?t("triggerEvent"):rule.offsetDays.map(o=>offsetLabel(t,o)).join(", ")}</DetailField>
+    <DetailField label={t("trigger")}>{rule.offsetDays.length?rule.offsetDays.map(o=>offsetLabel(t,o)).join(", "):t(rule.type==="PAYMENT_RECEIVED"?"triggerEvent":"triggerCustom")}</DetailField>
     <DetailField label={t("channels")}><Channels rule={rule}/></DetailField>
-    <DetailField label={t("schedule")}>{rule.type==="PAYMENT_RECEIVED"?t("scheduleEvent"):t("scheduleAt",{hour:pad(rule.sendHour)})} · {rule.quietStartHour===rule.quietEndHour?t("noQuiet"):t("quietRange",{start:pad(rule.quietStartHour),end:pad(rule.quietEndHour)})}</DetailField>
+    <DetailField label={t("schedule")}>{rule.type==="PAYMENT_RECEIVED"||overview.types.find(x=>x.customTypeId!==null&&x.customTypeId===rule.customTypeId)?.trigger==="EVENT"?t("scheduleEvent"):t("scheduleAt",{hour:pad(rule.sendHour)})} · {rule.quietStartHour===rule.quietEndHour?t("noQuiet"):t("quietRange",{start:pad(rule.quietStartHour),end:pad(rule.quietEndHour)})}</DetailField>
     <DetailField label={t("nextRun")}>{rule.nextRunAt?formatDateTime(rule.nextRunAt,locale):"—"}</DetailField>
     <DetailField label={t("lastResult")}>{last?<span>{t(`exec_${last.status}`)} · {formatDateTime(last.startedAt,locale)} · {t("counts",{dispatched:last.dispatched,skipped:last.skipped})}</span>:t("neverRun")}</DetailField>
     <DetailField label={t("validity")}>{rule.startsOn?formatDateOnly(rule.startsOn,locale):t("noStart")} – {rule.endsOn?formatDateOnly(rule.endsOn,locale):t("noEnd")}</DetailField>
@@ -93,7 +99,7 @@ function RulesTab({root,propertyId,overview,writable,onChanged}:{root:string;pro
     <Button variant="view" onClick={()=>setPreview(rule)}><Eye/>{t("preview")}</Button>
     <Button variant="neutral" onClick={()=>setHistory(rule)}><History/>{t("revisions")}</Button>
    </div></article>;})}
-  {edit&&<RuleDialog root={root} propertyId={propertyId} types={overview.types.filter(x=>x.type===edit.type)} rule={edit} emailAvailable={overview.health.emailChannelAvailable} onClose={()=>setEdit(null)} onSaved={onChanged}/>}
+  {edit&&<RuleDialog root={root} propertyId={propertyId} types={overview.types.filter(x=>keyOf(x)===keyOf(edit))} rule={edit} emailAvailable={overview.health.emailChannelAvailable} onClose={()=>setEdit(null)} onSaved={onChanged}/>}
   {status&&<StatusDialog root={root} rule={status} onClose={()=>setStatus(null)} onSaved={onChanged}/>}
   {preview&&<PreviewDialog root={root} rule={preview} onClose={()=>setPreview(null)}/>}
   {history&&<RevisionsDialog root={root} rule={history} onClose={()=>setHistory(null)}/>}
@@ -102,34 +108,34 @@ function RulesTab({root,propertyId,overview,writable,onChanged}:{root:string;pro
 
 function RuleDialog({root,propertyId,types,rule,emailAvailable,onClose,onSaved}:{root:string;propertyId:string;types:AutomationTypeInfo[];rule:Automation|null;emailAvailable:boolean;onClose:()=>void;onSaved:()=>void}){
  const t=useTranslations("automations"),ui=useTranslations("ui"),locale=useLocale(),api=useAuthorizedApi(),notice=useNotification();const {busy,run}=useSaving();
- const [type,setType]=useState(rule?.type??types[0]?.type),info=types.find(x=>x.type===type)??types[0];
+ const [type,setType]=useState(rule?keyOf(rule):types[0]?keyOf(types[0]):""),info=types.find(x=>keyOf(x)===type)??types[0];
  const [name,setName]=useState(rule?.name??info?.defaultName??""),[offsets,setOffsets]=useState((rule?.offsetDays??info?.defaultOffsets??[]).join(", ")),[sendHour,setSendHour]=useState(rule?.sendHour??10),[quietStart,setQuietStart]=useState(rule?.quietStartHour??21),[quietEnd,setQuietEnd]=useState(rule?.quietEndHour??9);
  const [startsOn,setStartsOn]=useState(rule?.startsOn??""),[endsOn,setEndsOn]=useState(rule?.endsOn??""),[inApp,setInApp]=useState(rule?.inApp??true),[sms,setSms]=useState(rule?.sms??false),[email,setEmail]=useState(rule?.email??false);
  const [title,setTitle]=useState(rule?.titleTemplate??info?.defaultTitle??""),[body,setBody]=useState(rule?.bodyTemplate??info?.defaultBody??""),[reason,setReason]=useState(""),[error,setError]=useState("");
- function pick(next:string){const value=types.find(x=>x.type===next);if(!value)return;setType(value.type);setName(value.defaultName);setOffsets(value.defaultOffsets.join(", "));setTitle(value.defaultTitle);setBody(value.defaultBody);}
+ function pick(next:string){const value=types.find(x=>keyOf(x)===next);if(!value)return;setType(keyOf(value));setName(value.defaultName);setOffsets(value.defaultOffsets.join(", "));setTitle(value.defaultTitle);setBody(value.defaultBody);}
  if(!info)return null;
- const event=info.type==="PAYMENT_RECEIVED";
+ const event=info.type==="PAYMENT_RECEIVED"||info.trigger==="EVENT"||info.trigger==="CALENDAR";const builtIn=info.type!=="CUSTOM";
  const unknown=[...unknownVariables(title,info.variables),...unknownVariables(body,info.variables)];
  const previewBody=render(body,sampleValues),smsSize=segments(previewBody);
  function save(e:React.FormEvent){e.preventDefault();setError("");
   const days=event?[]:parseOffsets(offsets);
   if(days===null||!event&&(days.length<1||days.length>10||days.some(d=>d<info.minOffset||d>info.maxOffset))){setError(t("offsetsInvalid",{min:info.minOffset,max:info.maxOffset}));return;}
   if(!inApp&&!sms&&!email){setError(t("channelRequired"));return;}
-  if(!event&&quiet(quietStart,quietEnd,sendHour)){setError(t("sendHourQuiet"));return;}
+  if(info.type!=="PAYMENT_RECEIVED"&&info.trigger!=="EVENT"&&quiet(quietStart,quietEnd,sendHour)){setError(t("sendHourQuiet"));return;}
   if(startsOn&&endsOn&&endsOn<startsOn){setError(t("datesInvalid"));return;}
   if(unknown.length){setError(t("variablesInvalid",{names:unknown.join(", ")}));return;}
   if(!name.trim()||!title.trim()||!body.trim()||!reason.trim()){setError(t("required"));return;}
-  void run(async()=>{try{readAutomation(await api(rule?`${root}/${rule.id}`:root,{method:rule?"PUT":"POST",body:JSON.stringify({type:info.type,name:name.trim(),startsOn:startsOn||null,endsOn:endsOn||null,sendHour,quietStartHour:quietStart,quietEndHour:quietEnd,offsetDays:days,inApp,sms,email,titleTemplate:title.trim(),bodyTemplate:body.trim(),reason:reason.trim(),version:rule?.version??0})}),propertyId);notice.success(t(rule?"saved":"created"));onSaved();onClose();}catch(reason){setError(errorMessage(reason,locale));}});}
+  void run(async()=>{try{readAutomation(await api(rule?`${root}/${rule.id}`:root,{method:rule?"PUT":"POST",body:JSON.stringify({type:info.type,customTypeId:info.customTypeId,name:name.trim(),startsOn:startsOn||null,endsOn:endsOn||null,sendHour,quietStartHour:quietStart,quietEndHour:quietEnd,offsetDays:days,inApp,sms,email,titleTemplate:title.trim(),bodyTemplate:body.trim(),reason:reason.trim(),version:rule?.version??0})}),propertyId);notice.success(t(rule?"saved":"created"));onSaved();onClose();}catch(reason){setError(errorMessage(reason,locale));}});}
  const id=(x:string)=>`automation-${x}`;
  return <Dialog open onOpenChange={open=>{if(!open&&!busy)onClose();}}><ManagementPanel showCloseButton={!busy}><DialogHeader><DialogTitle>{t(rule?"editTitle":"createTitle")}</DialogTitle><DialogDescription>{t("dialogHelp")}</DialogDescription></DialogHeader>
   <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4">{error&&<MessageBanner>{error}</MessageBanner>}
-   {!rule&&<><Label htmlFor={id("type")}>{t("type")}</Label><select id={id("type")} className={toolbarSelectClass+" w-full"} value={info.type} onChange={e=>pick(e.target.value)}>{types.map(x=><option key={x.type} value={x.type}>{t(`type_${x.type}`)}</option>)}</select></>}
+   {!rule&&<><Label htmlFor={id("type")}>{t("type")}</Label><select id={id("type")} className={toolbarSelectClass+" w-full"} value={info.type} onChange={e=>pick(e.target.value)}>{types.map(x=><option key={keyOf(x)} value={keyOf(x)}>{typeLabel(t,x,x.defaultName)}</option>)}</select></>}
    <Label htmlFor={id("name")}>{t("name")} *</Label><Input id={id("name")} maxLength={100} value={name} onChange={e=>setName(e.target.value)}/>
-   {!event&&<fieldset className="space-y-2"><legend className="text-sm font-medium">{t("presetDays")}</legend><div className="grid grid-cols-2 gap-2">{(info.type==="DUES_DUE_REMINDER"?[-7,-5,-3,-2,-1,0]:[1,3,7,15,30]).map(day=>{const current=parseOffsets(offsets)??[];const on=current.includes(day);
+   {!event&&builtIn&&<fieldset className="space-y-2"><legend className="text-sm font-medium">{t("presetDays")}</legend><div className="grid grid-cols-2 gap-2">{(info.type==="DUES_DUE_REMINDER"?[-7,-5,-3,-2,-1,0]:[1,3,7,15,30]).map(day=>{const current=parseOffsets(offsets)??[];const on=current.includes(day);
     return <label key={day} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={on} onChange={()=>setOffsets((on?current.filter(x=>x!==day):[...current,day]).sort((a,b)=>a-b).join(", "))}/><CalendarDays aria-hidden="true" className="size-4"/>{offsetLabel(t,day)}</label>;})}</div></fieldset>}
-   {!event&&<><Label htmlFor={id("offsets")}>{t("offsets")} *</Label><Input id={id("offsets")} value={offsets} onChange={e=>setOffsets(e.target.value)} aria-describedby={id("offsets-help")}/><p id={id("offsets-help")} className="text-xs text-muted-foreground">{t(info.type==="DUES_DUE_REMINDER"?"offsetsDueHelp":"offsetsOverdueHelp")}</p></>}
-   {event&&<p className="text-sm text-muted-foreground">{t("eventHelp")}</p>}
-   <div className="grid grid-cols-3 gap-3">{([["send",sendHour,setSendHour],["quietStart",quietStart,setQuietStart],["quietEnd",quietEnd,setQuietEnd]] as const).map(([key,value,set])=><div key={key} className="space-y-2"><Label htmlFor={id(key)}>{t(key)}</Label><select id={id(key)} className={toolbarSelectClass+" w-full"} value={value} disabled={key==="send"&&event} onChange={e=>set(Number(e.target.value))}>{hours.map(h=><option key={h} value={h}>{pad(h)}</option>)}</select></div>)}</div>
+   {!event&&<><Label htmlFor={id("offsets")}>{t("offsets")} *</Label><Input id={id("offsets")} value={offsets} onChange={e=>setOffsets(e.target.value)} aria-describedby={id("offsets-help")}/><p id={id("offsets-help")} className="text-xs text-muted-foreground">{t(!builtIn?"offsetsCustomHelp":info.type==="DUES_DUE_REMINDER"?"offsetsDueHelp":"offsetsOverdueHelp")}</p></>}
+   {event&&<p className="text-sm text-muted-foreground">{t(info.trigger==="CALENDAR"?"calendarHelp":info.trigger==="EVENT"?"customEventHelp":"eventHelp")}</p>}
+   <div className="grid grid-cols-3 gap-3">{([["send",sendHour,setSendHour],["quietStart",quietStart,setQuietStart],["quietEnd",quietEnd,setQuietEnd]] as const).map(([key,value,set])=><div key={key} className="space-y-2"><Label htmlFor={id(key)}>{t(key)}</Label><select id={id(key)} className={toolbarSelectClass+" w-full"} value={value} disabled={key==="send"&&(info.type==="PAYMENT_RECEIVED"||info.trigger==="EVENT")} onChange={e=>set(Number(e.target.value))}>{hours.map(h=><option key={h} value={h}>{pad(h)}</option>)}</select></div>)}</div>
    <p className="text-xs text-muted-foreground">{t("quietHelp")}</p>
    <div className="grid grid-cols-2 gap-3"><div className="space-y-2"><Label htmlFor={id("starts")}>{t("startsOn")}</Label><Input id={id("starts")} type="date" value={startsOn} onChange={e=>setStartsOn(e.target.value)}/></div><div className="space-y-2"><Label htmlFor={id("ends")}>{t("endsOn")}</Label><Input id={id("ends")} type="date" value={endsOn} onChange={e=>setEndsOn(e.target.value)}/></div></div>
    <fieldset className="space-y-2"><legend className="text-sm font-medium">{t("channels")} *</legend>
@@ -187,19 +193,19 @@ function DispatchesTab({root,overview,revision}:{root:string;overview:Automation
  useEffect(()=>{const c=new AbortController();setLoading(true);setError("");void api<unknown>(`${root}/dispatches?`+new URLSearchParams({page:String(page),pageSize:"20",...(channel?{channel}:{}),...(status?{status}:{}),...(rule?{automationId:rule}:{})}),{signal:c.signal}).then(v=>{if(!c.signal.aborted)setData(readPage(v,readDispatch));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});return()=>c.abort();},[api,root,page,channel,status,rule,revision,retry,locale]);
  const columns=useMemo<ColumnDef<Dispatch>[]>(()=>[
   {id:"date",header:t("date"),cell:({row})=>formatDateTime(row.original.createdAt,locale)},
-  {id:"type",header:t("type"),cell:({row})=>{const I=typeIcon[row.original.type];return <span className="flex items-center gap-2"><I aria-hidden="true" className="size-4"/>{t(`type_${row.original.type}`)}</span>;}},
+  {id:"type",header:t("type"),cell:({row})=>{const rule=overview.definitions.find(d=>d.id===row.original.definitionId);const I=iconFor(row.original.type,rule?.icon??null);return <span className="flex items-center gap-2"><I aria-hidden="true" className="size-4"/>{rule?.name??t(`type_${row.original.type}`)}</span>;}},
   {id:"unit",header:t("unitColumn"),cell:({row})=>row.original.unitNumber??"—"},
   {id:"period",header:t("period"),cell:({row})=>row.original.period?formatDateOnly(row.original.period,locale).slice(3):"—"},
   {id:"channel",header:t("channel"),cell:({row})=><ChannelBadge channel={row.original.channel}/>},
   {id:"status",header:ui("status"),cell:({row})=><DispatchStatusCell row={row.original}/>},
   {id:"recipient",header:t("recipient"),cell:({row})=><span className="font-mono text-xs">{row.original.recipientMasked??"—"}</span>},
-  {id:"title",header:t("message"),cell:({row})=><span className="line-clamp-2 max-w-xs">{row.original.title??"—"}</span>}],[t,ui,locale]);
+  {id:"title",header:t("message"),cell:({row})=><span className="line-clamp-2 max-w-xs">{row.original.title??"—"}</span>}],[t,ui,locale,overview.definitions]);
  return <section className="overflow-hidden rounded-2xl border bg-card shadow-sm"><div className="flex flex-wrap items-center gap-3 p-4">
    <label className="flex items-center gap-2 text-sm">{t("rule")}<select className={toolbarSelectClass} value={rule} onChange={e=>{setRule(e.target.value);setPage(1);}}><option value="">{t("allRules")}</option>{overview.definitions.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
    <label className="flex items-center gap-2 text-sm">{t("channel")}<select className={toolbarSelectClass} value={channel} onChange={e=>{setChannel(e.target.value);setPage(1);}}><option value="">{t("allChannels")}</option>{channels.map(c=><option key={c} value={c}>{t(`channel_${c}`)}</option>)}</select></label>
    <label className="flex items-center gap-2 text-sm">{ui("status")}<select className={toolbarSelectClass} value={status} onChange={e=>{setStatus(e.target.value);setPage(1);}}><option value="">{t("allStatuses")}</option>{dispatchStatuses.map(s=><option key={s} value={s}>{t(`dispatch_${s}`)}</option>)}</select></label>
    <Button variant="view" onClick={()=>setRetry(n=>n+1)}><RefreshCw/>{t("refresh")}</Button></div>
-  <RecordList compact data={data} columns={columns} page={page} onPage={setPage} loading={loading} error={error} onRetry={()=>setRetry(n=>n+1)} empty={t("noDispatches")} card={d=><><div className="flex items-center justify-between gap-2"><strong>{t(`type_${d.type}`)}</strong><DispatchStatusCell row={d}/></div><p className="text-xs text-muted-foreground">{formatDateTime(d.createdAt,locale)} · {t("unit",{number:d.unitNumber??"—"})}</p><ChannelBadge channel={d.channel}/><p className="text-sm">{d.title??"—"}</p></>}/></section>;
+  <RecordList compact data={data} columns={columns} page={page} onPage={setPage} loading={loading} error={error} onRetry={()=>setRetry(n=>n+1)} empty={t("noDispatches")} card={d=><><div className="flex items-center justify-between gap-2"><strong>{overview.definitions.find(x=>x.id===d.definitionId)?.name??t(`type_${d.type}`)}</strong><DispatchStatusCell row={d}/></div><p className="text-xs text-muted-foreground">{formatDateTime(d.createdAt,locale)} · {t("unit",{number:d.unitNumber??"—"})}</p><ChannelBadge channel={d.channel}/><p className="text-sm">{d.title??"—"}</p></>}/></section>;
 }
 
 function ChannelBadge({channel}:{channel:Channel}){const t=useTranslations("automations");const I=channelIcon[channel];return <Badge variant="outline"><I aria-hidden="true"/>{t(`channel_${channel}`)}</Badge>;}
@@ -212,7 +218,7 @@ function ExecutionsTab({root,revision}:{root:string;revision:number}){
  useEffect(()=>{const c=new AbortController();setLoading(true);setError("");void api<unknown>(`${root}/executions?page=${page}&pageSize=20`,{signal:c.signal}).then(v=>{if(!c.signal.aborted)setData(readPage(v,readExecution));}).catch(e=>{if(!c.signal.aborted)setError(errorMessage(e,locale));}).finally(()=>{if(!c.signal.aborted)setLoading(false);});return()=>c.abort();},[api,root,page,revision,retry,locale]);
  const columns=useMemo<ColumnDef<AutomationExecution>[]>(()=>[
   {id:"date",header:t("date"),cell:({row})=>formatDateTime(row.original.startedAt,locale)},
-  {id:"type",header:t("type"),cell:({row})=>t(`type_${row.original.type}`)},
+  {id:"type",header:t("type"),cell:({row})=>row.original.type==="CUSTOM"?t("type_CUSTOM"):t(`type_${row.original.type}`)},
   {id:"trigger",header:t("trigger"),cell:({row})=>t(`trigger_${row.original.trigger}`)},
   {id:"status",header:ui("status"),cell:({row})=><Badge variant={row.original.status==="SUCCEEDED"?"default":"destructive"}>{t(`exec_${row.original.status}`)}</Badge>},
   {id:"counts",header:t("result"),cell:({row})=>t("countsFull",{evaluated:row.original.evaluated,dispatched:row.original.dispatched,skipped:row.original.skipped})},

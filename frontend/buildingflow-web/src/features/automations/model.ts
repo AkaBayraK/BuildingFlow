@@ -1,12 +1,14 @@
-export const automationTypes=["DUES_DUE_REMINDER","DUES_OVERDUE_REMINDER","PAYMENT_RECEIVED"] as const;
+export const automationTypes=["DUES_DUE_REMINDER","DUES_OVERDUE_REMINDER","PAYMENT_RECEIVED","CUSTOM"] as const;
+export const triggers=["DATE_OFFSET","EVENT","CALENDAR"] as const;
+export type Trigger=typeof triggers[number];
 export type AutomationType=typeof automationTypes[number];
 export const channels=["IN_APP","SMS","EMAIL"] as const;
 export type Channel=typeof channels[number];
 export const dispatchStatuses=["DELIVERED","QUEUED","SKIPPED","FAILED","CANCELLED"] as const;
 export type DispatchStatus=typeof dispatchStatuses[number];
-export type AutomationTypeInfo={type:AutomationType;defaultName:string;defaultOffsets:number[];minOffset:number;maxOffset:number;variables:string[];defaultTitle:string;defaultBody:string;smsTypeCode:string};
+export type AutomationTypeInfo={type:AutomationType;defaultName:string;defaultOffsets:number[];minOffset:number;maxOffset:number;variables:string[];defaultTitle:string;defaultBody:string;smsTypeCode:string;customTypeId:string|null;icon:string|null;trigger:Trigger|null;sourceCode:string|null};
 export type AutomationExecution={id:string;definitionId:string;type:AutomationType;businessDate:string;trigger:"SCHEDULE"|"EVENT"|"MANUAL";status:"SUCCEEDED"|"FAILED"|"DEAD_LETTER";attempts:number;startedAt:string;finishedAt:string|null;nextAttemptAt:string|null;evaluated:number;dispatched:number;skipped:number;errorCode:string|null;ruleVersion:number;correlationId:string};
-export type Automation={id:string;propertyId:string;type:AutomationType;status:"ACTIVE"|"PAUSED";name:string;startsOn:string|null;endsOn:string|null;sendHour:number;quietStartHour:number;quietEndHour:number;offsetDays:number[];inApp:boolean;sms:boolean;email:boolean;titleTemplate:string;bodyTemplate:string;ruleVersion:number;activatedAt:string|null;nextRunAt:string|null;lastExecution:AutomationExecution|null;version:number};
+export type Automation={id:string;propertyId:string;type:AutomationType;status:"ACTIVE"|"PAUSED";name:string;startsOn:string|null;endsOn:string|null;sendHour:number;quietStartHour:number;quietEndHour:number;offsetDays:number[];inApp:boolean;sms:boolean;email:boolean;titleTemplate:string;bodyTemplate:string;ruleVersion:number;activatedAt:string|null;nextRunAt:string|null;lastExecution:AutomationExecution|null;version:number;customTypeId:string|null;customTypeName:string|null;icon:string|null};
 export type ChannelCount={channel:Channel;delivered:number;queued:number;skipped:number;failed:number;cancelled:number};
 export type AutomationHealth={outboxPending:number;outboxRetrying:number;smsQueued:number;smsFailedToday:number;executionsFailed:number;executionsDeadLetter:number;lastExecutionAt:string|null;emailChannelAvailable:boolean;smsAccountEnabled:boolean;pushAvailable:boolean};
 export type AutomationOverview={propertyId:string;today:string;types:AutomationTypeInfo[];definitions:Automation[];activeCount:number;pausedCount:number;executionsToday:number;channels:ChannelCount[];health:AutomationHealth};
@@ -14,6 +16,10 @@ export type Dispatch={id:string;definitionId:string;type:AutomationType;channel:
 export type PreviewItem={unitNumber:string;period:string|null;balance:number;dueDate:string|null;offsetDays:number|null;recipients:number;channels:Channel[];title:string;body:string};
 export type AutomationPreview={definitionId:string;date:string;total:number;truncated:boolean;items:PreviewItem[]};
 export type Revision={id:string;ruleVersion:number;action:string;reason:string;snapshot:string;createdAt:string;createdBy:string};
+export type Condition={field:string;operator:"EQ"|"IN"|"NOT_IN";values:string[]};
+export type SourceInfo={code:string;fields:{name:string;options:string[]}[];dateFields:string[];triggers:Trigger[];recipientScopes:string[];variables:string[]};
+export type CustomType={id:string;propertyId:string|null;isPlatform:boolean;code:string;name:string;icon:string;sourceCode:string;conditions:Condition[];trigger:Trigger;dateField:string|null;defaultOffsets:number[];dayOfMonth:number|null;dayOfWeek:number|null;recipientScopes:string[];defaultTitle:string;defaultBody:string;status:"DRAFT"|"PUBLISHED"|"ARCHIVED";typeVersion:number;ruleCount:number;canEdit:boolean;version:number};
+export type TypePreview={records:number;recipients:number;truncated:boolean;items:PreviewItem[]};
 export type Page<T>={items:T[];page:number;pageSize:number;totalCount:number};
 
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
@@ -29,17 +35,33 @@ function fail(kind:string):never{throw new Error(`Invalid automation ${kind}`);}
 // Recipients arrive masked; a response that carries a full phone number is refused rather than rendered.
 const masked=(v:unknown)=>v===null||typeof v==="string"&&!/[0-9]{5}/.test(v);
 
+const strings=(v:unknown):v is string[]=>Array.isArray(v)&&v.every(x=>typeof x==="string");
 export function readType(v:unknown):AutomationTypeInfo{
- if(!obj(v)||!oneOf(automationTypes,v.type)||!text(v.defaultName)||!ints(v.defaultOffsets)||!Number.isSafeInteger(v.minOffset)||!Number.isSafeInteger(v.maxOffset)||!Array.isArray(v.variables)||!v.variables.every(x=>typeof x==="string")||!text(v.defaultTitle)||!text(v.defaultBody)||!text(v.smsTypeCode))fail("type");
- return v as AutomationTypeInfo;
+ if(!obj(v)||!oneOf(automationTypes,v.type)||!text(v.defaultName)||!ints(v.defaultOffsets)||!Number.isSafeInteger(v.minOffset)||!Number.isSafeInteger(v.maxOffset)||!strings(v.variables)||!text(v.defaultTitle)||!text(v.defaultBody)||!text(v.smsTypeCode))fail("type");
+ const custom=v.type==="CUSTOM";
+ if(custom?!guid(v.customTypeId)||!text(v.icon)||!oneOf(triggers,v.trigger)||!text(v.sourceCode):(v.customTypeId??null)!==null)fail("type");
+ return {...v,customTypeId:(v.customTypeId as string|null|undefined)??null,icon:(v.icon as string|null|undefined)??null,trigger:(v.trigger as Trigger|null|undefined)??null,sourceCode:(v.sourceCode as string|null|undefined)??null} as AutomationTypeInfo;
+}
+export function readSource(v:unknown):SourceInfo{
+ if(!obj(v)||!text(v.code)||!Array.isArray(v.fields)||!v.fields.every(f=>obj(f)&&text(f.name)&&strings(f.options))||!strings(v.dateFields)||!Array.isArray(v.triggers)||!v.triggers.every(x=>oneOf(triggers,x))||!strings(v.recipientScopes)||!strings(v.variables))fail("source");
+ return v as SourceInfo;
+}
+const condition=(v:unknown)=>obj(v)&&text(v.field)&&oneOf(["EQ","IN","NOT_IN"] as const,v.operator)&&strings(v.values);
+export function readCustomType(v:unknown,propertyId:string):CustomType{
+ if(!obj(v)||!guid(v.id)||!(v.propertyId===null||v.propertyId===propertyId)||typeof v.isPlatform!=="boolean"||v.isPlatform!==(v.propertyId===null)||!text(v.code)||!text(v.name)||!text(v.icon)||!text(v.sourceCode)||!Array.isArray(v.conditions)||!v.conditions.every(condition)||!oneOf(triggers,v.trigger)||!text(v.dateField,true)||!ints(v.defaultOffsets)||!(v.dayOfMonth===null||int(v.dayOfMonth,1))||!(v.dayOfWeek===null||int(v.dayOfWeek,1))||!strings(v.recipientScopes)||!text(v.defaultTitle)||!text(v.defaultBody)||!oneOf(["DRAFT","PUBLISHED","ARCHIVED"] as const,v.status)||!int(v.typeVersion,1)||!int(v.ruleCount)||typeof v.canEdit!=="boolean"||!int(v.version,1))fail("custom type");
+ return v as CustomType;
+}
+export function readTypePreview(v:unknown):TypePreview{
+ if(!obj(v)||!int(v.records)||!int(v.recipients)||typeof v.truncated!=="boolean"||!Array.isArray(v.items))fail("type preview");
+ return {records:Number(v.records),recipients:Number(v.recipients),truncated:v.truncated,items:readPreview({definitionId:"00000000-0000-0000-0000-000000000000",date:"2000-01-01",total:0,truncated:false,items:v.items}).items};
 }
 export function readExecution(v:unknown):AutomationExecution{
  if(!obj(v)||!guid(v.id)||!guid(v.definitionId)||!oneOf(automationTypes,v.type)||!day(v.businessDate)||!oneOf(["SCHEDULE","EVENT","MANUAL"] as const,v.trigger)||!oneOf(["SUCCEEDED","FAILED","DEAD_LETTER"] as const,v.status)||!int(v.attempts)||!instant(v.startedAt)||!instant(v.finishedAt,true)||!instant(v.nextAttemptAt,true)||!int(v.evaluated)||!int(v.dispatched)||!int(v.skipped)||!text(v.errorCode,true)||!int(v.ruleVersion,1)||!guid(v.correlationId))fail("execution");
  return v as AutomationExecution;
 }
 export function readAutomation(v:unknown,propertyId:string):Automation{
- if(!obj(v)||!guid(v.id)||v.propertyId!==propertyId||!oneOf(automationTypes,v.type)||!oneOf(["ACTIVE","PAUSED"] as const,v.status)||!text(v.name)||!day(v.startsOn,true)||!day(v.endsOn,true)||!hour(v.sendHour)||!hour(v.quietStartHour)||!hour(v.quietEndHour)||!ints(v.offsetDays)||typeof v.inApp!=="boolean"||typeof v.sms!=="boolean"||typeof v.email!=="boolean"||!text(v.titleTemplate)||!text(v.bodyTemplate)||!int(v.ruleVersion,1)||!instant(v.activatedAt,true)||!instant(v.nextRunAt,true)||!int(v.version,1))fail("definition");
- return {...v,lastExecution:v.lastExecution===null?null:readExecution(v.lastExecution)} as Automation;
+ if(!obj(v)||!guid(v.id)||v.propertyId!==propertyId||!oneOf(automationTypes,v.type)||!oneOf(["ACTIVE","PAUSED"] as const,v.status)||!text(v.name)||!day(v.startsOn,true)||!day(v.endsOn,true)||!hour(v.sendHour)||!hour(v.quietStartHour)||!hour(v.quietEndHour)||!ints(v.offsetDays)||typeof v.inApp!=="boolean"||typeof v.sms!=="boolean"||typeof v.email!=="boolean"||!text(v.titleTemplate)||!text(v.bodyTemplate)||!int(v.ruleVersion,1)||!instant(v.activatedAt,true)||!instant(v.nextRunAt,true)||!int(v.version,1)||(v.type==="CUSTOM")!==guid(v.customTypeId)||!text(v.customTypeName??null,true)||!text(v.icon??null,true))fail("definition");
+ return {...v,customTypeId:(v.customTypeId as string|null|undefined)??null,customTypeName:(v.customTypeName as string|null|undefined)??null,icon:(v.icon as string|null|undefined)??null,lastExecution:v.lastExecution===null?null:readExecution(v.lastExecution)} as Automation;
 }
 export function readOverview(v:unknown,propertyId:string):AutomationOverview{
  if(!obj(v)||v.propertyId!==propertyId||!day(v.today)||!Array.isArray(v.types)||!Array.isArray(v.definitions)||!int(v.activeCount)||!int(v.pausedCount)||!int(v.executionsToday)||!Array.isArray(v.channels)||!obj(v.health))fail("overview");
@@ -76,4 +98,4 @@ export function parseOffsets(value:string):number[]|null{
 }
 export function quiet(start:number,end:number,hour:number){return start!==end&&(start<end?hour>=start&&hour<end:hour>=start||hour<end);}
 /** Sample values used only for the editor preview; real messages are rendered by the server from current debt. */
-export const sampleValues:Record<string,string>={propertyName:"Altunbayrak Rezidans",unitNumber:"22",periodLabel:"Ocak 2026",chargeLabel:"aidat",amount:"1.000,00 TL",balance:"1.000,00 TL",dueDate:"31.01.2026",daysLeft:"2",dueText:"son ödemeye 2 gün kaldı",daysOverdue:"7",paidAmount:"1.000,00 TL",paidDate:"29.01.2026",unitBalance:"0,00 TL"};
+export const sampleValues:Record<string,string>={today:"06.11.2026",requestCategory:"Asansör",requestPriority:"Yüksek",requestStatus:"Kaydedildi",createdDate:"05.11.2026",daysOpen:"1",contractTitle:"Asansör bakım sözleşmesi",startDate:"01.01.2026",endDate:"31.12.2026",maintenanceTitle:"Asansör periyodik bakımı",maintenanceType:"Bakım",plannedDate:"08.11.2026",location:"A blok",meterName:"Su sayacı",meterKind:"Su",lastReadingDate:"01.10.2026",commonAreaName:"Toplantı salonu",reservationDate:"10.11.2026",startsAt:"18:00",endsAt:"20:00",propertyName:"Altunbayrak Rezidans",unitNumber:"22",periodLabel:"Ocak 2026",chargeLabel:"aidat",amount:"1.000,00 TL",balance:"1.000,00 TL",dueDate:"31.01.2026",daysLeft:"2",dueText:"son ödemeye 2 gün kaldı",daysOverdue:"7",paidAmount:"1.000,00 TL",paidDate:"29.01.2026",unitBalance:"0,00 TL"};

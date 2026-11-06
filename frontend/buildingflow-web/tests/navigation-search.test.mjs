@@ -10,13 +10,13 @@ const P='77777777-7777-4777-8777-777777777777';
 const context=(patch={})=>({roles:['SUPER_ADMIN'],sessionContexts:false,centralPeople:false,propertyId:P,property:{id:P,type:'SITE'},...patch});
 const ids=items=>items.map(item=>item.id);
 
-test('six semantic groups keep each enabled destination once and remove only the duplicate user placeholder',()=>{
+test('seven semantic groups keep each enabled destination once and remove only the duplicate user placeholder',()=>{
  const m=createNavigation(context(),'/');
- assert.deepEqual(m.groups.map(g=>g.id),['overview','property','finance','operations','communication','administration']);
+ assert.deepEqual(m.groups.map(g=>g.id),['overview','property','finance','operations','communication','automation','administration']);
  assert.deepEqual(m.groups.map(g=>ids(g.items)),[
   ['dashboard','assistant','integrations'],['properties','overview','buildings','units','people','shared-areas','parking'],
   ['accounting','dues','payments','expenses','reports'],['requests','maintenance','meters','suppliers'],
-  ['announcements','surveys','documents','website','sms','automations'],['users','consents','definitions','settings','ai-status','qa-center']
+  ['announcements','surveys','documents','website','sms'],['automations','automation-types','automation-history','automation-health'],['users','consents','definitions','settings','ai-status','qa-center']
  ]);
  const all=m.groups.flatMap(g=>g.items);
  assert.deepEqual(navigationDuplicates([...all,m.account,m.home]),[]);

@@ -924,6 +924,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("CustomTrigger")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("custom_trigger");
+
+                    b.Property<Guid?>("CustomTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("custom_type_id");
+
                     b.Property<bool>("EmailEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_email_enabled");
@@ -1018,17 +1027,26 @@ namespace BuildingFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomTypeId");
+
                     b.HasIndex("Status")
                         .HasDatabaseName("idx_automation_definitions_status");
+
+                    b.HasIndex("PropertyId", "CustomTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_automation_definitions_property_id_custom_type_id")
+                        .HasFilter("is_deleted = false AND custom_type_id IS NOT NULL");
 
                     b.HasIndex("PropertyId", "Type")
                         .IsUnique()
                         .HasDatabaseName("uidx_automation_definitions_property_id_type")
-                        .HasFilter("is_deleted = false");
+                        .HasFilter("is_deleted = false AND type <> 'CUSTOM'");
 
                     b.ToTable("automation_definitions", null, t =>
                         {
                             t.HasCheckConstraint("chk_automation_definitions_channels", "is_in_app_enabled OR is_sms_enabled OR is_email_enabled");
+
+                            t.HasCheckConstraint("chk_automation_definitions_custom", "(type = 'CUSTOM') = (custom_type_id IS NOT NULL AND custom_trigger IS NOT NULL)");
 
                             t.HasCheckConstraint("chk_automation_definitions_dates", "ends_on IS NULL OR starts_on IS NULL OR ends_on >= starts_on");
 
@@ -1229,6 +1247,225 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasDatabaseName("uidx_automation_revisions_definition_id_rule_version");
 
                     b.ToTable("automation_revisions", (string)null);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AutomationTypeDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Conditions")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("conditions");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("DateField")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("date_field");
+
+                    b.Property<int?>("DayOfMonth")
+                        .HasColumnType("integer")
+                        .HasColumnName("day_of_month");
+
+                    b.Property<int?>("DayOfWeek")
+                        .HasColumnType("integer")
+                        .HasColumnName("day_of_week");
+
+                    b.Property<string>("DefaultBody")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("default_body");
+
+                    b.PrimitiveCollection<int[]>("DefaultOffsets")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("default_offsets");
+
+                    b.Property<string>("DefaultTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("default_title");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("icon");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid?>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.PrimitiveCollection<string[]>("RecipientScopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("recipient_scopes");
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("source_code");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TriggerKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("trigger_kind");
+
+                    b.Property<int>("TypeVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_version");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_automation_types_code")
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("PropertyId", "Status")
+                        .HasDatabaseName("idx_automation_types_property_id_status");
+
+                    b.ToTable("automation_types", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_automation_types_calendar", "(day_of_month IS NULL OR day_of_month BETWEEN 1 AND 28) AND (day_of_week IS NULL OR day_of_week BETWEEN 1 AND 7)");
+
+                            t.HasCheckConstraint("chk_automation_types_trigger", "(trigger_kind = 'DATE_OFFSET') = (date_field IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AutomationTypeRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid?>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("snapshot");
+
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("type_id");
+
+                    b.Property<int>("TypeVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_version");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId", "TypeVersion")
+                        .IsUnique()
+                        .HasDatabaseName("uidx_automation_type_revisions_type_id_type_version");
+
+                    b.ToTable("automation_type_revisions", (string)null);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.BankLineDecision", b =>
@@ -7333,6 +7570,15 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("sms_message_id");
 
+                    b.Property<string>("SourceCode")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("source_code");
+
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -7350,7 +7596,7 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(40)")
                         .HasColumnName("type");
 
-                    b.Property<Guid>("UnitId")
+                    b.Property<Guid?>("UnitId")
                         .HasColumnType("uuid")
                         .HasColumnName("unit_id");
 
@@ -9484,7 +9730,7 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("modified_by");
 
-                    b.Property<Guid>("PersonId")
+                    b.Property<Guid?>("PersonId")
                         .HasColumnType("uuid")
                         .HasColumnName("person_id");
 
@@ -16748,6 +16994,11 @@ namespace BuildingFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("BuildingFlow.Domain.AutomationDefinition", b =>
                 {
+                    b.HasOne("BuildingFlow.Domain.AutomationTypeDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("CustomTypeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BuildingFlow.Domain.Property", null)
                         .WithMany()
                         .HasForeignKey("PropertyId")
@@ -16769,6 +17020,23 @@ namespace BuildingFlow.Infrastructure.Migrations
                     b.HasOne("BuildingFlow.Domain.AutomationDefinition", null)
                         .WithMany()
                         .HasForeignKey("DefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AutomationTypeDefinition", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.Property", null)
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BuildingFlow.Domain.AutomationTypeRevision", b =>
+                {
+                    b.HasOne("BuildingFlow.Domain.AutomationTypeDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -17597,8 +17865,7 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("PropertyId", "UnitId")
                         .HasPrincipalKey("PropertyId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.OutboxMessage", b =>
@@ -17899,8 +18166,7 @@ namespace BuildingFlow.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("PropertyId", "PersonId")
                         .HasPrincipalKey("PropertyId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BuildingFlow.Domain.PersonPropertyScope", b =>

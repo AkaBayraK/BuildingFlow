@@ -6,11 +6,17 @@ using BuildingFlow.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace BuildingFlow.Infrastructure;
 
-internal sealed record AutomationCandidate(Guid UnitId, string UnitNumber, Guid? ChargeId, Guid? PaymentId, int? Offset, DateOnly? Period, DateOnly? DueDate,
-    decimal Balance, IReadOnlyDictionary<string, string> Values, IReadOnlyList<Person> Recipients);
+internal sealed record AutomationCandidate(Guid? UnitId, string? UnitNumber, Guid? ChargeId, Guid? PaymentId, int? Offset, DateOnly? Period, DateOnly? DueDate,
+    decimal Balance, IReadOnlyDictionary<string, string> Values, IReadOnlyList<AutomationRecipient> Recipients, string? SourceCode = null, Guid? SourceId = null, DateOnly? EventDate = null);
+
+// Id is the dedup identity (property Person or, for management accounts, the central person); UserId is the account that reads the in-app inbox.
+internal sealed record AutomationRecipient(Guid Id, Guid? PersonId, string? UserId, string? PhoneNumber, string? Email)
+{
+    public static AutomationRecipient From(Person p) => new(p.Id, p.Id, p.LinkedUserId, p.PhoneNumber, p.Email);
+}
 
 // Evaluates one definition against current debt; the caller holds the Property lock, so payments and reminders never interleave.
-public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IMessageOutbox outbox, AutomationChannelOptions channels, TimeProvider clock)
+public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IMessageOutbox outbox, AutomationChannelOptions channels, TimeProvider clock, AutomationSourceReader sources)
 {
     public const int MaxCandidates = 2000, PaymentLookbackHours = 72;
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
@@ -36,14 +42,25 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
         foreach (var (candidate, person, channel, key) in planned.Where(x => !existing.Contains(x.key)))
         {
             var row = New(definition, execution, candidate, person.Id, channel, key);
-            var values = new Dictionary<string, string>(candidate.Values) { ["propertyName"] = property.Name };
+            var values = new Dictionary<string, string>(candidate.Values) { ["propertyName"] = property.Name, ["today"] = today.ToString("dd.MM.yyyy", Turkish) };
             if (await SendAsync(definition, execution, row, person, values, token)) dispatched++; else skipped++;
         }
         return (candidates.Count, dispatched, skipped);
     }
 
     internal async Task<IReadOnlyList<AutomationCandidate>> CandidatesAsync(AutomationDefinition definition, DateOnly today, CancellationToken token) =>
-        definition.Type == AutomationType.PAYMENT_RECEIVED ? await PaymentCandidatesAsync(definition, today, token) : await ChargeCandidatesAsync(definition, today, token);
+        definition.Type switch {
+            AutomationType.PAYMENT_RECEIVED => await PaymentCandidatesAsync(definition, today, token),
+            AutomationType.CUSTOM => await CustomCandidatesAsync(definition, today, token),
+            _ => await ChargeCandidatesAsync(definition, today, token)
+        };
+
+    private async Task<IReadOnlyList<AutomationCandidate>> CustomCandidatesAsync(AutomationDefinition d, DateOnly today, CancellationToken token)
+    {
+        var type = await db.Set<AutomationTypeDefinition>().AsNoTracking().SingleOrDefaultAsync(t => t.Id == d.CustomTypeId, token);
+        if (type is null || type.Status != AutomationTypeStatus.PUBLISHED || type.PropertyId is { } owner && owner != d.PropertyId) return [];
+        return await sources.CandidatesAsync(d, type, today, d.ActivatedAt ?? clock.GetUtcNow(), token);
+    }
 
     internal static NotificationChannel[] Channels(AutomationDefinition d, bool quiet) =>
         [.. new[] { (d.InAppEnabled, NotificationChannel.IN_APP), (d.SmsEnabled && !quiet, NotificationChannel.SMS), (d.EmailEnabled && !quiet, NotificationChannel.EMAIL) }
@@ -93,7 +110,7 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
         var fallback = await PrimaryContactsAsync(d.PropertyId, unitIds, today, token);
         return payments.Select(p => {
             var people = allocations.Where(a => a.PaymentId == p.Id).SelectMany(a => chargeRecipients[a.ChargeId]).DistinctBy(x => x.Id).ToList();
-            if (people.Count == 0 && fallback.TryGetValue(p.UnitId, out var primary)) people.Add(primary);
+            if (people.Count == 0 && fallback.TryGetValue(p.UnitId, out var primary)) people.Add(AutomationRecipient.From(primary));
             var values = new Dictionary<string, string> {
                 ["unitNumber"] = units[p.UnitId], ["paidAmount"] = Money(p.Amount), ["paidDate"] = p.PaidDate.ToString("dd.MM.yyyy", Turkish),
                 ["unitBalance"] = Money(balances.GetValueOrDefault(p.UnitId))
@@ -110,7 +127,7 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
 
     // Debtor snapshot first (06.1); legacy or unit-level debt falls back to the unit's current primary contact. Either way the person
     // must still hold a current relationship to that unit, so a tenant who moved out stops receiving reminders.
-    private async Task<Dictionary<Guid, IReadOnlyList<Person>>> RecipientsAsync(Guid property, (Guid ChargeId, Guid UnitId)[] charges, DateOnly today, CancellationToken token)
+    private async Task<Dictionary<Guid, IReadOnlyList<AutomationRecipient>>> RecipientsAsync(Guid property, (Guid ChargeId, Guid UnitId)[] charges, DateOnly today, CancellationToken token)
     {
         var chargeIds = charges.Select(c => c.ChargeId).Distinct().ToArray();
         var unitIds = charges.Select(c => c.UnitId).Distinct().ToArray();
@@ -121,12 +138,12 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
             .Select(o => new { o.UnitId, o.PersonId, o.IsPrimaryContact }).ToListAsync(token);
         var personIds = debtors.Select(d => d.PersonId).Concat(current.Select(c => c.PersonId)).Distinct().ToArray();
         var people = await db.People.AsNoTracking().Where(p => p.PropertyId == property && personIds.Contains(p.Id) && p.IsEnabled).ToDictionaryAsync(p => p.Id, token);
-        var result = new Dictionary<Guid, IReadOnlyList<Person>>();
+        var result = new Dictionary<Guid, IReadOnlyList<AutomationRecipient>>();
         foreach (var (chargeId, unitId) in charges.DistinctBy(c => c.ChargeId))
         {
             var debtor = debtors.FirstOrDefault(d => d.ChargeId == chargeId);
             var personId = debtor?.PersonId ?? current.Where(c => c.UnitId == unitId && c.IsPrimaryContact).Select(c => (Guid?)c.PersonId).FirstOrDefault();
-            var linked = personId is { } id && current.Any(c => c.UnitId == unitId && c.PersonId == id) && people.TryGetValue(id, out var person) ? new[] { person } : Array.Empty<Person>();
+            var linked = personId is { } id && current.Any(c => c.UnitId == unitId && c.PersonId == id) && people.TryGetValue(id, out var person) ? new[] { AutomationRecipient.From(person) } : Array.Empty<AutomationRecipient>();
             result[chargeId] = linked;
         }
         return result;
@@ -144,23 +161,26 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
     private NotificationDispatch New(AutomationDefinition d, AutomationExecution e, AutomationCandidate c, Guid? person, NotificationChannel channel, string key)
     {
         var row = new NotificationDispatch(e, d.Type, key, channel, c.UnitId).About(c.ChargeId, c.PaymentId, person, c.Offset, c.Period, c.Balance);
+        if (c.SourceCode is { } code && c.SourceId is { } id) row.FromSource(code, id);
         db.Add(row); return row;
     }
 
-    private async Task<bool> SendAsync(AutomationDefinition d, AutomationExecution e, NotificationDispatch row, Person person, Dictionary<string, string> values, CancellationToken token)
+    private async Task<bool> SendAsync(AutomationDefinition d, AutomationExecution e, NotificationDispatch row, AutomationRecipient person, Dictionary<string, string> values, CancellationToken token)
     {
         var (title, body) = Render(d, values);
+        if (d.Type == AutomationType.CUSTOM) values["message"] = body;
         switch (row.Channel)
         {
             case NotificationChannel.IN_APP:
-                if (person.LinkedUserId is not { } user || !await db.PropertyMemberships.AnyAsync(m => m.PropertyId == d.PropertyId && m.UserId == user && m.IsEnabled, token))
+                if (person.UserId is not { } user || !await db.PropertyMemberships.AnyAsync(m => m.PropertyId == d.PropertyId && m.UserId == user && m.IsEnabled, token))
                 { row.Skip("NO_APP_ACCOUNT"); return false; }
-                var message = new PersonMessage(d.PropertyId, person.Id, row.Id, row.DedupKey, user, title, body);
+                var message = new PersonMessage(d.PropertyId, person.PersonId, row.Id, row.DedupKey, user, title, body);
                 db.PersonMessages.Add(message); row.Delivered(message.Id, title, "Uygulama hesabı"); return true;
             case NotificationChannel.SMS:
                 var phone = SmsText.NormalizePhone(person.PhoneNumber);
                 if (phone is null) { row.Skip(string.IsNullOrWhiteSpace(person.PhoneNumber) ? "NO_PHONE" : SmsQueue.PhoneInvalid); return false; }
-                var result = await sms.EnqueueAsync(d.PropertyId, AutomationCatalog.Get(d.Type).SmsTypeCode, phone, values, person.Id, row.Id, token);
+                var smsType = d.Type == AutomationType.CUSTOM ? SmsTypes.AutomationNotice : AutomationCatalog.Get(d.Type).SmsTypeCode;
+                var result = await sms.EnqueueAsync(d.PropertyId, smsType, phone, values, person.PersonId, row.Id, token);
                 if (result.MessageId is { } smsId && result.Status == SmsQueue.Queued) { row.QueuedSms(smsId, SmsText.MaskPhone(phone)); return true; }
                 if (result.MessageId is { } failedId) row.Failed(result.ErrorCode ?? SmsQueue.Failed, failedId, SmsText.MaskPhone(phone));
                 else row.Skip(result.ErrorCode ?? SmsQueue.Skipped, SmsText.MaskPhone(phone));
@@ -176,7 +196,8 @@ public sealed class AutomationEngine(BuildingFlowDbContext db, ISmsQueue sms, IM
     }
 
     private static string Key(AutomationDefinition d, AutomationCandidate c, Guid? person, NotificationChannel channel) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{d.PropertyId}|{d.Type}|{c.ChargeId}|{c.PaymentId}|{c.Offset}|{channel}|{person}"))).ToLowerInvariant();
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{d.PropertyId}|{d.Type}|{c.ChargeId}|{c.PaymentId}|{c.Offset}|{channel}|{person}" +
+            (d.Type == AutomationType.CUSTOM ? $"|{d.CustomTypeId}|{c.SourceCode}|{c.SourceId}|{c.EventDate:yyyy-MM-dd}" : "")))).ToLowerInvariant();
     public static string Money(decimal value) => value.ToString("N2", Turkish) + " TL";
     private static string Clip(string value, int max) => value.Length <= max ? value : value[..max];
     public static string MaskEmail(string email)
