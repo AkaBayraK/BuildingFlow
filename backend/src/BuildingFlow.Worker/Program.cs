@@ -20,6 +20,7 @@ builder.Services.AddHostedService<SmsDispatchWorker>();
 builder.Services.AddHostedService<WebsiteRetentionWorker>();
 builder.Services.AddHostedService<WebsiteDomainWorker>();
 builder.Services.AddHostedService<LatePenaltyWorker>();
+if (!string.Equals(builder.Configuration["Automations:WorkerEnabled"], "false", StringComparison.OrdinalIgnoreCase)) builder.Services.AddHostedService<AutomationWorker>();
 if(string.Equals(builder.Configuration["Payments:Reconciliation:WorkerEnabled"],"true",StringComparison.OrdinalIgnoreCase))builder.Services.AddHostedService<OnlinePaymentWorker>();
 if (string.Equals(builder.Configuration["Parking:Operations:Enabled"], "true", StringComparison.OrdinalIgnoreCase)) builder.Services.AddHostedService<ParkingOperationsWorker>();
 await builder.Build().RunAsync();

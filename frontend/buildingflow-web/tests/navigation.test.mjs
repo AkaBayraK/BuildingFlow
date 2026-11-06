@@ -11,7 +11,7 @@ test('role matrix preserves finance, personal data and users visibility without 
  for(const role of [null,'RESIDENT','OWNER','UNKNOWN','ACCOUNTANT','MANAGER','SITE_ADMIN','SUPER_ADMIN']){
   const m=createNavigation(context({roles:role?[role]:[]}),'/');
   const manager=['MANAGER','SITE_ADMIN','SUPER_ADMIN'].includes(role),finance=manager||role==='ACCOUNTANT';
-  for(const id of ['people','website','requests','sms'])assert.equal(!!byId(m,id),manager,`${role}:${id}`);
+  for(const id of ['people','website','requests','sms','automations'])assert.equal(!!byId(m,id),manager,`${role}:${id}`);
   for(const id of ['maintenance','meters','reports','dues','payments','expenses'])assert.equal(!!byId(m,id),finance,`${role}:${id}`);
   assert.equal(!!byId(m,'users'),['SITE_ADMIN','SUPER_ADMIN'].includes(role));
   assert.equal(!!byId(m,'consents'),manager);

@@ -232,6 +232,9 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition LatePenaltyState = new("BF_LATE_PENALTY_STATE", "Gecikme politikası bu işlem için uygun durumda değil; güncel kaydı kontrol edin.", "warning");
     public static readonly ErrorDefinition LatePenaltyCrystallized = new("BF_LATE_PENALTY_CRYSTALLIZED", "Bu tarih kesinleşmiş gecikme tahakkukunun içinde kalıyor; geçmiş tahakkuklar sessizce değiştirilemez.", "warning");
     public static readonly ErrorDefinition LatePenaltySwitchInvalid = new("BF_LATE_PENALTY_SWITCH_INVALID", "Uygulama ayarı için bugünden önce olmayan yürürlük tarihi ve gerekçe girin.", "error");
+    public static readonly ErrorDefinition AutomationInvalid = new("BF_AUTOMATION_INVALID", "Otomasyon alanlarını kontrol edin: geçerli saatler, gün listesi, en az bir kanal ve izinli şablon değişkenleri.", "error");
+    public static readonly ErrorDefinition AutomationConflict = new("BF_AUTOMATION_CONFLICT", "Otomasyon kaydı değişmiş veya bu tür için zaten tanımlı; güncel kaydı yükleyin.", "warning");
+    public static readonly ErrorDefinition AutomationQuietHours = new("BF_AUTOMATION_QUIET_HOURS", "Şu an sessiz saat aralığındasınız; SMS ve e-posta gönderen otomasyon şimdi çalıştırılamaz.", "warning");
     public static readonly ErrorDefinition LatePenaltyRequestConflict = new("BF_LATE_PENALTY_REQUEST_CONFLICT", "Bu istek kimliği farklı bir gecikme işlemi için kullanılmış.", "warning");
     public static readonly ErrorDefinition LatePenaltyRebuildBlocked = new("BF_LATE_PENALTY_REBUILD_BLOCKED", "Bu tarihten sonra ödenmiş veya muaf tutulmuş gecikme tahakkuku var; önce sonraki ödemeleri iptal edin.", "warning");
     public static readonly ErrorDefinition LatePenaltyBalance = new("BF_LATE_PENALTY_BALANCE", "Gecikme tazminatı dağıtımı ödeme tarihindeki tazminat bakiyesini aşamaz.", "warning");
@@ -516,6 +519,9 @@ public static class ErrorCatalog
         LatePenaltyCrystallized,
         LatePenaltySwitchInvalid,
         LatePenaltyRequestConflict,
+        AutomationInvalid,
+        AutomationConflict,
+        AutomationQuietHours,
         LatePenaltyRebuildBlocked,
         LatePenaltyBalance,
         LatePenaltyWaive,

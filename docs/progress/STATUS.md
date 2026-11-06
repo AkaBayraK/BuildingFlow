@@ -1,3 +1,9 @@
+## BF-AUTO P0 — Otomasyon ve Bildirim Merkezi — 06.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
+
+Kullanıcı master promptunun P0'ı: otomasyon çekirdeği, aidat vade hatırlatma (-3..0), gecikme uyarısı (+1/+7/+15), ödeme alındı bildirimi; kanallar uygulama içi (mobil/web gelen kutusu, çekme modeli), SMS (mevcut BF-SMS kuyruğu, MOCK), e-posta (SMTP varsa outbox). Push/FCM sonraki faz. Web `/automations`. Testler [TESTING.md](../TESTING.md); sözleşme [automations.md](../api/automations.md). GitHub issue açılmadı.
+[TOKEN] Giriş: BİLGİ MEVCUT DEĞİL. Çıkış: BİLGİ MEVCUT DEĞİL. Toplam: BİLGİ MEVCUT DEĞİL. Kalan context: BİLGİ MEVCUT DEĞİL.
+[SONRAKİ ADIM] Kullanıcı ekran kontrolü ve FAZ 03 (push/gerçek sağlayıcı) veya FAZ 05 (mobil tercih/deep link) onayı.
+
 ## BAKIM — Dashboard dolu/boş bağlantıları — 03.11.2026 — TEKNİK TESLİM
 
 **Bakım3/3=%100,00.** Ürün177/188=%94,15 korunur; yeni faz veya öncekiiş kabulü yok. #120In review/açık, kullanıcı incelemesi bekliyor.

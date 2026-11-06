@@ -49,7 +49,8 @@ public sealed class MockSmsProvider : ISmsProvider
 }
 
 // One message per transaction: the account row stays locked while the provider call runs so balance checks and debits cannot race.
-public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protector, IEnumerable<ISmsProvider> providers, TimeProvider clock, ISmsPolicyResolver? resolver = null)
+public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protector, IEnumerable<ISmsProvider> providers, TimeProvider clock, ISmsPolicyResolver? resolver = null,
+    IEnumerable<ISmsSendGuard>? guards = null)
 {
     public const int BatchSize = 20;
     public const string ProviderUnavailable = "PROVIDER_UNAVAILABLE", PayloadUnreadable = "PAYLOAD_UNREADABLE", ProviderError = "PROVIDER_ERROR";
@@ -97,6 +98,8 @@ public sealed class SmsDispatcher(BuildingFlowDbContext db, ISmsProtector protec
                 : await (resolver ?? new SmsPolicyResolver(db, SmsPolicyCatalog.Default, new CommercialConsentStore(db, clock))).ResolveAsync(message.PropertyId, type, payload.PhoneNumber, token);
             if (!policy.Allowed) { message.Reject(policy.ErrorCode!); return; }
         }
+        foreach (var guard in guards ?? [])
+            if (await guard.BlockReasonAsync(message.Id, token) is { } blocked) { message.Reject(blocked); return; }
         SmsSendResult result;
         try { result = await provider.SendAsync(new(account, payload.PhoneNumber, payload.Body), token); }
         catch (Exception error) when (error is HttpRequestException or TimeoutException) { result = new(false, null, ProviderError, false); }

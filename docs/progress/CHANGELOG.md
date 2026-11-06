@@ -1,3 +1,7 @@
+## 06.11.2026 — BF-AUTO P0 Otomasyon ve Bildirim Merkezi
+
+- Yeni tablolar automation_definitions/revisions/executions, notification_dispatches; AutomationWorker; `/api/v1/properties/{id}/automations`; üç SMS türü; ISmsSendGuard; web Otomasyonlar ekranı ve menü.
+
 ## 03.11.2026 — Dashboard dolu/boş bölüm listesi bakımı
 
 - KPI ve doluluk grafiği sayıları alan kapsamlı dolu/boş listeye bağlandı; ikonlu TR/EN filtre ve temizleme, sunucuda pagination/count/search.

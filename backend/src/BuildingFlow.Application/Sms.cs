@@ -41,6 +41,8 @@ public interface ISmsQueue
     Task<SmsQueueResult> EnqueueAsync(Guid property, string typeCode, string? phoneNumber, IReadOnlyDictionary<string, string> parameters,
         Guid? personId, Guid? requestId, CancellationToken token);
 }
+// Lets a business module veto a queued SMS right before the provider call (for example a reminder whose debt was paid meanwhile).
+public interface ISmsSendGuard { Task<string?> BlockReasonAsync(Guid smsMessageId, CancellationToken token); }
 public interface ISmsStore
 {
     Task<SmsOverview?> OverviewAsync(Guid property, AccessScope access, CancellationToken token);
@@ -58,11 +60,18 @@ public static class SmsTypes
 {
     public const string PersonRegistered = "PERSON_REGISTERED";
     public const string Manual = "MANUAL";
+    public const string DuesReminder = "DUES_REMINDER", DuesOverdue = "DUES_OVERDUE", PaymentReceived = "PAYMENT_RECEIVED";
     public static IReadOnlyList<SmsTypeDefinition> All { get; } = Array.AsReadOnly(new[]
     {
         new SmsTypeDefinition(PersonRegistered, SmsPurpose.TRANSACTIONAL, ["code", "fullName", "propertyName"], ["code"],
             "Sayın {{fullName}}, {{code}} kod ile kişi kaydınız kayıt altına alınmıştır. {{propertyName}}", SmsCategory.ACCOUNT_VERIFICATION),
-        new SmsTypeDefinition(Manual, SmsPurpose.OPERATIONAL, ["message"], [], "{{message}}", SmsCategory.MAINTENANCE_NOTIFICATION)
+        new SmsTypeDefinition(Manual, SmsPurpose.OPERATIONAL, ["message"], [], "{{message}}", SmsCategory.MAINTENANCE_NOTIFICATION),
+        new SmsTypeDefinition(DuesReminder, SmsPurpose.OPERATIONAL, ["propertyName", "unitNumber", "periodLabel", "chargeLabel", "amount", "balance", "dueDate", "daysLeft", "dueText"], [],
+            "{{propertyName}}: {{unitNumber}} no.lu bölümünüzün {{periodLabel}} borcundan kalan {{balance}} için son ödeme {{dueDate}} ({{dueText}}).", SmsCategory.DUES_NOTIFICATION),
+        new SmsTypeDefinition(DuesOverdue, SmsPurpose.OPERATIONAL, ["propertyName", "unitNumber", "periodLabel", "chargeLabel", "amount", "balance", "dueDate", "daysOverdue"], [],
+            "{{propertyName}}: {{unitNumber}} no.lu bölümünüzün {{periodLabel}} borcundan kalan {{balance}} tutarın vadesi {{daysOverdue}} gün önce geçti.", SmsCategory.DUES_NOTIFICATION),
+        new SmsTypeDefinition(PaymentReceived, SmsPurpose.OPERATIONAL, ["propertyName", "unitNumber", "paidAmount", "paidDate", "unitBalance"], [],
+            "{{propertyName}}: {{unitNumber}} no.lu bölümünüz için {{paidDate}} tarihli {{paidAmount}} tahsilat kaydedildi. Kalan borç: {{unitBalance}}.", SmsCategory.DUES_NOTIFICATION)
     });
     public static SmsTypeDefinition? Find(string? code) => All.SingleOrDefault(type => type.Code == code);
     // Commercial types are only previewable until the campaign sending flow is published; they are not part of the operational overview.

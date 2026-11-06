@@ -1,3 +1,7 @@
+## BF-AUTO P0 — 06.11.2026 — devam bağlamı
+
+Kapsam: kullanıcı onayıyla P0 kodlandı (FAZ 00 analizi [automations.md](../api/automations.md)). Karar: mobil bildirim çekme modeli (mevcut notice polling), FCM/APNs sonraki faz. Açık: push, gerçek SMS sağlayıcısı/Hub adaptörü, mobil tercih ve deep link, P1 otomasyonları, roadmap kaydı.
+
 ## BAKIM — Dashboard dolu/boş bağlantıları — 03.11.2026 — TEKNİK TESLİM
 
 **Bakım3/3=%100,00.** Ürün177/188=%94,15 korunur; yeni faz veya öncekiiş kabulü yok. #120In review/açık, kullanıcı incelemesi bekliyor.

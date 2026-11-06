@@ -9,8 +9,8 @@ export type NavigationContext = {
   propertyId: string | null;
   property: {id: string; type: "APARTMENT" | "SITE" | "RESIDENCE" | "MIXED"} | null;
 };
-export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList" | "Shapes" | "FlaskConical" | "Sparkles" | "Gauge" | "Plug";
-type LabelKey = "sidebarUnitsGroup" | "sidebarAdminGroup" | "navigationOverviewGroup" | "navigationPropertyGroup" | "navigationFinanceGroup" | "navigationOperationsGroup" | "navigationCommunicationGroup" | "navigationSystemGroup" | "navDashboard" | "navAssistant" | "properties" | "navOverview" | "navBuildings" | "apartments" | "navUnits" | "navMeters" | "navMaintenance" | "navAccounting" | "navReports" | "navDues" | "navPayments" | "navExpenses" | "navAnnouncements" | "navSurveys" | "navDocuments" | "navWebsite" | "shellRequests" | "people" | "navSms" | "navUsers" | "navConsents" | "navAccount" | "overview" | "shellSharedAreas" | "shellParking" | "shellSuppliers" | "shellDefinitions" | "shellUsers" | "shellSettings" | "shellQaCenter" | "shellAiStatus" | "navIntegrations";
+export type NavigationIcon = "Building2" | "CalendarCheck2" | "LayoutDashboard" | "DoorOpen" | "Users" | "FileText" | "ReceiptText" | "WalletCards" | "ChartNoAxesCombined" | "Plus" | "Car" | "BriefcaseBusiness" | "Wrench" | "Settings" | "SlidersHorizontal" | "MessageSquareText" | "UserCog" | "ShieldCheck" | "UserRound" | "ListChecks" | "ClipboardList" | "Shapes" | "FlaskConical" | "Sparkles" | "Gauge" | "Plug" | "BellRing";
+type LabelKey = "sidebarUnitsGroup" | "sidebarAdminGroup" | "navigationOverviewGroup" | "navigationPropertyGroup" | "navigationFinanceGroup" | "navigationOperationsGroup" | "navigationCommunicationGroup" | "navigationSystemGroup" | "navDashboard" | "navAssistant" | "properties" | "navOverview" | "navBuildings" | "apartments" | "navUnits" | "navMeters" | "navMaintenance" | "navAccounting" | "navReports" | "navDues" | "navPayments" | "navExpenses" | "navAnnouncements" | "navSurveys" | "navDocuments" | "navWebsite" | "shellRequests" | "people" | "navSms" | "navUsers" | "navConsents" | "navAccount" | "overview" | "shellSharedAreas" | "shellParking" | "shellSuppliers" | "shellDefinitions" | "shellUsers" | "shellSettings" | "shellQaCenter" | "shellAiStatus" | "navIntegrations" | "navAutomations";
 export type NavigationLabel = {namespace: "ui"; key: LabelKey} | {namespace: "sessionWorkspaces"; key: "title"};
 type ItemBase = {
   id: string;
@@ -86,7 +86,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
   const operations: NavigationItem[] = [
     ...(permissions.finance ? [module("maintenance", "navMaintenance", "CalendarCheck2"), module("meters", "navMeters", "ChartNoAxesCombined"), module("accounting", "navAccounting", "ChartNoAxesCombined"), module("reports", "navReports", "ChartNoAxesCombined"), module("dues", "navDues", "ReceiptText"), module("payments", "navPayments", "WalletCards"), module("expenses", "navExpenses", "ChartNoAxesCombined")] : []),
     module("announcements", "navAnnouncements", "FileText"), module("documents", "navDocuments", "FileText"),
-    ...(permissions.manager ? [module("surveys", "navSurveys", "ClipboardList"), module("website", "navWebsite", "Building2"), module("requests", "shellRequests", "Wrench"), module("sms", "navSms", "MessageSquareText")] : []),
+    ...(permissions.manager ? [module("surveys", "navSurveys", "ClipboardList"), module("website", "navWebsite", "Building2"), module("requests", "shellRequests", "Wrench"), module("sms", "navSms", "MessageSquareText"), link("automations", base ? `${base}/automations` : "/automations", "navAutomations", "BellRing")] : []),
     ...(permissions.users ? [link("users", "/users", "navUsers", "UserCog")] : [])
   ];
   const administration = permissions.administration ? [link("consents", "/consents", "navConsents", "ShieldCheck"), link("definitions", "/definitions", "shellDefinitions", "SlidersHorizontal"), link("settings", "/system-settings", "shellSettings", "Settings"), link("ai-status", "/system-settings/ai-status", "shellAiStatus", "Gauge"), ...(permissions.qaCenter ? [link("qa-center", "/system-settings/qa-center", "shellQaCenter", "FlaskConical")] : [])] : [];
@@ -102,7 +102,7 @@ export function createNavigation(context: NavigationContext, path: string): Navi
     group("property", "navigationPropertyGroup", ["properties", "overview", "buildings", "units", "people", "shared-areas", "parking"]),
     group("finance", "navigationFinanceGroup", ["accounting", "dues", "payments", "expenses", "reports"]),
     group("operations", "navigationOperationsGroup", ["requests", "maintenance", "meters", "suppliers"]),
-    group("communication", "navigationCommunicationGroup", ["announcements", "surveys", "documents", "website", "sms"]),
+    group("communication", "navigationCommunicationGroup", ["announcements", "surveys", "documents", "website", "sms", "automations"]),
     group("administration", "navigationSystemGroup", ["users", "consents", "definitions", "settings", "ai-status", "qa-center"])
   ].filter(group => group.items.length > 0);
 
