@@ -96,6 +96,7 @@
     "type": "Type",
     "name": "Name",
     "offsets": "Send days",
+    "presetDays": "Preset send days (add custom days below)",
     "offsetsDueHelp": "Days relative to the due date, comma separated. Example: -3, -2, -1, 0 (0 = due date).",
     "offsetsOverdueHelp": "Days after the due date, comma separated. Example: 1, 7, 15.",
     "eventHelp": "The debtor is notified when a payment is recorded. Only payments from the last 72 hours are evaluated; old ones are never sent in bulk after an outage.",

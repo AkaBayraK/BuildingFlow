@@ -96,6 +96,7 @@
     "type": "Tür",
     "name": "Ad",
     "offsets": "Gönderim günleri",
+    "presetDays": "Hazır gönderim günleri (özel günleri aşağıya yazabilirsiniz)",
     "offsetsDueHelp": "Vadeye göre gün; virgülle ayırın. Örnek: -3, -2, -1, 0 (0 = son ödeme günü).",
     "offsetsOverdueHelp": "Vadeden sonraki gün; virgülle ayırın. Örnek: 1, 7, 15.",
     "eventHelp": "Tahsilat kaydedildiğinde borçlu kişiye bildirilir. Son 72 saatteki tahsilatlar değerlendirilir; kesinti sonrası eski tahsilatlar topluca gönderilmez.",

@@ -2,7 +2,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef} from "@tanstack/react-table";
-import {Activity,Eye,History,ListChecks,Pause,Pencil,Play,Plus,RefreshCw,Send,ServerCog,Zap} from "lucide-react";
+import {Activity,CalendarDays,Eye,History,ListChecks,Pause,Pencil,Play,Plus,RefreshCw,Send,ServerCog,Zap} from "lucide-react";
 import {useIdentity} from "@/auth/AuthGate";
 import {usePropertyScope} from "@/features/navigation/PropertyScope";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
@@ -125,6 +125,8 @@ function RuleDialog({root,propertyId,types,rule,emailAvailable,onClose,onSaved}:
   <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4">{error&&<MessageBanner>{error}</MessageBanner>}
    {!rule&&<><Label htmlFor={id("type")}>{t("type")}</Label><select id={id("type")} className={toolbarSelectClass+" w-full"} value={info.type} onChange={e=>pick(e.target.value)}>{types.map(x=><option key={x.type} value={x.type}>{t(`type_${x.type}`)}</option>)}</select></>}
    <Label htmlFor={id("name")}>{t("name")} *</Label><Input id={id("name")} maxLength={100} value={name} onChange={e=>setName(e.target.value)}/>
+   {!event&&<fieldset className="space-y-2"><legend className="text-sm font-medium">{t("presetDays")}</legend><div className="grid grid-cols-2 gap-2">{(info.type==="DUES_DUE_REMINDER"?[-7,-5,-3,-2,-1,0]:[1,3,7,15,30]).map(day=>{const current=parseOffsets(offsets)??[];const on=current.includes(day);
+    return <label key={day} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={on} onChange={()=>setOffsets((on?current.filter(x=>x!==day):[...current,day]).sort((a,b)=>a-b).join(", "))}/><CalendarDays aria-hidden="true" className="size-4"/>{offsetLabel(t,day)}</label>;})}</div></fieldset>}
    {!event&&<><Label htmlFor={id("offsets")}>{t("offsets")} *</Label><Input id={id("offsets")} value={offsets} onChange={e=>setOffsets(e.target.value)} aria-describedby={id("offsets-help")}/><p id={id("offsets-help")} className="text-xs text-muted-foreground">{t(info.type==="DUES_DUE_REMINDER"?"offsetsDueHelp":"offsetsOverdueHelp")}</p></>}
    {event&&<p className="text-sm text-muted-foreground">{t("eventHelp")}</p>}
    <div className="grid grid-cols-3 gap-3">{([["send",sendHour,setSendHour],["quietStart",quietStart,setQuietStart],["quietEnd",quietEnd,setQuietEnd]] as const).map(([key,value,set])=><div key={key} className="space-y-2"><Label htmlFor={id(key)}>{t(key)}</Label><select id={id(key)} className={toolbarSelectClass+" w-full"} value={value} disabled={key==="send"&&event} onChange={e=>set(Number(e.target.value))}>{hours.map(h=><option key={h} value={h}>{pad(h)}</option>)}</select></div>)}</div>
