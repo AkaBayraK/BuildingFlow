@@ -1,3 +1,8 @@
+## AI ASİSTAN — Sesli yazışma — 06.11.2026
+
+- `GET /api/v1/assistant/voice/status`, `POST /api/v1/assistant/transcribe`; yerel STT istemcisi; 2 yeni hata kodu.
+- Web AI Asistan: Sesli yazışma ve Cevabı sesli oku anahtarları, mikrofon dinleme durumu.
+
 ## 06.11.2026 — BF-AUTO Otomasyon Türleri
 
 - automation_types/revisions, özel tür kaynak okuyucusu (talep, tedarikçi sözleşmesi, daire, bakım, sayaç, rezervasyon), yönetici alıcıları, Otomasyon üst menüsü ve Otomasyon türleri ekranı.

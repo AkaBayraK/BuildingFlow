@@ -64,6 +64,15 @@ kaydedilir. Özet, veri sorumlusunun yetkilendirdiği AkaAI hizmeti ile **[barı
 yapay zekâ olmadan kural tabanlı olarak üretilir. Rızanızı istediğiniz zaman Hesabım > Rızalar bölümünden geri çekebilirsiniz;
 geri çektiğinizde asistan hemen kapanır, diğer uygulama işlevleri etkilenmez. Rıza vermemeniz hiçbir hizmeti engellemez.
 
+## Sesli yazışma maddesi (yönetici) — TASLAK
+
+**Sesli soru sorma.** Yöneticiler AI Asistan ekranında isterlerse sorularını sesle sorabilir. Bu özellik yalnız açıkça açıldığında
+çalışır. Kaydedilen ses, veri sorumlusunun kendi sunucusunda veya yetkilendirdiği **yerel** ses tanıma hizmetinde yazıya çevrilir;
+tarayıcı üreticisinin bulut ses tanıma hizmeti kullanılmaz. Ses kaydı ve oluşan metin **saklanmaz ve loglanmaz**; metin yalnız soru
+kutusuna yazılır ve yönetici kontrol edip gönderir. Ses tanıma hizmetinin barındırma yeri: **[doldurulacak]**. "Cevabı sesli oku"
+seçeneği cevabı yalnız kullanıcının cihazında okur. Kaydı başlatmadan önce yanınızdaki kişilerin sesinin de kayda girebileceğini
+göz önünde bulundurun; ses kaydına kişisel veri söylemeyin.
+
 ## Yayın öncesi kontrol listesi
 
 - [ ] KVKK danışmanı görüşü

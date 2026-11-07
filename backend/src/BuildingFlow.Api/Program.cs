@@ -42,6 +42,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CanPublishWebsite", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
     options.AddPolicy("CanManageQaCenter", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN"));
     options.AddPolicy("CanUseAssistant", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER", "ACCOUNTANT"));
+    options.AddPolicy("CanUseAssistantVoice", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN", "MANAGER"));
     options.AddPolicy("CanManageAssistantPrompts", policy => policy.RequireAuthenticatedUser().RequireClaim("sub").RequireRole("SUPER_ADMIN", "SITE_ADMIN"));
 });
 builder.Services.AddScoped<IPropertyService, PropertyService>();

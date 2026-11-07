@@ -1,3 +1,9 @@
+## AI ASİSTAN — Sesli yazışma — 06.11.2026 — TEKNİK TESLİM
+
+Yönetici rolleri için sesli yazışma: tek anahtar (Açık/Kapalı), MediaRecorder kaydı, sunucu `/transcribe` → yerel STT (`Assistant:Speech`, OpenAI uyumlu veya whisper.cpp `/inference`), metin soru kutusuna; ayrı "Cevabı sesli oku" (cihaz). Ses/metin saklanmaz. AkaAI'de STT ucu yok; sağlayıcı yapılandırılmadıkça anahtar devre dışı ve nedeni yazılı. Raporlama ekranında asistan yok. Migration/paket yok.
+
+**Bu tur: backend 33/33 (geçici PostgreSQL), web dal 382/382, güncel çalışma kopyası+yama 446/446 + typecheck/build PASS.** Gerçek STT/mikrofon kabulü DOĞRULANAMADI. Dal `buildingflow_ai_sesli`, yerel commit; push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## BF-AUTO TÜR — 06.11.2026 — devam bağlamı
 
 Kararlar (kullanıcı): tür ekleme SUPER_ADMIN+SITE_ADMIN, platform türü yalnız SUPER_ADMIN; ilk dalgada tüm kaynaklar; Otomasyon üst menü; yönetici bildirimi web+mobil. Açık: push/FCM, gerçek SMS sağlayıcısı, mobil tercih/deep link, roadmap kaydı.

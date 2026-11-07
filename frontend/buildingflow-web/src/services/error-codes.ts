@@ -81,6 +81,8 @@ export const errorCodes = {
   "BF_ASSISTANT_PROMPT_INVALID":{"status":400,"severity":"error","parameters":[]},
   "BF_ASSISTANT_PROMPT_DUPLICATE":{"status":409,"severity":"warning","parameters":[]},
   "BF_ASSISTANT_RESIDENT_DISABLED":{"status":403,"severity":"warning","parameters":[]},
+  "BF_ASSISTANT_VOICE_INVALID":{"status":400,"severity":"error","parameters":[]},
+  "BF_ASSISTANT_VOICE_UNAVAILABLE":{"status":503,"severity":"warning","parameters":[]},
   "BF_QA_AI_PROMPT_INVALID":{"status":400,"severity":"error","parameters":[]},
   "BF_QA_DATA_PROTECTED":{"status":409,"severity":"warning","parameters":[]},
   "BF_QA_DATA_CONFIRM":{"status":409,"severity":"error","parameters":[]},

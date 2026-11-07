@@ -2317,3 +2317,16 @@ Gerçek browser/form/klavye/odak/responsive/nativeExcel/mobil/gerçeksağlayıc�
 
 - **Kapsam:** Backend/şema değişikliği yok. Yeni ekran `/properties/{id}/units/{unitId}/dues` mevcut `dues?unitId` ve `payments?unitId&status=RECORDED` API'lerini birleştirir: dönem (yıl/ay), vade, tutar, ödenen, kalan, borçlu (DuesChargeParty snapshot; ACCOUNTANT için yalnız muhatap tipi), ödeme tarihi/yöntemi/referans/makbuz, ana para/tazminat ayrımı, vadeden sonra ödeme gün sayısı, açık borçta geçen gün ve tazminat bakiyesi. Yıl filtresi. Daire listesinin aksiyon kolonunda dört finans rolü için Aidat hesabı/Tahakkuklar/Tahsilatlar ikon bağlantıları; Aidat/Borçlar ve Tahsilatlar ekranları `?unitId=` ile bölüm filtreli açılır. Ödeyen kişi Payment'ta tutulmaz (kullanıcı kararı 06.11.2026: şimdilik borçlu gösterilir).
 - **Test:** `tests/unit-ledger.test.mjs` (ledger birleştirme, iptal edilen tahsilat hariç, gecikme günleri, özet, tek bölüm koruması, bağlantı ve OIDC dönüş yolu allowlist'i, managementSection). `node --test tests/*.test.mjs` 441/441 geçti; `tsc --noEmit` hatasız. Gerçek tarayıcı/backend ile ekran kontrolü **DOĞRULANAMADI**; `next build` çalıştırılmadı.
+
+## AI ASİSTAN — Sesli yazışma — 06.11.2026 — Teknik teslim
+
+Kapsam: `GET /api/v1/assistant/voice/status`, `POST /api/v1/assistant/transcribe`, yerel STT istemcisi (`Assistant:Speech`), web Sesli yazışma ve Cevabı sesli oku anahtarları. Yeni paket ve migration yok. Raporlama ekranında AI asistan bulunmadığı için orada değişiklik yok.
+
+Senaryolar (`AssistantVoiceTests`, `tests/assistant.test.mjs`):
+1. Rol: anonim 401; ACCOUNTANT/RESIDENT/OWNER/TENANT/SECURITY 403; SUPER_ADMIN/SITE_ADMIN/MANAGER status 200.
+2. Sağlayıcı yok: `enabled=false`, `PROVIDER_NOT_CONFIGURED`; transcribe 503 `BF_ASSISTANT_VOICE_UNAVAILABLE`.
+3. Ret: text/plain, MIME–imza uyumsuzluğu (wav→webm, webm→wav, sahte ogg), >10 MB, 61 sn, 0/eksik süre, ek alan, boş UUID → 400 `BF_ASSISTANT_VOICE_INVALID`; JSON gövde 400; bilinmeyen Property 404; sağlayıcı hiç çağrılmaz, kota 0.
+4. Uçtan uca sahte STT (whisper.cpp `/inference` yolu): `codecs=opus` kabul, dil `tr`/`en` iletilir, metin kırpılıp kontrol karakteri temizlenir, 500 karakter sınırı; audit FREE_TEXT/TRANSCRIBE/SPEECH/ANSWERED, entity'de ses/metin alanı yok; sağlayıcı kesintisi 503.
+5. İmza birim testi; FE: rol listesi, durum/transkript okuyucuları, metin birleştirme ve 500 sınırı, kayıt türü seçimi, form alanları, tercih okuma, Web Speech API kullanılmadığı ve `/chat`'e kendiliğinden gönderilmediği, TR/EN metinler.
+
+**Bu tur kanıt:** geçici PostgreSQL'de `AssistantVoiceTests` + `AssistantApiTests` + `ErrorContractTests` **33/33**. Web: dal üzerinde 382/382; ana klasörün güncel çalışma kopyası + bu yama birlikte (geçici kopyada) typecheck PASS, **446/446**, production build PASS. Not: güncel main (`ba2c210` sonrası) ana klasördeki commit'lenmemiş finans/doluluk dosyaları olmadan derlenmiyor; doğrulama bu dosyalar geçici kopyalanarak yapıldı, commit'e eklenmedi. Gerçek STT sunucusu, mikrofon/tarayıcı kabulü ve ekran görüntüsü DOĞRULANAMADI.

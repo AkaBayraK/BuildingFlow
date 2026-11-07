@@ -16,7 +16,8 @@ import {useDashboardArea} from "@/features/dashboard/DashboardArea";
 import {assistantBadgeTone,assistantCategoryAll,assistantCategoryStyle,assistantKindIcon,assistantToolStyle,assistantWarningIcon} from "./assistant-style";
 import {PromptManager} from "./PromptManager";
 import {DraftPanel} from "./DraftPanel";
-import {assistantCategories,assistantMessageLimit,assistantPath,assistantRoles,canAsk,chatBody,dimensionKey,promptText,promptTitle,readAnswer,readPrompts,readStatus,type AssistantAnswer,type AssistantCard,type AssistantCategory,type AssistantPrompt,type AssistantStatus} from "./model";
+import {VoiceControls} from "./VoiceControls";
+import {mergeTranscript,assistantCategories,assistantMessageLimit,assistantPath,assistantRoles,canAsk,chatBody,dimensionKey,promptText,promptTitle,readAnswer,readPrompts,readStatus,type AssistantAnswer,type AssistantCard,type AssistantCategory,type AssistantPrompt,type AssistantStatus} from "./model";
 
 type Locale="tr"|"en";
 type Turn={id:number;question:string;answer:AssistantAnswer|null;error:string};
@@ -28,6 +29,7 @@ function AssistantContent(){
  const {allowed,properties,propertyId,listError,reload}=useDashboardArea();
  const [status,setStatus]=useState<AssistantStatus|null>(null),[prompts,setPrompts]=useState<AssistantPrompt[]|null>(null),[loadError,setLoadError]=useState(""),[revision,setRevision]=useState(0);
  const [category,setCategory]=useState<"ALL"|AssistantCategory>("ALL"),[message,setMessage]=useState(""),[turns,setTurns]=useState<Turn[]>([]),[busy,setBusy]=useState(false),[managing,setManaging]=useState(false);
+ const readAloud=useRef(false);
  const lock=useRef(false),serial=useRef(0),end=useRef<HTMLDivElement>(null),manageButton=useRef<HTMLButtonElement>(null);
  const roleAllowed=allowed&&assistantRoles.some(r=>identity.hasRealmRole(r));
  const manager=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(r=>identity.hasRealmRole(r));
@@ -46,7 +48,9 @@ function AssistantContent(){
   setTurns(list=>[...list,{id,question,answer:null,error:""}]);
   try{
    const answer=readAnswer(await api<unknown>(`${assistantPath}/chat`,{method:"POST",body:JSON.stringify(chatBody(propertyId,locale,"label" in input?{promptCode:input.promptCode}:{message:input.message}))}),propertyId);
-   setTurns(list=>list.map(turn=>turn.id===id?{...turn,answer}:turn));setStatus(current=>current?{...current,quota:answer.quota}:current);
+   setTurns(list=>list.map(turn=>turn.id===id?{...turn,answer}:turn));
+   // Read-aloud stays on this device: the browser speech engine, never a server or cloud voice.
+   if(readAloud.current&&typeof window!=="undefined"&&"speechSynthesis" in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(answer.answer);u.lang=locale==="en"?"en-GB":"tr-TR";window.speechSynthesis.speak(u);}setStatus(current=>current?{...current,quota:answer.quota}:current);
    if(!("label" in input))setMessage("");
   }catch(e){setTurns(list=>list.map(turn=>turn.id===id?{...turn,error:errorMessage(e,locale)}:turn));}
   finally{lock.current=false;setBusy(false);}
@@ -81,6 +85,7 @@ function AssistantContent(){
       <div ref={end}/>
      </div>
      <form className="border-t p-3" onSubmit={e=>{e.preventDefault();if(canAsk(message)&&!exhausted)void ask({message});}}>
+      {propertyId&&<VoiceControls propertyId={propertyId} disabled={busy||exhausted} onText={text=>setMessage(current=>mergeTranscript(current,text))} onQuota={quota=>setStatus(current=>current?{...current,quota}:current)} onReadAloud={value=>{readAloud.current=value;}}/>}
       <label htmlFor="assistant-message" className="sr-only">{t("messageLabel")}</label>
       <div className="flex items-end gap-2">
        <textarea id="assistant-message" rows={2} maxLength={assistantMessageLimit} value={message} disabled={busy||!propertyId} onChange={e=>setMessage(e.target.value)} placeholder={t("placeholder")} aria-describedby="assistant-message-help"

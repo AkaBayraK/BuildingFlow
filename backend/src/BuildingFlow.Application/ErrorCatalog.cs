@@ -278,6 +278,8 @@ public static class ErrorCatalog
     public static readonly ErrorDefinition AssistantQuestionInvalid = new("BF_ASSISTANT_QUESTION_INVALID", "Yönetim alanı ile bir hazır soru veya 1-500 karakterlik bir soru seçin.", "error");
     public static readonly ErrorDefinition AssistantPromptInvalid = new("BF_ASSISTANT_PROMPT_INVALID", "Hazır soru kodu, kategori, araç, başlık, metin, sıra ve sürüm bilgilerini kontrol edin.", "error");
     public static readonly ErrorDefinition AssistantResidentDisabled = new("BF_ASSISTANT_RESIDENT_DISABLED", "Sakin asistanı bu ortamda henüz açılmadı.", "warning");
+    public static readonly ErrorDefinition AssistantVoiceInvalid = new("BF_ASSISTANT_VOICE_INVALID", "Ses kaydı en fazla 60 saniye ve 10 MB olmalı; desteklenen biçimler WebM, Ogg, MP4, WAV ve MP3.", "error");
+    public static readonly ErrorDefinition AssistantVoiceUnavailable = new("BF_ASSISTANT_VOICE_UNAVAILABLE", "Ses yazıya çevirme hizmeti şu an kullanılamıyor; sorunuzu yazarak gönderebilirsiniz.", "warning");
     public static readonly ErrorDefinition AssistantPromptDuplicate = new("BF_ASSISTANT_PROMPT_DUPLICATE", "Bu kodla bir hazır soru zaten var.", "warning");
     public static readonly ErrorDefinition QaAiPromptInvalid = new("BF_QA_AI_PROMPT_INVALID", "Test isteği 1-1000 karakter olmalı ve kontrol karakteri içermemeli.", "error");
     public static readonly ErrorDefinition QaDataProtected = new("BF_QA_DATA_PROTECTED", "Demo verisi korunur; temizlenemez.", "warning");
@@ -351,7 +353,7 @@ public static class ErrorCatalog
         SurveyInvalid, SurveyQuestionInvalid, SurveyState, SurveyAnswerInvalid, SurveyAlreadyAnswered, SurveyNotOpen,
         PersonProfileInvalid, PersonAccountInvalid, PersonMessageInvalid, PersonMessageConflict, PersonCodeUnavailable,
         DefinitionInvalid, DefinitionLocked, DefinitionUnavailable, DefinitionDuplicate,
-        AssistantBudget, AssistantQuestionInvalid, AssistantPromptInvalid, AssistantPromptDuplicate, AssistantResidentDisabled,
+        AssistantBudget, AssistantQuestionInvalid, AssistantPromptInvalid, AssistantPromptDuplicate, AssistantResidentDisabled, AssistantVoiceInvalid, AssistantVoiceUnavailable,
         SupplierInvalid, SupplierDuplicate, SupplierContractState, SupplierQuoteState, SupplierWorkOrderState, SupplierMaintenanceState, SupplierMaintenanceConflict, SupplierInvoiceDuplicate, SupplierInvoiceState, SupplierInvoiceLinked, SupplierDocumentProtected, SupplierPropertyHistory,
         MobileRegistrationInvalid, MobileRegistrationConflict, MobileRateLimited, MobileLinkRejected, MobileLinkLocked,
         UserInvalid, UserPasswordWeak, UserExists, UserRoleForbidden, UserSelfChange, UserLinkConflict, IdentityUnavailable,

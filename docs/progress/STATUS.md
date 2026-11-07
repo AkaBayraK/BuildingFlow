@@ -1,3 +1,9 @@
+## AI ASİSTAN — Sesli yazışma — 06.11.2026 — TEKNİK TESLİM
+
+Yönetici rolleri için sesli yazışma: tek anahtar (Açık/Kapalı), MediaRecorder kaydı, sunucu `/transcribe` → yerel STT (`Assistant:Speech`, OpenAI uyumlu veya whisper.cpp `/inference`), metin soru kutusuna; ayrı "Cevabı sesli oku" (cihaz). Ses/metin saklanmaz. AkaAI'de STT ucu yok; sağlayıcı yapılandırılmadıkça anahtar devre dışı ve nedeni yazılı. Raporlama ekranında asistan yok. Migration/paket yok.
+
+**Bu tur: backend 33/33 (geçici PostgreSQL), web dal 382/382, güncel çalışma kopyası+yama 446/446 + typecheck/build PASS.** Gerçek STT/mikrofon kabulü DOĞRULANAMADI. Dal `buildingflow_ai_sesli`, yerel commit; push yok. Token: BİLGİ MEVCUT DEĞİL.
+
 ## BF-AUTO TÜR 01–05 — Otomasyon Türleri — 06.11.2026 — TEKNİK TESLİM / KULLANICI KABULÜ BEKLİYOR
 
 Kod değişikliği olmadan yeni otomasyon türü: hazır kaynak/koşul/tetik/alıcı yapı taşları, taslak→yayın→arşiv, sürüm geçmişi, yönetici bildirimleri (web + mobil), Otomasyon üst menüsü. Sözleşme [automations.md](../api/automations.md). Kullanıcı kararları SESSION.md'de.

@@ -100,3 +100,24 @@ export function promptFormValid(form:AssistantPromptForm){
  const body=promptBody(form,0);
  return codePattern.test(body.code)&&body.sortOrder>=0&&body.sortOrder<=999&&[body.titleTr,body.titleEn].every(v=>v.length>0&&v.length<=120)&&[body.textTr,body.textEn].every(v=>v.length>0&&v.length<=500);
 }
+
+// Sesli yazışma: management roles only; speech is transcribed by the server's local STT, never by the browser vendor.
+export const voiceRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER"] as const;
+export const voiceRecorderTypes=["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/mp4"] as const;
+export type AssistantVoiceStatus={enabled:boolean;reason:"PROVIDER_NOT_CONFIGURED"|null;maxSeconds:number;maxBytes:number};
+export function readVoiceStatus(value:unknown):AssistantVoiceStatus{
+ const v=object(value);if(typeof v.enabled!=="boolean")throw new Error("Invalid voice status");
+ const reason=v.reason===null?null:member(v.reason,["PROVIDER_NOT_CONFIGURED"] as const);if(v.enabled&&reason!==null||!v.enabled&&reason===null)throw new Error("Invalid voice status");
+ const maxSeconds=count(v.maxSeconds),maxBytes=count(v.maxBytes);if(maxSeconds<1||maxSeconds>300||maxBytes<1)throw new Error("Invalid voice status");
+ return {enabled:v.enabled,reason,maxSeconds,maxBytes};
+}
+export function readTranscript(value:unknown):{text:string;quota:AssistantQuota}{const v=object(value);return {text:text(v.text,assistantMessageLimit),quota:readQuota(v.quota)};}
+export function pickRecorderType(supported:(type:string)=>boolean){return voiceRecorderTypes.find(type=>supported(type))??null;}
+export function transcribeForm(propertyId:string,audio:Blob,durationMs:number,locale:"tr"|"en"){
+ const form=new FormData();form.set("audio",audio,"speech");form.set("propertyId",propertyId);form.set("durationMs",String(Math.max(1,Math.round(durationMs))));form.set("locale",locale);return form;
+}
+// The transcript is appended for the person to review; it is never sent on its own.
+export function mergeTranscript(current:string,transcript:string){const t=transcript.trim();if(!t)return current;const base=current.trim();return (base?base+" "+t:t).slice(0,assistantMessageLimit);}
+export const voicePreferenceKey="bf.assistant.voice";
+export type VoicePreference={voice:boolean;readAloud:boolean};
+export function readVoicePreference(raw:string|null):VoicePreference{try{const v=raw?JSON.parse(raw):null;return {voice:v?.voice===true,readAloud:v?.readAloud===true};}catch{return {voice:false,readAloud:false};}}

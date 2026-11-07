@@ -159,3 +159,26 @@ Mobil sakin bağlamı olmayan hesaplarda `documentDate` kartı gelmeyebilir (Com
 - Model çağrısı yapılmaz; AkaAI sonucu 30 sn önbellekte tutulur. Açıklamalar dil bağımsız `detail` kodudur, metni web sözlüğü üretir. Yanıtta token, secret, TokenUrl, tam adres veya AkaAI hata gövdesi yoktur; endpoint yalnız `host:port`.
 - AkaAI tanımlı değilse genel durum `DISABLED`, mod `RULES`. `locality=EXTERNAL` ise ekran harici model uyarısı gösterir. İsteğe bağlı `Assistant:AkaAi:ConsoleUrl` yalnız kimlik/sorgu içermeyen http(s) adresse "AkaAI'de yönet" bağlantısı (`…/models`) olur.
 - Web: Yönetim > AI Durumu (`/system-settings/ai-status`, Sistem Ayarları'nda giriş kartı), özet kartları, tür filtreleri, 15/30/60 sn otomatik yenileme, son kontroller ve bilgi kartı. TraceFlow'daki PDF dışa aktarma alınmadı.
+
+## Sesli yazışma (06.11.2026)
+
+Yalnız web AI Asistan ekranında; **SUPER_ADMIN, SITE_ADMIN, MANAGER** (politika `CanUseAssistantVoice`; ACCOUNTANT/RESIDENT/OWNER/TENANT/SECURITY 403, anonim 401). Raporlama ekranında AI asistan yoktur; orada yeni asistan eklenmedi.
+
+- **Tarayıcı Web Speech API kullanılmaz** (Chrome sesi tarayıcı sağlayıcısına gönderir). Tarayıcı `MediaRecorder` ile kaydeder (yeni paket yok); ses sunucuya gider, sunucu yapılandırılmış **yerel** STT sağlayıcısına bir kez iletir.
+- `GET /api/v1/assistant/voice/status` → `{enabled, reason: "PROVIDER_NOT_CONFIGURED"|null, maxSeconds: 60, maxBytes: 10485760, acceptedTypes}`.
+- `POST /api/v1/assistant/transcribe` (multipart): tek dosya alanı + `propertyId`, `durationMs` (1–60000), isteğe bağlı `locale` (`tr` varsayılan/`en`); başka alan 400. MIME (`audio/webm|ogg|mp4|wav|mpeg`, `codecs` parametresi ve `audio/x-wav`/`audio/mp3`/`video/webm` eşdeğerleri kabul) **ve dosya imzası** (EBML, OggS, ftyp, RIFF/WAVE, ID3/MPEG) eşleşmeli; 10 MB üstü 400 `BF_ASSISTANT_VOICE_INVALID`. Sağlayıcı yoksa veya hata verirse 503 `BF_ASSISTANT_VOICE_UNAVAILABLE`. Property erişilemezse 404, kota tüketilmez. Yanıt `{text (≤500, kontrol karakterleri temizlenmiş), quota}`.
+- Metin **soru kutusuna eklenir**; kullanıcı görüp düzenler ve mevcut `/chat` akışıyla kendisi gönderir. Transkripsiyon otomatik gönderilmez.
+- **Ses ve metin saklanmaz, loglanmaz.** Ses bellekte okunup sağlayıcıya iletilir ve bırakılır. Audit `request_kind=FREE_TEXT`, `tool_key=TRANSCRIBE`, `source=SPEECH` (yönetici günlük kotasını kullanır); migration gerekmedi.
+- Ekran: tek anahtar "Sesli yazışma: Açık/Kapalı" (`role=switch`), açıkken mikrofon düğmesi "Dinleniyor 0:12" / "Yazıya çevriliyor…", 60 sn'de otomatik durur. Sağlayıcı yoksa anahtar devre dışı ve neden yazılı. Ayrı anahtar "Cevabı sesli oku" tarayıcının `speechSynthesis`'i ile **cihaz üzerinde** okur. Tercihler yalnız bu tarayıcıda (`localStorage`) tutulur.
+
+### Yapılandırma (`Assistant:Speech`)
+
+| Ayar | Varsayılan | Not |
+| --- | --- | --- |
+| `BaseUrl` | — | Boşsa sesli yazışma kapalı. Örn. `http://127.0.0.1:8178` |
+| `Path` | `/v1/audio/transcriptions` | OpenAI uyumlu yerel sunucu; whisper.cpp `server` için `/inference` |
+| `Model` | — | İsteğe bağlı (`model` alanı) |
+| `ApiKey` | — | İsteğe bağlı; yalnız env/user-secrets (`Assistant__Speech__ApiKey`) |
+| `TimeoutSeconds` | 60 | 5–180 |
+
+Gönderilen alanlar: `file`, `language`, `response_format=json`, isteğe bağlı `model`; beklenen yanıt `{ "text": "..." }`. AkaAI'de (yerel) ses/transkripsiyon ucu bulunmadığı için AkaAI kullanılmadı.

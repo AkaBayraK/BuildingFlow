@@ -82,6 +82,12 @@ internal static class AssistantEndpoints
         services.AddHttpClient(AkaAiAssistantModel.ClientName, client => client.Timeout = TimeSpan.FromSeconds(150))
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false });
         services.AddScoped<AssistantService>();
+        services.AddSingleton(AssistantSpeechOptions.From(configuration));
+        services.AddSingleton(new AssistantVoiceLimits(AssistantVoiceLimits.DefaultSeconds, AssistantVoiceLimits.DefaultBytes));
+        services.AddSingleton<ISpeechTranscriber, LocalSpeechTranscriber>();
+        services.AddHttpClient(LocalSpeechTranscriber.ClientName, client => client.Timeout = TimeSpan.FromSeconds(200))
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false });
+        services.AddScoped<AssistantVoiceService>();
         // The resident assistant stays off until the KVKK review, consent type and notice text are in place (FAZ 3 gate).
         services.AddSingleton(new ResidentAssistantSettings(configuration.GetValue("Assistant:Resident:Enabled", false),
             Math.Clamp(configuration.GetValue("Assistant:Resident:DailyRequestLimit", ResidentAssistantSettings.DefaultLimit), 1, 100)));
@@ -114,6 +120,22 @@ internal static class AssistantEndpoints
             try { return NoStore(response, Results.Ok(await service.Chat(request, token))); }
             catch (AssistantBudgetException) { return Budget(); }
         });
+        // Sesli yazışma: management roles only. The audio is read into memory, forwarded once and dropped; it is never stored or logged.
+        var voice = app.MapGroup("/api/v1/assistant").RequireAuthorization("CanUseAssistantVoice").WithTags("Assistant");
+        voice.MapGet("/voice/status", (AssistantVoiceService service, HttpResponse response) => NoStore(response, Results.Ok(service.Status())));
+        voice.MapPost("/transcribe", async (HttpRequest request, AssistantVoiceService service, AssistantVoiceLimits limits, HttpResponse response, CancellationToken token) =>
+        {
+            if (!request.HasFormContentType) return Invalid();
+            var form = await request.ReadFormAsync(token);
+            if (form.Files.Count != 1 || form.Files[0].Length > limits.MaxBytes || form.Keys.Any(k => k is not ("propertyId" or "durationMs" or "locale"))) return Invalid();
+            if (!Guid.TryParse(form["propertyId"], out var property) || !int.TryParse(form["durationMs"], out var duration)) return Invalid();
+            var file = form.Files[0]; using var buffer = new MemoryStream((int)file.Length);
+            await file.CopyToAsync(buffer, token);
+            try { return NoStore(response, await service.Transcribe(property, file.ContentType, buffer.ToArray(), duration, form["locale"].FirstOrDefault(), token) is { } text ? Results.Ok(text) : Results.NotFound()); }
+            catch (AssistantBudgetException) { return Budget(); }
+            catch (VoiceInvalidException) { return Invalid(); }
+            catch (SpeechUnavailableException) { return Problem(StatusCodes.Status503ServiceUnavailable, ErrorCatalog.AssistantVoiceUnavailable.Create()); }
+        }).DisableAntiforgery().WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(AssistantVoiceLimits.DefaultBytes + 64 * 1024));
         var admin = app.MapGroup("/api/v1/assistant/admin/prompts").RequireAuthorization("CanManageAssistantPrompts").WithTags("Assistant");
         admin.MapGet("", async (AssistantService service, CancellationToken token) => Results.Ok(await service.ManagedPrompts(token)));
         admin.MapPost("", async (SaveAssistantPromptRequest request, AssistantService service, CancellationToken token) =>
@@ -125,6 +147,14 @@ internal static class AssistantEndpoints
             await service.UpdatePrompt(id, request, token) is { } prompt ? Results.Ok(prompt) : Results.NotFound());
         admin.MapDelete("/{id:guid}", async (Guid id, long version, AssistantService service, CancellationToken token) =>
             await service.DeletePrompt(id, version, token) ? Results.NoContent() : Results.NotFound());
+    }
+
+    private static IResult Invalid() => Problem(StatusCodes.Status400BadRequest, ErrorCatalog.AssistantVoiceInvalid.Create());
+    private static IResult Problem(int status, ApiErrorMessage error)
+    {
+        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = status };
+        ApiProblems.Apply(problem, error);
+        return Results.Problem(problem);
     }
 
     private static IResult Budget()

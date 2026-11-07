@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
+import {mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
 import {announcementDraftLink,requestLink,supplierViewLink,surveyLink} from '../src/features/assistant/deep-links.ts';
 import {assistantCategoryStyle,assistantKindIcon,assistantToolStyle} from '../src/features/assistant/assistant-style.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
@@ -142,4 +142,22 @@ test('source cards start collapsed behind an accessible per-answer toggle',()=>{
  assert.match(page,/truncate[^>]*title=/);
  for(const d of [tr,en])for(const k of ['sourcesToggle','sourcesShow','sourcesHide'])assert.ok(d.assistant[k]);
  assert.match(tr.assistant.sourcesToggle,/\{count\}/);
+});
+
+test('voice input is management-only, server-transcribed and never sends on its own',()=>{
+ assert.deepEqual([...voiceRoles],['SUPER_ADMIN','SITE_ADMIN','MANAGER']);
+ assert.deepEqual(readVoiceStatus({enabled:false,reason:'PROVIDER_NOT_CONFIGURED',maxSeconds:60,maxBytes:10485760,acceptedTypes:[]}).reason,'PROVIDER_NOT_CONFIGURED');
+ for(const bad of [{enabled:true,reason:'PROVIDER_NOT_CONFIGURED'},{enabled:false,reason:null},{enabled:true,reason:null,maxSeconds:0},{enabled:'yes',reason:null}])
+  assert.throws(()=>readVoiceStatus({maxSeconds:60,maxBytes:1,...bad}));
+ assert.equal(readTranscript({text:'Borcum ne kadar?',quota:{dailyLimit:30,usedToday:1,remaining:29}}).text,'Borcum ne kadar?');
+ assert.throws(()=>readTranscript({text:'x'.repeat(501),quota:{dailyLimit:30,usedToday:1,remaining:29}}));
+ assert.equal(mergeTranscript('',' Merhaba '),'Merhaba');assert.equal(mergeTranscript('Bu ay','geciken aidat'),'Bu ay geciken aidat');assert.equal(mergeTranscript('x',''),'x');assert.equal(mergeTranscript('a'.repeat(499),'bcd').length,500);
+ assert.equal(pickRecorderType(t=>t==='audio/mp4'),'audio/mp4');assert.equal(pickRecorderType(()=>false),null);assert.equal(pickRecorderType(()=>true),'audio/webm;codecs=opus');
+ const form=transcribeForm('11111111-1111-4111-8111-111111111111',new Blob(['x'],{type:'audio/webm'}),1234.6,'tr');
+ assert.deepEqual([...form.keys()].sort(),['audio','durationMs','locale','propertyId']);assert.equal(form.get('durationMs'),'1235');
+ assert.deepEqual(readVoicePreference(null),{voice:false,readAloud:false});assert.deepEqual(readVoicePreference('{bad'),{voice:false,readAloud:false});assert.deepEqual(readVoicePreference('{"voice":true,"readAloud":true}'),{voice:true,readAloud:true});
+ const controls=readFileSync(new URL('../src/features/assistant/VoiceControls.tsx',import.meta.url),'utf8');
+ assert.doesNotMatch(controls,/SpeechRecognition|webkitSpeech/);assert.match(controls,/MediaRecorder/);assert.match(controls,/role="switch" aria-checked=\{checked\}/);assert.match(controls,/voiceRoles\.some/);
+ assert.doesNotMatch(controls,/\/chat/);
+ for(const d of [tr,en])for(const k of ['voiceTitle','readAloudTitle','voiceOn','voiceOff','voiceProviderMissing','voiceListening'])assert.ok(d.assistant[k],k);
 });
