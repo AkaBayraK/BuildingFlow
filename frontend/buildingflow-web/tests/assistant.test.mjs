@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {downmix,encodeWav,microphonePolicyStale,microphoneProblem,mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
+import {downmix,encodeWav,microphoneProblem,mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
 import {announcementDraftLink,requestLink,supplierViewLink,surveyLink} from '../src/features/assistant/deep-links.ts';
 import {assistantCategoryStyle,assistantKindIcon,assistantToolStyle} from '../src/features/assistant/assistant-style.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
@@ -172,11 +172,10 @@ test('recordings are re-encoded on the device as 16 kHz mono WAV for whisper.cpp
  const view=new DataView(wav.buffer);assert.equal(view.getUint32(24,true),16000);assert.equal(view.getUint16(22,true),1);assert.equal(view.getInt16(46,true),32767);assert.equal(view.getInt16(48,true),-32768);assert.equal(view.getInt16(50,true),32767);
 });
 
-test('microphone is allowed only on the assistant page and each getUserMedia failure has its own message', () => {
+test('microphone is same-origin only, the page never reloads itself and each getUserMedia failure has its own message', () => {
  const config=readFileSync(new URL('../next.config.ts',import.meta.url),'utf8');
- assert.match(config,/source:'\/\(\.\*\)',headers:\[[^\]]*microphone=\(\)/);
- assert.match(config,/source:'\/assistant',headers:\[\{key:'Permissions-Policy',value:'camera=\(\), microphone=\(self\), geolocation=\(\)'\}\]/);
- assert.equal(config.match(/microphone=\(self\)/g).length,1);
+ assert.match(config,/source:'\/\(\.\*\)',headers:\[[^\]]*'camera=\(\), microphone=\(self\), geolocation=\(\)'/);
+ assert.doesNotMatch(config,/microphone=\(\)|microphone=\*/);
  assert.equal(microphoneProblem('NotAllowedError',true),'voiceMicDenied');assert.equal(microphoneProblem('NotFoundError',true),'voiceMicMissing');
  assert.equal(microphoneProblem('SecurityError',true),'voiceMicBlocked');assert.equal(microphoneProblem('NotReadableError',true),'voiceMicBusy');
  assert.equal(microphoneProblem('NotAllowedError',false),'voiceMicInsecure');assert.equal(microphoneProblem(undefined,true),'voicePermission');
@@ -185,11 +184,3 @@ test('microphone is allowed only on the assistant page and each getUserMedia fai
  assert.match(controls,/microphoneProblem\(e instanceof Error\?e\.name:undefined,window\.isSecureContext\)/);
 });
 
-test('a document opened elsewhere keeps that page microphone policy, so the assistant reloads once before recording', () => {
- const base='http://localhost:3003/assistant?property=x';
- assert.equal(microphonePolicyStale('http://localhost:3003/dashboard',base),true);
- assert.equal(microphonePolicyStale('http://localhost:3003/assistant?property=x',base),false);
- assert.equal(microphonePolicyStale(undefined,base),false);assert.equal(microphonePolicyStale('::bad',base),true);
- const controls=readFileSync(new URL('../src/features/assistant/VoiceControls.tsx',import.meta.url),'utf8');
- assert.match(controls,/if\(allowed&&stored\.voice\)reloadForMicrophone\(\)/);assert.match(controls,/if\(reloadForMicrophone\(\)\)return;/);assert.match(controls,/if\(next\.voice\)reloadForMicrophone\(\)/);
-});
