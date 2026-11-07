@@ -2338,3 +2338,13 @@ Senaryolar (`AssistantVoiceTests`, `tests/assistant.test.mjs`):
 - Upload artık bellekte tamponlanır (`FormOptions.MemoryBufferThreshold` ≥ 10 MB); varsayılan 64 KB üstü geçici disk dosyası yazımı kapatıldı.
 - Web: cihazda WAV dönüşümü ve `PROVIDER_UNREACHABLE` okuyucu testleri; assistant testleri 13/13.
 - **DOĞRULANAMADI:** Docker imaj derlemesi ve compose içindeki model indirme — izin kontrolü "dışarıdan kod indirme" gerekçesiyle `docker build`'i engelledi. Kullanıcının çalıştıracağı komut: `bash scripts/dev.sh speech`.
+
+#### Docker üzerinde gerçek doğrulama — 07.11.2026 (kullanıcı onayıyla)
+
+İzole: imaj `buildingflow-whisper:aitest`, volume `bf-ai-speech-test-models`, konteyner `bf-ai-speech-test` 127.0.0.1:18179; kullanıcının yığını ve Mac whisper-server'ına dokunulmadı.
+- `docker build deploy/whisper`: kaynak arşivi SHA256 `whisper.tar.gz: OK`, imaj 162 MB, uid 10001, `/usr/share/licenses/whisper.cpp/LICENSE` MIT.
+- `fetch-model`: 547 MiB indirildi ve doğrulandı (11 sn); ikinci çalıştırma yeniden indirmedi ("present and verified"); yanlış SHA ile model kabul edilmedi.
+- Servis compose ayarlarıyla (salt okunur kök, tmpfs /tmp, no-new-privileges, 3g/4 CPU) healthy.
+- Gerçek Türkçe (`say -v Yelda`, 16 kHz WAV): "Yaklaşan bakımlar hangi tarihlerde?", "Açık talepler hangi kategorilerde yoğunlaşıyor?", "Bütçeye göre hangi gider kalemi aşıldı?" birebir doğru; "Bu ay geciken aidat toplamı ne kadar?" → "…geciken ayda…". BuildingFlow API üzerinden `RealWhisperServerTranscribesTurkishSpeech` GEÇTİ.
+- **Süre:** Docker (macOS, CPU, large-v3-turbo-q5_0, 4 CPU) istek başına ~35 sn; aynı Mac'te yerel Metal'li whisper-server 0,24–1,2 sn.
+- Konteyner içinde istek sonrası yeni dosya yok, `/tmp` boş. Test konteyneri kaldırıldı; volume/imaj kullanıcı kararına bırakıldı.

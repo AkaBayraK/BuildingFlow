@@ -15,3 +15,7 @@ bash scripts/dev.sh speech        # imajı derler, modeli doğrular, servisi sa�
 bash scripts/dev.sh speech-stop   # durdurur (volume kalır)
 docker volume rm buildingflow_whisper-models   # modeli tamamen silmek için (yeniden indirilir)
 ```
+
+## Performans (07.11.2026 ölçümü)
+
+macOS'taki Docker GPU'ya (Metal) erişemez; `large-v3-turbo-q5_0` 4 CPU ile istek başına ~35 sn sürdü. Aynı Mac'te Homebrew `whisper-server` (Metal) 0,24–1,2 sn. Öneri: Mac geliştirmede yerel `whisper-server`'ı kullanın (`ASSISTANT_SPEECH_BASE_URL=http://127.0.0.1:8178`); Docker profili Linux sunucularda daha fazla çekirdekle (`WHISPER_CPUS`) ya da daha hızlı `ggml-small.bin`/`ggml-base.bin` ile kullanılmalı. API zaman aşımı `Assistant:Speech:TimeoutSeconds` (varsayılan 60).
