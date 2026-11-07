@@ -10,7 +10,8 @@ import {useRouter} from "next/navigation";
 import {useUnitPeople,UnitPersonLinks} from "@/features/people/UnitPeople";
 import {useLocale,useTranslations} from "next-intl";
 import type {ColumnDef,PaginationState,SortingState,OnChangeFn,VisibilityState} from "@tanstack/react-table";
-import {ArrowUpDown,ArrowUpRight,Building2,DoorOpen,Eye,Pencil,Plus,Trash2} from "lucide-react";
+import {ArrowUpDown,ArrowUpRight,Building2,DoorOpen,Eye,HandCoins,Pencil,Plus,ReceiptText,Trash2,WalletCards} from "lucide-react";
+import {unitFinanceHrefs} from "@/features/unit-ledger/model";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
 import {MessageBanner} from "@/components/feedback/MessageBanner";
@@ -29,7 +30,7 @@ import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuLabel,D
 export {StatusBadge} from "@/components/management/WorkspacePresentation";
 type Row=Building|Unit;
 export function HierarchyRows({kind,propertyId,buildingId,unitId,occupancy,aggregateBuildings=false,parentEnabled,onChanged}:{kind:"building"|"unit";propertyId:string;buildingId?:string;unitId?:string;occupancy?:OccupancyFilter;aggregateBuildings?:boolean;parentEnabled:boolean;onChanged:()=>void}){
-  const router=useRouter();const t=useTranslations("ui");const m=useTranslations("management");const locale=useLocale();const api=useAuthorizedApi();const identity=useIdentity();
+  const router=useRouter();const t=useTranslations("ui");const ledger=useTranslations("unitLedger");const m=useTranslations("management");const locale=useLocale();const api=useAuthorizedApi();const identity=useIdentity();
   const canFilter=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"].some(role=>identity.hasRealmRole(role));
   const canWrite=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(role=>identity.hasRealmRole(role));
   const url=`/api/v1/properties/${encodeURIComponent(propertyId)}`+(kind==="building"?"/buildings":buildingId?`/buildings/${encodeURIComponent(buildingId)}/units`:"/units");
@@ -60,7 +61,7 @@ export function HierarchyRows({kind,propertyId,buildingId,unitId,occupancy,aggre
   const parties=useMemo(()=>new Map(people.data?.items.map(item=>[item.unitId,item])??[]),[people.data]);
   const personLinks=(record:Row,role:"owners"|"tenants")=><UnitPersonLinks propertyId={propertyId} links={parties.get(record.id)?.[role]} loading={people.loading} error={!!people.error}/>;
   const actions=(record:Row)=>aggregateBuildings&&"number" in record?<Button asChild variant="view" size="sm"><Link href={unitListHref({propertyId,buildingId:record.buildingId,unitId:record.id})}><ArrowUpRight aria-hidden="true"/>{t("openUnits")}</Link></Button>:<div className="flex justify-end gap-1">
-    {"name" in record?<Button asChild variant="view" size="icon-sm" aria-label={t("viewBuildingUnits",{name:record.name})}><Link href={`/properties/${propertyId}/buildings/${record.id}/units`}><ArrowUpRight className="size-4"/></Link></Button>:<Button variant="view" size="icon-sm" aria-label={m("viewRecord",{name:record.number})} onClick={()=>openDetails(record)}><Eye className="size-4"/></Button>}
+    {"name" in record?<Button asChild variant="view" size="icon-sm" aria-label={t("viewBuildingUnits",{name:record.name})}><Link href={`/properties/${propertyId}/buildings/${record.id}/units`}><ArrowUpRight className="size-4"/></Link></Button>:<><Button variant="view" size="icon-sm" aria-label={m("viewRecord",{name:record.number})} onClick={()=>openDetails(record)}><Eye className="size-4"/></Button>{canFilter&&<UnitFinanceLinks propertyId={propertyId} unitId={record.id} name={record.number} labels={ledger}/>}</>}
     {canWrite&&<><Button variant="edit" size="icon-sm" disabled={!parentEnabled} aria-label={t("editRecord",{name:"name" in record?record.name:record.number})} onClick={()=>setEditor({target:record})}><Pencil className="size-4"/></Button><Button variant="danger" size="icon-sm" disabled={!parentEnabled} className="text-muted-foreground hover:text-destructive" aria-label={t("deleteRecord",{name:"name" in record?record.name:record.number})} onClick={()=>setDeleting(record)}><Trash2 className="size-4"/></Button></>}
   </div>;
   const columns=useMemo<ColumnDef<Row>[]>(()=>{
@@ -99,4 +100,9 @@ export function HierarchyRows({kind,propertyId,buildingId,unitId,occupancy,aggre
     {editor&&<EntityEditor kind={kind} url={url} target={editor.target} focusReturnTarget={editor.focusReturnTarget} apartmentOnly={kind==="unit"&&!buildingId} onClose={()=>setEditor(null)} onSaved={()=>changed(t("entitySaved",{entity:label}))}/>}
     {deleting&&<DeleteEntity kind={kind} url={url} target={deleting} onClose={()=>setDeleting(null)} onDeleted={()=>changed(t("entityDeleted",{entity:label}))}/>}
   </section>;
+}
+
+function UnitFinanceLinks({propertyId,unitId,name,labels}:{propertyId:string;unitId:string;name:string;labels:(key:string,values?:Record<string,string>)=>string}){
+  const links=unitFinanceHrefs(propertyId,unitId);
+  return <>{([["ledger",WalletCards,"openLedgerFor"],["charges",ReceiptText,"openChargesFor"],["payments",HandCoins,"openPaymentsFor"]] as const).map(([key,Icon,label])=><Button key={key} asChild variant="view" size="icon-sm" aria-label={labels(label,{name})} title={labels(label,{name})}><Link href={links[key]}><Icon className="size-4" aria-hidden="true"/></Link></Button>)}</>;
 }

@@ -26,7 +26,7 @@ import {OverduePanel,PoliciesPanel,ReportPanel} from "@/features/late-penalties/
 import {FinanceReport} from "@/features/reports/FinanceReport";
 import {tabIcon,type DuesTab} from "@/features/late-penalties/penalty-style";
 
-export function DuesWorkspace({propertyId}:{propertyId:string}){
+export function DuesWorkspace({propertyId,initialUnitId}:{propertyId:string;initialUnitId?:string|null}){
  const t=useTranslations("dues");const ui=useTranslations("ui");const locale=useLocale();const api=useAuthorizedApi();const identity=useIdentity();const scope=usePropertyScope();
  const allowed=["SUPER_ADMIN","SITE_ADMIN","MANAGER","ACCOUNTANT"].some(role=>identity.hasRealmRole(role));
  const peopleAllowed=["SUPER_ADMIN","SITE_ADMIN","MANAGER"].some(role=>identity.hasRealmRole(role));
@@ -36,7 +36,7 @@ export function DuesWorkspace({propertyId}:{propertyId:string}){
  const [revision,setRevision]=useState(0);const [data,setData]=useState<DuesPage|null>(null);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
  const [term,setTerm]=useState("");const search=useSearch(term);const [page,setPage]=useState(1);const [pageSize,setPageSize]=useState(10);
  const [period,setPeriod]=useState("");const [status,setStatus]=useState("");const [dueFrom,setDueFrom]=useState("");const [dueTo,setDueTo]=useState("");const [sort,setSort]=useState("dueDate:desc");const [kind,setKind]=useState("");
- const [unit,setUnit]=useState<{id:string;name:string}|null>(null);const [creating,setCreating]=useState(false);const [detail,setDetail]=useState<DuesCharge|null>(null);
+ const [unit,setUnit]=useState<{id:string;name:string}|null>(initialUnitId?{id:initialUnitId,name:""}:null);const [creating,setCreating]=useState(false);const [detail,setDetail]=useState<DuesCharge|null>(null);
  const [payUnit,setPayUnit]=useState<UnitSelection|null>(null);const detailTrigger=useRef<HTMLElement|null>(null);
  const root="/api/v1/properties/"+encodeURIComponent(propertyId)+"/dues";
  const [sortBy,sortDirection]=sort.split(":");
@@ -55,6 +55,7 @@ export function DuesWorkspace({propertyId}:{propertyId:string}){
  },[api,url,revision,allowed,propertyId,locale]);
  const enabled=allowed&&scope.property?.id===propertyId&&scope.property.isEnabled&&!scope.error;
  const name=useCallback((value:DuesCharge)=>(value.buildingName?value.buildingName+" · ":"")+value.unitNumber,[]);
+ useEffect(()=>{const first=data?.items[0];if(unit&&!unit.name&&first?.unitId===unit.id)setUnit({id:unit.id,name:name(first)});},[data,unit,name]);
  const actions=useCallback((charge:DuesCharge)=><div className="flex flex-wrap gap-2"><Button variant="view" size="sm" onClick={event=>{detailTrigger.current=event.currentTarget;setDetail(charge);}}><Eye className="size-4"/>{ui("details")}</Button><Button variant="outline" size="sm" onClick={()=>setUnit({id:charge.unitId,name:name(charge)})}>{t("filterUnit")}</Button></div>,[name,t,ui]);
  const columns=useMemo<ColumnDef<DuesCharge>[]>(()=>[
   {id:"unit",header:ui("unit"),cell:({row})=><strong>{name(row.original)}</strong>},
@@ -90,7 +91,7 @@ export function DuesWorkspace({propertyId}:{propertyId:string}){
     <div><Label htmlFor="dues-sort">{t("sorting")}</Label><select id="dues-sort" className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={sort} onChange={event=>setSort(event.target.value)}><option value="dueDate:desc">{t("latestDue")}</option><option value="dueDate:asc">{t("earliestDue")}</option><option value="period:desc">{t("latestPeriod")}</option><option value="amount:desc">{t("largestAmount")}</option><option value="createdAt:desc">{ui("newestFirst")}</option></select></div>
     <div><Label htmlFor="dues-page-size">{t("pageSize")}</Label><select id="dues-page-size" className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={pageSize} onChange={event=>setPageSize(Number(event.target.value))}>{[10,20,50].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
    </div>
-   {unit&&<div className="px-5 pb-4"><Badge variant="secondary">{ui("unit")}: {unit.name}</Badge><Button variant="outline" size="sm" onClick={()=>setUnit(null)}><FilterX className="size-4"/>{t("clearUnit")}</Button></div>}
+   {unit&&<div className="px-5 pb-4"><Badge variant="secondary">{ui("unit")}: {unit.name||"…"}</Badge><Button variant="outline" size="sm" onClick={()=>setUnit(null)}><FilterX className="size-4"/>{t("clearUnit")}</Button></div>}
    <RecordList data={data} loading={loading} error={error} columns={columns} page={page} onPage={setPage} onRetry={refresh} empty={<><ReceiptText className="mx-auto mb-3 size-8"/><strong>{t("empty")}</strong><p className="mt-2">{t("emptyHelp")}</p></>} card={charge=><><div className="mb-3 flex items-start justify-between gap-2"><strong className="wrap-anywhere">{name(charge)}</strong><ChargeStatusBadge charge={charge}/></div><p className="mb-2 text-sm">{charge.period} · {formatDateOnly(charge.dueDate,locale)}</p><div className="mb-2"><ChargeKindBadge propertyId={propertyId} kind={charge.kind} category={charge.category}/></div><p className="mb-3 text-lg font-semibold">{formatCurrency(Number(charge.balance),locale)}</p>{peopleAllowed&&<div className="mb-3"><ChargePeople charge={charge}/></div>}{actions(charge)}</>}/>
   </section>
   </div>}
