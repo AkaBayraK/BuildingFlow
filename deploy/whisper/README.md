@@ -6,7 +6,7 @@
 - **Model** imaja gömülmez. `whisper-model` tek seferlik işi `fetch-model.sh` ile `WHISPER_MODEL`'i Hugging Face `ggerganov/whisper.cpp` deposundan indirir; `WHISPER_MODEL_SHA256` tutmazsa siler ve başarısız olur. Model `whisper-models` volume'unda kalır, sonraki açılışlarda yalnız doğrulanır.
   Varsayılan `ggml-large-v3-turbo-q5_0.bin` (574 MB, SHA256 `394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2`). Daha hafif: `ggml-small.bin` (488 MB, `1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b`). İkisi birlikte değiştirilir.
 - **Ağ**: API'ye `http://whisper:8080/inference` (`Assistant__Speech__BaseUrl/Path` compose'da otomatik). Yerel geliştirme için yalnız `127.0.0.1:${WHISPER_PORT:-8178}` yayınlanır; üretimde bu port satırı kaldırılır.
-- **Kaynak**: `WHISPER_MEMORY_LIMIT` (3g), `WHISPER_CPUS` (4). Healthcheck kök sayfa.
+- **Kaynak**: `WHISPER_MEMORY_LIMIT` (3g), `WHISPER_CPUS` (4), `WHISPER_THREADS` (4, whisper-server `-t`; `WHISPER_CPUS` ile eşit tutun). Healthcheck kök sayfa.
 - **Gizlilik**: API sesi bellekte tamponlar (diske taşmaz), sunucuya bir kez gönderir; whisper.cpp `--convert` kullanılmadığından geçici dosya yazmaz. Tarayıcı kaydı cihazda 16 kHz mono WAV'a çevrilir.
 - **Yedek**: `whisper-models` volume'u yedek kapsamında **gerekmez**; yeniden indirilebilir, kişisel veri içermez.
 
@@ -39,8 +39,8 @@ Aynı Mac'te Homebrew `whisper-server` (Metal) 0,24–1,2 sn; Mac geliştirmede 
   yaklaşık iki katını alır. 4 çekirdekte large ile uzun kayıt `Assistant:Speech:TimeoutSeconds` (60) sınırını
   aşabilir.
 - Bellek: model + çalışma ~0,7 GiB; `WHISPER_MEMORY_LIMIT=3g` rahat yeterlidir.
-- Önemli: compose komutu `-t` vermez; whisper-server varsayılan olarak **4 thread** kullanır. `WHISPER_CPUS`'u
-  artırmak tek başına hızlandırmaz — thread ayarı ayrıca gerekir (öneri, henüz uygulanmadı).
+- Thread: compose `-t ${WHISPER_THREADS:-4}` geçirir. `WHISPER_CPUS`'u artırırken `WHISPER_THREADS`'i de aynı
+  değere çekin; yalnız CPU sınırını artırmak hızlandırmaz (whisper-server varsayılanı 4 thread).
 - Öneri: doğruluk için varsayılan large-v3-turbo-q5_0 kalsın; CPU-only sunucuda ≥8–16 çekirdek ve eşleşen
   thread ayrılsın veya GPU'lu sunucu kullanılsın. ggml-small hızlı ama finans terimlerini ("aidat", "bütçe")
   bozduğu için yalnız çok kısıtlı donanımda tercih edilmeli. Varsayılan değiştirilmedi.

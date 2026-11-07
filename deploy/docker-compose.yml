@@ -132,7 +132,7 @@ services:
     image: buildingflow-whisper:local
     build: {context: ./whisper}
     restart: unless-stopped
-    command: ["whisper-server", "-m", "/models/${WHISPER_MODEL:-ggml-large-v3-turbo-q5_0.bin}", "--host", "0.0.0.0", "--port", "8080", "-l", "tr"]
+    command: ["whisper-server", "-m", "/models/${WHISPER_MODEL:-ggml-large-v3-turbo-q5_0.bin}", "--host", "0.0.0.0", "--port", "8080", "-l", "tr", "-t", "${WHISPER_THREADS:-4}"]
     volumes: ["whisper-models:/models:ro"]
     ports: ["127.0.0.1:${WHISPER_PORT:-8178}:8080"]
     mem_limit: ${WHISPER_MEMORY_LIMIT:-3g}
