@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {downmix,encodeWav,microphoneProblem,mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
+import {downmix,encodeWav,microphonePolicyStale,microphoneProblem,mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
 import {announcementDraftLink,requestLink,supplierViewLink,surveyLink} from '../src/features/assistant/deep-links.ts';
 import {assistantCategoryStyle,assistantKindIcon,assistantToolStyle} from '../src/features/assistant/assistant-style.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
@@ -183,4 +183,13 @@ test('microphone is allowed only on the assistant page and each getUserMedia fai
  for(const key of ['voiceMicDenied','voiceMicMissing','voiceMicBlocked','voiceMicBusy','voiceMicInsecure','voicePermission']){assert.ok(tr.assistant[key],key);assert.ok(en.assistant[key],key);}
  const controls=readFileSync(new URL('../src/features/assistant/VoiceControls.tsx',import.meta.url),'utf8');
  assert.match(controls,/microphoneProblem\(e instanceof Error\?e\.name:undefined,window\.isSecureContext\)/);
+});
+
+test('a document opened elsewhere keeps that page microphone policy, so the assistant reloads once before recording', () => {
+ const base='http://localhost:3003/assistant?property=x';
+ assert.equal(microphonePolicyStale('http://localhost:3003/dashboard',base),true);
+ assert.equal(microphonePolicyStale('http://localhost:3003/assistant?property=x',base),false);
+ assert.equal(microphonePolicyStale(undefined,base),false);assert.equal(microphonePolicyStale('::bad',base),true);
+ const controls=readFileSync(new URL('../src/features/assistant/VoiceControls.tsx',import.meta.url),'utf8');
+ assert.match(controls,/if\(allowed&&stored\.voice\)reloadForMicrophone\(\)/);assert.match(controls,/if\(reloadForMicrophone\(\)\)return;/);assert.match(controls,/if\(next\.voice\)reloadForMicrophone\(\)/);
 });

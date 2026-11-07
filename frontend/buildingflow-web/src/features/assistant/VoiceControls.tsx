@@ -6,7 +6,7 @@ import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
-import {assistantPath,downmix,encodeWav,microphoneProblem,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
+import {assistantPath,downmix,encodeWav,microphonePolicyStale,microphoneProblem,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
 
 type Phase="idle"|"listening"|"transcribing";
 
@@ -18,8 +18,9 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  const [phase,setPhase]=useState<Phase>("idle"),[seconds,setSeconds]=useState(0),[error,setError]=useState("");
  const recorder=useRef<MediaRecorder|null>(null),chunks=useRef<Blob[]>([]),started=useRef(0),timer=useRef<number|null>(null);
  const supported=typeof window!=="undefined"&&typeof MediaRecorder!=="undefined"&&!!navigator.mediaDevices?.getUserMedia;
+ const reloadForMicrophone=()=>{const entry=performance.getEntriesByType("navigation")[0];if(!microphonePolicyStale(entry?.name,window.location.href))return false;window.location.reload();return true;};
  const speech=typeof window!=="undefined"&&"speechSynthesis" in window;
- useEffect(()=>{let stored:VoicePreference={voice:false,readAloud:false};try{stored=readVoicePreference(localStorage.getItem(voicePreferenceKey));}catch{}setPreference(stored);onReadAloud(stored.readAloud&&speech);
+ useEffect(()=>{let stored:VoicePreference={voice:false,readAloud:false};try{stored=readVoicePreference(localStorage.getItem(voicePreferenceKey));}catch{}setPreference(stored);onReadAloud(stored.readAloud&&speech);if(allowed&&stored.voice)reloadForMicrophone();
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[]);
  useEffect(()=>{if(!allowed)return;const c=new AbortController();void api<unknown>(`${assistantPath}/voice/status`,{signal:c.signal},"json",[403]).then(v=>{if(!c.signal.aborted)setStatus(readVoiceStatus(v));}).catch(()=>{if(!c.signal.aborted)setStatus(null);});return()=>c.abort();},[api,allowed]);
@@ -35,6 +36,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  }
  function stop(){if(timer.current){window.clearInterval(timer.current);timer.current=null;}recorder.current?.stop();}
  async function start(){
+  if(reloadForMicrophone())return;
   setError("");const type=pickRecorderType(v=>MediaRecorder.isTypeSupported(v));
   try{
    const stream=await navigator.mediaDevices.getUserMedia({audio:true});const media=new MediaRecorder(stream,type?{mimeType:type}:undefined);
@@ -53,7 +55,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  const minutes=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`;
  return <div className="mb-2 space-y-2">
   <div className="flex flex-wrap items-center gap-2">
-   <Toggle checked={preference.voice&&ready} label={t("voiceTitle")} icon={Mic} offIcon={MicOff} disabled={!ready||phase!=="idle"} onChange={()=>save({...preference,voice:!preference.voice})}/>
+   <Toggle checked={preference.voice&&ready} label={t("voiceTitle")} icon={Mic} offIcon={MicOff} disabled={!ready||phase!=="idle"} onChange={()=>{const next={...preference,voice:!preference.voice};save(next);if(next.voice)reloadForMicrophone();}}/>
    {speech&&<Toggle checked={preference.readAloud} label={t("readAloudTitle")} icon={Volume2} offIcon={VolumeX} onChange={()=>save({...preference,readAloud:!preference.readAloud})}/>}
    {preference.voice&&ready&&<Button type="button" variant={phase==="listening"?"danger":"view"} disabled={disabled||phase==="transcribing"} onClick={()=>phase==="listening"?stop():void start()} aria-pressed={phase==="listening"} aria-label={t(phase==="listening"?"voiceStop":"voiceStart")} title={t(phase==="listening"?"voiceStop":"voiceStart")}>
     {phase==="listening"?<Square aria-hidden="true"/>:<Mic aria-hidden="true"/>}{phase==="listening"?t("voiceListening",{time:minutes}):phase==="transcribing"?t("voiceTranscribing"):t("voiceStart")}
