@@ -76,3 +76,7 @@ Otopark kabulü için [08-release-checklist](parking/08-release-checklist.md), [
 Yerel geçici Docker API/web/worker ve S256PKCE/OIDC→API→PostgreSQL kabulü hedef üretime dağıtım değildir. Yeni `ParkingRetentionRedaction` migration'ı masked-history Down guard taşır; eski binary maskeleme filtresini taşımadığından kör kod rollback yapılmaz. API/worker birlikte sürümlenir, önce yazımlar durdurulur; ileri düzeltme tercih edilir. Yedek/restore yalnız quiesced kaynak ve yeni izole hedef kurallarına tabidir.
 
 **Yayın kapısı açık/engelli:** mobil Zod zincirindeki high audit, native/hedef HTTPS/uzakCI ve hedef dağıtım bildirim kabulü. Hiçbir gate gevşetilmedi. Kullanıcı onayı olmadan push/PR/canlı migration/servis değiştirme/üretime dağıtım yapılmadı.
+
+## İsteğe bağlı: AI Asistan sesli yazışma (whisper.cpp)
+
+`speech` profili varsayılan kapalıdır. Açmak için `docker compose --profile speech up -d --wait whisper`; imaj sabit sürüm/SHA256 ile derlenir, model ilk açılışta SHA256 doğrulamalı indirilir (`whisper-models` volume). Üretimde `whisper` servisinin host port satırı kaldırılmalı; API'ye iç ağdan `http://whisper:8080` ile bağlanır. Ayrıntı: `deploy/whisper/README.md`, lisans: `docs/licenses.md`.

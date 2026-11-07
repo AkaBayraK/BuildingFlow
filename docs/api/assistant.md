@@ -194,3 +194,9 @@ whisper-server -m ~/Desktop/Projects/whisper-models/ggml-large-v3-turbo-q5_0.bin
 ```
 
 `.env` (repoya girmez): `Assistant__Speech__BaseUrl=http://127.0.0.1:8178` ve `Assistant__Speech__Path=/inference`; ardından API yeniden başlatılır. Sunucu yalnız 127.0.0.1'i dinler. Tarayıcı kaydı cihazda 16 kHz mono WAV'a çevrilerek gönderilir (whisper.cpp ffmpeg'siz WAV okur); ses diske yazılmaz.
+
+### Otomatik kurulum (Docker `speech` profili) ve gerçek doğrulama (07.11.2026)
+
+`bash scripts/dev.sh speech` → `deploy/whisper` imajı + SHA256 doğrulamalı model volume'u + 127.0.0.1:8178. Compose'daki API ve `scripts/dev.sh api` `Assistant__Speech__BaseUrl/Path` ayarlarını kendiliğinden alır. Sağlayıcı ayarlı ama çalışmıyorsa `voice/status` `enabled=false, reason="PROVIDER_UNREACHABLE"` döner (2 sn sağlık yoklaması; başarılı sonuç 30 sn, başarısız 5 sn önbellek) ve anahtar nedeniyle birlikte devre dışı görünür. Ayrıntı `deploy/whisper/README.md`.
+
+Gerçek whisper.cpp ile isteğe bağlı test: `BUILDINGFLOW_TEST_WHISPER_URL` + `BUILDINGFLOW_TEST_WHISPER_WAV` ile `RealWhisperServerTranscribesTurkishSpeech`. 07.11.2026'da kullanıcının Mac'teki whisper-server'ı (127.0.0.1:8178) ve `say -v Yelda` ile üretilen 16 kHz WAV ile: "Bu ay geciken aidat toplamı ne kadar?" → "Bu ay geciken **ayda** toplamı ne kadar?" (ilk çağrı 1212 ms, sonra 244 ms); "Yaklaşan bakımlar hangi tarihlerde?" birebir doğru. Metin kullanıcıya gönderilmeden önce gösterildiği için düzeltilebilir.

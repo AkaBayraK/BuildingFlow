@@ -317,6 +317,7 @@
     "lastRunLabel": "Son çalışma"
   },
   "assistant": {
+    "voiceProviderDown": "Sesli yazışma kapalı: ses tanıma hizmeti şu an çalışmıyor (yönetici `bash scripts/dev.sh speech` ile başlatabilir).",
     "voiceTitle": "Sesli yazışma",
     "readAloudTitle": "Cevabı sesli oku",
     "voiceOn": "Açık",

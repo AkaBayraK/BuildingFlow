@@ -28,7 +28,23 @@ public sealed class AssistantSpeechOptions
 public sealed class LocalSpeechTranscriber(IHttpClientFactory clients, AssistantSpeechOptions options) : ISpeechTranscriber
 {
     public const string ClientName = "assistant-speech";
+    private static readonly TimeSpan ReachableFor = TimeSpan.FromSeconds(30), UnreachableFor = TimeSpan.FromSeconds(5);
+    private (bool Up, DateTimeOffset Until)? probe;
     public bool Enabled => options.Enabled;
+
+    // Any HTTP answer from the base URL counts as up; only a refused or timed-out connection counts as down.
+    public async Task<bool> Reachable(CancellationToken cancellation)
+    {
+        if (!options.Enabled) return false;
+        if (probe is { } cached && cached.Until > DateTimeOffset.UtcNow) return cached.Up;
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        timeout.CancelAfter(TimeSpan.FromSeconds(2));
+        bool up;
+        try { using var response = await clients.CreateClient(ClientName).GetAsync(new Uri(options.BaseUrl!), HttpCompletionOption.ResponseHeadersRead, timeout.Token); up = true; }
+        catch (Exception error) when (error is HttpRequestException or TaskCanceledException && !cancellation.IsCancellationRequested) { up = false; }
+        probe = (up, DateTimeOffset.UtcNow + (up ? ReachableFor : UnreachableFor));
+        return up;
+    }
 
     public async Task<string> Transcribe(byte[] audio, string contentType, string language, CancellationToken cancellation)
     {

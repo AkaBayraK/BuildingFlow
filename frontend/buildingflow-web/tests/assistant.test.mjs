@@ -147,6 +147,7 @@ test('source cards start collapsed behind an accessible per-answer toggle',()=>{
 test('voice input is management-only, server-transcribed and never sends on its own',()=>{
  assert.deepEqual([...voiceRoles],['SUPER_ADMIN','SITE_ADMIN','MANAGER']);
  assert.deepEqual(readVoiceStatus({enabled:false,reason:'PROVIDER_NOT_CONFIGURED',maxSeconds:60,maxBytes:10485760,acceptedTypes:[]}).reason,'PROVIDER_NOT_CONFIGURED');
+ assert.equal(readVoiceStatus({enabled:false,reason:'PROVIDER_UNREACHABLE',maxSeconds:60,maxBytes:1}).reason,'PROVIDER_UNREACHABLE');assert.throws(()=>readVoiceStatus({enabled:false,reason:'DOWN',maxSeconds:60,maxBytes:1}));
  for(const bad of [{enabled:true,reason:'PROVIDER_NOT_CONFIGURED'},{enabled:false,reason:null},{enabled:true,reason:null,maxSeconds:0},{enabled:'yes',reason:null}])
   assert.throws(()=>readVoiceStatus({maxSeconds:60,maxBytes:1,...bad}));
  assert.equal(readTranscript({text:'Borcum ne kadar?',quota:{dailyLimit:30,usedToday:1,remaining:29}}).text,'Borcum ne kadar?');

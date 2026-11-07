@@ -2330,3 +2330,11 @@ Senaryolar (`AssistantVoiceTests`, `tests/assistant.test.mjs`):
 5. İmza birim testi; FE: rol listesi, durum/transkript okuyucuları, metin birleştirme ve 500 sınırı, kayıt türü seçimi, form alanları, tercih okuma, Web Speech API kullanılmadığı ve `/chat`'e kendiliğinden gönderilmediği, TR/EN metinler.
 
 **Bu tur kanıt:** geçici PostgreSQL'de `AssistantVoiceTests` + `AssistantApiTests` + `ErrorContractTests` **33/33**. Web: dal üzerinde 382/382; ana klasörün güncel çalışma kopyası + bu yama birlikte (geçici kopyada) typecheck PASS, **446/446**, production build PASS. Not: güncel main (`ba2c210` sonrası) ana klasördeki commit'lenmemiş finans/doluluk dosyaları olmadan derlenmiyor; doğrulama bu dosyalar geçici kopyalanarak yapıldı, commit'e eklenmedi. Gerçek STT sunucusu, mikrofon/tarayıcı kabulü ve ekran görüntüsü DOĞRULANAMADI.
+
+### Sesli yazışma — otomatik kurulum ve gerçek STT doğrulaması — 07.11.2026
+
+- `docker compose --profile speech config`: geçerli; profil kapalıyken whisper servisleri listede yok (0), açıkken `whisper-model` + `whisper`.
+- `AssistantVoiceTests` **7/7** (geçici PostgreSQL): yeni `AConfiguredButStoppedProviderShowsAsDisabled` (PROVIDER_UNREACHABLE + 503) ve opt-in `RealWhisperServerTranscribesTurkishSpeech` kullanıcının Mac'teki gerçek whisper-server'ı ile GEÇTİ (1212 ms; "aidat" → "ayda" yanlış duyuldu, test sağlam kelimeleri doğrular). Doğrudan `/inference` ikinci örnek birebir doğru.
+- Upload artık bellekte tamponlanır (`FormOptions.MemoryBufferThreshold` ≥ 10 MB); varsayılan 64 KB üstü geçici disk dosyası yazımı kapatıldı.
+- Web: cihazda WAV dönüşümü ve `PROVIDER_UNREACHABLE` okuyucu testleri; assistant testleri 13/13.
+- **DOĞRULANAMADI:** Docker imaj derlemesi ve compose içindeki model indirme — izin kontrolü "dışarıdan kod indirme" gerekçesiyle `docker build`'i engelledi. Kullanıcının çalıştıracağı komut: `bash scripts/dev.sh speech`.

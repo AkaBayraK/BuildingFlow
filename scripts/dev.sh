@@ -39,6 +39,9 @@ backend_env() {
   export SystemStatus__PrometheusUrl="http://localhost:${PROMETHEUS_PORT:-19090}"
   export SystemStatus__GrafanaUrl="http://localhost:${GRAFANA_PORT:-3002}"
   export SystemStatus__MailUrl="http://localhost:${MAILPIT_PORT:-8025}"
+  # Sesli yazışma: the optional whisper service (bash scripts/dev.sh speech); when it is not running the switch shows as disabled.
+  export Assistant__Speech__BaseUrl="${ASSISTANT_SPEECH_BASE_URL:-http://127.0.0.1:${WHISPER_PORT:-8178}}"
+  export Assistant__Speech__Path="${ASSISTANT_SPEECH_PATH:-/inference}"
   unset Authentication__MetadataAddress
 }
 api_listeners() {
@@ -125,6 +128,18 @@ case "$mode" in
     cd backend
     exec dotnet run --project src/BuildingFlow.Api --no-launch-profile
     ;;
+  speech)
+    # Builds the pinned whisper.cpp image, fetches the SHA256-verified model once into a volume and serves it on 127.0.0.1 only.
+    require docker
+    load_env
+    docker compose --env-file .env -f deploy/docker-compose.yml --profile speech up -d --build --wait whisper
+    echo "Ses tanıma hazır: http://127.0.0.1:${WHISPER_PORT:-8178} (API yeniden başlatılınca sesli yazışma açılır)."
+    ;;
+  speech-stop)
+    require docker
+    load_env
+    docker compose --env-file .env -f deploy/docker-compose.yml --profile speech stop whisper
+    ;;
   api-stop)
     load_env
     stop_api
@@ -172,7 +187,7 @@ case "$mode" in
     exec dotnet run --project src/BuildingFlow.Worker -- --seed-automation-demo "${@:2}"
     ;;
   *)
-    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|website|worker|automation-demo}' >&2
+    echo 'Usage: bash scripts/dev.sh {infrastructure|prepare|api|api-stop|web|website|worker|automation-demo|speech|speech-stop}' >&2
     exit 2
     ;;
 esac

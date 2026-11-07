@@ -122,10 +122,14 @@ internal static class AssistantEndpoints
         });
         // Sesli yazışma: management roles only. The audio is read into memory, forwarded once and dropped; it is never stored or logged.
         var voice = app.MapGroup("/api/v1/assistant").RequireAuthorization("CanUseAssistantVoice").WithTags("Assistant");
-        voice.MapGet("/voice/status", (AssistantVoiceService service, HttpResponse response) => NoStore(response, Results.Ok(service.Status())));
+        voice.MapGet("/voice/status", async (AssistantVoiceService service, HttpResponse response, CancellationToken token) => NoStore(response, Results.Ok(await service.Status(token))));
         voice.MapPost("/transcribe", async (HttpRequest request, AssistantVoiceService service, AssistantVoiceLimits limits, HttpResponse response, CancellationToken token) =>
         {
             if (!request.HasFormContentType) return Invalid();
+            // Keep the whole upload in memory: the default form reader spills files over 64 KB to a temp file on disk.
+            var bound = (int)limits.MaxBytes + 64 * 1024;
+            request.HttpContext.Features.Set<Microsoft.AspNetCore.Http.Features.IFormFeature>(new Microsoft.AspNetCore.Http.Features.FormFeature(request,
+                new Microsoft.AspNetCore.Http.Features.FormOptions { MemoryBufferThreshold = bound, MultipartBodyLengthLimit = bound, BufferBody = false }));
             var form = await request.ReadFormAsync(token);
             if (form.Files.Count != 1 || form.Files[0].Length > limits.MaxBytes || form.Keys.Any(k => k is not ("propertyId" or "durationMs" or "locale"))) return Invalid();
             if (!Guid.TryParse(form["propertyId"], out var property) || !int.TryParse(form["durationMs"], out var duration)) return Invalid();

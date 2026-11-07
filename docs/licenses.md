@@ -225,3 +225,7 @@ Depoya, imaja veya dağıtım paketine **eklenmez**; yalnız geliştirici makine
 | Model `ggml-large-v3-turbo-q5_0.bin` | 574 MB, SHA256 `394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2` | https://huggingface.co/ggerganov/whisper.cpp | Depo meta verisi MIT; kaynak model OpenAI Whisper (github.com/openai/whisper LICENSE MIT, "Copyright (c) 2022 OpenAI"). LICENSE dosyası ağırlıkları ayrıca anmaz; yayın öncesi OpenAI model kartındaki lisans ifadesi ayrıca teyit edilmeli. |
 
 Seçim gerekçesi: çok dilli (Türkçe), Apple Silicon'da large-v3 kalitesine yakın ve q5_0 nicemlemeyle küçük (574 MB); daha hafif alternatif `ggml-small.bin` (488 MB, SHA256 `1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b`, Türkçede daha düşük doğruluk). Yeni npm/NuGet paketi eklenmedi.
+
+### Güncelleme 07.11.2026 — whisper.cpp dağıtıma isteğe bağlı servis olarak girdi (kullanıcı onayı: "A")
+
+`deploy/docker-compose.yml` `speech` profili (varsayılan kapalı) whisper.cpp v1.9.5'i resmi kaynak arşivinden (SHA256 `ff1a9053…1720`) derler; upstream **MIT** LICENSE imaja `/usr/share/licenses/whisper.cpp/LICENSE` olarak kopyalanır (yükümlülük: telif ve izin metninin dağıtımla birlikte verilmesi). Derleme aşaması Debian bookworm `build-essential`/`cmake` kullanır; çalışma imajı yalnız `debian:bookworm-slim` + `curl`, `ca-certificates`, `libgomp1` (Debian paket lisansları, imaj içindeki `/usr/share/doc/*/copyright`). Model ağırlıkları imajda değil, volume'da; lisans notu yukarıdaki tabloda. Yeni npm/NuGet paketi yok.

@@ -27,7 +27,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  if(!allowed)return null;
  const save=(next:VoicePreference)=>{setPreference(next);onReadAloud(next.readAloud&&speech);if(!next.readAloud&&speech)window.speechSynthesis.cancel();try{localStorage.setItem(voicePreferenceKey,JSON.stringify(next));}catch{}};
  const ready=!!status?.enabled&&supported;
- const reason=!status?t("voiceStatusUnknown"):!status.enabled?t("voiceProviderMissing"):!supported?t("voiceUnsupported"):"";
+ const reason=!status?t("voiceStatusUnknown"):!status.enabled?t(status.reason==="PROVIDER_UNREACHABLE"?"voiceProviderDown":"voiceProviderMissing"):!supported?t("voiceUnsupported"):"";
  async function upload(blob:Blob,durationMs:number){
   setPhase("transcribing");
   try{const wav=await toWav(blob);const result=readTranscript(await api<unknown>(`${assistantPath}/transcribe`,{method:"POST",body:transcribeForm(propertyId,wav,durationMs,locale)}));onQuota(result.quota);if(result.text)onText(result.text);else setError(t("voiceEmpty"));}

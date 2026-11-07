@@ -73,6 +73,9 @@ services:
       PersonRefactor__MobileAuthorizationEnabled: ${PersonRefactor__MobileAuthorizationEnabled:-false}
       PersonRefactor__SessionContextsEnabled: ${PersonRefactor__SessionContextsEnabled:-false}
       PersonRefactor__UnitRelationWritesEnabled: ${PersonRefactor__UnitRelationWritesEnabled:-false}
+      # Sesli yazışma: the optional `speech` profile's whisper service; when it is not running the voice switch shows as disabled.
+      Assistant__Speech__BaseUrl: ${ASSISTANT_SPEECH_BASE_URL:-http://whisper:8080}
+      Assistant__Speech__Path: ${ASSISTANT_SPEECH_PATH:-/inference}
     ports: ["127.0.0.1:${API_PORT:-5005}:8080"]
     depends_on:
       buildingflow-migrations: {condition: service_completed_successfully}
@@ -114,6 +117,37 @@ services:
       mailpit: {condition: service_started}
       buildingflow-migrations: {condition: service_completed_successfully}
     networks: [default, shared-postgres]
+  # Opt-in: docker compose --profile speech up -d whisper (or bash scripts/dev.sh whisper).
+  whisper-model:
+    profiles: [speech]
+    image: buildingflow-whisper:local
+    build: {context: ./whisper}
+    entrypoint: ["/usr/local/bin/fetch-model"]
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-ggml-large-v3-turbo-q5_0.bin}
+      WHISPER_MODEL_SHA256: ${WHISPER_MODEL_SHA256:-394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2}
+    volumes: ["whisper-models:/models"]
+  whisper:
+    profiles: [speech]
+    image: buildingflow-whisper:local
+    build: {context: ./whisper}
+    restart: unless-stopped
+    command: ["whisper-server", "-m", "/models/${WHISPER_MODEL:-ggml-large-v3-turbo-q5_0.bin}", "--host", "0.0.0.0", "--port", "8080", "-l", "tr"]
+    volumes: ["whisper-models:/models:ro"]
+    ports: ["127.0.0.1:${WHISPER_PORT:-8178}:8080"]
+    mem_limit: ${WHISPER_MEMORY_LIMIT:-3g}
+    cpus: ${WHISPER_CPUS:-4}
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      whisper-model: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
   redis:
     image: redis:8.2.1-alpine
     restart: unless-stopped
@@ -218,6 +252,7 @@ networks:
     external: true
     name: ${SHARED_POSTGRES_NETWORK:-shared-postgres-net}
 volumes:
+  whisper-models:
   redis-data:
   rabbitmq-data:
   seaweedfs-data:

@@ -25,6 +25,7 @@ public sealed class AssistantVoiceTests(SiteApiTests.SiteApiFactory factory) : I
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             if (Down) throw new HttpRequestException("refused");
+            if (request.Method == HttpMethod.Get) return new(HttpStatusCode.OK) { Content = new StringContent("whisper.cpp server") };
             var form = (MultipartFormDataContent)request.Content!;
             string Field(string name) => form.Single(p => p.Headers.ContentDisposition!.Name!.Trim('"') == name) is var part ? part.ReadAsStringAsync(token).Result : "";
             var file = form.Single(p => p.Headers.ContentDisposition!.Name!.Trim('"') == "file");
@@ -88,6 +89,15 @@ public sealed class AssistantVoiceTests(SiteApiTests.SiteApiFactory factory) : I
         await Code(await c.PostAsync(Root + "/transcribe", Audio(x.Property, Wav)), HttpStatusCode.ServiceUnavailable, "BF_ASSISTANT_VOICE_UNAVAILABLE");
     }
 
+    [PostgresFact] public async Task AConfiguredButStoppedProviderShowsAsDisabled()
+    {
+        var x = await Seed(); var app = App(new FakeStt { Down = true });
+        using var c = TestToken.Client(app, x.Actor, "MANAGER");
+        var status = await Json(await c.GetAsync(Root + "/voice/status"), HttpStatusCode.OK);
+        Assert.Equal((false, "PROVIDER_UNREACHABLE"), (status.GetProperty("enabled").GetBoolean(), status.GetProperty("reason").GetString()));
+        await Code(await c.PostAsync(Root + "/transcribe", Audio(x.Property, Wav)), HttpStatusCode.ServiceUnavailable, "BF_ASSISTANT_VOICE_UNAVAILABLE");
+    }
+
     [PostgresFact] public async Task SizeTypeSignatureAndDurationAreEnforcedBeforeTheProvider()
     {
         var x = await Seed(); var stt = new FakeStt(); var app = App(stt);
@@ -122,6 +132,21 @@ public sealed class AssistantVoiceTests(SiteApiTests.SiteApiFactory factory) : I
         await Code(await c.PostAsync(Root + "/transcribe", Audio(x.Property, Wav)), HttpStatusCode.ServiceUnavailable, "BF_ASSISTANT_VOICE_UNAVAILABLE");
     }
 
+    // Opt-in: a real local whisper.cpp server and a Turkish WAV (e.g. `say -v Yelda -o x.wav --data-format=LEI16@16000 "..."`).
+    [WhisperFact] public async Task RealWhisperServerTranscribesTurkishSpeech()
+    {
+        var x = await Seed(); var wav = await File.ReadAllBytesAsync(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_WHISPER_WAV")!);
+        var app = factory.WithWebHostBuilder(b => { b.UseSetting("Assistant:Speech:BaseUrl", Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_WHISPER_URL")); b.UseSetting("Assistant:Speech:Path", "/inference"); });
+        using var c = TestToken.Client(app, x.Actor, "MANAGER");
+        Assert.True((await Json(await c.GetAsync(Root + "/voice/status"), HttpStatusCode.OK)).GetProperty("enabled").GetBoolean());
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var text = (await Json(await c.PostAsync(Root + "/transcribe", Audio(x.Property, wav, duration: 3000)), HttpStatusCode.OK)).GetProperty("text").GetString()!;
+        clock.Stop();
+        Console.WriteLine($"[WHISPER] {clock.ElapsedMilliseconds} ms: {text}");
+        // Synthetic voices can blur single words (Yelda: "aidat" was heard as "ayda"), so only robust words are asserted.
+        Assert.Contains("geciken", text, StringComparison.OrdinalIgnoreCase); Assert.Contains("toplam", text, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact] public void SignaturesMatchTheirDeclaredTypes()
     {
         Assert.True(AssistantVoiceService.Signature("audio/wav", Wav)); Assert.True(AssistantVoiceService.Signature("audio/webm", Webm));
@@ -139,4 +164,14 @@ public sealed class AssistantVoiceTests(SiteApiTests.SiteApiFactory factory) : I
     }
     private static async Task Code(HttpResponseMessage response, HttpStatusCode expected, string code) =>
         Assert.Equal(code, (await Json(response, expected)).GetProperty("code").GetString());
+}
+
+public sealed class WhisperFactAttribute : FactAttribute
+{
+    public WhisperFactAttribute()
+    {
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_DATABASE")) || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_WHISPER_URL"))
+            || !File.Exists(Environment.GetEnvironmentVariable("BUILDINGFLOW_TEST_WHISPER_WAV") ?? ""))
+            Skip = "Set BUILDINGFLOW_TEST_DATABASE, BUILDINGFLOW_TEST_WHISPER_URL and BUILDINGFLOW_TEST_WHISPER_WAV to run against a local whisper.cpp server.";
+    }
 }

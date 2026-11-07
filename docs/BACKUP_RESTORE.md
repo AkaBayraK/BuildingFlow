@@ -55,3 +55,7 @@ kanıtının kaynağıdır. PostgreSQL18.6 ve pgvector0.8.7 PostgreSQL License k
 uygulama paket/lock bağımlılıkları bu düzenlemede değişmedi.
 
 14.10.2026 format2: SeaweedFS4.48 volume snapshot ve özel storage-auth.json birlikte korunur. Bu JSON S3 erişim anahtarlarını içerir;0700/0600 ve dış ortam şifrelemesi zorunludur. Restore aynı yetkileri kurar; anonim erişim kapalı kalır. Eski MinIO format1 arşivi SeaweedFS volume’una açılamaz; özgün ortamda izole S3 taşımasıyla yeni format2 yedeği üretilmelidir. Eski kaynak arşiv/volume otomatik silinmez. Shared PostgreSQL için ortak postgres-18.6 yedek akışı korunur; nesne snapshot’ı ayrı aynı bakım penceresinde alınır.
+
+## Kapsam dışı: `whisper-models` volume'u
+
+AI Asistan sesli yazışma modeli (`whisper-models`) yedeklenmez: kişisel veri içermez, SHA256 doğrulamalı olarak yeniden indirilebilir. Ses ve transkript hiçbir yerde saklanmadığı için yedeklenecek ses verisi yoktur.

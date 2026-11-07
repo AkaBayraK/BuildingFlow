@@ -12,6 +12,8 @@ public sealed record AssistantVoiceLimits(int MaxSeconds, long MaxBytes)
 public interface ISpeechTranscriber
 {
     bool Enabled { get; }
+    // A configured provider may still be stopped (e.g. the optional compose profile is off); the switch then shows as disabled.
+    Task<bool> Reachable(CancellationToken token);
     Task<string> Transcribe(byte[] audio, string contentType, string language, CancellationToken token);
 }
 public sealed class SpeechUnavailableException() : Exception("Speech provider unavailable.");
@@ -30,10 +32,11 @@ public sealed class AssistantVoiceService(IAssistantStore store, ISpeechTranscri
         return user.UserId;
     }
 
-    public AssistantVoiceStatus Status()
+    public async Task<AssistantVoiceStatus> Status(CancellationToken token)
     {
         Manager();
-        return new(transcriber.Enabled, transcriber.Enabled ? null : "PROVIDER_NOT_CONFIGURED", limits.MaxSeconds, limits.MaxBytes, AcceptedTypes);
+        var reason = !transcriber.Enabled ? "PROVIDER_NOT_CONFIGURED" : await transcriber.Reachable(token) ? null : "PROVIDER_UNREACHABLE";
+        return new(reason is null, reason, limits.MaxSeconds, limits.MaxBytes, AcceptedTypes);
     }
 
     public static string? BaseType(string? contentType) => contentType?.Split(';')[0].Trim().ToLowerInvariant() switch

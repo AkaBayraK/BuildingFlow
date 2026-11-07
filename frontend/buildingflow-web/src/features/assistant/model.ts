@@ -104,10 +104,10 @@ export function promptFormValid(form:AssistantPromptForm){
 // Sesli yazışma: management roles only; speech is transcribed by the server's local STT, never by the browser vendor.
 export const voiceRoles=["SUPER_ADMIN","SITE_ADMIN","MANAGER"] as const;
 export const voiceRecorderTypes=["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/mp4"] as const;
-export type AssistantVoiceStatus={enabled:boolean;reason:"PROVIDER_NOT_CONFIGURED"|null;maxSeconds:number;maxBytes:number};
+export type AssistantVoiceStatus={enabled:boolean;reason:"PROVIDER_NOT_CONFIGURED"|"PROVIDER_UNREACHABLE"|null;maxSeconds:number;maxBytes:number};
 export function readVoiceStatus(value:unknown):AssistantVoiceStatus{
  const v=object(value);if(typeof v.enabled!=="boolean")throw new Error("Invalid voice status");
- const reason=v.reason===null?null:member(v.reason,["PROVIDER_NOT_CONFIGURED"] as const);if(v.enabled&&reason!==null||!v.enabled&&reason===null)throw new Error("Invalid voice status");
+ const reason=v.reason===null?null:member(v.reason,["PROVIDER_NOT_CONFIGURED","PROVIDER_UNREACHABLE"] as const);if(v.enabled&&reason!==null||!v.enabled&&reason===null)throw new Error("Invalid voice status");
  const maxSeconds=count(v.maxSeconds),maxBytes=count(v.maxBytes);if(maxSeconds<1||maxSeconds>300||maxBytes<1)throw new Error("Invalid voice status");
  return {enabled:v.enabled,reason,maxSeconds,maxBytes};
 }

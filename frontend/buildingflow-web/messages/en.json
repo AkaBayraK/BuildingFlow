@@ -317,6 +317,7 @@
     "lastRunLabel": "Last run"
   },
   "assistant": {
+    "voiceProviderDown": "Voice input is off: the speech recognition service is not running (an administrator can start it with `bash scripts/dev.sh speech`).",
     "voiceTitle": "Voice input",
     "readAloudTitle": "Read answers aloud",
     "voiceOn": "On",
