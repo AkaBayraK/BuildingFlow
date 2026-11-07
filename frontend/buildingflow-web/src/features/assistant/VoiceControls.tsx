@@ -6,7 +6,7 @@ import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
-import {assistantPath,downmix,encodeWav,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
+import {assistantPath,downmix,encodeWav,microphoneProblem,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
 
 type Phase="idle"|"listening"|"transcribing";
 
@@ -27,7 +27,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  if(!allowed)return null;
  const save=(next:VoicePreference)=>{setPreference(next);onReadAloud(next.readAloud&&speech);if(!next.readAloud&&speech)window.speechSynthesis.cancel();try{localStorage.setItem(voicePreferenceKey,JSON.stringify(next));}catch{}};
  const ready=!!status?.enabled&&supported;
- const reason=!status?t("voiceStatusUnknown"):!status.enabled?t(status.reason==="PROVIDER_UNREACHABLE"?"voiceProviderDown":"voiceProviderMissing"):!supported?t("voiceUnsupported"):"";
+ const reason=!status?t("voiceStatusUnknown"):!status.enabled?t(status.reason==="PROVIDER_UNREACHABLE"?"voiceProviderDown":"voiceProviderMissing"):!supported?t(typeof window!=="undefined"&&!window.isSecureContext?"voiceMicInsecure":"voiceUnsupported"):"";
  async function upload(blob:Blob,durationMs:number){
   setPhase("transcribing");
   try{const wav=await toWav(blob);const result=readTranscript(await api<unknown>(`${assistantPath}/transcribe`,{method:"POST",body:transcribeForm(propertyId,wav,durationMs,locale)}));onQuota(result.quota);if(result.text)onText(result.text);else setError(t("voiceEmpty"));}
@@ -44,7 +44,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
     if(blob.size>(status?.maxBytes??0)){setPhase("idle");setError(t("voiceTooLong"));return;}void upload(blob,Date.now()-started.current);};
    media.start();
    timer.current=window.setInterval(()=>{const elapsed=Math.floor((Date.now()-started.current)/1000);setSeconds(elapsed);if(elapsed>=(status?.maxSeconds??60))stop();},250);
-  }catch{setPhase("idle");setError(t("voicePermission"));}
+  }catch(e){setPhase("idle");setError(t(microphoneProblem(e instanceof Error?e.name:undefined,window.isSecureContext)));}
  }
  const Toggle=({checked,label,onChange,icon:Icon,offIcon:Off,disabled:off}:{checked:boolean;label:string;onChange:()=>void;icon:typeof Mic;offIcon:typeof Mic;disabled?:boolean})=>
   <button type="button" role="switch" aria-checked={checked} disabled={off} onClick={onChange} className={cn("inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60",checked?"border-primary bg-primary text-primary-foreground":"bg-background text-muted-foreground hover:bg-accent")}>

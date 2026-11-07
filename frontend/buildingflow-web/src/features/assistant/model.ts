@@ -120,6 +120,8 @@ export function transcribeForm(propertyId:string,audio:Blob,durationMs:number,lo
 export function mergeTranscript(current:string,transcript:string){const t=transcript.trim();if(!t)return current;const base=current.trim();return (base?base+" "+t:t).slice(0,assistantMessageLimit);}
 export const voicePreferenceKey="bf.assistant.voice";
 export type VoicePreference={voice:boolean;readAloud:boolean};
+export type MicrophoneProblem="voiceMicDenied"|"voiceMicMissing"|"voiceMicBlocked"|"voiceMicBusy"|"voiceMicInsecure"|"voicePermission";
+export function microphoneProblem(name:string|undefined,secure:boolean):MicrophoneProblem{if(!secure)return "voiceMicInsecure";switch(name){case "NotAllowedError":case "PermissionDeniedError":return "voiceMicDenied";case "NotFoundError":case "DevicesNotFoundError":case "OverconstrainedError":return "voiceMicMissing";case "SecurityError":return "voiceMicBlocked";case "NotReadableError":case "AbortError":return "voiceMicBusy";default:return "voicePermission";}}
 export function readVoicePreference(raw:string|null):VoicePreference{try{const v=raw?JSON.parse(raw):null;return {voice:v?.voice===true,readAloud:v?.readAloud===true};}catch{return {voice:false,readAloud:false};}}
 
 // whisper.cpp's server reads 16 kHz mono WAV without ffmpeg, so the recording is re-encoded in the browser (Web Audio, no package).
