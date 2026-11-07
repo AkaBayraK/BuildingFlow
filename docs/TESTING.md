@@ -2348,3 +2348,16 @@ Senaryolar (`AssistantVoiceTests`, `tests/assistant.test.mjs`):
 - Gerçek Türkçe (`say -v Yelda`, 16 kHz WAV): "Yaklaşan bakımlar hangi tarihlerde?", "Açık talepler hangi kategorilerde yoğunlaşıyor?", "Bütçeye göre hangi gider kalemi aşıldı?" birebir doğru; "Bu ay geciken aidat toplamı ne kadar?" → "…geciken ayda…". BuildingFlow API üzerinden `RealWhisperServerTranscribesTurkishSpeech` GEÇTİ.
 - **Süre:** Docker (macOS, CPU, large-v3-turbo-q5_0, 4 CPU) istek başına ~35 sn; aynı Mac'te yerel Metal'li whisper-server 0,24–1,2 sn.
 - Konteyner içinde istek sonrası yeni dosya yok, `/tmp` boş. Test konteyneri kaldırıldı; volume/imaj kullanıcı kararına bırakıldı.
+
+#### Docker performans kıyaslaması — 07.11.2026 (kullanıcı onayıyla, izole)
+
+Ortam: Apple M5 Pro (6P+12E), Docker Desktop VM 18 CPU / 7,7 GiB, aarch64, yalnız CPU (Docker macOS'ta Metal'e erişemez). İmaj `buildingflow-whisper:aitest`, volume `bf-ai-speech-test-models` (iki model SHA256 doğrulandı), geçici konteyner `bf-ai-speech-bench` 127.0.0.1:18179, compose ile aynı sertleştirme (salt okunur, tmpfs, no-new-privileges, 3g). Girdi: `say -v Yelda` ile 5 Türkçe cümle (16 kHz mono WAV, ~2–3 sn); her ayarda 5 ilk çağrı + 1 tekrar çağrı, süre istemci tarafında `/inference` uçtan uca.
+
+| Model | `--cpus` / `-t` | Ortalama süre (ilk) | Tekrar | Tepe CPU | Tepe bellek | Birebir doğru |
+|---|---|---|---|---|---|---|
+| large-v3-turbo-q5_0 (547 MiB) | 4 / 4 | 35,5 sn | 35,6 sn | %404 | 731 MiB | 4/5 |
+| large-v3-turbo-q5_0 | 18 / 16 | 10,6 sn | 11,3 sn | %1591 | 737 MiB | 4/5 |
+| ggml-small (466 MiB) | 4 / 4 | 3,2 sn | 3,3 sn | %399 | 646 MiB | 2/5 |
+| ggml-small | 18 / 16 | 1,7 sn | 1,5 sn | %1403 | 641 MiB | 2/5 |
+
+Doğruluk: large her iki ayarda aynı — yalnız "aidat" → "ayda". small: "Bu her gece Ken Ayyidat…", "yolunlaşıyor", "Büyükçe'ye göre…" (bütçe), iki cümle birebir. Tekrar çağrı hızlanmıyor (önbellek yok; model başlangıçta bir kez yüklenir). Sonuç ve sunucu yorumu `deploy/whisper/README.md`. Varsayılan model değiştirilmedi. Test konteyneri kaldırıldı, WAV dosyaları silindi; imaj/volume kullanıcı kararına bırakıldı. Uygulama testi bu adımda çalıştırılmadı (yalnız ölçüm + belge).

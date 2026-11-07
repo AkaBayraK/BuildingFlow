@@ -18,4 +18,29 @@ docker volume rm buildingflow_whisper-models   # modeli tamamen silmek için (ye
 
 ## Performans (07.11.2026 ölçümü)
 
-macOS'taki Docker GPU'ya (Metal) erişemez; `large-v3-turbo-q5_0` 4 CPU ile istek başına ~35 sn sürdü. Aynı Mac'te Homebrew `whisper-server` (Metal) 0,24–1,2 sn. Öneri: Mac geliştirmede yerel `whisper-server`'ı kullanın (`ASSISTANT_SPEECH_BASE_URL=http://127.0.0.1:8178`); Docker profili Linux sunucularda daha fazla çekirdekle (`WHISPER_CPUS`) ya da daha hızlı `ggml-small.bin`/`ggml-base.bin` ile kullanılmalı. API zaman aşımı `Assistant:Speech:TimeoutSeconds` (varsayılan 60).
+Ölçüm: Apple M5 Pro, Docker Desktop VM 18 CPU / 7,7 GiB (aarch64), yalnız CPU — macOS'taki Docker GPU'ya (Metal)
+erişemez. 5 Türkçe cümle (~2–3 sn ses), `/inference` uçtan uca. Ayrıntı ve doğruluk notları `docs/TESTING.md`.
+
+| Model | `--cpus` / `-t` | İstek başına | Tepe bellek | Birebir doğru |
+|---|---|---|---|---|
+| large-v3-turbo-q5_0 (varsayılan) | 4 / 4 | ~35,5 sn | ~730 MiB | 4/5 |
+| large-v3-turbo-q5_0 | 18 / 16 | ~10,6 sn | ~740 MiB | 4/5 |
+| ggml-small | 4 / 4 | ~3,2 sn | ~650 MiB | 2/5 |
+| ggml-small | 18 / 16 | ~1,7 sn | ~640 MiB | 2/5 |
+
+Aynı Mac'te Homebrew `whisper-server` (Metal) 0,24–1,2 sn; Mac geliştirmede onu kullanmak daha hızlıdır.
+
+**Başka sunucuda ne beklenir (yorum, ölçüm değil):**
+- Süre CPU zamanıyla ölçeklenir: large ≈ 140–170 çekirdek-saniye, small ≈ 13–25 çekirdek-saniye / istek.
+  Thread'i 4'ten 16'ya çıkarmak large'da ~3,4×, small'da ~2× hızlandırdı. Modern x86 (AVX2/AVX-512) sunucu
+  çekirdeği bu Mac çekirdeğine yakın ya da biraz yavaştır; kabaca large için 4 çekirdekte 35–50 sn,
+  8 çekirdekte ~18–25 sn, 16 çekirdekte ~10–15 sn beklenir. Gerçek değer sunucuda ölçülmelidir.
+- Whisper sesi 30 sn'lik pencerelerle işler: 30 sn'ye kadar kısa kayıt yaklaşık aynı süreyi, 60 sn'lik kayıt
+  yaklaşık iki katını alır. 4 çekirdekte large ile uzun kayıt `Assistant:Speech:TimeoutSeconds` (60) sınırını
+  aşabilir.
+- Bellek: model + çalışma ~0,7 GiB; `WHISPER_MEMORY_LIMIT=3g` rahat yeterlidir.
+- Önemli: compose komutu `-t` vermez; whisper-server varsayılan olarak **4 thread** kullanır. `WHISPER_CPUS`'u
+  artırmak tek başına hızlandırmaz — thread ayarı ayrıca gerekir (öneri, henüz uygulanmadı).
+- Öneri: doğruluk için varsayılan large-v3-turbo-q5_0 kalsın; CPU-only sunucuda ≥8–16 çekirdek ve eşleşen
+  thread ayrılsın veya GPU'lu sunucu kullanılsın. ggml-small hızlı ama finans terimlerini ("aidat", "bütçe")
+  bozduğu için yalnız çok kısıtlı donanımda tercih edilmeli. Varsayılan değiştirilmedi.
