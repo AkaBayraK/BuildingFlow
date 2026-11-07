@@ -6,7 +6,7 @@ import {useIdentity} from "@/auth/AuthGate";
 import {useAuthorizedApi,errorMessage} from "@/services/api";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
-import {assistantPath,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
+import {assistantPath,downmix,encodeWav,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voicePreferenceKey,voiceRoles,type AssistantQuota,type AssistantVoiceStatus,type VoicePreference} from "./model";
 
 type Phase="idle"|"listening"|"transcribing";
 
@@ -30,7 +30,7 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
  const reason=!status?t("voiceStatusUnknown"):!status.enabled?t("voiceProviderMissing"):!supported?t("voiceUnsupported"):"";
  async function upload(blob:Blob,durationMs:number){
   setPhase("transcribing");
-  try{const result=readTranscript(await api<unknown>(`${assistantPath}/transcribe`,{method:"POST",body:transcribeForm(propertyId,blob,durationMs,locale)}));onQuota(result.quota);if(result.text)onText(result.text);else setError(t("voiceEmpty"));}
+  try{const wav=await toWav(blob);const result=readTranscript(await api<unknown>(`${assistantPath}/transcribe`,{method:"POST",body:transcribeForm(propertyId,wav,durationMs,locale)}));onQuota(result.quota);if(result.text)onText(result.text);else setError(t("voiceEmpty"));}
   catch(e){setError(errorMessage(e,locale));}finally{setPhase("idle");}
  }
  function stop(){if(timer.current){window.clearInterval(timer.current);timer.current=null;}recorder.current?.stop();}
@@ -62,4 +62,12 @@ export function VoiceControls({propertyId,disabled,onText,onQuota,onReadAloud}:{
   <p className="text-xs text-muted-foreground" aria-live="polite">{reason||(phase==="listening"?t("voiceListeningHelp",{max:status?.maxSeconds??60}):preference.voice?t("voiceHelp"):"")}</p>
   {error&&<p className="text-xs text-destructive" role="alert">{error}</p>}
  </div>;
+}
+
+// Decodes the recording on this device and re-encodes it as 16 kHz mono WAV; nothing is written to disk.
+async function toWav(blob:Blob):Promise<Blob>{
+ const context=new AudioContext();
+ try{const audio=await context.decodeAudioData(await blob.arrayBuffer());const channels=Array.from({length:audio.numberOfChannels},(_,i)=>audio.getChannelData(i));
+  return new Blob([encodeWav(downmix(channels,audio.sampleRate))],{type:"audio/wav"});}
+ finally{void context.close();}
 }

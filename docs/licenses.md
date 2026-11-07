@@ -214,3 +214,14 @@ Güncel web ve NuGet audit temiz; node-forge yaması sonrası mobil audit3high/6
 ## BF-ACC02 — 02.11.2026 — Yeni bağımlılık/font yok
 
 Finans XLSX çıktısı mevcut .NET BCL ZipArchive/XDocument ile, PDF projeye ait vektör/PDF koduyla üretilir. PDF standard14 Helvetica adına başvurur; font binary’si gömülmez veya dağıtılmaz. Altı Türkçe glif projeye ait basit çizim komutlarıdır; harici font/glif kaynağı kopyalanmadı. XLSX okuyucunun standart Calibri font adına başvurur; uygulamaya font dosyası eklenmez. Desteklenmeyen PDF alfabetik metin kodlu409 ile reddedilir, tam Unicode XLSX alternatifi sunulur. Yeni npm/NuGet/container/ikon/font/görsel paketi yok. QA’da kullanılan bundled openpyxl/pypdf/Poppler/artifact-tool runtime uygulama bağımlılığına dönüşmedi. Manifest/lock ve önceki147migration/proje kaynak hash’i korundu; restore/install olmadığı için lisans metadata envanteri yeniden üretilmedi.
+
+## Harici yerel bağımlılık — Sesli yazışma STT (repoya dahil değil)
+
+Depoya, imaja veya dağıtım paketine **eklenmez**; yalnız geliştirici makinesinde, proje dışında kurulur ve `Assistant:Speech` ile HTTP üzerinden çağrılır.
+
+| Bileşen | Sürüm / dosya | Kaynak | Lisans (doğrulama) |
+| --- | --- | --- | --- |
+| whisper.cpp (`whisper-server`) | 1.9.5 (Homebrew `whisper.cpp` formülü, `ggml-org/whisper.cpp` v1.9.5 kaynağından) | https://github.com/ggml-org/whisper.cpp | MIT — "Copyright (c) 2023-2026 The ggml authors" (LICENSE, 07.11.2026); Homebrew formül meta verisi MIT |
+| Model `ggml-large-v3-turbo-q5_0.bin` | 574 MB, SHA256 `394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2` | https://huggingface.co/ggerganov/whisper.cpp | Depo meta verisi MIT; kaynak model OpenAI Whisper (github.com/openai/whisper LICENSE MIT, "Copyright (c) 2022 OpenAI"). LICENSE dosyası ağırlıkları ayrıca anmaz; yayın öncesi OpenAI model kartındaki lisans ifadesi ayrıca teyit edilmeli. |
+
+Seçim gerekçesi: çok dilli (Türkçe), Apple Silicon'da large-v3 kalitesine yakın ve q5_0 nicemlemeyle küçük (574 MB); daha hafif alternatif `ggml-small.bin` (488 MB, SHA256 `1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b`, Türkçede daha düşük doğruluk). Yeni npm/NuGet paketi eklenmedi.

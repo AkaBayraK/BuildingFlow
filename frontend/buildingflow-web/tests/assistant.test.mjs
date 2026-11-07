@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
+import {downmix,encodeWav,mergeTranscript,pickRecorderType,readTranscript,readVoicePreference,readVoiceStatus,transcribeForm,voiceRoles,assistantCategories,assistantFactKinds,assistantTools,canAsk,canDraft,chatBody,dimensionKey,draftBody,draftEditorHref,draftStorageKey,emptyPromptForm,promptBody,promptFormValid,readAnswer,readDraft,readPrompts,readStatus,takeStoredDraft} from '../src/features/assistant/model.ts';
 import {announcementDraftLink,requestLink,supplierViewLink,surveyLink} from '../src/features/assistant/deep-links.ts';
 import {assistantCategoryStyle,assistantKindIcon,assistantToolStyle} from '../src/features/assistant/assistant-style.ts';
 import {createNavigation} from '../src/features/navigation/navigation.ts';
@@ -160,4 +160,13 @@ test('voice input is management-only, server-transcribed and never sends on its 
  assert.doesNotMatch(controls,/SpeechRecognition|webkitSpeech/);assert.match(controls,/MediaRecorder/);assert.match(controls,/role="switch" aria-checked=\{checked\}/);assert.match(controls,/voiceRoles\.some/);
  assert.doesNotMatch(controls,/\/chat/);
  for(const d of [tr,en])for(const k of ['voiceTitle','readAloudTitle','voiceOn','voiceOff','voiceProviderMissing','voiceListening'])assert.ok(d.assistant[k],k);
+});
+
+test('recordings are re-encoded on the device as 16 kHz mono WAV for whisper.cpp',()=>{
+ const left=new Float32Array(48000).fill(0.5),right=new Float32Array(48000).fill(-0.5);
+ const mono=downmix([left,right],48000);assert.equal(mono.length,16000);assert.ok(Math.abs(mono[100])<1e-6);
+ assert.equal(downmix([new Float32Array(32000).fill(0.25)],32000).length,16000);assert.equal(downmix([],48000).length,0);
+ const wav=new Uint8Array(encodeWav(new Float32Array([0,1,-1,2])));const ascii=(a,b)=>String.fromCharCode(...wav.slice(a,b));
+ assert.equal(ascii(0,4),'RIFF');assert.equal(ascii(8,12),'WAVE');assert.equal(wav.length,44+8);
+ const view=new DataView(wav.buffer);assert.equal(view.getUint32(24,true),16000);assert.equal(view.getUint16(22,true),1);assert.equal(view.getInt16(46,true),32767);assert.equal(view.getInt16(48,true),-32768);assert.equal(view.getInt16(50,true),32767);
 });

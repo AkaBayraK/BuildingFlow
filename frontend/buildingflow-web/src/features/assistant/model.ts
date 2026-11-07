@@ -121,3 +121,24 @@ export function mergeTranscript(current:string,transcript:string){const t=transc
 export const voicePreferenceKey="bf.assistant.voice";
 export type VoicePreference={voice:boolean;readAloud:boolean};
 export function readVoicePreference(raw:string|null):VoicePreference{try{const v=raw?JSON.parse(raw):null;return {voice:v?.voice===true,readAloud:v?.readAloud===true};}catch{return {voice:false,readAloud:false};}}
+
+// whisper.cpp's server reads 16 kHz mono WAV without ffmpeg, so the recording is re-encoded in the browser (Web Audio, no package).
+export const transcriptionRate=16000;
+export function downmix(channels:readonly Float32Array[],sourceRate:number,targetRate=transcriptionRate):Float32Array{
+ const length=channels[0]?.length??0;if(!length||sourceRate<=0)return new Float32Array(0);
+ const ratio=sourceRate/targetRate,out=new Float32Array(Math.max(1,Math.floor(length/ratio)));
+ for(let i=0;i<out.length;i++){
+  const start=Math.floor(i*ratio),end=Math.min(length,Math.max(start+1,Math.floor((i+1)*ratio)));let sum=0;
+  for(let j=start;j<end;j++){let s=0;for(const c of channels)s+=c[j];sum+=s/channels.length;}
+  out[i]=sum/(end-start);
+ }
+ return out;
+}
+export function encodeWav(samples:Float32Array,rate=transcriptionRate):ArrayBuffer{
+ const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
+ const ascii=(offset:number,text:string)=>{for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i));};
+ ascii(0,"RIFF");view.setUint32(4,36+samples.length*2,true);ascii(8,"WAVE");ascii(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+ view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);ascii(36,"data");view.setUint32(40,samples.length*2,true);
+ for(let i=0;i<samples.length;i++){const s=Math.max(-1,Math.min(1,samples[i]));view.setInt16(44+i*2,s<0?s*0x8000:s*0x7fff,true);}
+ return buffer;
+}

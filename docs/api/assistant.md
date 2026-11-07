@@ -182,3 +182,15 @@ Yalnız web AI Asistan ekranında; **SUPER_ADMIN, SITE_ADMIN, MANAGER** (politik
 | `TimeoutSeconds` | 60 | 5–180 |
 
 Gönderilen alanlar: `file`, `language`, `response_format=json`, isteğe bağlı `model`; beklenen yanıt `{ "text": "..." }`. AkaAI'de (yerel) ses/transkripsiyon ucu bulunmadığı için AkaAI kullanılmadı.
+
+### Yerel whisper.cpp çalıştırma (geliştirme makinesi, kalıcı servis yok)
+
+```bash
+brew install whisper.cpp
+mkdir -p ~/Desktop/Projects/whisper-models
+curl -L -o ~/Desktop/Projects/whisper-models/ggml-large-v3-turbo-q5_0.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
+shasum -a 256 ~/Desktop/Projects/whisper-models/ggml-large-v3-turbo-q5_0.bin   # 394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2
+whisper-server -m ~/Desktop/Projects/whisper-models/ggml-large-v3-turbo-q5_0.bin --host 127.0.0.1 --port 8178 -l tr   # Ctrl+C ile durur
+```
+
+`.env` (repoya girmez): `Assistant__Speech__BaseUrl=http://127.0.0.1:8178` ve `Assistant__Speech__Path=/inference`; ardından API yeniden başlatılır. Sunucu yalnız 127.0.0.1'i dinler. Tarayıcı kaydı cihazda 16 kHz mono WAV'a çevrilerek gönderilir (whisper.cpp ffmpeg'siz WAV okur); ses diske yazılmaz.
