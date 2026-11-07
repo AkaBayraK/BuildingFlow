@@ -2361,3 +2361,9 @@ Ortam: Apple M5 Pro (6P+12E), Docker Desktop VM 18 CPU / 7,7 GiB, aarch64, yaln�
 | ggml-small | 18 / 16 | 1,7 sn | 1,5 sn | %1403 | 641 MiB | 2/5 |
 
 Doğruluk: large her iki ayarda aynı — yalnız "aidat" → "ayda". small: "Bu her gece Ken Ayyidat…", "yolunlaşıyor", "Büyükçe'ye göre…" (bütçe), iki cümle birebir. Tekrar çağrı hızlanmıyor (önbellek yok; model başlangıçta bir kez yüklenir). Sonuç ve sunucu yorumu `deploy/whisper/README.md`. Varsayılan model değiştirilmedi. Test konteyneri kaldırıldı, WAV dosyaları silindi; imaj/volume kullanıcı kararına bırakıldı. Uygulama testi bu adımda çalıştırılmadı (yalnız ölçüm + belge).
+
+#### `WHISPER_THREADS` ayarı — 07.11.2026
+
+- compose `-t ${WHISPER_THREADS:-4}`: `docker compose --profile speech config` (geçici sahte zorunlu değişkenlerle) varsayılanda `-t 4`, `WHISPER_THREADS=16` ile `-t 16`; profil kapalıyken whisper servisi yok. `check-private-config.py` PASS, `check-licenses.py` 329 PASS (yeni paket yok).
+- Gerçek servis `buildingflow-whisper-1` `WHISPER_PORT=8179 WHISPER_CPUS=18 WHISPER_THREADS=16` ile yeniden başlatıldı (healthy, komutta `-t 16`): large-v3-turbo-q5_0 doğrudan `/inference` 10,8 / 11,3 sn — önceki 10,6 sn ile tutarlı.
+- Main üzerinde: `AssistantVoiceTests` **7/7** (geçici PostgreSQL; opt-in gerçek Docker whisper testi API üzerinden 10053 ms, "…geciken ayda…"); web `assistant.test.mjs` **13/13**. Main'in commit'lenmemiş finans dosyaları derleme için geçici kopyalandı, sonra kaldırıldı.
